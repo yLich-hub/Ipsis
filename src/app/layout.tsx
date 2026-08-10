@@ -11,7 +11,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className="min-h-screen bg-white text-neutral-900 antialiased">{children}</body>
+      {/* O tema do produto é escuro. Definir aqui evita que o overscroll do
+          navegador revele uma faixa branca por trás das telas do agente. */}
+      <body className="min-h-dvh bg-[#0B1220] text-slate-100 antialiased">{children}</body>
     </html>
   )
 }
