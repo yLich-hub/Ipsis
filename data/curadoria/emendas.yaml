@@ -1,0 +1,80 @@
+# =============================================================================
+# Parágrafos que não existem — fronteira de bloco errada do parser
+#
+# PAR_RE (`^§\s*(\d+)`) casa qualquer "§ No" no início de linha. Quando a quebra
+# de linha do PDF cai logo antes de uma REMISSÃO a parágrafo, o parser trata a
+# continuação da frase como parágrafo novo. Resultado: o dispositivo anterior
+# fica truncado e nasce um dispositivo fantasma, citável em peça.
+#
+# vade_parser.py está validado e não se reescreve (CLAUDE.md) — o conserto mora
+# aqui, versionado e revisável em diff.
+#
+# `paragrafo_indice` é a posição no array `paragrafos` do JSON do parser (base
+# 0). O texto do parágrafo falso é reanexado, inteiro e cru, ao bloco
+# imediatamente anterior em ordem de documento — que pode ser o caput, outro
+# parágrafo ou um inciso. O "§ No" volta a ser o que sempre foi: parte da frase.
+#
+# `comeca_com` é a trava: scripts/normalize.ts aborta se o texto naquele índice
+# não começar exatamente assim. Nenhuma emenda se aplica no escuro.
+# =============================================================================
+
+- artigo: lei_11343_2006_art37
+  paragrafo_indice: 0
+  comeca_com: '§ 1o, e 34 desta Lei:'
+  motivo: >
+    Caput partido no meio da remissão "nos arts. 33, caput e § 1o, e 34 desta
+    Lei". Os arts. 35 e 36 trazem a mesma remissão inteira num bloco só — ali a
+    quebra de linha do PDF caiu em outro ponto. Sem a emenda, o art. 37
+    (informante do tráfico, dentro do recorte do projeto) fica com o caput
+    truncado em "arts. 33, caput e" mais um § 1º que a lei não tem.
+
+- artigo: lei_11343_2006_art23-a
+  paragrafo_indice: 8
+  comeca_com: '§ 7o e o acesso será permitido'
+  motivo: >
+    Continuação do § 8º, partida na remissão "no sistema referido no § 7o e o
+    acesso será permitido apenas às pessoas autorizadas a conhecê-las".
+
+- artigo: lei_11343_2006_art60-a
+  paragrafo_indice: 3
+  comeca_com: '§ 2o deste artigo, caso seja verificada'
+  motivo: >
+    Continuação do § 3º, partida na remissão "a que se refere o § 2o deste
+    artigo".
+
+- artigo: dl_2848_1940_art147-a
+  paragrafo_indice: 1
+  comeca_com: '§ 2o-A do art. 121 deste Código;'
+  motivo: >
+    Continuação do inciso II do § 1º ("contra a mulher por razões da condição de
+    sexo feminino, nos termos do § 2o-A do art. 121 deste Código"). O inciso III
+    ficou pendurado neste parágrafo fantasma e volta ao § 1º junto com a emenda.
+
+- artigo: dl_2848_1940_art186
+  paragrafo_indice: 0
+  comeca_com: '§ 3o do art. 184.'
+  motivo: >
+    Continuação do inciso IV ("ação penal pública condicionada à representação,
+    nos crimes previstos no § 3o do art. 184"). O art. 186 não tem parágrafo
+    algum — só os quatro incisos.
+
+- artigo: dl_2848_1940_art218-b
+  paragrafo_indice: 3
+  comeca_com: '§ 2o, constitui efeito obrigatório da condenação'
+  motivo: >
+    Continuação do § 3º, partida na remissão "Na hipótese do inciso II do § 2o,
+    constitui efeito obrigatório da condenação a cassação da licença".
+
+- artigo: dl_2848_1940_art234-b
+  paragrafo_indice: 2
+  comeca_com: '§ 1o deste artigo.'
+  motivo: >
+    Continuação do § 2º, partida na remissão "restabelecido o sigilo sobre as
+    informações a que se refere o § 1o deste artigo".
+
+- artigo: dl_2848_1940_art293
+  paragrafo_indice: 4
+  comeca_com: '§ 2o, depois de conhecer a falsidade'
+  motivo: >
+    Continuação do § 4º, partida na remissão "a que se referem este artigo e o
+    seu § 2o, depois de conhecer a falsidade ou alteração".

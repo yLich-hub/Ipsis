@@ -1,0 +1,7 @@
+# O repositório guarda LF. Sem isto, o checkout no Windows converte tudo para
+# CRLF e o build da Vercel (Linux) vê o arquivo inteiro como alterado — diff de
+# 1.600 linhas onde mudou uma.
+* text=auto eol=lf
+
+# Saída determinística do parser: tratar como dado, não como código.
+data/*.json    -diff linguist-generated

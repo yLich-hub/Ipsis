@@ -1,0 +1,27 @@
+node_modules/
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# Segredos. Padrão guloso de propósito: pega .env.local, .env.production e
+# também backups como .env.local.bak, que os padrões usuais deixam escapar.
+.env*
+!.env.example
+
+# Fonte primária: obra de terceiro, 9 MB. Os JSONs extraídos ficam versionados;
+# o PDF, não.
+*.pdf
+
+# Saída de `npm run normalize`: 2,2 MB derivados de data/*.json mais a
+# curadoria, por script determinístico. O que se versiona é a entrada e as
+# regras — não o resultado.
+data/normalizado/*.json
+
+# Exceção: estes dois são para leitura humana. auditoria.md é a revisão das
+# alterações no texto legal, e é o artefato que justifica confiar no corpus.
+!data/normalizado/auditoria.md
+!data/normalizado/headings.propostas.yaml
+
+.DS_Store

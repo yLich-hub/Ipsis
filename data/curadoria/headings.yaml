@@ -1,0 +1,62 @@
+# =============================================================================
+# Cortes de heading revisados à mão
+#
+# As duas regras de scripts/normalize.ts acertam 55 dos 82 headings do CP e não
+# tocam em nenhum dos 33 da Lei 11.343 (que estão limpos). O que sobra vem para
+# cá — e uma entrada aqui vence a heurística, sempre.
+#
+# Duas situações:
+#
+#   correção — a regra 'repeticao' errou. "Da Aplicação da Lei Penal
+#     Anterioridade da Lei" termina em "Lei", que já aparece antes, e a regra
+#     cortou só a última palavra. A rubrica é "Anterioridade da Lei" inteira.
+#
+#   complemento — a rubrica é Title Case e de uma palavra só ("Calúnia",
+#     "Estupro"), então nem a regra de sentence-case nem a de repetição a veem.
+#     São 9 no CP.
+#
+# `rubrica: null` marca heading que está limpo mesmo. Conferido contra o Vade
+# Mecum Senado Federal, 1ª ed.
+# =============================================================================
+
+# --- correção ----------------------------------------------------------------
+- bruto: 'TÍTULO I – Da Aplicação da Lei Penal Anterioridade da Lei'
+  heading: 'TÍTULO I – Da Aplicação da Lei Penal'
+  rubrica: 'Anterioridade da Lei'
+
+# --- complemento: rubrica de uma palavra, em Title Case ----------------------
+- bruto: 'TÍTULO III – Da Imputabilidade Penal Inimputáveis'
+  heading: 'TÍTULO III – Da Imputabilidade Penal'
+  rubrica: 'Inimputáveis'
+
+- bruto: 'CAPÍTULO V – Dos Crimes contra a Honra Calúnia'
+  heading: 'CAPÍTULO V – Dos Crimes contra a Honra'
+  rubrica: 'Calúnia'
+
+- bruto: 'CAPÍTULO I – Dos Crimes contra a Liberdade Sexual Estupro'
+  heading: 'CAPÍTULO I – Dos Crimes contra a Liberdade Sexual'
+  rubrica: 'Estupro'
+
+- bruto: 'CAPÍTULO II – Dos Crimes Sexuais contra Vulnerável Sedução'
+  heading: 'CAPÍTULO II – Dos Crimes Sexuais contra Vulnerável'
+  rubrica: 'Sedução'
+
+- bruto: 'CAPÍTULO I – Dos Crimes contra o Casamento Bigamia'
+  heading: 'CAPÍTULO I – Dos Crimes contra o Casamento'
+  rubrica: 'Bigamia'
+
+- bruto: 'CAPÍTULO I – Dos Crimes de Perigo Comum Incêndio'
+  heading: 'CAPÍTULO I – Dos Crimes de Perigo Comum'
+  rubrica: 'Incêndio'
+
+- bruto: 'CAPÍTULO III – Dos Crimes contra a Saúde Pública Epidemia'
+  heading: 'CAPÍTULO III – Dos Crimes contra a Saúde Pública'
+  rubrica: 'Epidemia'
+
+- bruto: 'CAPÍTULO I – Dos Crimes Praticados por Funcionário Público contra a Administração em Geral Peculato'
+  heading: 'CAPÍTULO I – Dos Crimes Praticados por Funcionário Público contra a Administração em Geral'
+  rubrica: 'Peculato'
+
+- bruto: 'CAPÍTULO IV – Dos Crimes contra o Funcionamento dos Serviços Essenciais Sabotagem'
+  heading: 'CAPÍTULO IV – Dos Crimes contra o Funcionamento dos Serviços Essenciais'
+  rubrica: 'Sabotagem'

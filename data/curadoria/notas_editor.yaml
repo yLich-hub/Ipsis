@@ -1,0 +1,68 @@
+# =============================================================================
+# Notas do Editor do Vade Mecum absorvidas pelo parser
+#
+# Artefato de extração que o CLAUDE.md ainda não descrevia. Não é o marcador
+# colado (classe B, 6 ocorrências) — é o CORPO da nota emendado dentro do texto
+# legal, às vezes no meio da frase:
+#
+#   "…mediante contraprestação 6 NE: ver ADPF no 569. irrisória, a partir…"
+#            texto legal ──────┘                    └────── texto legal
+#
+# Por que curadoria e não regex: uma das notas contém "art. 2o da Lei no
+# 7.209/1984". Qualquer regra do tipo "corta até o primeiro ponto" decepa o
+# texto legal junto. São 11 blocos no corpus inteiro — revisar uma vez sai mais
+# barato, e mais seguro, que manter heurística.
+#
+# Os marcadores são sequenciais no documento (1–2 na Lei 11.343, 1–13 no CP).
+# scripts/normalize.ts aborta se sobrar qualquer "NE:" depois de aplicar isto,
+# e também se alguma entrada daqui deixar de casar.
+#
+# `remover` casa contra o texto CRU do parser (antes da normalização de
+# ordinais), por isso os "1o" e "no" aparecem sem o º.
+# =============================================================================
+
+- dispositivo: lei_11343_2006_art37_caput
+  marcadores: [1, 2]
+  remover: '1 Nota do Editor (NE): ver ADI no 4.274. 2 NE: ver Resolução do Senado Federal no 5/2012. '
+
+- dispositivo: dl_2848_1940_art24_p2
+  marcadores: [1]
+  remover: ' 1 Nota do Editor (NE): ver ADPF no 779.'
+
+- dispositivo: dl_2848_1940_art28_p1
+  marcadores: [2, 3]
+  remover: '2 NE: ver ADPF no 779. 3 NE: ver ADPF no 779. '
+
+- dispositivo: dl_2848_1940_art55_caput
+  marcadores: [4]
+  remover: ' 4 NE: ver ADIs nos 3.150 e 7.032.'
+
+- dispositivo: dl_2848_1940_art60_p2
+  marcadores: [5]
+  remover: ' 5 NE: ver ADPF no 1.107.'
+
+- dispositivo: dl_2848_1940_art91-a_p1_inc2
+  marcadores: [6]
+  remover: '6 NE: ver ADPF no 569. '
+
+# "7 no NE" — o "no" é resíduo da própria nota ("ver ADPF no 54"), deslocado na
+# extração. Sai junto.
+- dispositivo: dl_2848_1940_art128_inc1
+  marcadores: [7, 8, 9]
+  remover: '7 no NE: ver ADPF 54. 8 NE: ver ADPF no 54. 9 NE: ver ADPF no 54. '
+
+- dispositivo: dl_2848_1940_art129_p5_inc2
+  marcadores: [10]
+  remover: ' 10 NE: conforme determinação do art. 2o da Lei no 7.209/1984, em razão do cancelamento das referências a valores de multas, a expressão “multa de” foi substituída por “multa”.'
+
+- dispositivo: dl_2848_1940_art273_p1-b_inc5
+  marcadores: [11]
+  remover: ' 11 NE: a ordem de apresentação dos parágrafos deste artigo obedece à publicação original.'
+
+- dispositivo: dl_2848_1940_art289_caput
+  marcadores: [12]
+  remover: '12 NE: ver ADPF no 187. '
+
+- dispositivo: dl_2848_1940_art291_caput
+  marcadores: [13]
+  remover: ' 13 NE: o valor máximo da multa foi suprimido conforme o estabelecido pelo art. 2o da Lei no 7.209/1984, que determinou o cancelamento das referências a valores de multas.'
