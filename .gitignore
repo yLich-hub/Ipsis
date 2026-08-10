@@ -16,11 +16,12 @@ next-env.d.ts
 
 # Saída de `npm run normalize`: 2,2 MB derivados de data/*.json mais a
 # curadoria, por script determinístico. O que se versiona é a entrada e as
-# regras — não o resultado.
-data/normalizado/*.json
+# regras — não o resultado. Ignorar a pasta inteira, em vez de só *.json, faz
+# artefato novo nascer ignorado por padrão.
+data/normalizado/*
 
 # Exceção: estes dois são para leitura humana. auditoria.md é a revisão das
-# alterações no texto legal, e é o artefato que justifica confiar no corpus.
+# alterações no texto legal — o artefato que justifica confiar no corpus.
 !data/normalizado/auditoria.md
 !data/normalizado/headings.propostas.yaml
 
