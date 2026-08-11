@@ -16,9 +16,11 @@ Geração de argumentação: Claude (`claude-opus-5`), com thinking adaptativo.
 
 ## Fora de escopo (não implementar)
 
-Autenticação, multiusuário, billing, painel administrativo, integração com PJe,
-qualquer crime além de tráfico, segunda peça processual. Não expandir sem pedido
-explícito.
+Multiusuário, billing, painel administrativo, integração com PJe, qualquer crime
+além de tráfico, segunda peça processual. Não expandir sem pedido explícito.
+
+Autenticação saiu desta lista: existe login por e-mail e senha, de usuário único,
+descrito em "Autenticação" abaixo. Nada de OAuth, papéis, convite ou perfil.
 
 ---
 
@@ -286,6 +288,40 @@ link clicado semanas depois. Duas defesas somadas:
 apenas, **nunca com prefixo `NEXT_PUBLIC_`**. A service role ignora RLS — vazá-la
 no bundle do cliente abre o banco para escrita. O front usa a chave publishable,
 com RLS em somente-leitura nas tabelas de consulta.
+
+## Autenticação
+
+Supabase Auth, e-mail e senha, usuário único. Sem OAuth, sem papéis, sem perfil.
+
+- **A senha não passa pelo projeto.** `signUp`/`signInWithPassword` entregam a
+  credencial ao servidor de Auth, que guarda o hash em `auth.users` — schema que
+  a chave publishable não enxerga. Nenhuma tabela em `supabase/migrations/` tem
+  coluna de senha, e nenhum código em `src/` calcula hash, emite JWT ou gera
+  token de recuperação. Não escrever nada disso.
+- **Sessão em cookie, não em `localStorage`.** É `@supabase/ssr`: o
+  `src/middleware.ts` renova o token e escreve os cookies na resposta (componente
+  de servidor não pode escrever cookie), e `lib/auth/servidor.ts` lê a sessão nas
+  páginas. Sessão em `localStorage` seria invisível ao servidor, e a proteção de
+  rota viraria flash de tela no cliente.
+- **Decisão de acesso sempre por `getUser()`, nunca por `getSession()`.**
+  `getSession()` lê o cookie sem validar assinatura; cookie é território do
+  cliente. `getUser()` valida o JWT no servidor de Auth.
+- **A proteção é por exclusão.** `lib/auth/rotas.ts` lista o que é público (`/`,
+  as quatro telas de auth, `/auth/*`, `/api/health`, `/api/busca`); o resto do
+  `matcher` exige sessão. Rota nova nasce fechada. `(app)/layout.tsx` repete o
+  `redirect` como rede de segurança caso o matcher deixe de casar algo.
+- **Consequência aceita:** tudo sob `src/app/(app)/` é renderizado sob demanda,
+  porque ler cookie torna a rota dinâmica. A página `/` continua estática — é ela
+  que sustenta a demonstração se o banco estiver pausado.
+- **Nenhum erro do Supabase chega cru à tela.** `lib/auth/mensagens.ts` traduz
+  por `code`. Login diz "E-mail ou senha incorretos" nos dois casos, e a
+  recuperação confirma o envio mesmo para e-mail inexistente: distinguir entrega
+  a lista de quem tem conta.
+
+**Configuração exigida no painel do Supabase** (não é código, e o fluxo trava sem
+ela): Authentication → Sign In / Providers → Email → **Confirm email desligado**;
+e a URL do deploy na lista de Redirect URLs, senão o link de recuperação volta
+para `localhost`.
 
 ## Convenções
 

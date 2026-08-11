@@ -8,7 +8,12 @@
 // =============================================================================
 
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+} from 'react'
 
 import { Icone, type NomeIcone } from '@/components/icones'
 import { dataBR } from '@/lib/formato'
@@ -73,24 +78,130 @@ export function Aviso({
   tom = 'ambar',
   children,
   className = '',
+  ...resto
 }: {
-  tom?: 'ambar' | 'vermelho' | 'neutro'
+  tom?: 'ambar' | 'vermelho' | 'neutro' | 'esmeralda'
   children: ReactNode
   className?: string
-}) {
+} & Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'className'>) {
   const estilo =
     tom === 'vermelho'
       ? 'border-red-500/25 bg-red-500/[0.06] text-red-200/90'
       : tom === 'neutro'
         ? 'border-white/10 bg-white/[0.03] text-slate-400'
-        : 'border-amber-400/20 bg-amber-400/[0.06] text-amber-200/90'
+        : tom === 'esmeralda'
+          ? 'border-emerald-500/25 bg-emerald-500/[0.07] text-emerald-200/90'
+          : 'border-amber-400/20 bg-amber-400/[0.06] text-amber-200/90'
   return (
     <div
       className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 text-[12.5px] leading-relaxed ${estilo} ${className}`}
+      {...resto}
     >
-      <Icone nome="alerta" className="mt-px size-3.5 shrink-0" />
+      <Icone nome={tom === 'esmeralda' ? 'check' : 'alerta'} className="mt-px size-3.5 shrink-0" />
       <div className="min-w-0">{children}</div>
     </div>
+  )
+}
+
+// --- formulário --------------------------------------------------------------
+
+/**
+ * Campo de texto com rótulo e erro no mesmo lugar.
+ *
+ * O erro é `aria-describedby` + `aria-invalid`, não só cor: leitor de tela e
+ * daltônico precisam saber qual dos quatro campos reprovou. `noValidate` nos
+ * formulários desliga o balão nativo do navegador — ele aparece em inglês na
+ * metade dos casos e some ao trocar de aba.
+ */
+export function Campo({
+  id,
+  rotulo,
+  erro,
+  dica,
+  className = '',
+  ...resto
+}: {
+  id: string
+  rotulo: string
+  erro?: string | null
+  dica?: ReactNode
+} & Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'className'> & {
+    className?: string
+  }) {
+  const idErro = `${id}-erro`
+  const idDica = `${id}-dica`
+  return (
+    <div className={className}>
+      <label
+        htmlFor={id}
+        className="block text-[11px] font-medium uppercase tracking-wider text-slate-500"
+      >
+        {rotulo}
+      </label>
+      <input
+        id={id}
+        aria-invalid={erro ? true : undefined}
+        aria-describedby={erro ? idErro : dica ? idDica : undefined}
+        className={`mt-1.5 block w-full rounded-xl border bg-[#1E293B] px-3 py-2.5 text-[14px] text-slate-100 outline-none transition-colors placeholder:text-slate-600 disabled:cursor-not-allowed disabled:opacity-60 ${
+          erro
+            ? 'border-red-500/40 focus:border-red-500/60'
+            : 'border-white/10 focus:border-emerald-500/40'
+        }`}
+        {...resto}
+      />
+      {erro ? (
+        <p id={idErro} className="mt-1.5 text-[12px] text-red-300">
+          {erro}
+        </p>
+      ) : dica ? (
+        <p id={idDica} className="mt-1.5 text-[12px] text-slate-500">
+          {dica}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * Botão de envio com estado de carregando embutido.
+ *
+ * `disabled` sai de `carregando` aqui dentro em vez de ficar por conta de quem
+ * chama: submit duplicado em cadastro cria duas requisições de conta, e a
+ * defesa não pode depender de cada tela lembrar de escrever a mesma linha.
+ */
+export function Botao({
+  carregando = false,
+  variante = 'primario',
+  children,
+  className = '',
+  disabled,
+  ...resto
+}: {
+  carregando?: boolean
+  variante?: 'primario' | 'secundario'
+  children: ReactNode
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'className'> & {
+    className?: string
+  }) {
+  const estilo =
+    variante === 'secundario'
+      ? 'border border-white/10 text-slate-300 hover:bg-white/[0.06] hover:text-slate-100 disabled:text-slate-600'
+      : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-500'
+  return (
+    <button
+      disabled={disabled || carregando}
+      aria-busy={carregando || undefined}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13.5px] font-medium transition-colors disabled:cursor-not-allowed ${estilo} ${className}`}
+      {...resto}
+    >
+      {carregando && (
+        <span
+          aria-hidden="true"
+          className="size-3.5 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
+        />
+      )}
+      {children}
+    </button>
   )
 }
 

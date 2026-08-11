@@ -46,6 +46,16 @@ export default function Home() {
           <Icone nome="balanca" className="size-5 text-slate-950" strokeWidth={2} />
         </span>
         <h1 className="text-2xl font-semibold tracking-tight text-slate-50">Jesbick</h1>
+
+        {/* Estático de propósito: quem já tem sessão clica em "Entrar" e o
+            middleware o devolve ao painel. Ler a sessão aqui tornaria a porta
+            de entrada dinâmica, com uma ida ao Auth em cada visita anônima. */}
+        <Link
+          href="/login"
+          className="ml-auto rounded-xl border border-white/10 px-3 py-1.5 text-[13px] text-slate-300 transition-colors hover:border-emerald-500/30 hover:text-emerald-300"
+        >
+          Entrar
+        </Link>
       </div>
 
       <p className="mt-4 text-[15px] leading-relaxed text-slate-400">
@@ -84,9 +94,12 @@ export default function Home() {
       </ul>
 
       <p className="mt-8 text-[12.5px] leading-relaxed text-slate-600">
-        Projeto de portfólio: sem autenticação, sem multiusuário, sem cobrança. Os itens do menu que
-        estão fora desse recorte levam a uma tela que explica o porquê, em vez de a dados
-        inventados. Veja{' '}
+        Projeto de portfólio: sem multiusuário e sem cobrança. A área de trabalho exige conta —{' '}
+        <Link href="/cadastro" className="text-slate-400 hover:text-emerald-300">
+          criar uma
+        </Link>{' '}
+        leva e-mail, senha e nada mais. Os itens do menu que estão fora do recorte levam a uma tela
+        que explica o porquê, em vez de a dados inventados. Veja{' '}
         <Link href="/suporte" className="text-slate-400 hover:text-emerald-300">
           como funciona
         </Link>

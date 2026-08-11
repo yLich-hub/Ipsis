@@ -1,12 +1,15 @@
 // =============================================================================
 // Cabeçalho de tela — altura fixa, igual em todas as páginas.
 //
-// Componente de servidor: os botões da direita são decorativos (não há
-// autenticação nem notificações no escopo) e não valem uma ilha de cliente.
+// Continua sendo componente de servidor: envelope e sino seguem decorativos
+// (mensagens e notificações estão fora do escopo) e não valem uma ilha de
+// cliente. A única ilha é `<Conta />`, que precisa do estado de sessão do
+// navegador para reagir a logout sem esperar uma navegação.
 // =============================================================================
 
 import type { ReactNode } from 'react'
 
+import { Conta } from '@/components/casca/conta'
 import { Icone, type NomeIcone } from '@/components/icones'
 
 export function Cabecalho({
@@ -33,18 +36,13 @@ export function Cabecalho({
             key={n}
             type="button"
             aria-label={n === 'sino' ? 'Notificações' : 'Mensagens'}
-            title="Decorativo: o projeto não tem autenticação nem multiusuário (fora de escopo)"
+            title="Decorativo: mensagens e notificações estão fora do escopo do projeto"
             className="hidden size-9 place-items-center rounded-lg text-slate-600 transition-colors hover:bg-white/[0.05] hover:text-slate-300 sm:grid"
           >
             <Icone nome={n} className="size-[18px]" />
           </button>
         ))}
-        <span
-          title="Demonstração de portfólio — sessão única, sem login"
-          className="ml-1 grid size-8 place-items-center rounded-full bg-gradient-to-br from-slate-600 to-slate-700 text-[11px] font-semibold text-slate-200 ring-1 ring-white/10"
-        >
-          LM
-        </span>
+        <Conta />
       </div>
     </header>
   )
