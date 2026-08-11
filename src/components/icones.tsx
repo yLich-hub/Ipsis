@@ -140,6 +140,24 @@ const CAMINHOS = {
       <path d="M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" />
     </>
   ),
+  seta_direita: <path d="M5 12h14M13 5l7 7-7 7" />,
+  seta_esquerda: <path d="M19 12H5M11 19l-7-7 7-7" />,
+  check: <path d="m4.5 12.5 5 5 10-11" />,
+  xis: <path d="M6 6l12 12M18 6 6 18" />,
+  banco: (
+    <>
+      <ellipse cx="12" cy="5.5" rx="8" ry="3" />
+      <path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13" />
+      <path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+    </>
+  ),
+  cadeado: (
+    <>
+      <rect x="4" y="10" width="16" height="11" rx="2" />
+      <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+    </>
+  ),
+  filtro: <path d="M3 5h18l-7 8v6l-4 2v-8z" />,
 } satisfies Record<string, ReactNode>
 
 export function Icone({
