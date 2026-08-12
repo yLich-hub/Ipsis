@@ -26,7 +26,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { leiId } = await params
   const l = await buscaLei(leiId)
-  return { title: l.ok && l.dados ? `${l.dados.apelido} — Jesbick` : 'Legislação — Jesbick' }
+  return { title: l.ok && l.dados ? `${l.dados.apelido} — Toga` : 'Legislação — Toga' }
 }
 
 /** Heading mais específico disponível — a seção diz mais que o capítulo. */
@@ -86,33 +86,33 @@ export default async function LeiPage({
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
           <form method="get" className="flex items-center gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#1E293B] px-3 py-2 focus-within:border-emerald-500/40">
-              <Icone nome="filtro" className="size-4 shrink-0 text-slate-500" />
+            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-tg-linha bg-white px-3 py-2 focus-within:border-tg-acento-palido">
+              <Icone nome="filtro" className="size-4 shrink-0 text-tg-fraco-3" />
               <input
                 name="f"
                 defaultValue={filtro}
                 placeholder="Filtrar por número, rubrica ou capítulo… (ex.: 33, furto, dosimetria)"
                 aria-label="Filtrar artigos"
-                className="min-w-0 flex-1 bg-transparent text-[13.5px] text-slate-100 outline-none placeholder:text-slate-500"
+                className="min-w-0 flex-1 bg-transparent text-[13.5px] text-tg-tinta outline-none placeholder:text-tg-fraco-3"
               />
             </div>
             <button
               type="submit"
-              className="rounded-xl border border-white/10 px-3 py-2.5 text-[13px] text-slate-300 transition-colors hover:bg-white/[0.06] hover:text-slate-100"
+              className="rounded-xl border border-tg-linha px-3 py-2.5 text-[13px] text-tg-tinta-4 transition-colors hover:bg-tg-preenche hover:text-tg-tinta"
             >
               Filtrar
             </button>
             {filtro && (
               <Link
                 href={`/leis/${leiId}`}
-                className="rounded-xl px-2 py-2.5 text-[13px] text-slate-500 hover:text-slate-200"
+                className="rounded-xl px-2 py-2.5 text-[13px] text-tg-fraco-3 hover:text-tg-tinta-2"
               >
                 limpar
               </Link>
             )}
           </form>
 
-          <p className="mt-3 text-[12px] tabular-nums text-slate-500">
+          <p className="mt-3 text-[12px] tabular-nums text-tg-fraco-3">
             {numeroBR(artigos.length)} de {numeroBR(as.dados.length)} artigos
           </p>
 
@@ -120,7 +120,7 @@ export default async function LeiPage({
             <div className="mt-8">
               <Vazio icone="filtro" titulo="Nenhum artigo com esse filtro">
                 O filtro casa número, rubrica e heading. Para o texto do dispositivo, use a{' '}
-                <Link href={`/busca?lei=${leiId}`} className="text-emerald-300 hover:underline">
+                <Link href={`/busca?lei=${leiId}`} className="text-tg-acento-txt hover:underline">
                   busca híbrida
                 </Link>
                 .
@@ -135,19 +135,19 @@ export default async function LeiPage({
                 return (
                   <li key={a.id}>
                     {novoHeading && (
-                      <p className="mt-5 mb-1.5 px-1 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+                      <p className="mt-5 mb-1.5 px-1 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
                         {h}
                       </p>
                     )}
                     <Link
                       href={`/artigo/${a.id}`}
-                      className="group flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-white/[0.04]"
+                      className="group flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-tg-preenche"
                     >
-                      <span className="w-20 shrink-0 text-[13.5px] font-medium tabular-nums text-slate-300 group-hover:text-emerald-300">
+                      <span className="w-20 shrink-0 text-[13.5px] font-medium tabular-nums text-tg-tinta-4 group-hover:text-tg-acento-txt">
                         {tituloArtigo(a.numero)}
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-[13px] text-slate-400">
-                        {a.rubrica ?? <span className="text-slate-600">—</span>}
+                      <span className="min-w-0 flex-1 truncate text-[13px] text-tg-corpo">
+                        {a.rubrica ?? <span className="text-tg-tenue-2">—</span>}
                       </span>
                       {a.revogado && <Selo tom="vermelho">revogado</Selo>}
                       {a.conferido_em && (

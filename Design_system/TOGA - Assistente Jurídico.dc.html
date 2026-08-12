@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+html,body{margin:0;background:#e8e4da;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#3d3a52;text-decoration:none}a:hover{color:#26243a}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#d3ccbd;border-radius:6px;border:3px solid transparent;background-clip:content-box}
+@keyframes tgp{0%,100%{opacity:.3}50%{opacity:1}}
+</style></helmet>
+
+<div style="padding:34px 34px 60px;min-height:100vh">
+<div style="display:flex;align-items:baseline;gap:12px;margin:0 0 16px;padding-left:2px">
+  <span style="font:600 10px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#3d3a52;background:#e3e1ea;padding:4px 8px;border-radius:4px">TOGA · v1</span>
+  <span style="font:400 12px 'IBM Plex Sans',sans-serif;color:#7d7770">Mockup de alta fidelidade · 6 telas · desktop 1440×940 · use a navegação lateral</span>
+</div>
+
+<div style="width:1440px;height:940px;display:flex;background:#f5f2ea;color:#1c1b22;overflow:hidden;border:1px solid #d8d2c4;border-radius:6px;box-shadow:0 22px 60px rgba(40,34,22,.16)">
+
+  <!-- ══ SIDEBAR ══ -->
+  <div style="width:228px;flex:none;background:#1c1b22;color:#e6e3dc;display:flex;flex-direction:column;padding:18px 0 14px">
+    <div style="padding:0 18px 20px;display:flex;align-items:center;gap:10px">
+      <div style="width:30px;height:30px;flex:none;border-radius:4px;background:#3d3a52;display:flex;align-items:center;justify-content:center;font:700 16px 'Source Serif 4',serif;color:#f2efe8">T</div>
+      <div>
+        <div style="font:600 16px/1.1 'Source Serif 4',serif;letter-spacing:.03em">TOGA</div>
+        <div style="font:400 8.5px/1.4 'IBM Plex Mono',monospace;color:#8b8698;letter-spacing:.14em">ASSISTENTE JURÍDICO</div>
+      </div>
+    </div>
+
+    <div style="padding:0 10px;display:flex;flex-direction:column;gap:1px">
+      <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;color:#79738a;letter-spacing:.16em;padding:6px 8px 8px">PESQUISA</div>
+
+      <div onClick="{{ goChat }}" style="position:relative;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:4px;cursor:pointer;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#efece5" style-hover="background:#26252f">
+        <sc-if value="{{ isChat }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;left:0;top:7px;bottom:7px;width:2px;background:#8c86ad;border-radius:2px"></span><span style="position:absolute;inset:0;background:#2b2936;border-radius:4px"></span></sc-if>
+        <span style="position:relative;width:14px;height:14px;flex:none;border:1.4px solid #a49ec2;border-radius:7px 7px 7px 2px"></span>
+        <span style="position:relative">Consulta em chat</span>
+      </div>
+
+      <div onClick="{{ goJuris }}" style="position:relative;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:4px;cursor:pointer;font:400 12.5px 'IBM Plex Sans',sans-serif;color:#c9c5bd" style-hover="background:#26252f">
+        <sc-if value="{{ isJuris }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;top:7px;bottom:7px;width:2px;background:#8c86ad;border-radius:2px"></span><span style="position:absolute;inset:0;background:#2b2936;border-radius:4px"></span></sc-if>
+        <span style="position:relative;width:14px;height:14px;flex:none;border:1.4px solid #8b8698;border-radius:2px"></span>
+        <span style="position:relative">Jurisprudência</span>
+      </div>
+
+      <div onClick="{{ goSumulas }}" style="position:relative;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:4px;cursor:pointer;font:400 12.5px 'IBM Plex Sans',sans-serif;color:#c9c5bd" style-hover="background:#26252f">
+        <sc-if value="{{ isSumulas }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;top:7px;bottom:7px;width:2px;background:#8c86ad;border-radius:2px"></span><span style="position:absolute;inset:0;background:#2b2936;border-radius:4px"></span></sc-if>
+        <span style="position:relative;width:14px;height:14px;flex:none;border:1.4px solid #8b8698;border-radius:50%"></span>
+        <span style="position:relative">Súmulas STF · STJ</span>
+      </div>
+
+      <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;color:#79738a;letter-spacing:.16em;padding:16px 8px 8px">FERRAMENTAS</div>
+
+      <div onClick="{{ goDosimetria }}" style="position:relative;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:4px;cursor:pointer;font:400 12.5px 'IBM Plex Sans',sans-serif;color:#c9c5bd" style-hover="background:#26252f">
+        <sc-if value="{{ isDosimetria }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;top:7px;bottom:7px;width:2px;background:#8c86ad;border-radius:2px"></span><span style="position:absolute;inset:0;background:#2b2936;border-radius:4px"></span></sc-if>
+        <span style="position:relative;width:14px;height:14px;flex:none;border-left:1.4px solid #8b8698;border-bottom:1.4px solid #8b8698"></span>
+        <span style="position:relative">Dosimetria da pena</span>
+      </div>
+
+      <div onClick="{{ goVade }}" style="position:relative;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:4px;cursor:pointer;font:400 12.5px 'IBM Plex Sans',sans-serif;color:#c9c5bd" style-hover="background:#26252f">
+        <sc-if value="{{ isVade }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;top:7px;bottom:7px;width:2px;background:#8c86ad;border-radius:2px"></span><span style="position:absolute;inset:0;background:#2b2936;border-radius:4px"></span></sc-if>
+        <span style="position:relative;width:11px;height:14px;flex:none;border:1.4px solid #8b8698;border-left-width:3px"></span>
+        <span style="position:relative">Vade Mecum</span>
+      </div>
+
+      <div onClick="{{ goFontes }}" style="position:relative;display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:4px;cursor:pointer;font:400 12.5px 'IBM Plex Sans',sans-serif;color:#c9c5bd" style-hover="background:#26252f">
+        <sc-if value="{{ isFontes }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;top:7px;bottom:7px;width:2px;background:#8c86ad;border-radius:2px"></span><span style="position:absolute;inset:0;background:#2b2936;border-radius:4px"></span></sc-if>
+        <span style="position:relative;width:14px;height:14px;flex:none;border:1.4px solid #8b8698;border-radius:3px;display:flex;align-items:center;justify-content:center"><span style="width:4px;height:4px;background:#8b8698;border-radius:50%"></span></span>
+        <span style="position:relative">Fontes &amp; atualizações</span>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;padding:0 10px;display:flex;flex-direction:column;gap:1px;flex:1;min-height:0">
+      <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;color:#79738a;letter-spacing:.16em;padding:6px 8px 8px">CONSULTAS RECENTES</div>
+      <sc-for list="{{ recentes }}" as="r" hint-placeholder-count="4">
+        <div style="padding:6px 10px;border-radius:4px;cursor:pointer;font:400 11.5px/1.35 'IBM Plex Sans',sans-serif;color:#a7a29b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" style-hover="background:#26252f;color:#e6e3dc">{{ r.t }}</div>
+      </sc-for>
+    </div>
+
+    <div style="margin:10px 12px 0;padding:10px;border:1px solid #2e2c39;border-radius:5px;display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#4e9c78;animation:tgp 2.4s infinite"></span>
+        <span style="font:400 10px 'IBM Plex Mono',monospace;color:#9d98a8;letter-spacing:.05em">BASE SINCRONIZADA</span>
+      </div>
+      <div style="font:400 10.5px/1.4 'IBM Plex Sans',sans-serif;color:#7d7889">DOU de 11/08/2026 · 4 normas novas · 12 alterações</div>
+      <div onClick="{{ goFontes }}" style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#a49ec2;cursor:pointer">Ver pipeline →</div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN ══ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:#f5f2ea">
+
+    <div style="height:52px;flex:none;border-bottom:1px solid #e2ddd0;display:flex;align-items:center;gap:14px;padding:0 20px;background:#faf8f3">
+      <div style="font:600 13px 'Source Serif 4',serif;color:#1c1b22">{{ tituloTela }}</div>
+      <div style="font:400 10px 'IBM Plex Mono',monospace;color:#9a938a;letter-spacing:.08em">{{ subtituloTela }}</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 11px;border:1px solid #ddd7c9;border-radius:4px;background:#fff;width:290px">
+        <span style="width:11px;height:11px;border:1.3px solid #a39c92;border-radius:50%;flex:none"></span>
+        <span style="font:400 12px 'IBM Plex Sans',sans-serif;color:#a39c92">Buscar em leis, acórdãos, súmulas…</span>
+        <span style="flex:1"></span>
+        <span style="font:400 9.5px 'IBM Plex Mono',monospace;color:#b8b1a6;border:1px solid #e2ddd0;border-radius:3px;padding:1px 4px">⌘K</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding-left:6px;border-left:1px solid #e2ddd0">
+        <div style="width:26px;height:26px;border-radius:50%;background:#3d3a52;color:#f2efe8;display:flex;align-items:center;justify-content:center;font:600 10.5px 'IBM Plex Sans',sans-serif">MR</div>
+        <div style="font:400 11.5px 'IBM Plex Sans',sans-serif;color:#5d5850">Dra. M. Ribeiro</div>
+      </div>
+    </div>
+
+    <!-- ── TELA 1 · CHAT ── -->
+    <sc-if value="{{ isChat }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:1;min-height:0;overflow:auto;padding:26px 30px 8px">
+
+          <div style="max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:22px">
+
+            <div style="display:flex;justify-content:flex-end">
+              <div style="max-width:78%;background:#eceaf1;border:1px solid #d9d6e3;border-radius:8px 8px 2px 8px;padding:11px 14px;font:400 13.5px/1.55 'IBM Plex Sans',sans-serif;color:#2a2836">
+                Cliente respondeu por roubo com emprego de faca. O aumento de pena pelo uso de arma branca ainda se aplica depois do Pacote Anticrime? Preciso da tese firmada e das súmulas do tema.
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:20px;height:20px;border-radius:3px;background:#3d3a52;color:#f2efe8;display:flex;align-items:center;justify-content:center;font:700 10px 'Source Serif 4',serif">T</div>
+                <span style="font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#7d7770">TOGA · MODO LEIS + JURISPRUDÊNCIA</span>
+                <span style="font:400 10px 'IBM Plex Mono',monospace;color:#a39c92">2,4 s · 38 fontes lidas</span>
+              </div>
+
+              <div style="background:#fffdf8;border:1px solid #e4dfd1;border-radius:8px;overflow:hidden">
+                <div style="padding:18px 20px 4px;font:400 14.5px/1.7 'Source Serif 4',serif;color:#22212a">
+                  <p style="margin:0 0 12px">Sim, o aumento voltou a incidir, mas por outro dispositivo. A Lei 13.654/2018 havia revogado a majorante genérica de “emprego de arma”; a Lei 13.964/2019 <span style="background:#f0eef6;border-bottom:1px solid #c9c6d6;padding:0 2px">reintroduziu a hipótese de arma branca como causa de aumento de 1/3 até metade</span> no art. 157, §2º, VII, do Código Penal.<a href="#" style="font:500 9.5px 'IBM Plex Mono',monospace;vertical-align:super;background:#eceaf1;border:1px solid #d3d0de;border-radius:3px;padding:1px 3px;margin-left:3px">1</a></p>
+                  <p style="margin:0 0 12px">Para fatos praticados <strong style="font-weight:600">entre 24/04/2018 e 23/12/2019</strong> a majorante não pode ser aplicada — a norma revogadora é mais benéfica e retroage (art. 5º, XL, CF). O STJ consolidou o ponto no julgamento do tema de recursos repetitivos, com <em>abolitio</em> parcial reconhecida de ofício.<a href="#" style="font:500 9.5px 'IBM Plex Mono',monospace;vertical-align:super;background:#eceaf1;border:1px solid #d3d0de;border-radius:3px;padding:1px 3px;margin-left:3px">2</a></p>
+                  <p style="margin:0 0 14px">Na dosimetria, o acréscimo incide na <strong style="font-weight:600">terceira fase</strong>. Súmula 443 do STJ veda o aumento no mínimo legal com fundamento genérico na pluralidade de qualificadoras — é preciso motivação concreta.<a href="#" style="font:500 9.5px 'IBM Plex Mono',monospace;vertical-align:super;background:#eceaf1;border:1px solid #d3d0de;border-radius:3px;padding:1px 3px;margin-left:3px">3</a></p>
+                </div>
+
+                <div style="margin:0 20px;border-top:1px solid #ece7db;padding:14px 0 4px">
+                  <div style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#8b847a;margin-bottom:9px">FUNDAMENTOS CITADOS</div>
+                  <div style="display:flex;flex-direction:column;gap:7px">
+                    <sc-for list="{{ fundamentos }}" as="f" hint-placeholder-count="3">
+                      <div onClick="{{ f.open }}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #e6e1d4;border-radius:5px;background:#fbf9f4;cursor:pointer" style-hover="border-color:#c9c6d6;background:#fff">
+                        <span style="font:500 9.5px 'IBM Plex Mono',monospace;color:#fff;background:#3d3a52;border-radius:3px;padding:2px 5px;flex:none">{{ f.n }}</span>
+                        <span style="font:500 12px 'IBM Plex Sans',sans-serif;color:#22212a;flex:none">{{ f.titulo }}</span>
+                        <span style="font:400 11.5px/1.3 'IBM Plex Sans',sans-serif;color:#8b847a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.sub }}</span>
+                        <span style="flex:1"></span>
+                        <span style="font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.07em;color:#2f6a4f;border:1px solid #cadfd2;background:#eef6f0;border-radius:3px;padding:2px 5px;flex:none">{{ f.selo }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;margin-top:12px;border-top:1px solid #ece7db;background:#f8f5ee">
+                  <div style="display:flex;align-items:center;gap:7px">
+                    <span style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#8b847a">CONFIANÇA</span>
+                    <span style="display:flex;gap:2px">
+                      <span style="width:16px;height:5px;background:#3d3a52;border-radius:1px"></span>
+                      <span style="width:16px;height:5px;background:#3d3a52;border-radius:1px"></span>
+                      <span style="width:16px;height:5px;background:#3d3a52;border-radius:1px"></span>
+                      <span style="width:16px;height:5px;background:#dcd7ea;border-radius:1px"></span>
+                    </span>
+                    <span style="font:500 11px 'IBM Plex Sans',sans-serif;color:#3d3a52">Alta</span>
+                  </div>
+                  <span style="width:1px;height:16px;background:#e2ddd0"></span>
+                  <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#7d7770">Base atualizada em 11/08/2026 · DOU, STF, STJ, DataJud</span>
+                  <span style="flex:1"></span>
+                  <div style="display:flex;gap:7px">
+                    <span style="font:500 11px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d3d0de;background:#fff;border-radius:4px;padding:5px 9px;cursor:pointer">Exportar peça .docx</span>
+                    <span onClick="{{ goDosimetria }}" style="font:500 11px 'IBM Plex Sans',sans-serif;color:#f2efe8;background:#3d3a52;border-radius:4px;padding:5px 9px;cursor:pointer">Calcular dosimetria</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px dashed #ddd7c9;border-radius:5px;background:#faf8f3">
+                <span style="width:13px;height:13px;flex:none;border:1.3px solid #a3956a;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 9px 'IBM Plex Sans',sans-serif;color:#8a6a1f">!</span>
+                <span style="font:400 11px/1.4 'IBM Plex Sans',sans-serif;color:#7d7770">Conteúdo gerado por IA com base em fontes oficiais. Não substitui parecer, conferência do inteiro teor nem juízo profissional.</span>
+              </div>
+
+              <div style="display:flex;flex-wrap:wrap;gap:7px">
+                <sc-for list="{{ sugestoes }}" as="s" hint-placeholder-count="3">
+                  <span style="font:400 11.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d9d6e3;background:#f2f0f7;border-radius:20px;padding:6px 12px;cursor:pointer" style-hover="background:#e7e4ef">{{ s.t }}</span>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:none;padding:14px 30px 20px;border-top:1px solid #e6e1d4;background:#faf8f3">
+          <div style="max-width:660px;margin:0 auto">
+            <div style="display:flex;gap:6px;margin-bottom:9px">
+              <sc-for list="{{ modos }}" as="m" hint-placeholder-count="5">
+                <span onClick="{{ m.toggle }}" style="position:relative;display:flex;align-items:center;gap:6px;font:500 11px 'IBM Plex Sans',sans-serif;border-radius:4px;padding:5px 9px;cursor:pointer;border:1px solid #ddd7c9;background:#fff;color:#5d5850;white-space:nowrap" style-hover="border-color:#c9c6d6">
+                  <span style="position:relative;width:8px;height:8px;flex:none;border-radius:2px;background:#dcd7ea">
+                    <sc-if value="{{ m.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:2px;background:#3d3a52"></span></sc-if>
+                  </span>{{ m.t }}
+                </span>
+              </sc-for>
+            </div>
+            <div style="border:1px solid #d8d2c4;border-radius:7px;background:#fff;padding:12px 14px 10px;box-shadow:0 1px 2px rgba(40,34,22,.04)">
+              <div style="font:400 13.5px/1.5 'IBM Plex Sans',sans-serif;color:#a39c92">Pergunte, cole um trecho da denúncia ou informe o número do processo (CNJ)…</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:14px">
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #e2ddd0;border-radius:4px;padding:4px 9px;cursor:pointer">＋ Anexar autos</span>
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #e2ddd0;border-radius:4px;padding:4px 9px;cursor:pointer">Tribunal: todos</span>
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #e2ddd0;border-radius:4px;padding:4px 9px;cursor:pointer">Período: 5 anos</span>
+                <span style="flex:1"></span>
+                <span style="font:400 10px 'IBM Plex Mono',monospace;color:#b0a99e">⏎ enviar · ⇧⏎ nova linha</span>
+                <span style="width:30px;height:30px;border-radius:5px;background:#3d3a52;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="width:8px;height:8px;border-top:1.6px solid #f2efe8;border-right:1.6px solid #f2efe8;transform:rotate(45deg);margin-left:-2px"></span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- painel da fonte -->
+      <div style="width:406px;flex:none;border-left:1px solid #e2ddd0;background:#fffdf8;display:flex;flex-direction:column">
+        <div style="flex:none;padding:14px 18px 0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#8b847a">FONTE CITADA</span>
+            <span style="flex:1"></span>
+            <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;cursor:pointer">Texto oficial ↗</span>
+          </div>
+          <div style="display:flex;gap:0;border-bottom:1px solid #eae4d7">
+            <span style="font:500 11.5px 'IBM Plex Sans',sans-serif;color:#22212a;padding:0 10px 9px;border-bottom:2px solid #3d3a52;margin-bottom:-1px">CP art. 157</span>
+            <span style="font:400 11.5px 'IBM Plex Sans',sans-serif;color:#8b847a;padding:0 10px 9px;cursor:pointer">Lei 13.964/19</span>
+            <span style="font:400 11.5px 'IBM Plex Sans',sans-serif;color:#8b847a;padding:0 10px 9px;cursor:pointer">Tema 1.110/STJ</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow:auto;padding:16px 18px 20px">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px">
+            <span style="font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.07em;color:#2f6a4f;border:1px solid #cadfd2;background:#eef6f0;border-radius:3px;padding:2px 5px">EM VIGOR</span>
+            <span style="font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.07em;color:#8a6a1f;border:1px solid #e3d7b8;background:#f8f3e5;border-radius:3px;padding:2px 5px">ALTERADO 2×</span>
+            <span style="font:400 10px 'IBM Plex Mono',monospace;color:#a39c92">DL 2.848/1940</span>
+          </div>
+
+          <div style="font:700 17px/1.3 'Source Serif 4',serif;color:#22212a;margin-bottom:3px">Roubo</div>
+          <div style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a;margin-bottom:16px">Código Penal · Parte Especial · Título II · Capítulo II</div>
+
+          <div style="font:400 13px/1.72 'Source Serif 4',serif;color:#33313c">
+            <p style="margin:0 0 12px"><strong style="font-weight:600">Art. 157.</strong> Subtrair coisa móvel alheia, para si ou para outrem, mediante grave ameaça ou violência a pessoa, ou depois de havê-la, por qualquer meio, reduzido à impossibilidade de resistência:</p>
+            <p style="margin:0 0 14px;padding-left:14px;color:#5d5850">Pena – reclusão, de quatro a dez anos, e multa.</p>
+            <p style="margin:0 0 10px;color:#5d5850">§ 2º A pena aumenta-se de 1/3 (um terço) até metade:</p>
+            <div style="border-left:2px solid #dcd7ea;padding-left:12px;margin:0 0 12px;display:flex;flex-direction:column;gap:8px">
+              <p style="margin:0;color:#6f6a62">II – se há o concurso de duas ou mais pessoas;</p>
+              <p style="margin:0;color:#6f6a62">V – se o agente mantém a vítima em seu poder, restringindo sua liberdade;</p>
+              <div style="background:#f2f0f7;border:1px solid #d9d6e3;border-radius:5px;padding:10px 11px">
+                <p style="margin:0 0 7px;color:#22212a">VII – se a violência ou grave ameaça é exercida com emprego de arma branca;</p>
+                <div style="display:flex;align-items:center;gap:7px">
+                  <span style="font:500 8.5px 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#3d3a52;background:#e3e1ea;border-radius:3px;padding:2px 5px">TRECHO CITADO ¹</span>
+                  <span style="font:400 10px 'IBM Plex Sans',sans-serif;color:#7d7770">incluído pela Lei 13.964/2019</span>
+                </div>
+              </div>
+            </div>
+            <p style="margin:0;color:#6f6a62">§ 2º-A A pena aumenta-se de 2/3 (dois terços): I – se a violência ou ameaça é exercida com emprego de arma de fogo;</p>
+          </div>
+
+          <div style="margin-top:18px;border:1px solid #e6e1d4;border-radius:6px;background:#faf8f3;overflow:hidden">
+            <div style="padding:10px 12px;border-bottom:1px solid #eee9dc;font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#8b847a">LINHA DO TEMPO DO DISPOSITIVO</div>
+            <div style="padding:12px;display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="3">
+                <div style="display:flex;gap:10px;align-items:flex-start">
+                  <span style="font:500 10px 'IBM Plex Mono',monospace;color:#8b847a;flex:none;width:62px">{{ t.data }}</span>
+                  <span style="width:7px;height:7px;border-radius:50%;background:#c3bcd6;flex:none;margin-top:3px"></span>
+                  <span style="font:400 11.5px/1.45 'IBM Plex Sans',sans-serif;color:#4d4a55">{{ t.txt }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="padding:9px 12px;border-top:1px solid #eee9dc;font:500 11px 'IBM Plex Sans',sans-serif;color:#3d3a52;cursor:pointer">Comparar redações lado a lado →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ── TELA 2 · JURISPRUDÊNCIA ── -->
+    <sc-if value="{{ isJuris }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="width:236px;flex:none;border-right:1px solid #e2ddd0;background:#faf8f3;padding:18px 16px;overflow:auto">
+        <div style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#8b847a;margin-bottom:12px">FILTROS</div>
+        <sc-for list="{{ filtros }}" as="g" hint-placeholder-count="4">
+          <div style="margin-bottom:18px">
+            <div style="font:600 11px 'IBM Plex Sans',sans-serif;color:#4d4a55;margin-bottom:8px">{{ g.nome }}</div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <sc-for list="{{ g.itens }}" as="i" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="width:12px;height:12px;border:1.3px solid #c9c2b4;border-radius:3px;flex:none;background:#fff"></span>
+                  <sc-if value="{{ i.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;width:12px;height:12px;border-radius:3px;background:#3d3a52;display:flex;align-items:center;justify-content:center"><span style="width:5px;height:2px;border-left:1.4px solid #fff;border-bottom:1.4px solid #fff;transform:rotate(-45deg) translate(1px,-1px)"></span></span></sc-if>
+                  <span style="font:400 11.5px 'IBM Plex Sans',sans-serif;color:#5d5850">{{ i.t }}</span>
+                  <span style="flex:1"></span>
+                  <span style="font:400 10px 'IBM Plex Mono',monospace;color:#a8a196">{{ i.n }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:none;padding:18px 24px 12px">
+          <div style="display:flex;align-items:center;gap:10px;border:1px solid #d8d2c4;border-radius:6px;background:#fff;padding:11px 14px">
+            <span style="font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#3d3a52;background:#eceaf1;border-radius:3px;padding:3px 6px">BUSCA SEMÂNTICA</span>
+            <span style="font:400 13.5px 'IBM Plex Sans',sans-serif;color:#22212a">majorante arma branca roubo retroatividade lei mais benéfica</span>
+            <span style="flex:1"></span>
+            <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a">1.284 resultados · 0,42 s</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:11px">
+            <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;background:#eceaf1;border:1px solid #d9d6e3;border-radius:20px;padding:5px 10px">STJ ✕</span>
+            <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;background:#eceaf1;border:1px solid #d9d6e3;border-radius:20px;padding:5px 10px">Repetitivos ✕</span>
+            <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;background:#eceaf1;border:1px solid #d9d6e3;border-radius:20px;padding:5px 10px">2019–2026 ✕</span>
+            <span style="flex:1"></span>
+            <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#6f6a62">Ordenar: <strong style="font-weight:600;color:#22212a">relevância</strong> ▾</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow:auto;padding:4px 24px 24px;display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ acordaos }}" as="a" hint-placeholder-count="4">
+            <div style="border:1px solid #e2ddd0;border-radius:7px;background:#fffdf8;padding:15px 17px" style-hover="border-color:#c9c6d6;box-shadow:0 2px 6px rgba(40,34,22,.06)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+                <span style="font:600 9.5px 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#f2efe8;background:#3d3a52;border-radius:3px;padding:2px 6px">{{ a.tribunal }}</span>
+                <span style="font:500 12.5px 'IBM Plex Sans',sans-serif;color:#22212a">{{ a.numero }}</span>
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a">{{ a.orgao }} · Rel. {{ a.relator }} · {{ a.data }}</span>
+                <span style="flex:1"></span>
+                <span style="font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#2f6a4f;border:1px solid #cadfd2;background:#eef6f0;border-radius:3px;padding:2px 5px">{{ a.selo }}</span>
+              </div>
+              <div style="font:400 13px/1.62 'Source Serif 4',serif;color:#33313c;margin-bottom:11px">{{ a.ementa }}</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font:400 10px 'IBM Plex Mono',monospace;color:#8b847a;border:1px solid #eae4d7;border-radius:3px;padding:2px 6px">{{ a.origem }}</span>
+                <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">{{ a.citacoes }} citações posteriores</span>
+                <span style="flex:1"></span>
+                <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d3d0de;border-radius:4px;padding:4px 9px;cursor:pointer">Inteiro teor</span>
+                <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d3d0de;border-radius:4px;padding:4px 9px;cursor:pointer">Citar na peça</span>
+                <span onClick="{{ goChat }}" style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#f2efe8;background:#3d3a52;border-radius:4px;padding:4px 9px;cursor:pointer">Perguntar ao TOGA</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ── TELA 3 · SÚMULAS ── -->
+    <sc-if value="{{ isSumulas }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column">
+      <div style="flex:none;padding:20px 26px 0;display:flex;align-items:flex-end;gap:22px;border-bottom:1px solid #e2ddd0">
+        <div>
+          <div style="font:700 22px/1.15 'Source Serif 4',serif;color:#22212a;margin-bottom:5px">Súmulas por tema</div>
+          <div style="font:400 12px 'IBM Plex Sans',sans-serif;color:#7d7770;margin-bottom:14px">Extraídas dos repositórios oficiais do STF e do STJ · verificação de vigência diária</div>
+          <div style="display:flex;gap:2px">
+            <span onClick="{{ setStf }}" style="font:600 12px 'IBM Plex Sans',sans-serif;padding:0 14px 10px;cursor:pointer;color:#22212a;position:relative">STF<sc-if value="{{ isStf }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#3d3a52"></span></sc-if></span>
+            <span onClick="{{ setStj }}" style="font:600 12px 'IBM Plex Sans',sans-serif;padding:0 14px 10px;cursor:pointer;color:#8b847a;position:relative">STJ<sc-if value="{{ isStj }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;right:0;bottom:-1px;height:2px;background:#3d3a52"></span></sc-if></span>
+            <span style="font:500 12px 'IBM Plex Sans',sans-serif;padding:0 14px 10px;cursor:pointer;color:#8b847a">Vinculantes</span>
+            <span style="font:500 12px 'IBM Plex Sans',sans-serif;padding:0 14px 10px;cursor:pointer;color:#8b847a">Salvas (12)</span>
+          </div>
+        </div>
+        <div style="flex:1"></div>
+        <div style="display:flex;gap:7px;padding-bottom:14px">
+          <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d3d0de;background:#fff;border-radius:4px;padding:6px 10px;cursor:pointer">Exportar seleção</span>
+          <span onClick="{{ goChat }}" style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#f2efe8;background:#3d3a52;border-radius:4px;padding:6px 10px;cursor:pointer">Confrontar com o caso</span>
+        </div>
+      </div>
+
+      <div style="flex:1;min-height:0;display:flex">
+        <div style="width:222px;flex:none;border-right:1px solid #e2ddd0;background:#faf8f3;padding:16px;overflow:auto">
+          <div style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#8b847a;margin-bottom:11px">TEMAS</div>
+          <div style="display:flex;flex-direction:column;gap:3px">
+            <sc-for list="{{ temas }}" as="t" hint-placeholder-count="8">
+              <div style="display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:4px;cursor:pointer;background:#fff;border:1px solid #ece7db" style-hover="border-color:#c9c6d6">
+                <span style="font:400 12px 'IBM Plex Sans',sans-serif;color:#4d4a55">{{ t.t }}</span>
+                <span style="flex:1"></span>
+                <span style="font:400 10px 'IBM Plex Mono',monospace;color:#a8a196">{{ t.n }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;overflow:auto;padding:20px 26px 26px">
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:900px">
+            <sc-for list="{{ sumulas }}" as="s" hint-placeholder-count="4">
+              <div style="display:flex;gap:18px;border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;padding:18px 20px" style-hover="border-color:#c9c6d6">
+                <div style="flex:none;width:96px;border-right:1px solid #eee9dc;padding-right:14px">
+                  <div style="font:400 9.5px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#8b847a">SÚMULA</div>
+                  <div style="font:700 34px/1 'Source Serif 4',serif;color:#3d3a52;margin:3px 0 8px">{{ s.n }}</div>
+                  <div style="font:500 8.5px 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#4d4a55;border:1px solid #ddd7c9;border-radius:3px;padding:2px 5px;display:inline-block">{{ s.tipo }}</div>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font:400 14.5px/1.68 'Source Serif 4',serif;color:#22212a;margin-bottom:12px">{{ s.txt }}</div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#2f6a4f;border:1px solid #cadfd2;background:#eef6f0;border-radius:3px;padding:2px 6px">{{ s.status }}</span>
+                    <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">{{ s.orgao }} · {{ s.data }}</span>
+                    <span style="width:1px;height:14px;background:#e6e1d4"></span>
+                    <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">Referências: {{ s.refs }}</span>
+                    <span style="flex:1"></span>
+                    <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;cursor:pointer">Precedentes ({{ s.prec }}) →</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ── TELA 4 · DOSIMETRIA ── -->
+    <sc-if value="{{ isDosimetria }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="flex:1;min-width:0;overflow:auto;padding:22px 26px 28px">
+        <div style="max-width:660px">
+          <div style="font:700 22px/1.2 'Source Serif 4',serif;color:#22212a">Dosimetria trifásica</div>
+          <div style="font:400 12px 'IBM Plex Sans',sans-serif;color:#7d7770;margin:5px 0 18px">Roubo majorado · CP art. 157, §2º, VII · réu primário, 24 anos, faca</div>
+
+          <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid #ddd7c9;border-radius:6px;overflow:hidden;background:#fff">
+            <sc-for list="{{ fases }}" as="f" hint-placeholder-count="3">
+              <div onClick="{{ f.go }}" style="flex:1;padding:11px 14px;cursor:pointer;border-right:1px solid #eee9dc;position:relative">
+                <sc-if value="{{ f.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;background:#f2f0f7"></span><span style="position:absolute;left:0;right:0;top:0;height:2px;background:#3d3a52"></span></sc-if>
+                <div style="position:relative;font:500 9px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#8b847a">{{ f.k }}</div>
+                <div style="position:relative;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#22212a;margin-top:3px">{{ f.nome }}</div>
+                <div style="position:relative;font:400 11px 'IBM Plex Sans',sans-serif;color:#6f6a62;margin-top:2px">{{ f.res }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ isFase1 }}" hint-placeholder-val="{{ true }}">
+          <div style="border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;overflow:hidden">
+            <div style="padding:13px 18px;border-bottom:1px solid #eee9dc;display:flex;align-items:center;gap:9px;background:#faf8f3">
+              <span style="font:600 12.5px 'IBM Plex Sans',sans-serif;color:#22212a">Circunstâncias judiciais — art. 59 do CP</span>
+              <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">8 vetores · pena em abstrato 4 a 10 anos</span>
+            </div>
+            <div style="padding:6px 18px 14px">
+              <sc-for list="{{ vetores }}" as="v" hint-placeholder-count="8">
+                <div style="display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid #f2ede1">
+                  <div style="width:150px;flex:none">
+                    <div style="font:500 12px 'IBM Plex Sans',sans-serif;color:#22212a">{{ v.nome }}</div>
+                    <div style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">{{ v.hint }}</div>
+                  </div>
+                  <div style="flex:1;display:flex;gap:3px">
+                    <sc-for list="{{ v.opts }}" as="o" hint-placeholder-count="3">
+                      <span style="flex:1;text-align:center;font:500 10.5px 'IBM Plex Sans',sans-serif;padding:6px 4px;border-radius:4px;border:1px solid #e6e1d4;color:#8b847a;background:#fff;cursor:pointer;position:relative" style-hover="border-color:#c9c6d6">
+                        <sc-if value="{{ o.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;background:#3d3a52;border-radius:4px"></span></sc-if>
+                        <span style="position:relative">{{ o.t }}</span>
+                      </span>
+                    </sc-for>
+                  </div>
+                  <div style="width:78px;flex:none;text-align:right;font:500 11px 'IBM Plex Mono',monospace;color:#4d4a55">{{ v.delta }}</div>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:10px;padding:13px 0 4px">
+                <span style="font:400 11.5px/1.5 'IBM Plex Sans',sans-serif;color:#7d7770;flex:1">Fração por vetor negativo: <strong style="font-weight:600;color:#22212a">1/8 do intervalo</strong> (critério majoritário do STJ). Súmula 444: inquéritos em curso não agravam a pena-base.</span>
+                <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d3d0de;border-radius:4px;padding:5px 10px;cursor:pointer">Trocar critério</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;display:flex;gap:12px">
+            <div onClick="{{ setFase2 }}" style="flex:1;border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;padding:14px 16px;cursor:pointer" style-hover="border-color:#c9c6d6">
+              <div style="font:600 12px 'IBM Plex Sans',sans-serif;color:#22212a;margin-bottom:9px">2ª fase · agravantes e atenuantes</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#3d3a52;background:#f2f0f7;border:1px solid #d9d6e3;border-radius:20px;padding:5px 10px">Menoridade relativa −1/6</span>
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a;border:1px solid #e6e1d4;border-radius:20px;padding:5px 10px">+ Reincidência</span>
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a;border:1px solid #e6e1d4;border-radius:20px;padding:5px 10px">+ Confissão</span>
+              </div>
+            </div>
+            <div onClick="{{ setFase3 }}" style="flex:1;border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;padding:14px 16px;cursor:pointer" style-hover="border-color:#c9c6d6">
+              <div style="font:600 12px 'IBM Plex Sans',sans-serif;color:#22212a;margin-bottom:9px">3ª fase · causas de aumento e diminuição</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#3d3a52;background:#f2f0f7;border:1px solid #d9d6e3;border-radius:20px;padding:5px 10px">Arma branca +1/3</span>
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a;border:1px solid #e6e1d4;border-radius:20px;padding:5px 10px">+ Concurso de pessoas</span>
+                <span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a;border:1px solid #e6e1d4;border-radius:20px;padding:5px 10px">+ Tentativa</span>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ isFase23 }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;overflow:hidden">
+            <div style="padding:13px 18px;border-bottom:1px solid #eee9dc;display:flex;align-items:center;gap:9px;background:#faf8f3">
+              <span style="font:600 12.5px 'IBM Plex Sans',sans-serif;color:#22212a">{{ tituloFase }}</span>
+              <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">{{ subFase }}</span>
+              <span style="flex:1"></span>
+              <span onClick="{{ setFase1 }}" style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d3d0de;background:#fff;border-radius:4px;padding:4px 9px;cursor:pointer">← 1ª fase</span>
+            </div>
+            <div style="padding:6px 18px 16px">
+              <sc-for list="{{ circunstancias }}" as="c" hint-placeholder-count="5">
+                <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #f2ede1">
+                  <span style="width:14px;height:14px;flex:none;border-radius:3px;border:1.3px solid #c9c2b4;background:#fff;position:relative">
+                    <sc-if value="{{ c.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:-1px;border-radius:3px;background:#3d3a52"></span></sc-if>
+                  </span>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 12px 'IBM Plex Sans',sans-serif;color:#22212a">{{ c.nome }}</div>
+                    <div style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">{{ c.base }}</div>
+                  </div>
+                  <span style="font:400 11px/1.4 'IBM Plex Sans',sans-serif;color:#7d7770;width:210px;flex:none">{{ c.nota }}</span>
+                  <span style="font:600 11.5px 'IBM Plex Mono',monospace;color:#3d3a52;width:70px;flex:none;text-align:right">{{ c.fr }}</span>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:10px;padding:14px 0 2px">
+                <span style="font:400 11.5px/1.5 'IBM Plex Sans',sans-serif;color:#7d7770;flex:1">{{ avisoFase }}</span>
+                <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#f2efe8;background:#3d3a52;border-radius:4px;padding:5px 10px;cursor:pointer">Aplicar e recalcular</span>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="width:340px;flex:none;border-left:1px solid #e2ddd0;background:#fffdf8;padding:20px;overflow:auto">
+        <div style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#8b847a;margin-bottom:14px">RESULTADO</div>
+
+        <div style="border:1px solid #d9d6e3;border-radius:8px;background:#f6f5fa;padding:16px;margin-bottom:14px">
+          <div style="font:400 11px 'IBM Plex Sans',sans-serif;color:#6f6a62">Pena definitiva</div>
+          <div style="font:700 30px/1.1 'Source Serif 4',serif;color:#3d3a52;margin:4px 0 2px">5 a 6 m</div>
+          <div style="font:400 11.5px 'IBM Plex Sans',sans-serif;color:#5d5850">5 anos e 6 meses de reclusão + 13 dias-multa</div>
+          <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #e2dfea">
+            <div style="flex:1"><div style="font:400 10px 'IBM Plex Mono',monospace;color:#8b847a">REGIME</div><div style="font:600 12px 'IBM Plex Sans',sans-serif;color:#22212a">Semiaberto</div></div>
+            <div style="flex:1"><div style="font:400 10px 'IBM Plex Mono',monospace;color:#8b847a">SUBSTITUIÇÃO</div><div style="font:600 12px 'IBM Plex Sans',sans-serif;color:#8a2f2f">Vedada</div></div>
+            <div style="flex:1"><div style="font:400 10px 'IBM Plex Mono',monospace;color:#8b847a">PRESCRIÇÃO</div><div style="font:600 12px 'IBM Plex Sans',sans-serif;color:#22212a">12 anos</div></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0;margin-bottom:16px">
+          <sc-for list="{{ calculo }}" as="c" hint-placeholder-count="4">
+            <div style="display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid #f2ede1">
+              <span style="width:18px;height:18px;flex:none;border-radius:50%;border:1px solid #d3d0de;background:#f2f0f7;display:flex;align-items:center;justify-content:center;font:500 9.5px 'IBM Plex Mono',monospace;color:#3d3a52">{{ c.n }}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font:500 11.5px 'IBM Plex Sans',sans-serif;color:#22212a">{{ c.rot }}</div>
+                <div style="font:400 10.5px/1.45 'IBM Plex Sans',sans-serif;color:#8b847a">{{ c.det }}</div>
+              </div>
+              <span style="font:600 12px 'IBM Plex Mono',monospace;color:#3d3a52;flex:none">{{ c.val }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="border:1px dashed #ddd7c9;border-radius:6px;background:#faf8f3;padding:11px 12px;margin-bottom:14px">
+          <div style="font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#8b847a;margin-bottom:6px">FUNDAMENTAÇÃO SUGERIDA</div>
+          <div style="font:400 12px/1.6 'Source Serif 4',serif;color:#4d4a55">“Considerando que os antecedentes e a conduta social são favoráveis, e negativa apenas a culpabilidade, fixo a pena-base em 4 anos e 9 meses…”</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <span style="text-align:center;font:500 11.5px 'IBM Plex Sans',sans-serif;color:#f2efe8;background:#3d3a52;border-radius:5px;padding:9px;cursor:pointer">Gerar memorial de cálculo</span>
+          <span style="text-align:center;font:500 11.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;border:1px solid #d3d0de;background:#fff;border-radius:5px;padding:9px;cursor:pointer">Comparar com casos análogos (DataJud)</span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ── TELA 5 · VADE MECUM ── -->
+    <sc-if value="{{ isVade }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="flex:1;min-width:0;overflow:auto;padding:22px 26px 28px">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:18px">
+          <div>
+            <div style="font:700 22px/1.2 'Source Serif 4',serif;color:#22212a">Vade Mecum</div>
+            <div style="font:400 12px 'IBM Plex Sans',sans-serif;color:#7d7770;margin-top:5px">Consolidação sincronizada do Planalto · 214 diplomas · última verificação hoje, 06:12</div>
+          </div>
+          <div style="flex:1"></div>
+          <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #ddd7c9;background:#fff;border-radius:4px;padding:6px 10px">Somente alterados (18) </span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <sc-for list="{{ ramos }}" as="r" hint-placeholder-count="9">
+            <div onClick="{{ r.open }}" style="border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;padding:15px 16px;cursor:pointer;position:relative;overflow:hidden" style-hover="border-color:#c9c6d6;box-shadow:0 2px 8px rgba(40,34,22,.06)">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#c3bcd6"></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+                <span style="font:600 14.5px 'Source Serif 4',serif;color:#22212a">{{ r.nome }}</span>
+                <span style="flex:1"></span>
+                <sc-if value="{{ r.novo }}" hint-placeholder-val="{{ false }}"><span style="font:500 8.5px 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#8a6a1f;border:1px solid #e3d7b8;background:#f8f3e5;border-radius:3px;padding:2px 5px">ATUALIZADO</span></sc-if>
+              </div>
+              <div style="font:400 11.5px/1.5 'IBM Plex Sans',sans-serif;color:#7d7770;margin-bottom:11px">{{ r.desc }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px">
+                <sc-for list="{{ r.leis }}" as="l" hint-placeholder-count="3">
+                  <span style="font:400 10px 'IBM Plex Mono',monospace;color:#5d5850;border:1px solid #eae4d7;background:#faf8f3;border-radius:3px;padding:2px 6px">{{ l.t }}</span>
+                </sc-for>
+              </div>
+              <div style="margin-top:11px;padding-top:10px;border-top:1px solid #f2ede1;display:flex;align-items:center;gap:8px;white-space:nowrap">
+                <span style="font:400 10px 'IBM Plex Mono',monospace;color:#a8a196;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ r.qtd }} diplomas · {{ r.arts }} art.</span>
+                <span style="flex:1"></span>
+                <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;flex:none">Abrir →</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="width:390px;flex:none;border-left:1px solid #e2ddd0;background:#fffdf8;display:flex;flex-direction:column">
+        <div style="flex:none;padding:16px 18px 12px;border-bottom:1px solid #eee9dc">
+          <div style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.12em;color:#8b847a;margin-bottom:8px">LEITOR</div>
+          <div style="font:700 15px/1.25 'Source Serif 4',serif;color:#22212a">Código Civil</div>
+          <div style="font:400 11px 'IBM Plex Sans',sans-serif;color:#8b847a;margin:3px 0 10px">Lei 10.406/2002 · Parte Geral · Livro I</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #e2ddd0;border-radius:4px;padding:4px 8px">Art. ▾</span>
+            <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #e2ddd0;border-radius:4px;padding:4px 8px">Índice</span>
+            <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #e2ddd0;border-radius:4px;padding:4px 8px">Aa</span>
+            <span style="flex:1"></span>
+            <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;cursor:pointer">Anotar</span>
+          </div>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;padding:16px 18px 22px">
+          <div style="font:400 10px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#a8a196;margin-bottom:12px">TÍTULO I · DAS PESSOAS NATURAIS</div>
+          <div style="font:400 13px/1.75 'Source Serif 4',serif;color:#33313c;display:flex;flex-direction:column;gap:13px">
+            <p style="margin:0"><strong style="font-weight:600">Art. 1º</strong> Toda pessoa é capaz de direitos e deveres na ordem civil.</p>
+            <p style="margin:0"><strong style="font-weight:600">Art. 2º</strong> A personalidade civil da pessoa começa do nascimento com vida; mas a lei põe a salvo, desde a concepção, os direitos do nascituro.</p>
+            <div style="border-left:2px solid #dcd7ea;background:#f6f5fa;border-radius:0 5px 5px 0;padding:10px 12px">
+              <p style="margin:0 0 8px"><strong style="font-weight:600">Art. 3º</strong> São absolutamente incapazes de exercer pessoalmente os atos da vida civil os menores de 16 (dezesseis) anos.</p>
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="font:500 8.5px 'IBM Plex Mono',monospace;letter-spacing:.06em;color:#8a6a1f;border:1px solid #e3d7b8;background:#f8f3e5;border-radius:3px;padding:2px 5px">REDAÇÃO ALTERADA</span>
+                <span style="font:400 10px 'IBM Plex Sans',sans-serif;color:#7d7770">Lei 13.146/2015 · ver redação anterior</span>
+              </div>
+            </div>
+            <p style="margin:0"><strong style="font-weight:600">Art. 4º</strong> São incapazes, relativamente a certos atos ou à maneira de os exercer: I – os maiores de dezesseis e menores de dezoito anos;</p>
+          </div>
+          <div style="margin-top:18px;border:1px solid #e6e1d4;border-radius:6px;background:#faf8f3;padding:12px">
+            <div style="font:500 9.5px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#8b847a;margin-bottom:8px">NESTE ARTIGO</div>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;gap:9px;align-items:center"><span style="font:500 9px 'IBM Plex Mono',monospace;color:#3d3a52;background:#eceaf1;border-radius:3px;padding:2px 5px;flex:none">JURIS</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#5d5850">312 acórdãos citam o art. 3º</span></div>
+              <div style="display:flex;gap:9px;align-items:center"><span style="font:500 9px 'IBM Plex Mono',monospace;color:#3d3a52;background:#eceaf1;border-radius:3px;padding:2px 5px;flex:none">SÚM</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#5d5850">Nenhuma súmula direta · 2 correlatas</span></div>
+              <div style="display:flex;gap:9px;align-items:center"><span style="font:500 9px 'IBM Plex Mono',monospace;color:#3d3a52;background:#eceaf1;border-radius:3px;padding:2px 5px;flex:none">DOUT</span><span style="font:400 11px 'IBM Plex Sans',sans-serif;color:#5d5850">7 obras indexadas no acervo do escritório</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ── TELA 6 · FONTES & ATUALIZAÇÕES ── -->
+    <sc-if value="{{ isFontes }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;overflow:auto;padding:22px 26px 30px">
+      <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:18px">
+        <div>
+          <div style="font:700 22px/1.2 'Source Serif 4',serif;color:#22212a">Fontes &amp; atualizações</div>
+          <div style="font:400 12px 'IBM Plex Sans',sans-serif;color:#7d7770;margin-top:5px">Coletores em Python · APIs de dados abertos e raspagem do Diário Oficial</div>
+        </div>
+        <div style="flex:1"></div>
+        <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #ddd7c9;background:#fff;border-radius:4px;padding:6px 10px">Logs</span>
+        <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#f2efe8;background:#3d3a52;border-radius:4px;padding:6px 10px;cursor:pointer">Sincronizar agora</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-bottom:20px">
+        <sc-for list="{{ conectores }}" as="c" hint-placeholder-count="5">
+          <div style="border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;padding:13px 14px">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:9px">
+              <span style="width:7px;height:7px;border-radius:50%;background:#4e9c78;flex:none"></span>
+              <span style="font:600 11.5px 'IBM Plex Sans',sans-serif;color:#22212a">{{ c.nome }}</span>
+            </div>
+            <div style="font:400 10.5px/1.45 'IBM Plex Sans',sans-serif;color:#8b847a;margin-bottom:10px;height:30px">{{ c.desc }}</div>
+            <div style="display:flex;gap:2px;align-items:flex-end;height:26px;margin-bottom:9px">
+              <sc-for list="{{ c.bars }}" as="b" hint-placeholder-count="12">
+                <span style="flex:1;background:#dcd7ea;border-radius:1px;height:{{ b.h }}"></span>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:space-between;font:400 10px 'IBM Plex Mono',monospace;color:#8b847a">
+              <span>{{ c.sync }}</span><span style="color:#2f6a4f">{{ c.reg }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="flex:1;min-width:0;border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;overflow:hidden">
+          <div style="padding:13px 17px;border-bottom:1px solid #eee9dc;background:#faf8f3;display:flex;align-items:center;gap:10px">
+            <span style="font:600 12.5px 'IBM Plex Sans',sans-serif;color:#22212a">Alterações captadas</span>
+            <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a">últimas 72 h · 34 itens</span>
+            <span style="flex:1"></span>
+            <span style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#6f6a62;border:1px solid #e2ddd0;background:#fff;border-radius:4px;padding:4px 9px">Todos os ramos ▾</span>
+          </div>
+          <sc-for list="{{ feed }}" as="f" hint-placeholder-count="5">
+            <div style="display:flex;gap:14px;padding:14px 17px;border-bottom:1px solid #f2ede1" style-hover="background:#faf8f3">
+              <div style="width:74px;flex:none">
+                <div style="font:500 10px 'IBM Plex Mono',monospace;color:#8b847a">{{ f.data }}</div>
+                <div style="font:400 9.5px 'IBM Plex Mono',monospace;color:#b0a99e;margin-top:2px">{{ f.hora }}</div>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+                  <span style="font:500 8.5px 'IBM Plex Mono',monospace;letter-spacing:.07em;color:#3d3a52;background:#eceaf1;border:1px solid #d9d6e3;border-radius:3px;padding:2px 5px">{{ f.tag }}</span>
+                  <span style="font:500 12.5px 'IBM Plex Sans',sans-serif;color:#22212a">{{ f.titulo }}</span>
+                </div>
+                <div style="font:400 12px/1.55 'Source Serif 4',serif;color:#5d5850">{{ f.txt }}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                  <span style="font:400 10px 'IBM Plex Mono',monospace;color:#a8a196">{{ f.fonte }}</span>
+                  <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;cursor:pointer">Ver diff</span>
+                  <span style="font:500 10.5px 'IBM Plex Sans',sans-serif;color:#3d3a52;cursor:pointer">Impacto nas minhas teses ({{ f.impacto }})</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="width:340px;flex:none;display:flex;flex-direction:column;gap:12px">
+          <div style="border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;overflow:hidden">
+            <div style="padding:12px 15px;border-bottom:1px solid #eee9dc;font:600 12px 'IBM Plex Sans',sans-serif;color:#22212a">Comparador de redações</div>
+            <div style="padding:13px 15px">
+              <div style="font:400 10.5px 'IBM Plex Sans',sans-serif;color:#8b847a;margin-bottom:9px">CP art. 157, §2º · redação de 2018 → 2019</div>
+              <div style="font:400 12px/1.6 'Source Serif 4',serif;background:#f9eeee;border:1px solid #ecd9d9;border-radius:5px;padding:9px 11px;color:#7a3a3a;margin-bottom:7px">I – se a violência ou ameaça é exercida com <span style="text-decoration:line-through">emprego de arma</span>;</div>
+              <div style="font:400 12px/1.6 'Source Serif 4',serif;background:#eef6f0;border:1px solid #cadfd2;border-radius:5px;padding:9px 11px;color:#2f5a48">VII – se a violência ou grave ameaça é exercida com <strong style="font-weight:600">emprego de arma branca</strong>;</div>
+            </div>
+          </div>
+          <div style="border:1px solid #e2ddd0;border-radius:8px;background:#fffdf8;overflow:hidden">
+            <div style="padding:12px 15px;border-bottom:1px solid #eee9dc;font:600 12px 'IBM Plex Sans',sans-serif;color:#22212a">Saúde dos coletores</div>
+            <div style="padding:6px 15px 12px">
+              <sc-for list="{{ jobs }}" as="j" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f2ede1">
+                  <span style="font:400 10.5px 'IBM Plex Mono',monospace;color:#5d5850;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ j.nome }}</span>
+                  <span style="font:400 10px 'IBM Plex Mono',monospace;color:#a8a196">{{ j.dur }}</span>
+                  <span style="font:500 8.5px 'IBM Plex Mono',monospace;letter-spacing:.06em;border-radius:3px;padding:2px 5px;color:#2f6a4f;border:1px solid #cadfd2;background:#eef6f0">{{ j.st }}</span>
+                </div>
+              </sc-for>
+              <div style="font:400 10.5px/1.5 'IBM Plex Sans',sans-serif;color:#8b847a;padding-top:10px">Fila de reprocessamento vazia. Rate limit da Câmara em 42% da cota diária.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+
+<p style="max-width:1440px;margin:18px 2px 0;font:400 12px/1.7 'IBM Plex Sans',sans-serif;color:#6f6a62">Próximos passos possíveis: versão mobile do chat · fluxo de anexar autos e extrair fatos · tela de peça gerada (.docx) com citações rastreáveis · variações de densidade e de cor para o modo escuro.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1508,&quot;height&quot;:1060}}">
+class Component extends DCLogic {
+  state = { tela: 'chat', trib: 'STF', fase: 1 };
+
+  renderVals() {
+    const t = this.state.tela;
+    const titulos = {
+      chat: ['Consulta em chat', 'ROUBO MAJORADO · ARMA BRANCA'],
+      juris: ['Jurisprudência', 'BUSCA UNIFICADA · DATAJUD + TRIBUNAIS'],
+      sumulas: ['Súmulas STF · STJ', 'REPOSITÓRIOS OFICIAIS'],
+      dosimetria: ['Dosimetria da pena', 'CÁLCULO TRIFÁSICO'],
+      vade: ['Vade Mecum', 'CONSOLIDAÇÃO POR RAMO'],
+      fontes: ['Fontes & atualizações', 'PIPELINE PYTHON · 5 CONECTORES']
+    };
+    const go = (k) => () => this.setState({ tela: k });
+    const bars = (seed) => Array.from({ length: 12 }, (_, i) => ({ h: (30 + ((i * 7 + seed * 13) % 70)) + '%' }));
+
+    return {
+      tituloTela: titulos[t][0], subtituloTela: titulos[t][1],
+      isChat: t === 'chat', isJuris: t === 'juris', isSumulas: t === 'sumulas',
+      isDosimetria: t === 'dosimetria', isVade: t === 'vade', isFontes: t === 'fontes',
+      goChat: go('chat'), goJuris: go('juris'), goSumulas: go('sumulas'),
+      goDosimetria: go('dosimetria'), goVade: go('vade'), goFontes: go('fontes'),
+      isStf: this.state.trib === 'STF', isStj: this.state.trib === 'STJ',
+      setStf: () => this.setState({ trib: 'STF' }), setStj: () => this.setState({ trib: 'STJ' }),
+
+      recentes: [
+        { t: 'Prescrição em crime continuado' },
+        { t: 'Usucapião extrajudicial — requisitos' },
+        { t: 'Acordo de não persecução penal' },
+        { t: 'Dano moral por inscrição indevida' },
+        { t: 'Tema 1.110 STJ — arma branca' }
+      ],
+      fundamentos: [
+        { n: '1', titulo: 'CP art. 157, §2º, VII', sub: 'redação da Lei 13.964/2019 · Pacote Anticrime', selo: 'EM VIGOR', open: go('vade') },
+        { n: '2', titulo: 'STJ · Recursos repetitivos', sub: 'abolitio criminis parcial entre 2018 e 2019', selo: 'VIGENTE', open: go('juris') },
+        { n: '3', titulo: 'Súmula 443 · STJ', sub: 'aumento acima do mínimo exige fundamentação concreta', selo: 'VIGENTE', open: go('sumulas') }
+      ],
+      sugestoes: [
+        { t: 'Quais súmulas afastam o aumento?' },
+        { t: 'Redigir tese de retroatividade' },
+        { t: 'Casos análogos no TJSP' },
+        { t: 'Efeitos na progressão de regime' }
+      ],
+      modos: [
+        { t: 'Leis', on: true }, { t: 'Jurisprudência', on: true }, { t: 'Súmulas', on: true },
+        { t: 'Doutrina', on: false }, { t: 'Meus casos', on: false }
+      ],
+      timeline: [
+        { data: '1940', txt: 'Redação originária do Decreto-Lei 2.848 — majorante genérica de emprego de arma.' },
+        { data: '24/04/2018', txt: 'Lei 13.654/2018 revoga o inciso I do §2º; arma branca deixa de majorar.' },
+        { data: '24/12/2019', txt: 'Lei 13.964/2019 inclui o inciso VII, restabelecendo o aumento para arma branca.' }
+      ],
+      filtros: [
+        { nome: 'Tribunal', itens: [{ t: 'STJ', n: '412', on: true }, { t: 'STF', n: '96', on: false }, { t: 'TJSP', n: '388', on: false }, { t: 'TJRJ', n: '141', on: false }] },
+        { nome: 'Classe', itens: [{ t: 'Repetitivos', n: '18', on: true }, { t: 'HC', n: '602', on: false }, { t: 'REsp', n: '311', on: false }, { t: 'AgRg', n: '204', on: false }] },
+        { nome: 'Resultado', itens: [{ t: 'Provido', n: '286', on: false }, { t: 'Parcial', n: '198', on: false }, { t: 'Improvido', n: '744', on: false }] },
+        { nome: 'Fonte', itens: [{ t: 'DataJud/CNJ', n: '1.102', on: true }, { t: 'Sítio do tribunal', n: '182', on: false }] }
+      ],
+      acordaos: [
+        { tribunal: 'STJ', numero: 'REsp 2.0xx.xxx/SP', orgao: 'Terceira Seção', relator: 'Min. R. Andrade', data: '18/03/2026', selo: 'PARADIGMA', citacoes: 148, origem: 'DataJud · inteiro teor verificado', ementa: 'PENAL. ROUBO. EMPREGO DE ARMA BRANCA. LEI 13.654/2018. ABOLITIO CRIMINIS PARCIAL. LEI 13.964/2019. NOVA MAJORANTE. IRRETROATIVIDADE. Aos fatos praticados na vigência da lei revogadora não se aplica a causa de aumento posteriormente reintroduzida, sob pena de ofensa ao art. 5º, XL, da Constituição.' },
+        { tribunal: 'STJ', numero: 'HC 9xx.xxx/MG', orgao: 'Quinta Turma', relator: 'Min. L. Marques', data: '02/02/2026', selo: 'VIGENTE', citacoes: 37, origem: 'DataJud · ementa oficial', ementa: 'DOSIMETRIA. TERCEIRA FASE. FRAÇÃO DE AUMENTO. Presente uma única majorante, o acréscimo deve corresponder ao mínimo legal, salvo fundamentação concreta apoiada em dados do caso — Súmula 443/STJ.' },
+        { tribunal: 'STF', numero: 'HC 2xx.xxx/RS', orgao: 'Segunda Turma', relator: 'Min. C. Teixeira', data: '11/11/2025', selo: 'VIGENTE', citacoes: 22, origem: 'Portal do STF · acórdão publicado', ementa: 'NOVATIO LEGIS IN PEJUS. A superveniência de lei que restabelece causa de aumento não alcança fatos anteriores. Ordem concedida para decotar a majorante e refazer a dosimetria.' },
+        { tribunal: 'TJSP', numero: 'Apelação 15xx.xxx-x', orgao: '9ª Câmara Criminal', relator: 'Des. A. Fontes', data: '27/06/2026', selo: 'VIGENTE', citacoes: 4, origem: 'DataJud · sincronizado hoje', ementa: 'ROUBO MAJORADO. FACA. AUMENTO EM 1/3. REGIME SEMIABERTO. Réu primário, pena inferior a oito anos, ausência de circunstâncias judiciais desfavoráveis suficientes ao regime mais gravoso.' }
+      ],
+      temas: [
+        { t: 'Dosimetria da pena', n: 24 }, { t: 'Roubo e furto', n: 18 }, { t: 'Execução penal', n: 31 },
+        { t: 'Prescrição', n: 12 }, { t: 'Prova ilícita', n: 9 }, { t: 'Tráfico de drogas', n: 21 },
+        { t: 'Competência', n: 27 }, { t: 'Nulidades', n: 15 }
+      ],
+      sumulas: this.state.trib === 'STF' ? [
+        { n: '711', tipo: 'SÚMULA', txt: 'A lei penal mais grave aplica-se ao crime continuado ou ao crime permanente, se a sua vigência é anterior à cessação da continuidade ou da permanência.', status: 'VIGENTE', orgao: 'Tribunal Pleno', data: '24/09/2003', refs: 'CP art. 71 · CF art. 5º, XL', prec: 14 },
+        { n: '719', tipo: 'SÚMULA', txt: 'A imposição do regime de cumprimento mais severo do que a pena aplicada permitir exige motivação idônea.', status: 'VIGENTE', orgao: 'Tribunal Pleno', data: '24/09/2003', refs: 'CP art. 33, §3º', prec: 41 },
+        { n: '26', tipo: 'VINCULANTE', txt: 'Para efeito de progressão de regime no cumprimento de pena por crime hediondo, o juiz determinará, para tal fim, de modo fundamentado, a realização de exame criminológico.', status: 'VIGENTE', orgao: 'Tribunal Pleno', data: '23/12/2009', refs: 'LEP art. 112 · Lei 8.072/1990', prec: 63 },
+        { n: '444', tipo: 'SÚMULA', txt: 'É vedada a utilização de inquéritos policiais e ações penais em curso para agravar a pena-base.', status: 'CORRELATA · STJ', orgao: 'Terceira Seção', data: '28/04/2010', refs: 'CP art. 59', prec: 128 }
+      ] : [
+        { n: '443', tipo: 'SÚMULA', txt: 'O aumento na terceira fase de aplicação da pena no delito de roubo circunstanciado exige fundamentação concreta, não sendo suficiente para a sua exasperação a mera indicação do número de majorantes.', status: 'VIGENTE', orgao: 'Terceira Seção', data: '28/04/2010', refs: 'CP art. 157, §2º', prec: 219 },
+        { n: '444', tipo: 'SÚMULA', txt: 'É vedada a utilização de inquéritos policiais e ações penais em curso para agravar a pena-base.', status: 'VIGENTE', orgao: 'Terceira Seção', data: '28/04/2010', refs: 'CP art. 59', prec: 128 },
+        { n: '231', tipo: 'SÚMULA', txt: 'A incidência da circunstância atenuante não pode conduzir à redução da pena abaixo do mínimo legal.', status: 'VIGENTE', orgao: 'Terceira Seção', data: '22/09/1999', refs: 'CP art. 65', prec: 302 },
+        { n: '269', tipo: 'SÚMULA', txt: 'É admissível a adoção do regime prisional semiaberto aos reincidentes condenados a pena igual ou inferior a quatro anos se favoráveis as circunstâncias judiciais.', status: 'VIGENTE', orgao: 'Terceira Seção', data: '22/05/2002', refs: 'CP art. 33 · art. 59', prec: 87 }
+      ],
+      isFase1: this.state.fase === 1,
+      isFase23: this.state.fase !== 1,
+      setFase1: () => this.setState({ fase: 1 }),
+      setFase2: () => this.setState({ fase: 2 }),
+      setFase3: () => this.setState({ fase: 3 }),
+      tituloFase: this.state.fase === 2 ? 'Agravantes e atenuantes — arts. 61 a 66 do CP' : 'Causas de aumento e de diminuição — 3ª fase',
+      subFase: this.state.fase === 2 ? 'pena-base 4 a 9 m · resultado 4 a 1 m' : 'pena provisória 4 a 1 m · resultado 5 a 6 m',
+      avisoFase: this.state.fase === 2
+        ? 'Súmula 231/STJ: a atenuante não reduz a pena abaixo do mínimo legal — a menoridade incide sobre 4 anos e 9 meses.'
+        : 'Súmula 443/STJ: com majorante única, o acréscimo fica no mínimo de 1/3 salvo fundamentação concreta.',
+      circunstancias: this.state.fase === 2 ? [
+        { nome: 'Menoridade relativa (art. 65, I)', base: 'réu com 24 anos na data do fato', nota: 'certidão de nascimento nos autos', fr: '− 1/6', on: true },
+        { nome: 'Confissão espontânea (art. 65, III, d)', base: 'não houve confissão em juízo', nota: 'inaplicável neste caso', fr: '− 1/6', on: false },
+        { nome: 'Reincidência (art. 61, I)', base: 'réu primário', nota: 'sem trânsito em julgado anterior', fr: '+ 1/6', on: false },
+        { nome: 'Motivo fútil (art. 61, II, a)', base: 'não reconhecido na denúncia', nota: '—', fr: '+ 1/6', on: false },
+        { nome: 'Crime contra idoso (art. 61, II, h)', base: 'vítima de 41 anos', nota: 'não incide', fr: '+ 1/6', on: false }
+      ] : [
+        { nome: 'Emprego de arma branca (art. 157, §2º, VII)', base: 'faca apreendida e periciada', nota: 'fato posterior a 24/12/2019 — majorante válida', fr: '+ 1/3', on: true },
+        { nome: 'Concurso de pessoas (art. 157, §2º, II)', base: 'agente sozinho', nota: 'não reconhecido', fr: '+ 1/3', on: false },
+        { nome: 'Restrição da liberdade (art. 157, §2º, V)', base: 'não descrita na denúncia', nota: '—', fr: '+ 1/3', on: false },
+        { nome: 'Tentativa (art. 14, II)', base: 'crime consumado', nota: 'inaplicável', fr: '− 1/3 a 2/3', on: false },
+        { nome: 'Arma de fogo (art. 157, §2º-A, I)', base: 'não houve', nota: 'excluiria a majorante do inciso VII', fr: '+ 2/3', on: false }
+      ],
+      fases: [
+        { k: '1ª FASE', nome: 'Pena-base', res: '4 a 9 m', on: this.state.fase === 1, go: () => this.setState({ fase: 1 }) },
+        { k: '2ª FASE', nome: 'Pena provisória', res: '4 a 1 m', on: this.state.fase === 2, go: () => this.setState({ fase: 2 }) },
+        { k: '3ª FASE', nome: 'Pena definitiva', res: '5 a 6 m', on: this.state.fase === 3, go: () => this.setState({ fase: 3 }) }
+      ],
+      vetores: [
+        { nome: 'Culpabilidade', hint: 'grau de reprovabilidade', delta: '+ 9 meses', opts: [{ t: 'Favorável', on: false }, { t: 'Neutra', on: false }, { t: 'Desfavorável', on: true }] },
+        { nome: 'Antecedentes', hint: 'certidões nos autos', delta: '—', opts: [{ t: 'Favorável', on: true }, { t: 'Neutra', on: false }, { t: 'Desfavorável', on: false }] },
+        { nome: 'Conduta social', hint: 'meio familiar e laboral', delta: '—', opts: [{ t: 'Favorável', on: true }, { t: 'Neutra', on: false }, { t: 'Desfavorável', on: false }] },
+        { nome: 'Personalidade', hint: 'sem laudo — cautela', delta: '—', opts: [{ t: 'Favorável', on: false }, { t: 'Neutra', on: true }, { t: 'Desfavorável', on: false }] },
+        { nome: 'Motivos', hint: 'motivação do agente', delta: '—', opts: [{ t: 'Favorável', on: false }, { t: 'Neutra', on: true }, { t: 'Desfavorável', on: false }] },
+        { nome: 'Circunstâncias', hint: 'modo de execução', delta: '—', opts: [{ t: 'Favorável', on: false }, { t: 'Neutra', on: true }, { t: 'Desfavorável', on: false }] },
+        { nome: 'Consequências', hint: 'extensão do dano', delta: '—', opts: [{ t: 'Favorável', on: false }, { t: 'Neutra', on: true }, { t: 'Desfavorável', on: false }] },
+        { nome: 'Vítima', hint: 'comportamento da vítima', delta: '—', opts: [{ t: 'Favorável', on: false }, { t: 'Neutra', on: true }, { t: 'Desfavorável', on: false }] }
+      ],
+      calculo: [
+        { n: '1', rot: 'Pena-base', det: '1 vetor negativo · +1/8 do intervalo (6 anos)', val: '4a 9m' },
+        { n: '2', rot: 'Agravantes', det: 'nenhuma reconhecida', val: '=' },
+        { n: '3', rot: 'Atenuantes', det: 'menoridade relativa −1/6 · Súmula 231 respeitada', val: '4a 1m' },
+        { n: '4', rot: 'Majorante', det: 'arma branca +1/3 (mínimo legal · Súmula 443)', val: '5a 6m' }
+      ],
+      ramos: [
+        { nome: 'Direito Penal', desc: 'Código Penal, leis especiais e execução penal.', qtd: 22, arts: '4.180', novo: true, open: go('vade'), leis: [{ t: 'DL 2.848/40' }, { t: 'Lei 7.210/84' }, { t: 'Lei 11.343/06' }] },
+        { nome: 'Processo Penal', desc: 'CPP, prisões, provas e recursos criminais.', qtd: 14, arts: '2.940', novo: false, open: go('vade'), leis: [{ t: 'DL 3.689/41' }, { t: 'Lei 9.099/95' }] },
+        { nome: 'Direito Civil', desc: 'Código Civil e legislação civil extravagante.', qtd: 31, arts: '6.115', novo: true, open: go('vade'), leis: [{ t: 'Lei 10.406/02' }, { t: 'Lei 8.245/91' }, { t: 'Lei 6.015/73' }] },
+        { nome: 'Processo Civil', desc: 'CPC, execução, cumprimento de sentença.', qtd: 11, arts: '1.720', novo: false, open: go('vade'), leis: [{ t: 'Lei 13.105/15' }, { t: 'Lei 9.307/96' }] },
+        { nome: 'Constitucional', desc: 'Constituição, emendas e ADCT consolidados.', qtd: 6, arts: '1.024', novo: false, open: go('vade'), leis: [{ t: 'CF/1988' }, { t: 'EC 132/23' }] },
+        { nome: 'Trabalho', desc: 'CLT, reforma trabalhista e normas conexas.', qtd: 18, arts: '2.310', novo: true, open: go('vade'), leis: [{ t: 'DL 5.452/43' }, { t: 'Lei 13.467/17' }] },
+        { nome: 'Tributário', desc: 'CTN, reforma tributária e regimes especiais.', qtd: 26, arts: '3.402', novo: true, open: go('vade'), leis: [{ t: 'Lei 5.172/66' }, { t: 'LC 214/25' }] },
+        { nome: 'Administrativo', desc: 'Licitações, servidores, improbidade.', qtd: 19, arts: '2.088', novo: false, open: go('vade'), leis: [{ t: 'Lei 14.133/21' }, { t: 'Lei 8.429/92' }] },
+        { nome: 'Consumidor', desc: 'CDC, superendividamento e regulação.', qtd: 9, arts: '640', novo: false, open: go('vade'), leis: [{ t: 'Lei 8.078/90' }, { t: 'Lei 14.181/21' }] }
+      ],
+      conectores: [
+        { nome: 'Planalto', desc: 'Raspagem da consolidação de leis federais.', sync: 'há 3 min', reg: '214 diplomas', bars: bars(1) },
+        { nome: 'DOU', desc: 'Extração de texto do Diário Oficial (PDF/HTML).', sync: 'há 12 min', reg: '+4 normas', bars: bars(2) },
+        { nome: 'Câmara', desc: 'API de dados abertos — proposições e votações.', sync: 'há 1 h', reg: '1.882 itens', bars: bars(3) },
+        { nome: 'Senado', desc: 'API de matérias legislativas e relatorias.', sync: 'há 1 h', reg: '921 itens', bars: bars(4) },
+        { nome: 'DataJud', desc: 'Metadados e ementas de processos do CNJ.', sync: 'há 26 min', reg: '1,2 M docs', bars: bars(5) }
+      ],
+      feed: [
+        { data: '11/08/2026', hora: '06:12', tag: 'DOU · SEÇÃO 1', titulo: 'Lei 15.2xx/2026', txt: 'Altera dispositivos da Lei de Execução Penal quanto ao cômputo de remição por estudo. Vigência em 90 dias.', fonte: 'imprensanacional · pdf extraído', impacto: 3 },
+        { data: '10/08/2026', hora: '19:40', tag: 'PLANALTO', titulo: 'CP art. 33 — nova redação consolidada', txt: 'Consolidação atualizada com a alteração publicada em julho; redação anterior arquivada para comparação.', fonte: 'scraper · diff validado', impacto: 7 },
+        { data: '10/08/2026', hora: '14:02', tag: 'CÂMARA', titulo: 'PL 1.4xx/2026 aprovado em comissão', txt: 'Proposta amplia hipóteses do acordo de não persecução penal; segue ao Senado.', fonte: 'dadosabertos.camara.leg.br', impacto: 2 },
+        { data: '09/08/2026', hora: '11:27', tag: 'DATAJUD', titulo: '18.402 novos acórdãos indexados', txt: 'Carga incremental de tribunais estaduais; 96% com ementa completa e 4% pendentes de OCR.', fonte: 'api-publica.datajud.cnj.jus.br', impacto: 0 },
+        { data: '08/08/2026', hora: '08:15', tag: 'SENADO', titulo: 'Relatoria alterada no PLP 9x/2026', txt: 'Matéria tributária de interesse do escritório muda de relator na CAE.', fonte: 'legis.senado.leg.br', impacto: 1 }
+      ],
+      jobs: [
+        { nome: 'planalto_consolidado.py', dur: '48 s', st: 'OK' },
+        { nome: 'dou_extract_text.py', dur: '2 m 11 s', st: 'OK' },
+        { nome: 'camara_proposicoes.py', dur: '1 m 04 s', st: 'OK' },
+        { nome: 'datajud_bulk_sync.py', dur: '6 m 39 s', st: 'OK' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

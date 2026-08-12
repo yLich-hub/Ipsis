@@ -66,3 +66,144 @@
 - dispositivo: dl_2848_1940_art291_caput
   marcadores: [13]
   remover: ' 13 NE: o valor máximo da multa foi suprimido conforme o estabelecido pelo art. 2o da Lei no 7.209/1984, que determinou o cancelamento das referências a valores de multas.'
+
+# --- Código de Processo Penal ------------------------------------------------
+#
+# 31 blocos, contra 11 nas outras duas leis somadas: o CPP concentra as notas
+# porque quase toda ADI e ADPF em curso sobre processo penal recebe remissão do
+# editor, e as do "juiz das garantias" (ADIs 6.298 a 6.305) se repetem em cada
+# dispositivo afetado — só o art. 3º-E carrega oito marcadores.
+#
+# Os cortes foram gerados a partir de vocabulário FECHADO: o corpo da nota tem de
+# ser uma das 13 frases que o dump encontrou. Corpo desconhecido não é cortado, é
+# recusado — a regra "corta até o primeiro ponto" continua proibida, e continua
+# sendo a que decaparia "art. 2o da Lei no 7.209/1984".
+#
+# Cada `remover` consome o espaço da ESQUERDA e deixa o da direita. A nota quase
+# sempre cai no meio da frase, e comer os dois espaços cola as palavras vizinhas
+# ("e a" + "substituição" vira "asubstituição"). O collapse de espaços do
+# normalize não repõe separador que já sumiu.
+
+- dispositivo: dl_3689_1941_art3-a_caput
+  marcadores: [1, 2, 3]
+  remover: ' 1 Nota do Editor (NE): os artigos mencionados são os da Constituição de 1937. 2 NE: o artigo mencionado é o da Constituição de 1937. 3 NE: ver ADPF no 130.'
+
+- dispositivo: dl_3689_1941_art3-b_inc9
+  marcadores: [4, 5, 6, 7, 8, 9, 10]
+  remover: ' 4 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 5 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 6 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 7 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 8 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 9 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 10 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art3-b_p2
+  marcadores: [11, 12]
+  remover: ' 11 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 12 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art3-e_caput
+  marcadores: [13, 14, 15, 16, 17, 18, 19, 20]
+  remover: ' 13 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 14 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 15 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 16 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 17 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 18 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 19 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 20 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art5_p2
+  marcadores: [21, 22]
+  remover: ' 21 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 22 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art28-a_inc5
+  marcadores: [23, 24]
+  remover: ' 23 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 24 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art69_inc2
+  marcadores: [25]
+  remover: ' 25 NE: ver ADPF no 779.'
+
+- dispositivo: dl_3689_1941_art80_caput
+  marcadores: [26]
+  remover: ' 26 NE: os dispositivos mencionados são os do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art84_p1
+  marcadores: [27]
+  remover: ' 27 NE: ver ADIs nos 2.797 e 2.860.'
+
+- dispositivo: dl_3689_1941_art123_caput
+  marcadores: [28]
+  remover: ' 28 NE: os dispositivos mencionados são os do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art131_inc1
+  marcadores: [29]
+  remover: ' 29 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art158-b_inc3
+  marcadores: [30]
+  remover: ' 30 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art264_caput
+  marcadores: [31]
+  remover: ' 31 NE: ver ADPFs nos 395 e 444.'
+
+- dispositivo: dl_3689_1941_art279_inc1
+  marcadores: [32]
+  remover: ' 32 NE: os dispositivos mencionados são os do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art295_p2
+  marcadores: [33]
+  remover: ' 33 NE: ver ADPF no 334.'
+
+- dispositivo: dl_3689_1941_art310_p2
+  marcadores: [34]
+  remover: ' 34 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art313_inc2
+  marcadores: [35]
+  remover: ' 35 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305.'
+
+- dispositivo: dl_3689_1941_art318-b_caput
+  marcadores: [36]
+  remover: ' 36 NE: ver ADIs nos 6.581 e 6.582.'
+
+- dispositivo: dl_3689_1941_art392_caput
+  marcadores: [37]
+  remover: ' 37 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art400-a_inc2
+  marcadores: [38]
+  remover: ' 38 NE: ver ADPF no 1.107.'
+
+- dispositivo: dl_3689_1941_art483_p5
+  marcadores: [39, 40]
+  remover: ' 39 NE: ver ADPF no 779. 40 NE: ver ADPF no 779.'
+
+- dispositivo: dl_3689_1941_art555_caput
+  marcadores: [41]
+  remover: ' 41 NE: os dispositivos mencionados são os do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art564_inc3_alh
+  marcadores: [42]
+  remover: ' 42 NE: os dispositivos mencionados são os do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art581_inc22
+  marcadores: [43]
+  remover: ' 43 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art688_p1
+  marcadores: [44]
+  remover: ' 44 NE: os dispositivos mencionados neste artigo são os do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art696_inc1
+  marcadores: [45, 46]
+  remover: ' 45 NE: os dispositivos mencionados são os do texto original do Código Penal. 46 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art752_caput
+  marcadores: [47]
+  remover: ' 47 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art767_caput
+  marcadores: [48, 49, 50]
+  remover: ' 48 NE: o dispositivo mencionado é o do texto original do Código Penal. 49 NE: o dispositivo mencionado é o do texto original do Código Penal. 50 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art775_inc8
+  marcadores: [51]
+  remover: ' 51 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art780_caput
+  marcadores: [52, 53]
+  remover: ' 52 NE: os dispositivos mencionados são os do texto original do Código Penal. 53 NE: o dispositivo mencionado é o do texto original do Código Penal.'
+
+- dispositivo: dl_3689_1941_art789_p4
+  marcadores: [54]
+  remover: ' 54 NE: o dispositivo mencionado é o do texto original do Código Penal.'

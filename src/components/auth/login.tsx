@@ -72,7 +72,7 @@ export function FormularioLogin({
   }
 
   return (
-    <Moldura titulo="Entrar" sub="Acesse sua área de trabalho no Jesbick.">
+    <Moldura titulo="Entrar" sub="Acesse sua área de trabalho no Toga.">
       {recado && (
         <Aviso tom="esmeralda" className="mb-4" role="status">
           {recado}
@@ -117,7 +117,7 @@ export function FormularioLogin({
         </Botao>
       </form>
 
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-4">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-tg-linha pt-4">
         <LinkAuth href="/esqueci-senha">Esqueci minha senha</LinkAuth>
         <LinkAuth href={proximo ? `/cadastro?proximo=${encodeURIComponent(proximo)}` : '/cadastro'}>
           Criar conta

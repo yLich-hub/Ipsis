@@ -74,7 +74,7 @@ export function FormularioRedefinirSenha() {
         <div className="mt-5">
           <a
             href="/login"
-            className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-500 px-4 py-2.5 text-[13.5px] font-medium text-slate-950 transition-colors hover:bg-emerald-400"
+            className="inline-flex w-full items-center justify-center rounded-xl bg-tg-acento px-4 py-2.5 text-[13.5px] font-medium text-white transition-colors hover:bg-tg-acento"
           >
             Ir para o login
           </a>
@@ -123,7 +123,7 @@ export function FormularioRedefinirSenha() {
         </Botao>
       </form>
 
-      <div className="mt-5 border-t border-white/[0.06] pt-4">
+      <div className="mt-5 border-t border-tg-linha pt-4">
         <LinkAuth href="/login">Voltar para o login</LinkAuth>
       </div>
     </Moldura>

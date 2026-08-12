@@ -43,6 +43,15 @@ export async function middleware(request: NextRequest) {
   // antes dele é convidar a corrida em que o verifier some no meio da troca.
   if (caminho.startsWith('/auth/')) return NextResponse.next()
 
+  // A raiz não é tela: é um desvio. Quem tem sessão vai para o trabalho, quem
+  // não tem vai para o login. Sem cookie a decisão já está tomada, e resolvê-la
+  // aqui poupa a ida ao servidor de Auth do visitante anônimo — que é o caso
+  // mais comum de todos na raiz.
+  const ehRaiz = caminho === '/'
+  if (ehRaiz && !temCookieDeSessao(request)) {
+    return NextResponse.redirect(new URL(ROTA_LOGIN, request.url))
+  }
+
   const publica = ehPublica(caminho)
 
   if (publica && !temCookieDeSessao(request)) return NextResponse.next()
@@ -75,6 +84,12 @@ export async function middleware(request: NextRequest) {
     const r = NextResponse.redirect(destino)
     for (const c of resposta.cookies.getAll()) r.cookies.set(c)
     return r
+  }
+
+  // Raiz com cookie: só agora se sabe se o cookie vale alguma coisa. Cookie
+  // expirado cai no login, não numa tela em branco.
+  if (ehRaiz) {
+    return redirecionar(new URL(usuario ? DESTINO_PADRAO : ROTA_LOGIN, request.url))
   }
 
   if (!usuario && !publica) {

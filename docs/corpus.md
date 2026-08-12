@@ -149,7 +149,7 @@ depois que a rubrica sai.
 
 `§ 1o` → `§ 1º`, `Lei no 9.099` → `Lei nº 9.099`.
 
-São 566 ocorrências brutas, das quais ~450 são o marcador `§ 1o` no início do
+São 566 ocorrências brutas no PDF, das quais a maioria é o marcador `§ 1o` no início do
 bloco — esse vira `rotulo` na extração da estrutura, não precisa de substituição.
 Restam 119 dentro do texto.
 

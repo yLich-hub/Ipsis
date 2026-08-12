@@ -16,8 +16,8 @@ export async function generateMetadata({
   return {
     title:
       a.ok && a.dados
-        ? `${tituloArtigo(a.dados.numero)}${a.dados.rubrica ? ` · ${a.dados.rubrica}` : ''} — Jesbick`
-        : 'Artigo — Jesbick',
+        ? `${tituloArtigo(a.dados.numero)}${a.dados.rubrica ? ` · ${a.dados.rubrica}` : ''} — Toga`
+        : 'Artigo — Toga',
   }
 }
 

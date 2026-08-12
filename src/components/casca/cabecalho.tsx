@@ -1,16 +1,20 @@
 // =============================================================================
-// Cabeçalho de tela — altura fixa, igual em todas as páginas.
+// Cabeçalho de tela — o título serifado, dentro do conteúdo.
 //
-// Continua sendo componente de servidor: envelope e sino seguem decorativos
-// (mensagens e notificações estão fora do escopo) e não valem uma ilha de
-// cliente. A única ilha é `<Conta />`, que precisa do estado de sessão do
-// navegador para reagir a logout sem esperar uma navegação.
+// Não é o topo do app. O topo (60px, com busca e conta) é único e mora em
+// `components/toga/casca.tsx`; ele já mostra o nome da tela em Inter Tight, do
+// mesmo jeito em todas as rotas.
+//
+// Este aqui é o outro título, o de dentro — 26px em Source Serif 4, com a linha
+// de contexto embaixo e as ações à direita. A repetição é do documento de
+// design e é intencional: o do topo diz *onde você está* enquanto você navega, e
+// o de dentro abre a leitura da página. Um é rótulo de navegação, o outro é
+// primeira linha de documento.
+//
+// Continua sendo componente de servidor: não tem estado nenhum.
 // =============================================================================
 
 import type { ReactNode } from 'react'
-
-import { Conta } from '@/components/casca/conta'
-import { Icone, type NomeIcone } from '@/components/icones'
 
 export function Cabecalho({
   titulo,
@@ -18,32 +22,19 @@ export function Cabecalho({
   children,
 }: {
   titulo: string
-  sub?: string
+  sub?: ReactNode
   children?: ReactNode
 }) {
   return (
-    <header className="flex h-16 shrink-0 items-center gap-3 border-b border-white/[0.06] px-4 sm:px-6">
+    <div className="flex shrink-0 items-end gap-4 px-5 pb-1 pt-6 sm:px-7">
       <div className="min-w-0">
-        <h1 className="truncate text-[15px] font-semibold text-slate-100">{titulo}</h1>
-        {sub && <p className="truncate text-[12px] text-slate-500">{sub}</p>}
+        <h1 className="font-tg-serif text-[26px] leading-[1.2] -tracking-[0.01em] text-tg-tinta">
+          {titulo}
+        </h1>
+        {sub && <p className="mt-1.5 text-[13px] text-tg-fraco-2">{sub}</p>}
       </div>
-
-      {children && <div className="ml-3 hidden min-w-0 items-center gap-2 sm:flex">{children}</div>}
-
-      <div className="ml-auto flex shrink-0 items-center gap-1">
-        {(['envelope', 'sino'] as NomeIcone[]).map((n) => (
-          <button
-            key={n}
-            type="button"
-            aria-label={n === 'sino' ? 'Notificações' : 'Mensagens'}
-            title="Decorativo: mensagens e notificações estão fora do escopo do projeto"
-            className="hidden size-9 place-items-center rounded-lg text-slate-600 transition-colors hover:bg-white/[0.05] hover:text-slate-300 sm:grid"
-          >
-            <Icone nome={n} className="size-[18px]" />
-          </button>
-        ))}
-        <Conta />
-      </div>
-    </header>
+      <span className="flex-1" />
+      {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}
+    </div>
   )
 }

@@ -18,7 +18,7 @@ import { saude } from '@/lib/dados'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = { title: 'Diagnóstico — Jesbick' }
+export const metadata: Metadata = { title: 'Diagnóstico — Toga' }
 
 const presente = (nome: string) => Boolean(process.env[nome])
 
@@ -35,15 +35,15 @@ function Linha({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
-      <span className="text-[13px] text-slate-300">{rotulo}</span>
-      {nota && <span className="text-[11.5px] text-slate-600">{nota}</span>}
+      <span className="text-[13px] text-tg-tinta-4">{rotulo}</span>
+      {nota && <span className="text-[11.5px] text-tg-tenue-2">{nota}</span>}
       <span className="ml-auto flex items-center gap-2">
-        <span className="text-[12.5px] tabular-nums text-slate-400">{valor}</span>
+        <span className="text-[12.5px] tabular-nums text-tg-corpo">{valor}</span>
         {ok !== undefined &&
           (ok ? (
-            <Icone nome="check" className="size-4 text-emerald-400" strokeWidth={2.2} />
+            <Icone nome="check" className="size-4 text-tg-acento-txt" strokeWidth={2.2} />
           ) : (
-            <Icone nome="xis" className="size-4 text-amber-400" strokeWidth={2.2} />
+            <Icone nome="xis" className="size-4 text-tg-ambar-txt" strokeWidth={2.2} />
           ))}
       </span>
     </div>
@@ -68,10 +68,10 @@ export default async function ConfiguracoesPage() {
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
-          <h2 className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Banco
           </h2>
-          <Cartao className="mt-2 divide-y divide-white/[0.06]">
+          <Cartao className="mt-2 divide-y divide-tg-linha-fraca">
             <Linha rotulo="Projeto Supabase" valor={host} nota="PostgREST/HTTPS, sem conexão direta" />
             <Linha
               rotulo="RPC saude()"
@@ -86,10 +86,10 @@ export default async function ConfiguracoesPage() {
             />
           </Cartao>
 
-          <h2 className="mt-6 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="mt-6 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Variáveis de ambiente (presença, nunca valor)
           </h2>
-          <Cartao className="mt-2 divide-y divide-white/[0.06]">
+          <Cartao className="mt-2 divide-y divide-tg-linha-fraca">
             <Linha
               rotulo="NEXT_PUBLIC_SUPABASE_URL"
               valor={presente('NEXT_PUBLIC_SUPABASE_URL') ? 'definida' : 'ausente'}
@@ -115,10 +115,10 @@ export default async function ConfiguracoesPage() {
             />
           </Cartao>
 
-          <h2 className="mt-6 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="mt-6 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Busca
           </h2>
-          <Cartao className="mt-2 divide-y divide-white/[0.06]">
+          <Cartao className="mt-2 divide-y divide-tg-linha-fraca">
             <Linha rotulo="Fusão" valor="Reciprocal Rank Fusion, k = 60" />
             <Linha rotulo="Pesos" valor="rubrica 3.0 · lexical 1.0 · semântica 1.0" />
             <Linha rotulo="Embeddings" valor="text-embedding-3-small · 1536 dims · cosseno" />
@@ -130,10 +130,10 @@ export default async function ConfiguracoesPage() {
             />
           </Cartao>
 
-          <h2 className="mt-6 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="mt-6 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Runtime
           </h2>
-          <Cartao className="mt-2 divide-y divide-white/[0.06]">
+          <Cartao className="mt-2 divide-y divide-tg-linha-fraca">
             <Linha rotulo="Node" valor={process.version} />
             <Linha rotulo="Ambiente" valor={process.env.NODE_ENV ?? '—'} />
             <Linha
@@ -152,7 +152,7 @@ export default async function ConfiguracoesPage() {
               <a
                 key={a.href}
                 href={a.href}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-[12.5px] text-slate-300 transition-colors hover:border-emerald-500/30 hover:text-emerald-200"
+                className="flex items-center gap-1.5 rounded-lg border border-tg-linha bg-tg-fundo px-3 py-2 text-[12.5px] text-tg-tinta-4 transition-colors hover:border-tg-acento-palido hover:text-tg-acento-txt"
               >
                 {a.r}
                 <Icone nome="link_externo" className="size-3" />

@@ -56,31 +56,31 @@ export async function PaginaArtigo({
   return (
     <article className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
       {/* ---------- contexto ---------- */}
-      <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-slate-500">
-        <Link href="/leis" className="hover:text-slate-300">
+      <nav className="flex flex-wrap items-center gap-1.5 text-[12px] text-tg-fraco-3">
+        <Link href="/leis" className="hover:text-tg-tinta-4">
           Legislação
         </Link>
         <span>/</span>
-        <Link href={`/leis/${primeiro.lei_id}`} className="hover:text-slate-300">
+        <Link href={`/leis/${primeiro.lei_id}`} className="hover:text-tg-tinta-4">
           {primeiro.lei_apelido}
         </Link>
       </nav>
 
       {trilha.length > 0 && (
-        <p className="mt-3 text-[11.5px] leading-relaxed text-slate-500">{trilha.join(' › ')}</p>
+        <p className="mt-3 text-[11.5px] leading-relaxed text-tg-fraco-3">{trilha.join(' › ')}</p>
       )}
 
       <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-50">
+        <h1 className="text-xl font-semibold tracking-tight text-tg-tinta">
           {tituloArtigo(primeiro.artigo_numero)}
         </h1>
         {primeiro.artigo_rubrica && (
-          <span className="text-[15px] text-emerald-300">{primeiro.artigo_rubrica}</span>
+          <span className="text-[15px] text-tg-acento-txt">{primeiro.artigo_rubrica}</span>
         )}
         {primeiro.artigo_revogado && <Selo tom="vermelho">revogado</Selo>}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11.5px] text-slate-500">
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11.5px] text-tg-fraco-3">
         <span className="flex items-center gap-1">
           <Icone nome="alerta" className="size-3" />
           redação vigente em {dataBR(primeiro.vigencia_ate)}
@@ -100,30 +100,30 @@ export async function PaginaArtigo({
       )}
 
       {/* ---------- texto ---------- */}
-      <div className="mt-6 divide-y divide-white/[0.05] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0F172A]">
+      <div className="mt-6 divide-y divide-white/[0.05] overflow-hidden rounded-xl border border-tg-linha bg-white">
         {ds.dados.map((d) => {
           const marcado = d.id === destaque
           return (
             <div
               key={d.id}
               id={d.id}
-              className={`scroll-mt-6 px-4 py-3 ${marcado ? 'bg-emerald-500/[0.07] ring-1 ring-inset ring-emerald-500/30' : ''}`}
+              className={`scroll-mt-6 px-4 py-3 ${marcado ? 'bg-tg-acento-fraco ring-1 ring-inset ring-tg-acento-palido' : ''}`}
             >
               <div className={`flex gap-3 ${RECUO[d.tipo]}`}>
                 <span
                   className={`w-12 shrink-0 pt-px text-[12.5px] font-medium tabular-nums ${
-                    marcado ? 'text-emerald-300' : 'text-slate-500'
+                    marcado ? 'text-tg-acento-txt' : 'text-tg-fraco-3'
                   }`}
                 >
                   {d.rotulo === 'caput' ? '' : d.rotulo}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[14px] leading-relaxed text-slate-200">{d.texto}</p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
-                    <Link href={`/dispositivo/${d.id}`} className="hover:text-emerald-300">
+                  <p className="text-[14px] leading-relaxed text-tg-tinta-2">{d.texto}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-tg-tenue-2">
+                    <Link href={`/dispositivo/${d.id}`} className="hover:text-tg-acento-txt">
                       {d.citacao}
                     </Link>
-                    <code className="text-slate-700">{d.id}</code>
+                    <code className="text-tg-corpo-2">{d.id}</code>
                     {d.revogado && <Selo tom="vermelho">revogado</Selo>}
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export async function PaginaArtigo({
       {/* ---------- rubricas ---------- */}
       {rubricasDoArtigo.length > 0 && (
         <>
-          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Rubricas ligadas
           </h2>
           <ul className="mt-2 flex flex-wrap gap-2">
@@ -144,7 +144,7 @@ export async function PaginaArtigo({
               <li key={r.termo}>
                 <Link
                   href={`/busca?q=${encodeURIComponent(r.termo)}`}
-                  className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[12.5px] text-slate-300 transition-colors hover:border-emerald-500/30 hover:text-emerald-200"
+                  className="flex items-center gap-1.5 rounded-lg border border-tg-linha bg-tg-fundo px-2.5 py-1.5 text-[12.5px] text-tg-tinta-4 transition-colors hover:border-tg-acento-palido hover:text-tg-acento-txt"
                   title={
                     r.origem === 'oficial'
                       ? 'Rubrica marginal do Vade Mecum, devolvida ao dispositivo certo pela limpeza'
@@ -152,7 +152,7 @@ export async function PaginaArtigo({
                   }
                 >
                   {r.termo}
-                  <span className="text-[10px] text-slate-600">{r.origem}</span>
+                  <span className="text-[10px] text-tg-tenue-2">{r.origem}</span>
                 </Link>
               </li>
             ))}
@@ -161,11 +161,11 @@ export async function PaginaArtigo({
       )}
 
       {/* ---------- vizinhos ---------- */}
-      <nav className="mt-8 flex items-center gap-3 border-t border-white/[0.06] pt-4 pb-6">
+      <nav className="mt-8 flex items-center gap-3 border-t border-tg-linha pt-4 pb-6">
         {viz.anterior ? (
           <Link
             href={`/artigo/${viz.anterior.id}`}
-            className="flex min-w-0 items-center gap-2 text-[13px] text-slate-400 hover:text-emerald-300"
+            className="flex min-w-0 items-center gap-2 text-[13px] text-tg-corpo hover:text-tg-acento-txt"
           >
             <Icone nome="seta_esquerda" className="size-4 shrink-0" />
             <span className="truncate">
@@ -179,7 +179,7 @@ export async function PaginaArtigo({
         {viz.proximo && (
           <Link
             href={`/artigo/${viz.proximo.id}`}
-            className="ml-auto flex min-w-0 items-center gap-2 text-[13px] text-slate-400 hover:text-emerald-300"
+            className="ml-auto flex min-w-0 items-center gap-2 text-[13px] text-tg-corpo hover:text-tg-acento-txt"
           >
             <span className="truncate">
               {tituloArtigo(viz.proximo.numero)}

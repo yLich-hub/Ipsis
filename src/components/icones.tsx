@@ -158,6 +158,25 @@ const CAMINHOS = {
     </>
   ),
   filtro: <path d="M3 5h18l-7 8v6l-4 2v-8z" />,
+  // Estante: o acervo Vade Mecum é biblioteca de consulta, e `livro` já é o
+  // corpus curado no menu — os dois precisam se distinguir de relance.
+  biblioteca: (
+    <>
+      <rect x="3" y="4" width="4" height="16" rx="1" />
+      <rect x="9" y="4" width="4" height="16" rx="1" />
+      <path d="m15.5 5.6 3.3-.9a1 1 0 0 1 1.2.7l3 11.2a1 1 0 0 1-.7 1.2l-3.3.9z" />
+    </>
+  ),
+  estrela: (
+    <path d="m12 3.6 2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8L3.5 9.8l5.9-.9z" />
+  ),
+  texto_alinhado: <path d="M4 6h16M4 10h16M4 14h11M4 18h11" />,
+  lista: (
+    <>
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>
 
 export function Icone({

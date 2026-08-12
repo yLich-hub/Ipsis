@@ -78,3 +78,34 @@
   motivo: >
     Continuação do § 4º, partida na remissão "a que se referem este artigo e o
     seu § 2o, depois de conhecer a falsidade ou alteração".
+
+# --- Código de Processo Penal ------------------------------------------------
+#
+# Três casos, todos com a mesma assinatura: tirado o marcador, o bloco começa em
+# minúscula ou em pontuação. Nenhum foi encontrado à mão — a varredura que os
+# achou é a da própria assinatura, sobre os 821 artigos.
+
+- artigo: dl_3689_1941_art28-a
+  paragrafo_indice: 7
+  comeca_com: '§ 5o deste artigo.'
+  motivo: >
+    Continuação do § 7º, partida na remissão "a adequação a que se refere o § 5o
+    deste artigo". Sem a emenda, o § 7º do acordo de não persecução penal fica
+    truncado em "não for realizada a adequação a que se refere o", e nasce um
+    segundo § 5º — que colide de id com o § 5º verdadeiro.
+
+- artigo: dl_3689_1941_art709
+  paragrafo_indice: 3
+  comeca_com: '§ 2o, quando houver sido imposta'
+  motivo: >
+    Continuação do § 3º, partida na remissão "Não se aplicará o disposto no
+    § 2o, quando houver sido imposta...". O § 3º ficaria terminando em "no", e o
+    § 2º nasceria duplicado.
+
+- artigo: dl_3689_1941_art800
+  paragrafo_indice: 2
+  comeca_com: '§ 5o).'
+  motivo: >
+    Continuação do § 2º, partida dentro do parêntese da remissão "(art. 798,
+    § 5o)". O fantasma aqui é só "§ 5o)." — dois caracteres de texto legal e um
+    dispositivo inteiro que a lei não tem.

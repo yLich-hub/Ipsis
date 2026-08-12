@@ -67,12 +67,12 @@ export function FormularioEsqueciSenha({ erroInicial }: { erroInicial: string | 
           de redefinição chegará em instantes. Ele vale por tempo limitado e só pode ser usado uma
           vez.
         </Aviso>
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-tg-linha pt-4">
           <LinkAuth href="/login">Voltar para o login</LinkAuth>
           <button
             type="button"
             onClick={() => setEnviado(false)}
-            className="rounded text-[12.5px] text-slate-400 underline-offset-4 transition-colors hover:text-emerald-300 hover:underline"
+            className="rounded text-[12.5px] text-tg-corpo underline-offset-4 transition-colors hover:text-tg-acento-txt hover:underline"
           >
             Enviar de novo
           </button>
@@ -112,7 +112,7 @@ export function FormularioEsqueciSenha({ erroInicial }: { erroInicial: string | 
         </Botao>
       </form>
 
-      <div className="mt-5 border-t border-white/[0.06] pt-4">
+      <div className="mt-5 border-t border-tg-linha pt-4">
         <LinkAuth href="/login">Voltar para o login</LinkAuth>
       </div>
     </Moldura>

@@ -9,12 +9,21 @@ Pipeline:
   5. validação: sequência de artigos monotônica
 """
 import json
+import os
 import re
 import sys
 
 import pdfplumber
 
-PDF = "/mnt/user-data/uploads/Vade_mecum_Senado_Federal_1ed.pdf"
+# Caminho do PDF. O default é o arquivo na raiz do repositório, ao lado deste
+# script — antes era um caminho absoluto da máquina onde o parser foi escrito
+# (/mnt/user-data/uploads/...), e o script não rodava em lugar nenhum.
+# Sobrescrever com a variável de ambiente VADE_PDF.
+PDF = os.environ.get(
+    "VADE_PDF",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "Vade_mecum_Senado_Federal_1ed.pdf"),
+)
 HEADER_ZONE = 42
 FOOTER_ZONE = 18
 MIN_GUTTER = 7.0

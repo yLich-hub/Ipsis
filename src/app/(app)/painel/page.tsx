@@ -19,7 +19,7 @@ import { dataBR, numeroBR } from '@/lib/formato'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Painel — Jesbick',
+  title: 'Painel — Toga',
   description: 'Estado da base: leis, artigos, dispositivos, embeddings e rubricas.',
 }
 
@@ -94,16 +94,16 @@ export default async function PainelPage() {
             <Metrica rotulo="Teses" valor={numeroBR(d.teses)} tom={d.teses ? 'neutro' : 'ambar'} />
             <Metrica rotulo="Casos" valor={numeroBR(d.casos)} tom={d.casos ? 'neutro' : 'ambar'} />
             <Cartao className="p-4">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
                 Saúde
               </p>
-              <p className="mt-1.5 flex items-center gap-2 text-2xl font-semibold text-emerald-300">
+              <p className="mt-1.5 flex items-center gap-2 text-2xl font-semibold text-tg-acento-txt">
                 <Icone nome="check" className="size-5" strokeWidth={2.2} />
                 ok
               </p>
               <a
                 href="/api/health"
-                className="mt-1 inline-flex items-center gap-1 text-[12px] text-slate-500 hover:text-emerald-300"
+                className="mt-1 inline-flex items-center gap-1 text-[12px] text-tg-fraco-3 hover:text-tg-acento-txt"
               >
                 /api/health <Icone nome="link_externo" className="size-3" />
               </a>
@@ -111,7 +111,7 @@ export default async function PainelPage() {
           </div>
 
           {/* ---------- leis ---------- */}
-          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Corpus
           </h2>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
@@ -119,10 +119,10 @@ export default async function PainelPage() {
               <Link
                 key={lei.id}
                 href={`/leis/${lei.id}`}
-                className="group rounded-xl border border-white/[0.08] bg-[#0F172A] p-4 transition-colors hover:border-emerald-500/30"
+                className="group rounded-xl border border-tg-linha bg-white p-4 transition-colors hover:border-tg-acento-palido"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-medium text-slate-100">{lei.apelido}</span>
+                  <span className="text-[14px] font-medium text-tg-tinta">{lei.apelido}</span>
                   {lei.cobertura === 'parcial' ? (
                     <Selo tom="ambar">cobertura parcial</Selo>
                   ) : (
@@ -130,14 +130,14 @@ export default async function PainelPage() {
                   )}
                   <Icone
                     nome="seta_direita"
-                    className="ml-auto size-4 text-slate-600 transition-colors group-hover:text-emerald-400"
+                    className="ml-auto size-4 text-tg-tenue-2 transition-colors group-hover:text-tg-acento-txt"
                   />
                 </div>
-                <p className="mt-1 text-[12.5px] text-slate-500">{lei.nome}</p>
-                <p className="mt-3 text-[12.5px] tabular-nums text-slate-400">
+                <p className="mt-1 text-[12.5px] text-tg-fraco-3">{lei.nome}</p>
+                <p className="mt-3 text-[12.5px] tabular-nums text-tg-corpo">
                   {numeroBR(lei.total_artigos)} artigos · {numeroBR(dispositivos)} dispositivos
                 </p>
-                <p className="mt-0.5 text-[11.5px] text-slate-600">
+                <p className="mt-0.5 text-[11.5px] text-tg-tenue-2">
                   redação vigente em {dataBR(lei.vigencia_ate)}
                 </p>
               </Link>
@@ -153,23 +153,23 @@ export default async function PainelPage() {
           )}
 
           {/* ---------- incrementos ---------- */}
-          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Ordem de trabalho
           </h2>
-          <Cartao className="mt-2 divide-y divide-white/[0.06]">
+          <Cartao className="mt-2 divide-y divide-tg-linha-fraca">
             {INCREMENTOS.map((i) => (
               <div key={i.n} className="flex items-center gap-3 px-4 py-3">
-                <span className="grid size-6 shrink-0 place-items-center rounded-md bg-white/[0.05] text-[11px] font-semibold tabular-nums text-slate-400">
+                <span className="grid size-6 shrink-0 place-items-center rounded-md bg-tg-preenche text-[11px] font-semibold tabular-nums text-tg-corpo">
                   {i.n}
                 </span>
-                <span className="text-[13.5px] text-slate-200">{i.nome}</span>
-                <span className="hidden text-[12px] text-slate-600 sm:block">· {i.prova}</span>
+                <span className="text-[13.5px] text-tg-tinta-2">{i.nome}</span>
+                <span className="hidden text-[12px] text-tg-tenue-2 sm:block">· {i.prova}</span>
                 <span className="ml-auto">{SELO[estado(i.n)]}</span>
               </div>
             ))}
           </Cartao>
 
-          <p className="mt-3 pb-6 text-[11.5px] leading-relaxed text-slate-600">
+          <p className="mt-3 pb-6 text-[11.5px] leading-relaxed text-tg-tenue-2">
             Os selos acima são derivados das contagens do banco nesta requisição — nenhum deles é
             texto fixo. Incremento 4 aparece como pendente porque <code>teses</code> e{' '}
             <code>casos</code> ainda estão vazios.

@@ -1,0 +1,585 @@
+# =============================================================================
+# Teses da resposta à acusação — curadoria manual.
+#
+# Cada tese é um bloco da minuta: um `gatilho` objetivo que diz quando ela se
+# aplica, os `fundamentos` (ids de dispositivos), o `template_md` com os
+# marcadores de citação, e o entendimento consolidado que a sustenta.
+#
+# --- as três regras que este arquivo obedece ---------------------------------
+#
+# 1. `{{cite:id}}` é substituído pelo texto LIDO DO BANCO, nunca escrito aqui.
+#    O que se escreve neste arquivo é a argumentação ENTRE as citações. Por isso
+#    nenhum template reproduz o texto de artigo nenhum.
+#
+# 2. Todo id em `fundamentos` e em `{{cite:}}` tem de existir em
+#    `dispositivos`. Três camadas conferem: `tests/citacao.test.ts` (antes do
+#    build, contra data/normalizado/), os triggers `valida_ids_dispositivo` e
+#    `valida_citacoes` (no banco, na escrita), e o próprio seed.
+#
+# 3. `jurisprudencia` é entendimento consolidado extraído de acórdão e súmula —
+#    que não têm proteção autoral. NÃO é resumo de doutrina, e nenhuma entrada
+#    aqui foi inferida: súmula sem número conferido não entra, e `url` fica
+#    ausente onde o endereço oficial não foi verificado, em vez de ser montado
+#    pelo número (mesmo motivo do acervo Vade Mecum).
+#
+# --- limitação conhecida, e por que ela aparece aqui -------------------------
+#
+# A peça é a resposta à acusação do art. 396-A do CPP, mas o CPP NÃO está
+# semeado: `data/cpp_subconjunto.json` não existe e o banco tem só duas leis.
+# Consequência prática: nenhum `fundamentos` nem nenhum `{{cite:}}` abaixo
+# aponta para o CPP, porque apontar quebraria o seed — corretamente. As teses
+# são todas de direito material. As de rito entram quando o subconjunto do CPP
+# for digitado e normalizado.
+#
+# `gatilho` é avaliado por igualdade direta contra `casos.fatos`: mesma chave,
+# mesmo valor. Não é heurística, e `tests/citacao.test.ts` falha se uma chave de
+# gatilho não existir em nenhum caso — gatilho que nunca dispara é tese morta.
+# =============================================================================
+
+- id: trafico_privilegiado
+  nome: Tráfico privilegiado — art. 33, § 4º
+  ordem: 1
+  resumo: >-
+    Preenchidos os quatro requisitos cumulativos, a redução de um sexto a dois
+    terços é direito subjetivo, não faculdade do julgador.
+  gatilho:
+    primario: true
+    bons_antecedentes: true
+    integra_organizacao: false
+    dedica_se_a_atividades_criminosas: false
+  fundamentos:
+    - lei_11343_2006_art33_p4
+    - lei_11343_2006_art33_caput
+  jurisprudencia:
+    - tribunal: STF
+      classe: HC
+      numero: 118.533/MS
+      tese: >-
+        O Plenário fixou que o tráfico privilegiado do art. 33, § 4º, da Lei
+        11.343/2006 não é crime equiparado a hediondo.
+    - tribunal: STJ
+      classe: Súmula 512
+      numero: cancelada em 2016
+      tese: >-
+        Enunciado que afirmava a hediondez do tráfico privilegiado foi cancelado
+        após o julgamento do HC 118.533/MS pelo STF.
+  template_md: |
+    O § 4º do art. 33 da Lei de Drogas assim dispõe:
+
+    {{cite:lei_11343_2006_art33_p4}}
+
+    Os requisitos são quatro e cumulativos: primariedade, bons antecedentes,
+    não dedicação a atividades criminosas e não integração a organização
+    criminosa. Presentes todos, a redução se impõe — o dispositivo diz que as
+    penas "poderão ser reduzidas", mas o poder é de graduar a fração entre um
+    sexto e dois terços, não de negar o benefício a quem preenche as condições.
+
+    O acusado é primário e não ostenta antecedentes. A denúncia não descreve
+    vínculo com organização criminosa nem dedicação habitual ao comércio de
+    drogas: limita-se ao fato isolado da imputação, que é justamente o delito
+    do caput sobre o qual a redução incide.
+
+    {{cite:lei_11343_2006_art33_caput}}
+
+- id: desclassificacao_para_uso
+  nome: Desclassificação para porte de droga para consumo pessoal — art. 28
+  ordem: 2
+  resumo: >-
+    Quando os critérios do § 2º do art. 28 apontam para consumo próprio, a
+    conduta não é a do art. 33.
+  gatilho:
+    quantidade_pequena: true
+    apreendido_com_apetrechos_de_venda: false
+    flagrante_de_venda: false
+  fundamentos:
+    - lei_11343_2006_art28_p2
+    - lei_11343_2006_art28_caput
+    - lei_11343_2006_art33_caput
+  jurisprudencia:
+    - tribunal: STF
+      classe: RE
+      numero: 635.659
+      tese: >-
+        Em repercussão geral, o Plenário afastou a natureza penal da posse de
+        maconha para consumo próprio e fixou parâmetro objetivo de presunção de
+        uso pessoal, sem prejuízo da prova em contrário no caso concreto.
+  template_md: |
+    A distinção entre as duas condutas não é discricionária: a própria Lei de
+    Drogas dá os critérios.
+
+    {{cite:lei_11343_2006_art28_p2}}
+
+    A quantidade apreendida é compatível com consumo próprio; não havia balança,
+    material de embalagem, anotações de contabilidade nem qualquer apetrecho
+    típico da mercancia; e não houve flagrante de ato de venda. Os critérios
+    legais, portanto, apontam todos para a mesma direção.
+
+    Ausente a destinação a terceiro, falta ao fato o elemento que distingue o
+    tipo do art. 33 daquele do art. 28.
+
+    {{cite:lei_11343_2006_art33_caput}}
+
+    A conduta remanescente é a do art. 28, que não comina pena privativa de
+    liberdade:
+
+    {{cite:lei_11343_2006_art28_caput}}
+
+- id: atipicidade_associacao
+  nome: Absolvição quanto à associação para o tráfico — art. 35
+  ordem: 3
+  resumo: >-
+    O art. 35 exige vínculo associativo estável e permanente; concurso eventual
+    de agentes no tráfico não o configura.
+  gatilho:
+    associacao_imputada: true
+    vinculo_estavel_demonstrado: false
+  fundamentos:
+    - lei_11343_2006_art35_caput
+    - lei_11343_2006_art33_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: entendimento consolidado
+      tese: >-
+        A condenação pelo art. 35 da Lei 11.343/2006 exige demonstração do
+        ânimo associativo estável e permanente, não bastando a reunião ocasional
+        de agentes para a prática de um tráfico determinado.
+  template_md: |
+    O tipo do art. 35 não pune a pluralidade de agentes, e sim a associação:
+
+    {{cite:lei_11343_2006_art35_caput}}
+
+    A denúncia descreve a atuação conjunta em um episódio único, sem apontar
+    permanência, divisão estável de tarefas, hierarquia ou qualquer elemento que
+    distinga a associação do simples concurso de agentes no crime do caput.
+
+    {{cite:lei_11343_2006_art33_caput}}
+
+    Concurso eventual de pessoas é circunstância do tráfico, não crime autônomo.
+    Mantida a imputação nesses termos, o mesmo fato responderia duas vezes.
+
+- id: afastamento_transnacionalidade
+  nome: Afastamento da majorante de transnacionalidade — art. 40, I
+  ordem: 4
+  resumo: >-
+    A majorante depende de prova da destinação internacional da droga, e não da
+    mera origem estrangeira da substância.
+  gatilho:
+    transnacional_imputado: true
+    prova_de_destinacao_internacional: false
+  fundamentos:
+    - lei_11343_2006_art40_inc1
+    - lei_11343_2006_art40_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: Súmula 607
+      tese: >-
+        A majorante do tráfico transnacional configura-se com a prova da
+        destinação internacional das drogas, ainda que não consumada a
+        transposição de fronteiras.
+  template_md: |
+    A causa de aumento do inciso I do art. 40 tem pressuposto expresso:
+
+    {{cite:lei_11343_2006_art40_inc1}}
+
+    O dispositivo condiciona a majorante a que a natureza e a procedência da
+    substância, somadas às circunstâncias do fato, evidenciem a
+    transnacionalidade. A jurisprudência dispensa a efetiva travessia de
+    fronteira, mas exige prova da destinação internacional — que é coisa
+    distinta de a droga ter sido produzida fora do país.
+
+    Nos autos não há apreensão em zona de fronteira, rota internacional,
+    comunicação com fornecedor no exterior nem qualquer outro elemento nesse
+    sentido. A procedência estrangeira, isolada, não supre a exigência legal.
+
+    {{cite:lei_11343_2006_art40_caput}}
+
+    A majorante do caput incide "se caracterizado" o quadro dos incisos — e a
+    caracterização é ônus da acusação, não presunção que a defesa deva afastar.
+
+- id: afastamento_interestadualidade
+  nome: Afastamento da majorante de interestadualidade — art. 40, V
+  ordem: 5
+  resumo: >-
+    Exige-se demonstração inequívoca da intenção de pulverizar a droga em mais
+    de um Estado.
+  gatilho:
+    interestadual_imputado: true
+    prova_de_intencao_interestadual: false
+  fundamentos:
+    - lei_11343_2006_art40_inc5
+    - lei_11343_2006_art40_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: Súmula 587
+      tese: >-
+        Para a incidência da majorante do art. 40, V, é desnecessária a efetiva
+        transposição de fronteiras entre Estados da Federação, sendo suficiente
+        a demonstração inequívoca da intenção de realizar o tráfico
+        interestadual.
+  template_md: |
+    {{cite:lei_11343_2006_art40_inc5}}
+
+    O enunciado sumular dispensa a travessia, mas cobra prova inequívoca da
+    intenção. "Inequívoca" é o oposto de presumida: a simples apreensão em
+    rodovia que liga dois Estados, sem elemento que indique o destino da carga,
+    não preenche o requisito.
+
+    {{cite:lei_11343_2006_art40_caput}}
+
+- id: bis_in_idem_quantidade
+  nome: Vedação ao bis in idem da natureza e quantidade da droga — art. 42
+  ordem: 6
+  resumo: >-
+    A quantidade e a natureza da droga podem pesar na primeira fase ou na
+    terceira, nunca nas duas.
+  gatilho:
+    quantidade_usada_na_pena_base: true
+    quantidade_usada_na_fracao_do_privilegio: true
+  fundamentos:
+    - lei_11343_2006_art42_caput
+    - lei_11343_2006_art33_p4
+    - dl_2848_1940_art59_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: entendimento consolidado
+      tese: >-
+        A natureza e a quantidade da droga podem ser valoradas na fixação da
+        pena-base ou na graduação da fração do art. 33, § 4º, mas não em ambas
+        as etapas, sob pena de bis in idem.
+  template_md: |
+    O art. 42 da Lei de Drogas manda que a natureza e a quantidade da droga
+    preponderem sobre as circunstâncias do art. 59:
+
+    {{cite:lei_11343_2006_art42_caput}}
+
+    {{cite:dl_2848_1940_art59_caput}}
+
+    Preponderar é pesar mais em uma das etapas — não pesar em todas. Usada a
+    quantidade para elevar a pena-base, ela se exaure ali: reaproveitá-la para
+    reduzir a fração do § 4º cobra do acusado duas vezes pela mesma
+    circunstância.
+
+    {{cite:lei_11343_2006_art33_p4}}
+
+- id: pena_base_no_minimo
+  nome: Pena-base no mínimo legal — vedação a inquéritos e ações em curso
+  ordem: 7
+  resumo: >-
+    Circunstância judicial desfavorável exige fundamentação concreta; processo
+    em andamento não serve.
+  gatilho:
+    primario: true
+    bons_antecedentes: true
+  fundamentos:
+    - dl_2848_1940_art59_caput
+    - dl_2848_1940_art68_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: Súmula 444
+      tese: >-
+        É vedada a utilização de inquéritos policiais e ações penais em curso
+        para agravar a pena-base.
+  template_md: |
+    {{cite:dl_2848_1940_art59_caput}}
+
+    As oito circunstâncias do art. 59 são de valoração concreta e motivada.
+    Nenhuma delas se presume, e a existência de investigação ou processo sem
+    trânsito em julgado não pode ser convertida em maus antecedentes — o
+    enunciado sumular é expresso.
+
+    {{cite:dl_2848_1940_art68_caput}}
+
+    Ausente circunstância judicial concretamente desfavorável, a pena-base há
+    de ser fixada no mínimo legal.
+
+- id: atenuante_confissao
+  nome: Atenuante da confissão espontânea — art. 65, III, "d"
+  ordem: 8
+  resumo: >-
+    Usada a confissão para formar o convencimento, a atenuante é devida ainda
+    que parcial ou qualificada.
+  gatilho:
+    confessou: true
+  fundamentos:
+    - dl_2848_1940_art65_inc3_ald
+    - dl_2848_1940_art65_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: Súmula 545
+      tese: >-
+        Quando a confissão for utilizada para a formação do convencimento do
+        julgador, o réu fará jus à atenuante do art. 65, III, "d", do Código
+        Penal.
+    - tribunal: STJ
+      classe: Súmula 630
+      tese: >-
+        A incidência da atenuante da confissão no tráfico exige o
+        reconhecimento da traficância pelo acusado, não bastando a admissão da
+        posse para uso próprio.
+  template_md: |
+    {{cite:dl_2848_1940_art65_inc3_ald}}
+
+    O acusado confessou perante a autoridade, e a confissão foi utilizada na
+    formação do convencimento. O critério sumular é esse — o uso —, e não a
+    espontaneidade avaliada em abstrato nem a integralidade do reconhecimento.
+
+    {{cite:dl_2848_1940_art65_caput}}
+
+- id: atenuante_menoridade
+  nome: Atenuante da menoridade relativa — art. 65, I
+  ordem: 9
+  resumo: Agente menor de 21 anos na data do fato; atenuante de incidência obrigatória.
+  gatilho:
+    menor_de_21_na_data_do_fato: true
+  fundamentos:
+    - dl_2848_1940_art65_inc1
+    - dl_2848_1940_art65_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: Súmula 231
+      tese: >-
+        A incidência da circunstância atenuante não pode conduzir à redução da
+        pena abaixo do mínimo legal.
+  template_md: |
+    {{cite:dl_2848_1940_art65_inc1}}
+
+    A atenuante é objetiva: basta a idade na data do fato, documentalmente
+    comprovada. Não comporta juízo de valor sobre a conduta nem sobre a
+    personalidade do agente.
+
+    {{cite:dl_2848_1940_art65_caput}}
+
+- id: substituicao_por_restritiva
+  nome: Substituição por pena restritiva de direitos — art. 44 do Código Penal
+  ordem: 10
+  resumo: >-
+    Aplicado o § 4º, a pena costuma cair dentro do teto de quatro anos; a
+    vedação legal específica do tráfico foi afastada pelo STF.
+  gatilho:
+    primario: true
+    integra_organizacao: false
+    violencia_ou_grave_ameaca: false
+  fundamentos:
+    - dl_2848_1940_art44_caput
+    - dl_2848_1940_art44_inc1
+    - lei_11343_2006_art33_p4
+  jurisprudencia:
+    - tribunal: STF
+      classe: HC
+      numero: 97.256/RS
+      tese: >-
+        O Plenário declarou inconstitucional a vedação legal à conversão da pena
+        privativa de liberdade em restritiva de direitos no tráfico; a expressão
+        teve a execução suspensa pela Resolução nº 5/2012 do Senado Federal.
+  template_md: |
+    {{cite:dl_2848_1940_art44_caput}}
+
+    {{cite:dl_2848_1940_art44_inc1}}
+
+    O crime não foi cometido com violência ou grave ameaça à pessoa, o acusado
+    não é reincidente em crime doloso e as circunstâncias judiciais lhe são
+    favoráveis. Aplicada a redução do § 4º, a reprimenda resultante fica dentro
+    do teto do inciso I.
+
+    {{cite:lei_11343_2006_art33_p4}}
+
+    A vedação que a Lei de Drogas trazia à substituição não subsiste, por
+    declaração de inconstitucionalidade com suspensão de execução pelo Senado.
+
+- id: regime_inicial_menos_gravoso
+  nome: Regime inicial menos gravoso — art. 33, § 3º, do Código Penal
+  ordem: 11
+  resumo: >-
+    Fixada a pena-base no mínimo, é vedado regime mais severo do que o
+    correspondente à pena aplicada.
+  gatilho:
+    primario: true
+    bons_antecedentes: true
+    violencia_ou_grave_ameaca: false
+  fundamentos:
+    - dl_2848_1940_art33_p3
+    - dl_2848_1940_art33_caput
+    - dl_2848_1940_art59_caput
+  jurisprudencia:
+    - tribunal: STJ
+      classe: Súmula 440
+      tese: >-
+        Fixada a pena-base no mínimo legal, é vedado o estabelecimento de regime
+        prisional mais gravoso do que o cabível em razão da sanção imposta.
+    - tribunal: STF
+      classe: Súmula 718
+      tese: >-
+        A opinião do julgador sobre a gravidade em abstrato do crime não
+        constitui motivação idônea para a imposição de regime mais severo do que
+        o permitido segundo a pena aplicada.
+  template_md: |
+    {{cite:dl_2848_1940_art33_p3}}
+
+    O regime inicial se determina pelos critérios do art. 59, e não pela
+    gravidade abstrata do delito — os dois enunciados sumulares são expressos
+    nesse sentido.
+
+    {{cite:dl_2848_1940_art59_caput}}
+
+    {{cite:dl_2848_1940_art33_caput}}
+
+    Favoráveis as circunstâncias judiciais e fixada a pena no patamar mínimo, o
+    regime há de ser o correspondente ao quantum imposto.
+
+- id: desclassificacao_para_informante
+  nome: Desclassificação para colaboração como informante — art. 37
+  ordem: 12
+  resumo: >-
+    Quem apenas avisa da chegada da polícia não pratica nenhum dos verbos do
+    art. 33.
+  gatilho:
+    apenas_vigilancia: true
+    apreensao_de_droga_com_o_acusado: false
+  fundamentos:
+    - lei_11343_2006_art37_caput
+    - lei_11343_2006_art33_caput
+  jurisprudencia: []
+  template_md: |
+    {{cite:lei_11343_2006_art33_caput}}
+
+    Nenhum dos dezoito verbos do caput descreve a conduta imputada: o acusado
+    não guardou, não transportou, não trouxe consigo e não vendeu droga alguma —
+    nada foi apreendido em seu poder.
+
+    A conduta descrita na denúncia tem tipo próprio, com pena
+    substancialmente menor:
+
+    {{cite:lei_11343_2006_art37_caput}}
+
+    A tipificação correta não é benesse: é a aplicação do tipo que descreve o
+    que efetivamente se atribui ao acusado.
+
+- id: dependencia_quimica
+  nome: Dependência química — arts. 45 e 46
+  ordem: 13
+  resumo: >-
+    Suprimida a capacidade de entendimento ao tempo do fato, há isenção de pena;
+    reduzida sem supressão, cabe a diminuição do art. 46.
+  gatilho:
+    dependente_quimico: true
+  fundamentos:
+    - lei_11343_2006_art45_caput
+    - lei_11343_2006_art46_caput
+  jurisprudencia: []
+  template_md: |
+    {{cite:lei_11343_2006_art45_caput}}
+
+    A dependência do acusado está documentada nos autos e é anterior ao fato.
+    Requer-se, desde já, a instauração do incidente para perícia, cujo resultado
+    define qual dos dois caminhos se aplica.
+
+    {{cite:lei_11343_2006_art46_caput}}
+
+    Suprimida por completo a capacidade de entender o caráter ilícito, a
+    consequência é a isenção; apenas reduzida, é a diminuição de um terço a dois
+    terços.
+
+# =============================================================================
+# Teses de rito — possíveis a partir do CPP integral no corpus.
+#
+# Até o CPP entrar, nenhuma tese podia citar o Código de Processo Penal: apontar
+# para um dispositivo inexistente derrubava o seed, corretamente. Estas três são
+# as que o recorte de tráfico mais usa, e a primeira delas é, na prática, a
+# defesa mais decisiva em processo de tráfico.
+# =============================================================================
+
+- id: prova_ilicita_busca_domiciliar
+  nome: Ilicitude da prova — entrada em domicílio sem mandado
+  ordem: 14
+  resumo: >-
+    Sem mandado e sem consentimento, a entrada só se justifica por fundadas
+    razões de flagrante, aferidas por elementos anteriores à entrada.
+  gatilho:
+    busca_domiciliar_sem_mandado: true
+    consentimento_do_morador_comprovado: false
+  fundamentos:
+    - dl_3689_1941_art240_p1
+    - dl_3689_1941_art245_caput
+    - dl_3689_1941_art157_caput
+  jurisprudencia:
+    - tribunal: STF
+      classe: RE
+      numero: 603.616
+      tese: >-
+        Em repercussão geral, fixou-se que a entrada forçada em domicílio sem
+        mandado judicial só é lícita, mesmo à noite, quando amparada em fundadas
+        razões, justificadas a posteriori, que indiquem situação de flagrante
+        delito no interior da casa — sob pena de nulidade dos atos praticados.
+  template_md: |
+    A busca domiciliar tem hipóteses e forma definidas em lei:
+
+    {{cite:dl_3689_1941_art240_p1}}
+
+    {{cite:dl_3689_1941_art245_caput}}
+
+    Não havia mandado. Não há nos autos consentimento do morador documentado de
+    forma que permita aferi-lo — e o ônus de demonstrá-lo é de quem entrou. As
+    razões invocadas para a entrada foram construídas a partir do que se
+    encontrou dentro da casa, e não a partir de elementos anteriores a ela: é
+    inverter a ordem que a jurisprudência exige, porque toda entrada seria
+    legitimada retroativamente pelo próprio resultado.
+
+    Ilícita a entrada, ilícita é a prova que dela resultou:
+
+    {{cite:dl_3689_1941_art157_caput}}
+
+- id: condenacao_apoiada_so_no_inquerito
+  nome: Vedação à condenação fundada só em elementos da investigação
+  ordem: 15
+  resumo: >-
+    Prova produzida sem contraditório não sustenta condenação sozinha; a
+    insuficiência probatória leva à absolvição.
+  gatilho:
+    prova_apenas_de_policiais: true
+  fundamentos:
+    - dl_3689_1941_art155_caput
+    - dl_3689_1941_art386_inc7
+  jurisprudencia: []
+  template_md: |
+    {{cite:dl_3689_1941_art155_caput}}
+
+    A ressalva do dispositivo é fechada: provas cautelares, não repetíveis e
+    antecipadas. O depoimento dos policiais que efetuaram a abordagem não é
+    nenhuma das três — é prova testemunhal comum, repetível em juízo, e foi
+    exatamente o que se repetiu, sem nenhum elemento externo que a confirmasse.
+
+    Não é caso de desmerecer o agente público pela função que exerce. É caso de
+    reconhecer que o conjunto probatório se esgota em quem realizou a diligência
+    cuja regularidade está em discussão.
+
+    {{cite:dl_3689_1941_art386_inc7}}
+
+- id: absolvicao_sumaria_por_atipicidade
+  nome: Absolvição sumária — o fato narrado não constitui crime
+  ordem: 16
+  resumo: >-
+    Quando a própria denúncia não descreve conduta típica, o caso é de
+    absolvição sumária, e não de instrução.
+  gatilho:
+    apenas_vigilancia: true
+    apreensao_de_droga_com_o_acusado: false
+  fundamentos:
+    - dl_3689_1941_art397_caput
+    - dl_3689_1941_art397_inc3
+    - dl_3689_1941_art396-a_caput
+  jurisprudencia: []
+  template_md: |
+    Esta resposta é oferecida nos termos do art. 396-A:
+
+    {{cite:dl_3689_1941_art396-a_caput}}
+
+    E o caso comporta desfecho imediato:
+
+    {{cite:dl_3689_1941_art397_caput}}
+
+    {{cite:dl_3689_1941_art397_inc3}}
+
+    A hipótese do inciso III se afere sobre a narrativa da própria denúncia, sem
+    necessidade de instrução: tomada como verdadeira toda a imputação, ainda
+    assim não há conduta que se subsuma a nenhum dos verbos do tipo. Não se pede
+    valoração de prova — pede-se a leitura do que foi narrado.

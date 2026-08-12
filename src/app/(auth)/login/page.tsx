@@ -13,8 +13,8 @@ import { FormularioLogin } from '@/components/auth/login'
 import { PARAM_PROXIMO } from '@/lib/auth/rotas'
 
 export const metadata: Metadata = {
-  title: 'Entrar — Jesbick',
-  description: 'Acesso à área de trabalho do Jesbick.',
+  title: 'Entrar — Toga',
+  description: 'Acesso à área de trabalho do Toga.',
 }
 
 const RECADOS: Record<string, string> = {

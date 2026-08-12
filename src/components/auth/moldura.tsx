@@ -21,8 +21,8 @@ export function Moldura({
 }) {
   return (
     <>
-      <h1 className="text-[17px] font-semibold tracking-tight text-slate-50">{titulo}</h1>
-      <p className="mt-1.5 text-[13px] leading-relaxed text-slate-400">{sub}</p>
+      <h1 className="text-[17px] font-semibold tracking-tight text-tg-tinta">{titulo}</h1>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-tg-corpo">{sub}</p>
       <div className="mt-6">{children}</div>
     </>
   )
@@ -32,7 +32,7 @@ export function LinkAuth({ href, children }: { href: string; children: ReactNode
   return (
     <Link
       href={href}
-      className="rounded text-[12.5px] text-slate-400 underline-offset-4 transition-colors hover:text-emerald-300 hover:underline"
+      className="rounded text-[12.5px] text-tg-corpo underline-offset-4 transition-colors hover:text-tg-acento-txt hover:underline"
     >
       {children}
     </Link>

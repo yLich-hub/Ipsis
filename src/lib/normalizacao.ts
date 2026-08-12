@@ -21,7 +21,7 @@ export const sha256 = (s: string) =>
   createHash('sha256').update(s, 'utf8').digest('hex')
 
 // -----------------------------------------------------------------------------
-// C. Ordinais escritos com a letra `o` (547 ocorrências)
+// C. Ordinais escritos com a letra `o` (98 alterações registradas)
 //
 // `§ 1o` → `§ 1º`, `Lei no 9.099` → `Lei nº 9.099`.
 //
@@ -69,7 +69,7 @@ export function removeNotaRodape(s: string): { texto: string; n: number } {
 }
 
 // -----------------------------------------------------------------------------
-// A2. Rubrica marginal colada no fim do dispositivo (a maior parte das 351)
+// A2. Rubrica marginal colada no fim do dispositivo (379 no relatório)
 //
 // O caput do art. 1º do CP termina em "...prévia cominação legal. Lei penal no
 // tempo" — e "Lei penal no tempo" é a rubrica do art. 2º.
@@ -263,6 +263,22 @@ export function tiraMarcador(texto: string, tipo: 'paragrafo' | 'inciso' | 'alin
 }
 
 /**
+ * Artigo de 1 a 9 se cita com ordinal — `art. 1º`, `art. 3º-A` —, e de 10 em
+ * diante com cardinal: `art. 10`, `art. 33`. É convenção de redação legislativa
+ * (LC 95/1998), não preferência de estilo, e o Vade Mecum a segue na fonte.
+ *
+ * Vale para os quatro primeiros dispositivos de qualquer lei, o que inclui o
+ * `art. 3º-A` do CPP — a estrutura acusatória — e o `art. 5º` da Lei de Drogas.
+ */
+export function ordinalDoArtigo(numero: string): string {
+  // O sufixo de letra não muda a regra: quem manda é a base numérica.
+  const m = /^(\d+)(-[A-Za-z])?$/.exec(numero.trim())
+  if (!m) return numero
+  const base = Number(m[1])
+  return base >= 1 && base <= 9 ? `${base}º${m[2] ?? ''}` : numero
+}
+
+/**
  * 'art. 33, § 4º, I, a, da Lei nº 11.343/2006'
  *
  * É o texto que sai impresso na peça. Erro aqui aparece em audiência, não em
@@ -273,7 +289,7 @@ export function montaCitacao(
   cadeia: string[],
   sufixoLei: string,
 ): string {
-  const partes = [`art. ${artigoNumero}`, ...cadeia]
+  const partes = [`art. ${ordinalDoArtigo(artigoNumero)}`, ...cadeia]
   return partes.length > 1
     ? `${partes.join(', ')}, ${sufixoLei}`
     : `${partes[0]} ${sufixoLei}`

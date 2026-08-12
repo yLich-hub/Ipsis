@@ -8,7 +8,7 @@ import { FormularioCadastro } from '@/components/auth/cadastro'
 import { PARAM_PROXIMO } from '@/lib/auth/rotas'
 
 export const metadata: Metadata = {
-  title: 'Criar conta — Jesbick',
+  title: 'Criar conta — Toga',
   description: 'Criação de conta por e-mail e senha, gerida pelo Supabase Auth.',
 }
 

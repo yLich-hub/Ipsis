@@ -8,7 +8,7 @@
 // =============================================================================
 
 import { supabase } from '@/lib/supabase'
-import type { TipoDispositivo } from '@/lib/tipos'
+import type { TipoDispositivo, ValorDeFato } from '@/lib/tipos'
 
 export type Resultado<T> = { ok: true; dados: T } | { ok: false; erro: string }
 
@@ -207,12 +207,35 @@ export type Tese = {
   resumo: string
   fundamentos: string[]
   jurisprudencia: { tribunal?: string; classe?: string; numero?: string; tese?: string; url?: string }[]
+  /** Condições objetivas. Mesmas chaves de `casos.fatos` — ver `aplicaA`. */
+  gatilho: Record<string, ValorDeFato>
   ordem: number
 }
 
 export const teses = () =>
   tenta<Tese[]>(
-    supabase.from('teses').select('id,nome,resumo,fundamentos,jurisprudencia,ordem').order('ordem'),
+    supabase
+      .from('teses')
+      .select('id,nome,resumo,fundamentos,jurisprudencia,gatilho,ordem')
+      .eq('ativo', true)
+      .order('ordem'),
+  )
+
+/**
+ * Tese com o corpo da minuta. Leitor separado de propósito: `template_md` são
+ * ~2 KB por tese, e `/jurisprudencia` e `/pecas` só listam — mandar 30 KB de
+ * marcadores para telas que não os renderizam é peso puro no payload. Só a rota
+ * que gera o DOCX precisa disto.
+ */
+export type TeseComTemplate = Tese & { template_md: string }
+
+export const tesesComTemplate = () =>
+  tenta<TeseComTemplate[]>(
+    supabase
+      .from('teses')
+      .select('id,nome,resumo,fundamentos,jurisprudencia,gatilho,ordem,template_md')
+      .eq('ativo', true)
+      .order('ordem'),
   )
 
 export type Caso = {
@@ -220,8 +243,32 @@ export type Caso = {
   titulo: string
   narrativa: string
   imputacao: string[]
+  fatos: Record<string, ValorDeFato>
   ordem: number
 }
 
+export const caso = (id: string) =>
+  tenta<Caso>(
+    supabase
+      .from('casos')
+      .select('id,titulo,narrativa,imputacao,fatos,ordem')
+      .eq('id', id)
+      .maybeSingle(),
+  )
+
 export const casos = () =>
-  tenta<Caso[]>(supabase.from('casos').select('id,titulo,narrativa,imputacao,ordem').order('ordem'))
+  tenta<Caso[]>(
+    supabase.from('casos').select('id,titulo,narrativa,imputacao,fatos,ordem').order('ordem'),
+  )
+
+/**
+ * O checklist: uma tese se aplica quando TODA condição do gatilho bate, por
+ * igualdade direta, com o fato de mesma chave.
+ *
+ * É consulta, não heurística — e é por isso que `casos.fatos` carrega todas as
+ * chaves de gatilho, inclusive as desfavoráveis. `tests/citacao.test.ts` guarda
+ * esse contrato: falha se um caso não tiver alguma chave, ou se alguma tese não
+ * for acionada por caso nenhum.
+ */
+export const aplicaA = (tese: Tese, caso: Caso) =>
+  Object.entries(tese.gatilho ?? {}).every(([chave, valor]) => caso.fatos?.[chave] === valor)

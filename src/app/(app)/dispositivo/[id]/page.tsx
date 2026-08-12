@@ -22,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const d = await dispositivo((await params).id)
-  return { title: d.ok && d.dados ? `${d.dados.citacao} — Jesbick` : 'Dispositivo — Jesbick' }
+  return { title: d.ok && d.dados ? `${d.dados.citacao} — Toga` : 'Dispositivo — Toga' }
 }
 
 export default async function DispositivoPage({ params }: { params: Promise<{ id: string }> }) {

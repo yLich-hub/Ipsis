@@ -12,30 +12,30 @@ import { Icone } from '@/components/icones'
 export default function Erro({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <main className="mx-auto max-w-lg px-6 py-24">
-      <span className="grid size-11 place-items-center rounded-xl bg-red-500/10 text-red-300">
+      <span className="grid size-11 place-items-center rounded-xl bg-tg-supressao-fundo text-tg-supressao-txt">
         <Icone nome="alerta" className="size-5" />
       </span>
-      <h1 className="mt-4 text-xl font-semibold tracking-tight text-slate-100">
+      <h1 className="mt-4 text-xl font-semibold tracking-tight text-tg-tinta">
         Alguma coisa quebrou nesta tela
       </h1>
-      <p className="mt-2 text-[13.5px] leading-relaxed text-slate-400">
+      <p className="mt-2 text-[13.5px] leading-relaxed text-tg-corpo">
         O resto do app continua de pé. Se a base estiver pausada por inatividade — o projeto roda no
         plano gratuito do Supabase — a primeira requisição pode falhar e a seguinte funcionar.
       </p>
-      <pre className="mt-4 overflow-x-auto rounded-lg border border-white/10 bg-[#0F172A] p-3 text-[12px] text-slate-400">
+      <pre className="mt-4 overflow-x-auto rounded-lg border border-tg-linha bg-white p-3 text-[12px] text-tg-corpo">
         {error.message}
       </pre>
       <div className="mt-5 flex gap-2">
         <button
           type="button"
           onClick={reset}
-          className="rounded-xl bg-emerald-500 px-4 py-2.5 text-[13px] font-medium text-slate-950 transition-colors hover:bg-emerald-400"
+          className="rounded-xl bg-tg-acento px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-tg-acento"
         >
           Tentar de novo
         </button>
         <Link
           href="/painel"
-          className="rounded-xl border border-white/10 px-4 py-2.5 text-[13px] text-slate-300 transition-colors hover:bg-white/[0.06]"
+          className="rounded-xl border border-tg-linha px-4 py-2.5 text-[13px] text-tg-tinta-4 transition-colors hover:bg-tg-preenche"
         >
           Ver o painel
         </Link>

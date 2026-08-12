@@ -91,7 +91,7 @@ export function FormularioCadastro({ proximo }: { proximo: string | null }) {
           <strong className="font-medium">{email.trim()}</strong>. Abra o link e depois entre
           normalmente.
         </Aviso>
-        <div className="mt-5 border-t border-white/[0.06] pt-4">
+        <div className="mt-5 border-t border-tg-linha pt-4">
           <LinkAuth href="/login">Voltar para o login</LinkAuth>
         </div>
       </Moldura>
@@ -151,7 +151,7 @@ export function FormularioCadastro({ proximo }: { proximo: string | null }) {
         </Botao>
       </form>
 
-      <div className="mt-5 border-t border-white/[0.06] pt-4">
+      <div className="mt-5 border-t border-tg-linha pt-4">
         <LinkAuth href={proximo ? `/login?proximo=${encodeURIComponent(proximo)}` : '/login'}>
           Já tenho conta — entrar
         </LinkAuth>

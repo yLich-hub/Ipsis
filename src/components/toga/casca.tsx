@@ -1,0 +1,631 @@
+'use client'
+
+// =============================================================================
+// TOGA v2 — casca: lateral de 246px e topo de 60px
+//
+// Cliente por três motivos, todos irredutíveis: `usePathname` marca o item
+// ativo, os atalhos de teclado (⌘K, ⌘N) precisam de listener, e o menu da conta
+// tem estado aberto/fechado. Nada além disso mora aqui — cada tela cuida do
+// próprio estado.
+//
+// A lateral tem largura fixa. Não é preguiça de fazer responsivo: os painéis do
+// documento de design (420px no chat, 352px na dosimetria, 404px no Vade Mecum)
+// foram medidos contra estes 246px, e deixar a lateral respirar desalinharia
+// todos eles. Abaixo de `lg` a lateral sai de cena inteira, e o topo ganha o
+// botão que a traz de volta.
+// =============================================================================
+
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { useUsuario, marcarSaidaDeliberada } from '@/components/casca/sessao'
+import { Ponto, Selo } from '@/components/toga/base'
+import { supabaseNavegador } from '@/lib/auth/navegador'
+import { GRADIENTE_CONTA, GRADIENTE_MARCA, MATIZ } from '@/lib/toga/tokens'
+
+// --- mapa de telas -----------------------------------------------------------
+
+/**
+ * As seis telas do documento, na ordem dele. `matiz` é só a cor do quadradinho
+ * de 18px que faz as vezes de ícone — ver `lib/toga/tokens.ts`.
+ */
+const TELAS = [
+  { href: '/consulta', rotulo: 'Consulta em chat', matiz: MATIZ.lavanda },
+  { href: '/jurisprudencia', rotulo: 'Jurisprudência', matiz: MATIZ.gelo },
+  { href: '/sumulas', rotulo: 'Súmulas', matiz: MATIZ.areia },
+  { href: '/dosimetria', rotulo: 'Dosimetria', matiz: MATIZ.sabia },
+  { href: '/vademecum', rotulo: 'Vade Mecum', matiz: MATIZ.rosa },
+  { href: '/fontes', rotulo: 'Fontes e procedência', matiz: MATIZ.ardosia, selo: '3' },
+] as const
+
+/**
+ * Título e linha de apoio do topo, por rota.
+ *
+ * Fica aqui e não em cada `page.tsx` porque o topo é um componente só: se cada
+ * tela escrevesse o próprio, a primeira que esquecesse deixaria o cabeçalho da
+ * tela anterior no lugar durante a navegação.
+ */
+const CABECALHOS: Record<string, [string, string]> = {
+  '/consulta': ['Consulta', 'assistente com fontes rastreáveis'],
+  '/jurisprudencia': ['Jurisprudência', 'entendimento consolidado por tema'],
+  '/sumulas': ['Súmulas', 'STF e STJ por tema'],
+  '/dosimetria': ['Dosimetria', 'cálculo trifásico ao vivo'],
+  '/vademecum': ['Vade Mecum', 'acervo de leitura, por ramo'],
+  '/fontes': ['Fontes', 'procedência, cobertura e data de corte'],
+  '/busca': ['Busca na legislação', 'rubrica, léxico e vetor na mesma consulta'],
+  '/leis': ['Legislação', 'corpus curado e citável'],
+  '/pecas': ['Peças', 'resposta à acusação'],
+  '/painel': ['Painel', 'estado do corpus'],
+  '/suporte': ['Como funciona', 'as decisões por trás do produto'],
+  '/configuracoes': ['Diagnóstico', 'ambiente e conexões'],
+}
+
+/**
+ * Telas reais do produto que não cabem nas seis do desenho.
+ *
+ * O documento de design prevê seis itens na lateral e é assim que fica — enfiar
+ * um sétimo desalinharia o bloco de "Recentes" e apertaria o cartão de base.
+ * Estas vivem atrás do `⌄` ao lado da marca, que é uma afordância que o próprio
+ * documento desenha e deixa sem função.
+ */
+const OUTRAS = [
+  { href: '/painel', rotulo: 'Painel', nota: 'cobertura e contagens do corpus' },
+  { href: '/busca', rotulo: 'Busca na legislação', nota: 'as três pernas da busca híbrida' },
+  { href: '/leis', rotulo: 'Legislação curada', nota: 'Lei 11.343, CP e recorte do CPP' },
+  { href: '/pecas', rotulo: 'Peças', nota: 'resposta à acusação, art. 396-A' },
+  { href: '/suporte', rotulo: 'Como funciona', nota: 'o porquê de cada decisão' },
+  { href: '/configuracoes', rotulo: 'Diagnóstico', nota: 'ambiente, chaves e banco' },
+]
+
+/** Perguntas de partida da lateral. Levam ao chat já com a consulta feita. */
+const RECENTES = [
+  'Tráfico privilegiado, art. 33 §4º',
+  'Dosimetria da pena na Lei de Drogas',
+  'Busca domiciliar sem mandado',
+  'Associação para o tráfico',
+  'Natureza e quantidade da droga',
+]
+
+const ativoEm = (caminho: string, href: string) =>
+  caminho === href || caminho.startsWith(`${href}/`)
+
+/** Duas letras do e-mail — não há nome de exibição no escopo, e não vale inventar. */
+function iniciais(email: string): string {
+  const local = email.split('@')[0] ?? ''
+  const partes = local.split(/[._-]+/).filter(Boolean)
+  const bruto =
+    partes.length > 1 ? `${partes[0]![0]}${partes[1]![0]}` : local.slice(0, 2) || email.slice(0, 2)
+  return bruto.toUpperCase()
+}
+
+/** Link para o chat já com a pergunta na URL. Ver `consulta/pergunta.ts`. */
+export const perguntar = (q: string) => `/consulta?p=${encodeURIComponent(q)}`
+
+/**
+ * "Nova consulta" precisa limpar o chat mesmo quando já se está nele — e nesse
+ * caso `router.push('/consulta')` não remonta nada. O evento resolve sem
+ * inventar um store global para um botão.
+ */
+export const EVENTO_NOVA = 'toga:nova-consulta'
+
+// --- lateral -----------------------------------------------------------------
+
+export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () => void }) {
+  const caminho = usePathname()
+  const [menu, setMenu] = useState(false)
+  const router = useRouter()
+
+  const novaConsulta = useCallback(() => {
+    window.dispatchEvent(new CustomEvent(EVENTO_NOVA))
+    router.push('/consulta')
+    aoFechar()
+  }, [router, aoFechar])
+
+  // ⌘N / Ctrl+N. O navegador reserva ⌘N para janela nova e não devolve o
+  // evento em todos os casos; onde devolve, `preventDefault` segura.
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'n') {
+        e.preventDefault()
+        novaConsulta()
+      }
+    }
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [novaConsulta])
+
+  return (
+    <>
+      {/* Véu do modo estreito. Em `lg` a lateral é fixa e o véu não existe. */}
+      {aberta && (
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          onClick={aoFechar}
+          className="fixed inset-0 z-30 bg-[rgb(18_20_30_/_0.35)] lg:hidden"
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-[246px] shrink-0 flex-col border-r border-tg-linha bg-tg-lateral px-3 pb-3.5 pt-[18px] transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:static lg:translate-x-0 ${
+          aberta ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* marca */}
+        <div className="relative flex items-center gap-2.5 px-2 pb-5 pt-0.5">
+          <Link
+            href="/consulta"
+            className="flex min-w-0 items-center gap-2.5"
+            onClick={aoFechar}
+            aria-label="Toga — início"
+          >
+            <span
+              className="grid size-8 shrink-0 place-items-center rounded-[11px] font-tg-serif text-[15px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
+              style={{ background: GRADIENTE_MARCA }}
+            >
+              T
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[15.5px] font-semibold leading-[1.1] -tracking-[0.01em] text-tg-tinta">
+                Toga
+              </span>
+              <span className="block truncate text-[11px] leading-[1.3] text-tg-fraco-2">
+                Advocacia criminal
+              </span>
+            </span>
+          </Link>
+          <span className="flex-1" />
+          <button
+            type="button"
+            onClick={() => setMenu((m) => !m)}
+            aria-expanded={menu}
+            aria-haspopup="menu"
+            aria-label="Outras telas"
+            className="tgb grid size-6 shrink-0 place-items-center rounded-lg text-tg-fraco-2 hover:bg-tg-caixa"
+          >
+            <span aria-hidden="true" className="-mt-1 text-[13px] leading-none">
+              ⌄
+            </span>
+          </button>
+
+          {menu && <MenuOutras caminho={caminho} aoFechar={() => setMenu(false)} />}
+        </div>
+
+        {/* nova consulta */}
+        <button
+          type="button"
+          onClick={novaConsulta}
+          className="tgb mb-4 flex items-center gap-[9px] rounded-xl bg-white px-3 py-[9px] text-[13px] font-medium shadow-[var(--tg-elev-1f)] hover:shadow-[var(--tg-elev-2)]"
+        >
+          <span className="grid size-4 shrink-0 place-items-center rounded-full bg-tg-acento text-[12px] font-medium leading-none text-white">
+            +
+          </span>
+          Nova consulta
+          <span className="flex-1" />
+          <span aria-hidden="true" className="text-[11px] font-normal text-tg-tenue">
+            ⌘N
+          </span>
+        </button>
+
+        {/* as seis telas */}
+        <nav aria-label="Telas" className="flex flex-col gap-0.5">
+          {TELAS.map((t) => {
+            const ativo = ativoEm(caminho, t.href)
+            return (
+              <Link
+                key={t.href}
+                href={t.href}
+                onClick={aoFechar}
+                aria-current={ativo ? 'page' : undefined}
+                className={`tgb relative flex items-center gap-2.5 rounded-[11px] px-[11px] py-2 text-[13px] font-medium ${
+                  ativo ? 'text-tg-tinta' : 'text-tg-corpo hover:bg-tg-hover'
+                }`}
+              >
+                {ativo && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-[11px] bg-white shadow-[0_1px_2px_rgb(18_20_30_/_0.07)]"
+                  />
+                )}
+                <span
+                  aria-hidden="true"
+                  className="relative size-[18px] shrink-0 rounded-md"
+                  style={{ background: t.matiz }}
+                />
+                <span className="relative truncate">{t.rotulo}</span>
+                <span className="flex-1" />
+                {'selo' in t && t.selo && (
+                  <span className="relative rounded-full bg-tg-acento-fraco-2 px-[7px] py-0.5 text-[10.5px] font-medium text-tg-acento-txt">
+                    {t.selo}
+                  </span>
+                )}
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* recentes */}
+        <div className="mt-[22px] flex min-h-0 flex-1 flex-col">
+          <p className="px-3 pb-2 pt-1.5 text-[11px] font-medium text-tg-fraco-3">Recentes</p>
+          <div className="flex flex-col gap-px overflow-auto">
+            {RECENTES.map((r) => (
+              <Link
+                key={r}
+                href={perguntar(r)}
+                onClick={aoFechar}
+                className="tgb flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-[10px] px-3 py-[7px] text-[12.5px] text-tg-suave hover:bg-tg-hover hover:text-tg-tinta"
+              >
+                <span aria-hidden="true" className="size-[5px] shrink-0 rounded-full bg-[#c6c9d2]" />
+                <span className="truncate">{r}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/*
+          Cartão de base. No documento ele anuncia sincronização em tempo real;
+          aqui ele carrega a data de corte, que é a decisão nº 3 do projeto —
+          citar redação revogada em peça criminal é grave, e o aviso não pode
+          depender de a tela da vez lembrar de mostrá-lo. A forma é a mesma:
+          ponto vivo, rótulo, linha de apoio, tudo clicável para /fontes.
+        */}
+        <Link
+          href="/fontes"
+          onClick={aoFechar}
+          className="tgb mt-3 block rounded-[14px] bg-white px-3 py-[11px] shadow-[var(--tg-elev-1)] hover:shadow-[var(--tg-elev-3)]"
+        >
+          <span className="mb-1.5 flex items-center gap-[7px]">
+            <Ponto pulsa />
+            <span className="text-[11.5px] font-medium text-tg-verde-txt">Base conferida</span>
+          </span>
+          <span className="block text-[11.5px] leading-[1.45] text-tg-fraco-2">
+            Vade Mecum do Senado, 1ª ed. · redação de{' '}
+            <strong className="font-medium text-tg-corpo">28/02/2025</strong>
+          </span>
+        </Link>
+      </aside>
+    </>
+  )
+}
+
+/** Menu do `⌄`: as telas do produto que não estão entre as seis do desenho. */
+function MenuOutras({ caminho, aoFechar }: { caminho: string; aoFechar: () => void }) {
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && aoFechar()
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [aoFechar])
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Fechar menu"
+        onClick={aoFechar}
+        className="fixed inset-0 z-10 cursor-default"
+      />
+      <div
+        role="menu"
+        className="absolute left-0 right-0 top-full z-20 overflow-hidden rounded-[14px] bg-white p-1 shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_18px_40px_-16px_rgb(18_20_30_/_0.4)]"
+      >
+        <p className="px-3 pb-1 pt-2 text-[10.5px] font-medium text-tg-fraco-3">
+          Outras telas do produto
+        </p>
+        {OUTRAS.map((o) => (
+          <Link
+            key={o.href}
+            href={o.href}
+            role="menuitem"
+            onClick={aoFechar}
+            className={`block rounded-[10px] px-3 py-2 transition-colors hover:bg-tg-preenche ${
+              ativoEm(caminho, o.href) ? 'bg-tg-preenche' : ''
+            }`}
+          >
+            <span className="block text-[12.5px] font-medium text-tg-tinta-2">{o.rotulo}</span>
+            <span className="block text-[11px] text-tg-fraco-3">{o.nota}</span>
+          </Link>
+        ))}
+      </div>
+    </>
+  )
+}
+
+// --- topo --------------------------------------------------------------------
+
+export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
+  const caminho = usePathname()
+  const [busca, setBusca] = useState(false)
+
+  const [titulo, sub] = useMemo(() => {
+    const exato = CABECALHOS[caminho]
+    if (exato) return exato
+    const prefixo = Object.keys(CABECALHOS).find((k) => caminho.startsWith(`${k}/`))
+    return prefixo ? CABECALHOS[prefixo]! : ['Toga', '']
+  }, [caminho])
+
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setBusca(true)
+      }
+    }
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [])
+
+  return (
+    <header className="flex h-[60px] shrink-0 items-center gap-3 border-b border-tg-linha-media bg-white/70 px-4 backdrop-blur-[14px] sm:px-[22px]">
+      <button
+        type="button"
+        onClick={aoAbrirMenu}
+        aria-label="Abrir menu"
+        className="tgb -ml-1 grid size-8 shrink-0 place-items-center rounded-lg text-tg-fraco-3 hover:bg-tg-campo lg:hidden"
+      >
+        <span aria-hidden="true" className="flex flex-col gap-[3px]">
+          <span className="block h-[1.5px] w-[15px] rounded-full bg-current" />
+          <span className="block h-[1.5px] w-[15px] rounded-full bg-current" />
+          <span className="block h-[1.5px] w-[15px] rounded-full bg-current" />
+        </span>
+      </button>
+
+      <h2 className="shrink-0 text-[15px] font-semibold -tracking-[0.01em] text-tg-tinta">
+        {titulo}
+      </h2>
+      <p className="hidden truncate text-[12.5px] text-tg-fraco-3 sm:block">{sub}</p>
+      <span className="flex-1" />
+
+      <button
+        type="button"
+        onClick={() => setBusca(true)}
+        className="tgb hidden h-[34px] w-[270px] items-center gap-2 rounded-full bg-tg-campo px-[13px] hover:bg-tg-hover md:flex"
+      >
+        <span
+          aria-hidden="true"
+          className="size-3 shrink-0 rounded-full border-[1.6px] border-tg-fraco-3"
+        />
+        <span className="text-[12.5px] text-tg-fraco-3">Buscar leis, rubricas, dispositivos…</span>
+        <span className="flex-1" />
+        <span aria-hidden="true" className="text-[11px] text-tg-tenue-2">
+          ⌘K
+        </span>
+      </button>
+
+      <Conta />
+
+      {busca && <Paleta aoFechar={() => setBusca(false)} />}
+    </header>
+  )
+}
+
+/**
+ * Avatar da conta. No documento é decorativo ("MR"); aqui abre o menu de
+ * sessão, porque sair tem de caber em algum lugar e este é o lugar onde
+ * qualquer pessoa vai procurar. O visual é o mesmo círculo de 32px.
+ */
+function Conta() {
+  const usuario = useUsuario()
+  const [aberto, setAberto] = useState(false)
+  const [saindo, setSaindo] = useState(false)
+
+  useEffect(() => {
+    if (!aberto) return
+    const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && setAberto(false)
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [aberto])
+
+  if (!usuario?.email) return null
+  const email = usuario.email
+
+  async function sair() {
+    if (saindo) return
+    setSaindo(true)
+    marcarSaidaDeliberada()
+    const { error } = await supabaseNavegador().auth.signOut()
+    if (error) {
+      // Sessão já inválida no servidor devolve erro — e mesmo assim o cookie
+      // local foi limpo. Insistir com a tela travada em "Saindo…" seria pior
+      // que seguir para o login.
+      setSaindo(false)
+      setAberto(false)
+    }
+  }
+
+  return (
+    <div className="relative shrink-0">
+      {aberto && (
+        <button
+          type="button"
+          aria-label="Fechar menu da conta"
+          onClick={() => setAberto(false)}
+          className="fixed inset-0 z-10 cursor-default"
+        />
+      )}
+      <button
+        type="button"
+        onClick={() => setAberto((a) => !a)}
+        aria-expanded={aberto}
+        aria-haspopup="menu"
+        title={email}
+        className="tgb grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(67_66_107_/_0.7)]"
+        style={{ background: GRADIENTE_CONTA }}
+      >
+        {iniciais(email)}
+        <span className="sr-only">Conta de {email}</span>
+      </button>
+
+      {aberto && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-20 mt-2 w-64 overflow-hidden rounded-[14px] bg-white p-1 shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_18px_40px_-16px_rgb(18_20_30_/_0.4)]"
+        >
+          <div className="px-3 py-2.5">
+            <p className="text-[10.5px] font-medium text-tg-fraco-3">Sessão ativa</p>
+            <p className="mt-0.5 truncate text-[12.5px] text-tg-tinta-2" title={email}>
+              {email}
+            </p>
+          </div>
+          <div className="my-1 border-t border-tg-linha-tenue" />
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => void sair()}
+            disabled={saindo}
+            className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-left text-[12.5px] text-tg-corpo transition-colors hover:bg-tg-preenche disabled:cursor-not-allowed disabled:text-tg-tenue"
+          >
+            {saindo && (
+              <span
+                aria-hidden="true"
+                className="tg-gira size-3 shrink-0 rounded-full border-[1.6px] border-current border-t-transparent"
+              />
+            )}
+            {saindo ? 'Saindo…' : 'Sair'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Paleta do ⌘K.
+ *
+ * O documento desenha a caixa de busca do topo sem comportamento — é protótipo,
+ * e ali ela só precisa existir. Num produto, um campo de busca que não busca é
+ * pior que nenhum. Esta versão não tenta ser um buscador paralelo: ela navega.
+ * Texto livre vai para o chat, que é onde a busca híbrida de verdade acontece.
+ */
+function Paleta({ aoFechar }: { aoFechar: () => void }) {
+  const [q, setQ] = useState('')
+  const router = useRouter()
+  const campo = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    campo.current?.focus()
+    const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && aoFechar()
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [aoFechar])
+
+  const alvo = q.trim().toLowerCase()
+  const telas = TELAS.filter((t) => !alvo || t.rotulo.toLowerCase().includes(alvo))
+
+  function ir(href: string) {
+    aoFechar()
+    router.push(href)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-[rgb(18_20_30_/_0.28)] px-4 pt-[14vh]">
+      <button type="button" aria-label="Fechar busca" onClick={aoFechar} className="fixed inset-0" />
+      <div
+        role="dialog"
+        aria-label="Busca"
+        className="tg-sobe relative w-full max-w-[560px] overflow-hidden rounded-[20px] bg-white shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_40px_90px_-40px_rgb(18_20_30_/_0.5)]"
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (q.trim()) ir(perguntar(q.trim()))
+          }}
+          className="flex items-center gap-2.5 border-b border-tg-linha-fraca px-4 py-3.5"
+        >
+          <span
+            aria-hidden="true"
+            className="size-3.5 shrink-0 rounded-full border-[1.6px] border-tg-fraco-3"
+          />
+          <input
+            ref={campo}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar leis, rubricas, dispositivos…"
+            className="w-full bg-transparent text-[14.5px] text-tg-tinta outline-none placeholder:text-tg-tenue-2"
+          />
+          <span aria-hidden="true" className="shrink-0 text-[11px] text-tg-tenue-2">
+            esc
+          </span>
+        </form>
+
+        <div className="max-h-[46vh] overflow-auto p-1.5">
+          {q.trim() && (
+            <button
+              type="button"
+              onClick={() => ir(perguntar(q.trim()))}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-tg-preenche"
+            >
+              <Selo tom="acento">Perguntar</Selo>
+              <span className="min-w-0 flex-1 truncate text-[13px] text-tg-tinta-2">
+                “{q.trim()}” — buscar no corpus curado
+              </span>
+              <span aria-hidden="true" className="text-[13px] text-tg-tenue-2">
+                ↵
+              </span>
+            </button>
+          )}
+
+          {telas.length > 0 && (
+            <p className="px-3 pb-1 pt-2 text-[10.5px] font-medium text-tg-fraco-3">Ir para</p>
+          )}
+          {telas.map((t) => (
+            <button
+              key={t.href}
+              type="button"
+              onClick={() => ir(t.href)}
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-tg-preenche"
+            >
+              <span
+                aria-hidden="true"
+                className="size-[18px] shrink-0 rounded-md"
+                style={{ background: t.matiz }}
+              />
+              <span className="flex-1 truncate text-[13px] text-tg-tinta-2">{t.rotulo}</span>
+              <span className="text-[11.5px] text-tg-tenue-2">{t.href}</span>
+            </button>
+          ))}
+
+          {!q.trim() && (
+            <>
+              <p className="px-3 pb-1 pt-3 text-[10.5px] font-medium text-tg-fraco-3">
+                Outras telas
+              </p>
+              {OUTRAS.map((o) => (
+                <button
+                  key={o.href}
+                  type="button"
+                  onClick={() => ir(o.href)}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-tg-preenche"
+                >
+                  <span className="flex-1 truncate text-[13px] text-tg-tinta-2">{o.rotulo}</span>
+                  <span className="truncate text-[11.5px] text-tg-tenue-2">{o.nota}</span>
+                </button>
+              ))}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// --- casca completa ----------------------------------------------------------
+
+export function Casca({ children }: { children: React.ReactNode }) {
+  const [menu, setMenu] = useState(false)
+  const caminho = usePathname()
+
+  // Navegou: fecha a lateral do modo estreito. Sem isto ela fica por cima da
+  // tela que acabou de abrir.
+  useEffect(() => setMenu(false), [caminho])
+
+  return (
+    <div className="flex h-dvh overflow-hidden bg-tg-fundo text-tg-tinta">
+      <Lateral aberta={menu} aoFechar={() => setMenu(false)} />
+      <div className="flex min-w-0 flex-1 flex-col bg-tg-fundo">
+        <Topo aoAbrirMenu={() => setMenu(true)} />
+        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet"><style>
+html,body{margin:0;background:#eceef2;font-family:-apple-system,BlinkMacSystemFont,'Inter Tight','SF Pro Text',system-ui,sans-serif;-webkit-font-smoothing:antialiased;text-wrap:pretty}
+*{box-sizing:border-box}
+a{color:#4b4a7a;text-decoration:none}a:hover{color:#33325c}
+input,textarea,button{font:inherit;color:inherit}
+::-webkit-scrollbar{width:11px;height:11px}::-webkit-scrollbar-thumb{background:#cdd0d8;border-radius:8px;border:3px solid transparent;background-clip:content-box}::-webkit-scrollbar-thumb:hover{background:#b6bac5;background-clip:content-box}
+@keyframes tgUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes tgIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes tgRight{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes tgDot{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-4px);opacity:1}}
+@keyframes tgShim{0%{background-position:-380px 0}100%{background-position:380px 0}}
+@keyframes tgSpin{to{transform:rotate(360deg)}}
+@keyframes tgCaret{0%,45%{opacity:1}50%,100%{opacity:0}}
+@keyframes tgPop{0%{transform:scale(.92);opacity:.4}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+@keyframes tgPulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.35)}}
+@keyframes tgGrow{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+.tgb{transition:background .18s ease,color .18s ease,box-shadow .22s ease,transform .18s ease,border-color .18s ease;cursor:pointer}
+.tgb:hover{transform:translateY(-1px)}
+.tgb:active{transform:translateY(0) scale(.985)}
+.tgc{transition:box-shadow .25s ease,transform .25s ease,border-color .25s ease}
+.tgc:hover{box-shadow:0 2px 4px rgba(18,20,30,.05),0 18px 40px -22px rgba(18,20,30,.28);transform:translateY(-2px)}
+.tgsk{background:linear-gradient(90deg,#eef0f4 0%,#f7f8fa 40%,#eef0f4 80%);background-size:380px 100%;animation:tgShim 1.15s linear infinite;border-radius:8px}
+</style></helmet>
+
+<div style="padding:36px 36px 64px">
+<div style="display:flex;align-items:center;gap:10px;margin:0 0 18px;padding-left:4px">
+  <span style="font:600 11px 'Inter Tight',sans-serif;color:#4b4a7a;background:#e6e5f2;padding:5px 11px;border-radius:999px">TOGA v2</span>
+  <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#7c818c">Protótipo vivo — começa no login: entre, crie conta, digite no chat, mude a dosimetria, mexa nas configurações.</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     LOGIN — frame inteiro, sem sidebar
+
+     O split é 520 / resto. A faixa escura não é decoração: ela é o único
+     lugar do produto onde cabe dizer o que ele faz antes de a pessoa
+     entrar, e por isso carrega manchete, três números e a ressalva de que
+     a IA não substitui parecer. A ressalva fica embaixo, no rodapé da
+     faixa, e não num modal de aceite — quem lê aceite de modal não lê.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+<div style="width:1440px;height:940px;display:flex;background:#f7f8fa;color:#16181d;overflow:hidden;border-radius:22px;box-shadow:0 1px 2px rgba(18,20,30,.06),0 40px 90px -40px rgba(18,20,30,.42);border:1px solid rgba(18,20,30,.07);animation:tgUp .5s ease both">
+
+  <div style="width:520px;flex:none;background:linear-gradient(165deg,#43426b,#24233c);color:#fff;display:flex;flex-direction:column;padding:44px 46px 38px">
+    <div style="display:flex;align-items:center;gap:11px">
+      <div style="width:36px;height:36px;flex:none;border-radius:12px;background:rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;font:600 17px 'Source Serif 4',serif">T</div>
+      <div>
+        <div style="font:600 16px/1.1 'Inter Tight',sans-serif">Toga</div>
+        <div style="font:400 11.5px/1.3 'Inter Tight',sans-serif;color:rgba(255,255,255,.55)">Pesquisa jurídica assistida</div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0">
+      <div style="font:400 34px/1.28 'Source Serif 4',serif;letter-spacing:-.01em;max-width:400px">A pesquisa jurídica que mostra de onde veio cada palavra.</div>
+      <div style="font:400 14px/1.65 'Inter Tight',sans-serif;color:rgba(255,255,255,.62);margin-top:16px;max-width:392px">Legislação consolidada, jurisprudência dos tribunais superiores e súmulas — com a fonte aberta ao lado de cada afirmação e a data da última conferência à vista.</div>
+
+      <div style="display:flex;gap:30px;margin-top:38px">
+        <sc-for list="{{ numerosLogin }}" as="n" hint-placeholder-count="3">
+          <div>
+            <div style="font:400 24px/1 'Source Serif 4',serif;letter-spacing:-.01em">{{ n.v }}</div>
+            <div style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:rgba(255,255,255,.5);margin-top:6px;max-width:112px">{{ n.t }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:9px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12)">
+      <span style="width:15px;height:15px;flex:none;border-radius:50%;border:1.4px solid rgba(255,255,255,.4);color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;font:600 10px 'Inter Tight',sans-serif;margin-top:1px">!</span>
+      <span style="font:400 11.5px/1.55 'Inter Tight',sans-serif;color:rgba(255,255,255,.5)">A resposta da IA é apoio à pesquisa e não substitui parecer de advogado. Confira o inteiro teor antes de peticionar.</span>
+    </div>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:40px">
+    <div style="width:396px">
+      <div style="font:600 24px/1.2 'Inter Tight',sans-serif;letter-spacing:-.01em">Entrar</div>
+      <div style="font:400 13px/1.55 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:7px">Use o e-mail cadastrado no escritório.</div>
+
+      <div style="margin-top:26px">
+        <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079;margin-bottom:7px">E-mail</div>
+        <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="voce@escritorio.adv.br" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
+      </div>
+
+      <div style="margin-top:16px">
+        <div style="display:flex;align-items:center;margin-bottom:7px">
+          <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079">Senha</span>
+          <span style="flex:1"></span>
+          <span class="tgb" onClick="{{ alternarSenha }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a">{{ senhaTxt }}</span>
+        </div>
+        <!-- Dois ramos e não `type="{{ … }}"`: atributo que muda por hole é
+             justamente o caso que não repinta. -->
+        <sc-if value="{{ senhaOculta }}" hint-placeholder-val="{{ true }}">
+          <input type="password" value="{{ senha }}" onChange="{{ onSenha }}" placeholder="••••••••" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
+        </sc-if>
+        <sc-if value="{{ senhaAberta }}" hint-placeholder-val="{{ false }}">
+          <input type="text" value="{{ senha }}" onChange="{{ onSenha }}" placeholder="sua senha" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
+        </sc-if>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-top:18px">
+        <sc-if value="{{ manterOn }}" hint-placeholder-val="{{ true }}">
+          <span class="tgb" onClick="{{ alternarManter }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#3a3960;position:relative">
+            <span style="position:absolute;top:2px;left:19px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+          </span>
+        </sc-if>
+        <sc-if value="{{ manterOff }}" hint-placeholder-val="{{ false }}">
+          <span class="tgb" onClick="{{ alternarManter }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#e4e6ec;position:relative">
+            <span style="position:absolute;top:2px;left:2px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+          </span>
+        </sc-if>
+        <span class="tgb" onClick="{{ alternarManter }}" style="font:400 12.5px 'Inter Tight',sans-serif;color:#4c515c">Manter conectada neste computador</span>
+        <span style="flex:1"></span>
+        <span class="tgb" style="font:500 12.5px 'Inter Tight',sans-serif;color:#4b4a7a;white-space:nowrap">Esqueci a senha</span>
+      </div>
+
+      <div class="tgb" onClick="{{ entrar }}" style="margin-top:22px;height:46px;border-radius:14px;background:#3a3960;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font:500 14px 'Inter Tight',sans-serif;box-shadow:0 8px 20px -10px rgba(58,57,96,.85)">
+        <sc-if value="{{ entrando }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
+        {{ entrarTxt }}
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin:22px 0">
+        <span style="flex:1;height:1px;background:rgba(18,20,30,.08)"></span>
+        <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">ou</span>
+        <span style="flex:1;height:1px;background:rgba(18,20,30,.08)"></span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ alternativas }}" as="a" hint-placeholder-count="2">
+          <div class="tgb tgc" onClick="{{ a.go }}" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06)" style-hover="box-shadow:0 6px 18px -8px rgba(18,20,30,.3)">
+            <span style="width:32px;height:32px;flex:none;border-radius:10px;background:{{ a.ico }}"></span>
+            <div style="flex:1;min-width:0">
+              <div style="font:500 13px 'Inter Tight',sans-serif;color:#22252c">{{ a.t }}</div>
+              <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#8b8f9a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.sub }}</div>
+            </div>
+            <sc-if value="{{ a.selo }}" hint-placeholder-val="{{ true }}"><span style="font:500 10px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 8px;flex:none">ICP-Brasil</span></sc-if>
+            <span style="color:#adb2bc;flex:none;font-size:13px">›</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="text-align:center;font:400 12.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:26px">
+        Ainda não tem conta? <span class="tgb" onClick="{{ irCadastro }}" style="font-weight:500;color:#4b4a7a">Criar conta</span>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     CADASTRO — mesmo split, três passos
+
+     A barra de progresso é uma trilha só com um preenchimento que anda por
+     `width`, e não três barrinhas acesas em sequência: três barras contam
+     quantos passos existem, uma barra contínua conta quanto falta — e é
+     "quanto falta" que segura alguém num formulário de três telas.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<sc-if value="{{ isCadastro }}" hint-placeholder-val="{{ false }}">
+<div style="width:1440px;height:940px;display:flex;background:#f7f8fa;color:#16181d;overflow:hidden;border-radius:22px;box-shadow:0 1px 2px rgba(18,20,30,.06),0 40px 90px -40px rgba(18,20,30,.42);border:1px solid rgba(18,20,30,.07);animation:tgUp .5s ease both">
+
+  <div style="width:520px;flex:none;background:linear-gradient(165deg,#43426b,#24233c);color:#fff;display:flex;flex-direction:column;padding:44px 46px 38px">
+    <div style="display:flex;align-items:center;gap:11px">
+      <div style="width:36px;height:36px;flex:none;border-radius:12px;background:rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;font:600 17px 'Source Serif 4',serif">T</div>
+      <div>
+        <div style="font:600 16px/1.1 'Inter Tight',sans-serif">Toga</div>
+        <div style="font:400 11.5px/1.3 'Inter Tight',sans-serif;color:rgba(255,255,255,.55)">Pesquisa jurídica assistida</div>
+      </div>
+    </div>
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0">
+      <div style="font:400 34px/1.28 'Source Serif 4',serif;letter-spacing:-.01em;max-width:400px">A pesquisa jurídica que mostra de onde veio cada palavra.</div>
+      <div style="font:400 14px/1.65 'Inter Tight',sans-serif;color:rgba(255,255,255,.62);margin-top:16px;max-width:392px">Legislação consolidada, jurisprudência dos tribunais superiores e súmulas — com a fonte aberta ao lado de cada afirmação e a data da última conferência à vista.</div>
+
+      <div style="display:flex;gap:30px;margin-top:38px">
+        <sc-for list="{{ numerosLogin }}" as="n" hint-placeholder-count="3">
+          <div>
+            <div style="font:400 24px/1 'Source Serif 4',serif;letter-spacing:-.01em">{{ n.v }}</div>
+            <div style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:rgba(255,255,255,.5);margin-top:6px;max-width:112px">{{ n.t }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:9px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12)">
+      <span style="width:15px;height:15px;flex:none;border-radius:50%;border:1.4px solid rgba(255,255,255,.4);color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;font:600 10px 'Inter Tight',sans-serif;margin-top:1px">!</span>
+      <span style="font:400 11.5px/1.55 'Inter Tight',sans-serif;color:rgba(255,255,255,.5)">A resposta da IA é apoio à pesquisa e não substitui parecer de advogado. Confira o inteiro teor antes de peticionar.</span>
+    </div>
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:40px">
+    <div style="width:396px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font:600 24px/1.2 'Inter Tight',sans-serif;letter-spacing:-.01em">Criar conta</span>
+        <span style="flex:1"></span>
+        <span style="font:400 12px 'Inter Tight',sans-serif;color:#8b8f9a">Passo {{ passo }} de 3</span>
+      </div>
+
+      <div style="height:3px;border-radius:999px;background:#eef0f4;margin-top:16px;overflow:hidden">
+        <div style="height:100%;width:{{ passoPct }};border-radius:999px;background:linear-gradient(90deg,#6d6a9c,#43426b);transition:width .45s cubic-bezier(.2,.8,.2,1)"></div>
+      </div>
+
+      <div style="font:400 13px/1.55 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:14px">{{ passoSub }}</div>
+
+      <sc-if value="{{ ehPasso12 }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:22px">
+          <sc-for list="{{ camposPasso }}" as="c" hint-placeholder-count="3">
+            <div>
+              <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079;margin-bottom:7px">{{ c.rot }}</div>
+              <input value="{{ c.v }}" onChange="{{ c.on }}" placeholder="{{ c.ph }}" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ ehPasso3 }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:20px">
+          <sc-for list="{{ planos }}" as="p" hint-placeholder-count="3">
+            <sc-if value="{{ p.escolhido }}" hint-placeholder-val="{{ false }}">
+              <div class="tgb" onClick="{{ p.go }}" style="display:flex;gap:12px;padding:14px 15px;border-radius:16px;background:#fff;border:1.5px solid #3a3960;box-shadow:0 8px 22px -12px rgba(58,57,96,.7);margin-bottom:9px">
+                <!-- `checked="checked"` e não `checked` seco: atributo booleano
+                     vazio chega como string vazia e o runtime o lê como falso,
+                     e o radio ficava apagado dentro do cartão selecionado. -->
+                <input type="radio" name="plano" checked="checked" onChange="{{ p.go }}" style="accent-color:#3a3960;width:16px;height:16px;margin-top:2px;flex:none" />
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:baseline;gap:8px">
+                    <span style="font:500 13.5px 'Inter Tight',sans-serif;color:#16181d">{{ p.nome }}</span>
+                    <span style="flex:1"></span>
+                    <span style="font:400 17px 'Source Serif 4',serif;color:#3a3960">{{ p.preco }}</span>
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#8b8f9a">{{ p.ciclo }}</span>
+                  </div>
+                  <div style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#6b7079;margin-top:5px">{{ p.desc }}</div>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ p.naoEscolhido }}" hint-placeholder-val="{{ true }}">
+              <div class="tgb" onClick="{{ p.go }}" style="display:flex;gap:12px;padding:14px 15px;border-radius:16px;background:#fff;border:1.5px solid rgba(18,20,30,.08);margin-bottom:9px" style-hover="border-color:#b8b6d4">
+                <input type="radio" name="plano" onChange="{{ p.go }}" style="accent-color:#3a3960;width:16px;height:16px;margin-top:2px;flex:none" />
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:baseline;gap:8px">
+                    <span style="font:500 13.5px 'Inter Tight',sans-serif;color:#22252c">{{ p.nome }}</span>
+                    <span style="flex:1"></span>
+                    <span style="font:400 17px 'Source Serif 4',serif;color:#4c515c">{{ p.preco }}</span>
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">{{ p.ciclo }}</span>
+                  </div>
+                  <div style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:5px">{{ p.desc }}</div>
+                </div>
+              </div>
+            </sc-if>
+          </sc-for>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-top:14px">
+            <sc-if value="{{ aceiteOn }}" hint-placeholder-val="{{ false }}">
+              <input type="checkbox" checked="checked" onChange="{{ alternarAceite }}" style="accent-color:#3a3960;width:16px;height:16px;margin-top:1px;flex:none" />
+            </sc-if>
+            <sc-if value="{{ aceiteOff }}" hint-placeholder-val="{{ true }}">
+              <input type="checkbox" onChange="{{ alternarAceite }}" style="width:16px;height:16px;margin-top:1px;flex:none" />
+            </sc-if>
+            <span class="tgb" onClick="{{ alternarAceite }}" style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#6b7079">Li e aceito os <span style="color:#4b4a7a">termos de uso</span> e a <span style="color:#4b4a7a">política de privacidade</span>, e entendo que a resposta da IA não substitui parecer de advogado.</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;gap:10px;margin-top:24px">
+        <span class="tgb" onClick="{{ voltarPasso }}" style="flex:none;height:46px;padding:0 20px;border-radius:14px;background:#f2f3f7;color:#4c515c;display:flex;align-items:center;font:500 13.5px 'Inter Tight',sans-serif" style-hover="background:#e9ebf0">Voltar</span>
+        <sc-if value="{{ podeContinuar }}" hint-placeholder-val="{{ true }}">
+          <span class="tgb" onClick="{{ continuar }}" style="flex:1;height:46px;border-radius:14px;background:#3a3960;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font:500 13.5px 'Inter Tight',sans-serif;box-shadow:0 8px 20px -10px rgba(58,57,96,.85)">
+            <sc-if value="{{ entrando }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
+            {{ continuarTxt }}
+          </span>
+        </sc-if>
+        <sc-if value="{{ travadoNoAceite }}" hint-placeholder-val="{{ false }}">
+          <span style="flex:1;height:46px;border-radius:14px;background:#e4e6ec;color:#a8adb8;display:flex;align-items:center;justify-content:center;font:500 13.5px 'Inter Tight',sans-serif;cursor:not-allowed">Aceite os termos para continuar</span>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div style="width:1440px;height:940px;display:flex;background:#f7f8fa;color:#16181d;overflow:hidden;border-radius:22px;box-shadow:0 1px 2px rgba(18,20,30,.06),0 40px 90px -40px rgba(18,20,30,.42);border:1px solid rgba(18,20,30,.07)">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div style="width:246px;flex:none;background:#f1f2f6;border-right:1px solid rgba(18,20,30,.06);display:flex;flex-direction:column;padding:18px 12px 14px">
+    <div style="display:flex;align-items:center;gap:10px;padding:2px 8px 20px">
+      <div style="width:32px;height:32px;flex:none;border-radius:11px;background:linear-gradient(160deg,#5b5987,#3a3960);display:flex;align-items:center;justify-content:center;font:600 15px 'Source Serif 4',serif;color:#fff;box-shadow:0 4px 12px -4px rgba(58,57,96,.6)">T</div>
+      <div>
+        <div style="font:600 15.5px/1.1 'Inter Tight',sans-serif;letter-spacing:-.01em">Toga</div>
+        <div style="font:400 11px/1.3 'Inter Tight',sans-serif;color:#8b8f9a">Ribeiro Advocacia</div>
+      </div>
+      <span style="flex:1"></span>
+      <span class="tgb" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8b8f9a" style-hover="background:#e4e6ec">⌄</span>
+    </div>
+
+    <div class="tgb" onClick="{{ novaConsulta }}" style="display:flex;align-items:center;gap:9px;padding:9px 12px;margin:0 0 16px;border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06);font:500 13px 'Inter Tight',sans-serif" style-hover="box-shadow:0 4px 14px -6px rgba(18,20,30,.25)">
+      <span style="width:16px;height:16px;border-radius:50%;background:#3a3960;color:#fff;display:flex;align-items:center;justify-content:center;font:500 12px/1 sans-serif">+</span>
+      Nova consulta
+      <span style="flex:1"></span>
+      <span style="font:400 11px 'Inter Tight',sans-serif;color:#a8adb8">⌘N</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+        <div class="tgb" onClick="{{ n.go }}" style="position:relative;display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:11px;font:500 13px 'Inter Tight',sans-serif;color:#4c515c" style-hover="background:#e7e9ef">
+          <sc-if value="{{ n.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:11px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.07)"></span></sc-if>
+          <span style="position:relative;width:18px;height:18px;flex:none;border-radius:6px;background:{{ n.ico }};display:flex;align-items:center;justify-content:center"></span>
+          <span style="position:relative;color:{{ n.txtColor }}">{{ n.label }}</span>
+          <span style="flex:1"></span>
+          <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="position:relative;font:500 10.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#e6e5f2;border-radius:999px;padding:2px 7px">{{ n.badgeTxt }}</span></sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:22px;flex:1;min-height:0;display:flex;flex-direction:column">
+      <div style="font:500 11px 'Inter Tight',sans-serif;color:#9297a2;padding:6px 12px 8px">Recentes</div>
+      <div style="overflow:auto;display:flex;flex-direction:column;gap:1px">
+        <sc-for list="{{ recentes }}" as="r" hint-placeholder-count="5">
+          <div class="tgb" onClick="{{ r.go }}" style="display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:10px;font:400 12.5px 'Inter Tight',sans-serif;color:#6b7079;white-space:nowrap;overflow:hidden" style-hover="background:#e7e9ef;color:#16181d">
+            <span style="width:5px;height:5px;border-radius:50%;background:#c6c9d2;flex:none"></span>
+            <span style="overflow:hidden;text-overflow:ellipsis">{{ r.t }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div class="tgb" onClick="{{ goFontes }}" style="margin-top:12px;padding:11px 12px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05)" style-hover="box-shadow:0 6px 18px -8px rgba(18,20,30,.3)">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+        <span style="width:6px;height:6px;border-radius:50%;background:#3f9e79;animation:tgPulse 2.6s ease-in-out infinite"></span>
+        <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#3f7d68">{{ syncLabel }}</span>
+      </div>
+      <div style="font:400 11.5px/1.45 'Inter Tight',sans-serif;color:#8b8f9a">{{ syncSub }}</div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:#f7f8fa">
+
+    <div style="height:60px;flex:none;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid rgba(18,20,30,.055);background:rgba(255,255,255,.72);backdrop-filter:blur(14px)">
+      <div style="font:600 15px 'Inter Tight',sans-serif;letter-spacing:-.01em">{{ titulo }}</div>
+      <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#9297a2">{{ subtitulo }}</span>
+      <span style="flex:1"></span>
+      <div class="tgb" style="display:flex;align-items:center;gap:8px;height:34px;padding:0 13px;border-radius:999px;background:#eef0f4;width:270px" style-hover="background:#e7e9ef">
+        <span style="width:12px;height:12px;border:1.6px solid #9297a2;border-radius:50%;flex:none"></span>
+        <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#9297a2">Buscar leis, acórdãos, súmulas…</span>
+        <span style="flex:1"></span>
+        <span style="font:400 11px 'Inter Tight',sans-serif;color:#adb2bc">⌘K</span>
+      </div>
+      <div class="tgb" onClick="{{ goConfig }}" style="width:32px;height:32px;border-radius:999px;background:linear-gradient(160deg,#6d6a9c,#43426b);color:#fff;display:flex;align-items:center;justify-content:center;font:600 11.5px 'Inter Tight',sans-serif;box-shadow:0 3px 10px -4px rgba(67,66,107,.7)">MR</div>
+    </div>
+
+    <!-- ─── CHAT ─── -->
+    <sc-if value="{{ isChat }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;min-height:0;display:flex">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:1;min-height:0;overflow:auto;padding:30px 34px 6px">
+          <div style="max-width:690px;margin:0 auto;display:flex;flex-direction:column;gap:26px">
+
+            <sc-if value="{{ vazio }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:64px 0 18px;animation:tgUp .5s ease both">
+                <div style="font:400 30px/1.25 'Source Serif 4',serif;letter-spacing:-.01em;color:#16181d">Boa tarde, Dra. Marina.</div>
+                <div style="font:400 15px/1.6 'Inter Tight',sans-serif;color:#7c818c;margin-top:8px;max-width:440px">Pergunte em linguagem natural. Eu leio a lei vigente, a jurisprudência e as súmulas, e mostro de onde tirei cada afirmação.</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px">
+                  <sc-for list="{{ atalhos }}" as="a" hint-placeholder-count="4">
+                    <div class="tgb tgc" onClick="{{ a.go }}" style="padding:14px 16px;border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05)">
+                      <div style="font:500 10.5px 'Inter Tight',sans-serif;color:#8a86b8;margin-bottom:6px">{{ a.tag }}</div>
+                      <div style="font:400 13.5px/1.5 'Inter Tight',sans-serif;color:#2a2d35">{{ a.t }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="0">
+              <div style="animation:tgIn .42s cubic-bezier(.2,.8,.2,1) both">
+
+                <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;justify-content:flex-end">
+                    <div style="max-width:76%;background:#3a3960;color:#f3f3f8;border-radius:20px 20px 6px 20px;padding:12px 17px;font:400 14px/1.55 'Inter Tight',sans-serif;box-shadow:0 6px 18px -10px rgba(58,57,96,.75)">{{ m.text }}</div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:13px">
+                    <div style="width:28px;height:28px;flex:none;border-radius:10px;background:linear-gradient(160deg,#5b5987,#3a3960);color:#fff;display:flex;align-items:center;justify-content:center;font:600 12px 'Source Serif 4',serif;box-shadow:0 3px 10px -4px rgba(58,57,96,.6)">T</div>
+                    <div style="flex:1;min-width:0">
+
+                      <sc-if value="{{ m.pensando }}" hint-placeholder-val="{{ false }}">
+                        <div style="padding-top:4px">
+                          <div style="display:flex;align-items:center;gap:9px;margin-bottom:13px">
+                            <span style="display:flex;gap:3px">
+                              <span style="width:5px;height:5px;border-radius:50%;background:#6d6a9c;animation:tgDot 1.1s infinite"></span>
+                              <span style="width:5px;height:5px;border-radius:50%;background:#6d6a9c;animation:tgDot 1.1s .15s infinite"></span>
+                              <span style="width:5px;height:5px;border-radius:50%;background:#6d6a9c;animation:tgDot 1.1s .3s infinite"></span>
+                            </span>
+                            <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#6b7079">{{ m.statusTxt }}</span>
+                          </div>
+                          <div style="display:flex;flex-direction:column;gap:9px">
+                            <sc-for list="{{ m.steps }}" as="s" hint-placeholder-count="0">
+                              <div style="display:flex;align-items:center;gap:10px;animation:tgUp .34s ease both">
+                                <span style="width:16px;height:16px;flex:none;border-radius:50%;background:{{ s.bg }};display:flex;align-items:center;justify-content:center">
+                                  <sc-if value="{{ s.pronto }}" hint-placeholder-val="{{ false }}"><span style="width:5px;height:2.5px;border-left:1.6px solid #fff;border-bottom:1.6px solid #fff;transform:rotate(-45deg) translate(0,-1px)"></span></sc-if>
+                                  <sc-if value="{{ s.rodando }}" hint-placeholder-val="{{ false }}"><span style="width:9px;height:9px;border-radius:50%;border:1.6px solid rgba(255,255,255,.45);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
+                                </span>
+                                <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#5b6068">{{ s.t }}</span>
+                                <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">{{ s.meta }}</span>
+                              </div>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.mostrarTexto }}" hint-placeholder-val="{{ false }}">
+                        <div>
+                          <sc-for list="{{ m.paras }}" as="p" hint-placeholder-count="0">
+                            <p style="margin:0 0 13px;font:400 15px/1.72 'Source Serif 4',serif;color:#22252c">{{ p.text }}<sc-if value="{{ p.cite }}" hint-placeholder-val="{{ false }}"><span class="tgb" style="display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;margin-left:5px;border-radius:6px;background:#ecebf6;color:#4b4a7a;font:600 10px/1 'Inter Tight',sans-serif;vertical-align:2px;animation:tgPop .3s ease both" style-hover="background:#dedcf0">{{ p.citeN }}</span></sc-if><sc-if value="{{ p.caret }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;width:2px;height:16px;background:#6d6a9c;vertical-align:-3px;margin-left:2px;animation:tgCaret 1s steps(1) infinite"></span></sc-if></p>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+
+                      <sc-if value="{{ m.done }}" hint-placeholder-val="{{ false }}">
+                        <div style="animation:tgUp .4s ease both">
+                          <div style="display:flex;flex-direction:column;gap:8px;margin:16px 0 0">
+                            <sc-for list="{{ m.fontes }}" as="f" hint-placeholder-count="0">
+                              <div class="tgb" onClick="{{ f.open }}" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05)" style-hover="box-shadow:0 6px 18px -8px rgba(18,20,30,.3)">
+                                <span style="width:19px;height:19px;flex:none;border-radius:7px;background:#ecebf6;color:#4b4a7a;display:flex;align-items:center;justify-content:center;font:600 10px 'Inter Tight',sans-serif">{{ f.n }}</span>
+                                <span style="font:500 13px 'Inter Tight',sans-serif;color:#22252c;flex:none">{{ f.titulo }}</span>
+                                <span style="font:400 12px 'Inter Tight',sans-serif;color:#8b8f9a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.sub }}</span>
+                                <span style="flex:1"></span>
+                                <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 9px;flex:none">{{ f.selo }}</span>
+                                <span style="color:#adb2bc;flex:none;font-size:13px">›</span>
+                              </div>
+                            </sc-for>
+                          </div>
+
+                          <!-- ─── cartão de dosimetria dentro da resposta ───
+                               Entra depois das fontes e antes da linha de
+                               confiança, porque é conclusão apoiada nelas, não
+                               fonte. Todos os números saem de `calc()`, a mesma
+                               função da tela de Dosimetria: mexer num vetor do
+                               art. 59 lá muda o valor aqui, e é isso que
+                               diferencia estimativa de enfeite. -->
+                          <sc-if value="{{ m.temDosimetria }}" hint-placeholder-val="{{ false }}">
+                            <div style="margin-top:14px;border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06);overflow:hidden;animation:tgUp .4s ease both">
+                              <div style="display:flex;align-items:center;gap:10px;padding:14px 16px 12px">
+                                <span style="width:20px;height:20px;flex:none;border-radius:7px;background:#dde9e3"></span>
+                                <span style="font:500 13px 'Inter Tight',sans-serif;color:#16181d">Dosimetria estimada a partir da conversa</span>
+                                <span style="flex:1"></span>
+                                <span style="display:flex;align-items:center;gap:6px;font:500 10.5px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 9px;flex:none">
+                                  <span style="width:5px;height:5px;border-radius:50%;background:#3f9e79;animation:tgPulse 2.4s ease-in-out infinite"></span>cálculo ao vivo
+                                </span>
+                              </div>
+
+                              <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 14px">
+                                <sc-for list="{{ m.dosChips }}" as="ch" hint-placeholder-count="5">
+                                  <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:999px;padding:5px 11px;white-space:nowrap">{{ ch.t }}</span>
+                                </sc-for>
+                              </div>
+
+                              <div style="display:flex;border-top:1px solid rgba(18,20,30,.05)">
+                                <sc-for list="{{ m.dosFases }}" as="f" hint-placeholder-count="3">
+                                  <div style="flex:1;min-width:0;padding:13px 16px;border-right:1px solid rgba(18,20,30,.05)">
+                                    <div style="font:500 10.5px 'Inter Tight',sans-serif;color:#8a86b8">{{ f.k }}</div>
+                                    <div style="font:400 19px/1.2 'Source Serif 4',serif;color:#16181d;margin:5px 0 4px">{{ f.v }}</div>
+                                    <div style="font:400 11px/1.45 'Inter Tight',sans-serif;color:#9297a2">{{ f.d }}</div>
+                                  </div>
+                                </sc-for>
+                              </div>
+
+                              <div style="background:#2c2b47;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px">
+                                <div>
+                                  <div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.6)">Pena definitiva</div>
+                                  <div style="font:400 22px/1.15 'Source Serif 4',serif;margin-top:3px;animation:tgPop .32s ease both">{{ m.dosPena }}</div>
+                                </div>
+                                <span style="width:1px;height:34px;background:rgba(255,255,255,.14);flex:none"></span>
+                                <div>
+                                  <div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.6)">Regime inicial</div>
+                                  <div style="font:500 13.5px 'Inter Tight',sans-serif;margin-top:4px">{{ m.dosRegime }}</div>
+                                </div>
+                                <span style="flex:1"></span>
+                                <span class="tgb" onClick="{{ goDosimetria }}" style="font:500 12px 'Inter Tight',sans-serif;color:#2c2b47;background:#fff;border-radius:999px;padding:9px 14px;flex:none;box-shadow:0 6px 16px -8px rgba(0,0,0,.55);white-space:nowrap">Abrir na ferramenta →</span>
+                              </div>
+
+                              <div style="padding:12px 16px;font:400 11.5px/1.55 'Inter Tight',sans-serif;color:#8b8f9a">Estimativa montada com os elementos que apareceram na conversa e as frações majoritárias. O número acompanha os ajustes feitos na tela de Dosimetria — trocar um vetor do art. 59 lá muda o valor aqui.</div>
+                            </div>
+                          </sc-if>
+
+                          <div style="display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap">
+                            <div style="display:flex;align-items:center;gap:7px">
+                              <span style="display:flex;gap:2.5px">
+                                <span style="width:14px;height:4px;border-radius:2px;background:#6d6a9c"></span>
+                                <span style="width:14px;height:4px;border-radius:2px;background:#6d6a9c"></span>
+                                <span style="width:14px;height:4px;border-radius:2px;background:#6d6a9c"></span>
+                                <span style="width:14px;height:4px;border-radius:2px;background:#dcdde4"></span>
+                              </span>
+                              <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079">Confiança alta · 3 fontes primárias</span>
+                            </div>
+                            <span style="width:1px;height:14px;background:#e2e4ea"></span>
+                            <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">Base de 11/08/2026</span>
+                            <span style="flex:1"></span>
+                            <span class="tgb" style="font:500 12px 'Inter Tight',sans-serif;color:#4c515c;background:#fff;border-radius:999px;padding:7px 13px;box-shadow:0 1px 2px rgba(18,20,30,.06)" style-hover="box-shadow:0 5px 14px -6px rgba(18,20,30,.3)">Exportar .docx</span>
+                            <span class="tgb" onClick="{{ goDosimetria }}" style="font:500 12px 'Inter Tight',sans-serif;color:#fff;background:#3a3960;border-radius:999px;padding:7px 13px;box-shadow:0 5px 14px -7px rgba(58,57,96,.8)">Calcular dosimetria</span>
+                          </div>
+
+                          <div style="display:flex;align-items:flex-start;gap:9px;margin-top:14px;padding:10px 13px;border-radius:13px;background:#f2f3f7">
+                            <span style="width:15px;height:15px;flex:none;border-radius:50%;border:1.4px solid #b9a877;color:#8d7b46;display:flex;align-items:center;justify-content:center;font:600 10px 'Inter Tight',sans-serif;margin-top:1px">!</span>
+                            <span style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#7c818c">Resposta gerada por IA sobre fontes oficiais. Confira o inteiro teor antes de peticionar.</span>
+                          </div>
+
+                          <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:14px">
+                            <sc-for list="{{ m.sugestoes }}" as="s" hint-placeholder-count="0">
+                              <span class="tgb" onClick="{{ s.go }}" style="font:400 12px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:7px 13px" style-hover="background:#dedcf0">{{ s.t }}</span>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </sc-if>
+
+                    </div>
+                  </div>
+                </sc-if>
+
+              </div>
+            </sc-for>
+
+            <div style="height:6px"></div>
+          </div>
+        </div>
+
+        <div style="flex:none;padding:12px 34px 22px;background:linear-gradient(180deg,rgba(247,248,250,0),#f7f8fa 42%)">
+          <div style="max-width:690px;margin:0 auto">
+            <div style="display:flex;gap:6px;margin-bottom:9px">
+              <sc-for list="{{ modos }}" as="m" hint-placeholder-count="5">
+                <span class="tgb" onClick="{{ m.go }}" style="display:flex;align-items:center;gap:6px;font:500 11.5px 'Inter Tight',sans-serif;border-radius:999px;padding:6px 11px;background:{{ m.bg }};color:{{ m.fg }};box-shadow:0 1px 2px rgba(18,20,30,.05);white-space:nowrap">
+                  <span style="width:6px;height:6px;border-radius:50%;background:{{ m.dot }};flex:none"></span>{{ m.t }}
+                </span>
+              </sc-for>
+            </div>
+            <div style="border-radius:22px;background:#fff;padding:14px 16px 11px;box-shadow:0 1px 2px rgba(18,20,30,.06),0 14px 34px -22px rgba(18,20,30,.4)">
+              <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onKey }}" placeholder="Pergunte, cole um trecho da denúncia ou informe o nº do processo…" style="width:100%;border:none;outline:none;background:transparent;font:400 14.5px/1.5 'Inter Tight',sans-serif;color:#16181d" />
+              <div style="display:flex;align-items:center;gap:7px;margin-top:13px">
+                <span class="tgb" style="font:400 11.5px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:6px 11px" style-hover="background:#e9ebf0">Anexar autos</span>
+                <span class="tgb" style="font:400 11.5px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:6px 11px" style-hover="background:#e9ebf0">Tribunal: todos</span>
+                <span class="tgb" style="font:400 11.5px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:6px 11px" style-hover="background:#e9ebf0">Últimos 5 anos</span>
+                <span style="flex:1"></span>
+                <span style="font:400 11px 'Inter Tight',sans-serif;color:#adb2bc">{{ dicaEnvio }}</span>
+                <span class="tgb" onClick="{{ enviar }}" style="width:34px;height:34px;border-radius:999px;background:{{ btnBg }};display:flex;align-items:center;justify-content:center;box-shadow:0 5px 14px -7px rgba(58,57,96,.8)">
+                  <sc-if value="{{ ocupado }}" hint-placeholder-val="{{ false }}"><span style="width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
+                  <sc-if value="{{ livre }}" hint-placeholder-val="{{ true }}"><span style="width:8px;height:8px;border-top:2px solid #fff;border-right:2px solid #fff;transform:rotate(-45deg);margin-bottom:2px"></span></sc-if>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ painelAberto }}" hint-placeholder-val="{{ false }}">
+      <div style="width:420px;flex:none;border-left:1px solid rgba(18,20,30,.06);background:#fff;display:flex;flex-direction:column;animation:tgRight .38s cubic-bezier(.2,.8,.2,1) both">
+        <div style="flex:none;padding:16px 20px 0">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+            <span style="font:500 12px 'Inter Tight',sans-serif;color:#9297a2">Fonte citada</span>
+            <span style="flex:1"></span>
+            <span class="tgb" style="font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a">Texto oficial ↗</span>
+            <span class="tgb" onClick="{{ fecharPainel }}" style="width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#9297a2;background:#f2f3f7" style-hover="background:#e7e9ef">✕</span>
+          </div>
+          <div style="display:flex;gap:5px;padding-bottom:14px">
+            <sc-for list="{{ abasFonte }}" as="a" hint-placeholder-count="3">
+              <span class="tgb" onClick="{{ a.go }}" style="font:500 12px 'Inter Tight',sans-serif;border-radius:999px;padding:6px 12px;background:{{ a.bg }};color:{{ a.fg }};white-space:nowrap">{{ a.t }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;padding:4px 20px 24px;border-top:1px solid rgba(18,20,30,.05)">
+          <div style="display:flex;align-items:center;gap:7px;margin:16px 0 14px">
+            <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 9px">Em vigor</span>
+            <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#8d7b46;background:#f6f1e3;border-radius:999px;padding:3px 9px">Alterado 2×</span>
+            <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">{{ fonteRef }}</span>
+          </div>
+          <div style="font:500 20px/1.3 'Source Serif 4',serif;color:#16181d">{{ fonteTitulo }}</div>
+          <div style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2;margin:5px 0 18px">{{ fonteSub }}</div>
+          <div style="font:400 14px/1.78 'Source Serif 4',serif;color:#33363d;display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ fonteBlocos }}" as="b" hint-placeholder-count="4">
+              <div style="border-radius:14px;padding:{{ b.pad }};background:{{ b.bg }}">
+                <div style="color:{{ b.fg }}">{{ b.txt }}</div>
+                <sc-if value="{{ b.marca }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:9px">
+                    <span style="font:600 10px 'Inter Tight',sans-serif;color:#4b4a7a;background:#e6e5f2;border-radius:999px;padding:3px 8px">Trecho citado</span>
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#8b8f9a">{{ b.marcaTxt }}</span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:20px;border-radius:16px;background:#f7f8fa;padding:15px 16px">
+            <div style="font:500 12px 'Inter Tight',sans-serif;color:#6b7079;margin-bottom:12px">Linha do tempo do dispositivo</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="3">
+                <div style="display:flex;gap:11px;align-items:flex-start">
+                  <span style="font:500 11px 'Inter Tight',sans-serif;color:#9297a2;width:66px;flex:none">{{ t.data }}</span>
+                  <span style="width:7px;height:7px;border-radius:50%;background:#b8b6d4;flex:none;margin-top:4px"></span>
+                  <span style="font:400 12.5px/1.5 'Inter Tight',sans-serif;color:#4c515c">{{ t.txt }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div class="tgb" style="margin-top:14px;font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a">Comparar redações lado a lado →</div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <!-- ─── JURISPRUDÊNCIA ─── -->
+    <sc-if value="{{ isJuris }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex;animation:tgUp .35s ease both">
+      <div style="width:242px;flex:none;border-right:1px solid rgba(18,20,30,.055);padding:20px 16px;overflow:auto">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+          <span style="font:500 12px 'Inter Tight',sans-serif;color:#6b7079">Filtros</span>
+          <span style="flex:1"></span>
+          <span class="tgb" onClick="{{ limparFiltros }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a">Limpar</span>
+        </div>
+        <sc-for list="{{ filtros }}" as="g" hint-placeholder-count="4">
+          <div style="margin-bottom:20px">
+            <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#9297a2;margin-bottom:9px">{{ g.nome }}</div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <sc-for list="{{ g.itens }}" as="i" hint-placeholder-count="3">
+                <div class="tgb" onClick="{{ i.go }}" style="display:flex;align-items:center;gap:9px;padding:6px 9px;border-radius:10px;background:{{ i.bg }}" style-hover="background:#eef0f4">
+                  <span style="width:15px;height:15px;flex:none;border-radius:5px;background:{{ i.boxBg }};display:flex;align-items:center;justify-content:center">
+                    <sc-if value="{{ i.on }}" hint-placeholder-val="{{ false }}"><span style="width:5px;height:2.5px;border-left:1.7px solid #fff;border-bottom:1.7px solid #fff;transform:rotate(-45deg) translate(0,-1px)"></span></sc-if>
+                  </span>
+                  <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#4c515c">{{ i.t }}</span>
+                  <span style="flex:1"></span>
+                  <span style="font:400 11px 'Inter Tight',sans-serif;color:#adb2bc">{{ i.n }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="flex:none;padding:20px 26px 14px">
+          <div style="display:flex;align-items:center;gap:11px;padding:13px 16px;border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06)">
+            <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:4px 9px;flex:none">Busca semântica</span>
+            <span style="font:400 14px 'Inter Tight',sans-serif;color:#22252c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ jurisQuery }}</span>
+            <span style="flex:1"></span>
+            <sc-if value="{{ jurisCarregando }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:7px;flex:none"><span style="width:12px;height:12px;border-radius:50%;border:1.8px solid #dcdde4;border-top-color:#6d6a9c;animation:tgSpin .7s linear infinite"></span><span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2">Consultando DataJud…</span></sc-if>
+            <sc-if value="{{ jurisPronto }}" hint-placeholder-val="{{ true }}"><span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2;flex:none">{{ jurisTotal }} resultados · 0,42 s</span></sc-if>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;margin-top:12px">
+            <sc-for list="{{ chipsAtivos }}" as="c" hint-placeholder-count="3">
+              <span class="tgb" onClick="{{ c.go }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:6px 11px;white-space:nowrap" style-hover="background:#dedcf0">{{ c.t }} ✕</span>
+            </sc-for>
+            <span style="flex:1"></span>
+            <span class="tgb" onClick="{{ trocarOrdem }}" style="font:400 12px 'Inter Tight',sans-serif;color:#6b7079;background:#fff;border-radius:999px;padding:6px 12px;box-shadow:0 1px 2px rgba(18,20,30,.05)">Ordenar: {{ ordem }} ⌄</span>
+          </div>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow:auto;padding:4px 26px 26px;display:flex;flex-direction:column;gap:12px">
+          <sc-if value="{{ jurisCarregando }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ skeletons }}" as="s" hint-placeholder-count="3">
+                <div style="padding:18px 20px;border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05)">
+                  <div style="display:flex;gap:9px;margin-bottom:13px"><span class="tgsk" style="width:46px;height:18px"></span><span class="tgsk" style="width:150px;height:18px"></span><span class="tgsk" style="width:210px;height:18px"></span></div>
+                  <div class="tgsk" style="height:12px;margin-bottom:8px"></div>
+                  <div class="tgsk" style="height:12px;width:92%;margin-bottom:8px"></div>
+                  <div class="tgsk" style="height:12px;width:64%"></div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ jurisPronto }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ acordaos }}" as="a" hint-placeholder-count="4">
+                <div class="tgc" style="border-radius:18px;background:#fff;padding:17px 20px;box-shadow:0 1px 2px rgba(18,20,30,.05);animation:tgUp .38s ease both">
+                  <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+                    <span style="font:600 10.5px 'Inter Tight',sans-serif;color:#fff;background:#3a3960;border-radius:999px;padding:3px 9px;flex:none">{{ a.tribunal }}</span>
+                    <span style="font:500 13.5px 'Inter Tight',sans-serif;color:#16181d;flex:none">{{ a.numero }}</span>
+                    <span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.orgao }} · Rel. {{ a.relator }} · {{ a.data }}</span>
+                    <span style="flex:1"></span>
+                    <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 9px;flex:none">{{ a.selo }}</span>
+                  </div>
+                  <div style="font:400 13.5px/1.68 'Source Serif 4',serif;color:#3a3d45;margin-bottom:13px">{{ a.ementa }}</div>
+                  <div style="display:flex;align-items:center;gap:9px">
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ a.origem }}</span>
+                    <span style="width:1px;height:12px;background:#e2e4ea"></span>
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ a.citacoes }} citações posteriores</span>
+                    <span style="flex:1"></span>
+                    <span class="tgb" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:999px;padding:6px 12px" style-hover="background:#e9ebf0">Inteiro teor</span>
+                    <span class="tgb" onClick="{{ a.perguntar }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#fff;background:#3a3960;border-radius:999px;padding:6px 12px;box-shadow:0 4px 12px -6px rgba(58,57,96,.8)">Perguntar ao Toga</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ─── SÚMULAS ─── -->
+    <sc-if value="{{ isSumulas }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:tgUp .35s ease both">
+      <div style="flex:none;padding:24px 28px 0">
+        <div style="display:flex;align-items:flex-end;gap:16px">
+          <div>
+            <div style="font:400 26px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">Súmulas por tema</div>
+            <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:6px">Repositórios oficiais do STF e do STJ, com vigência conferida diariamente.</div>
+          </div>
+          <span style="flex:1"></span>
+          <span class="tgb" onClick="{{ goChat }}" style="font:500 12px 'Inter Tight',sans-serif;color:#fff;background:#3a3960;border-radius:999px;padding:8px 14px;box-shadow:0 5px 14px -7px rgba(58,57,96,.8)">Confrontar com o caso</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:18px">
+          <sc-for list="{{ abasSumula }}" as="a" hint-placeholder-count="4">
+            <span class="tgb" onClick="{{ a.go }}" style="font:500 12.5px 'Inter Tight',sans-serif;border-radius:999px;padding:8px 15px;background:{{ a.bg }};color:{{ a.fg }};box-shadow:{{ a.sh }}">{{ a.t }}</span>
+          </sc-for>
+        </div>
+      </div>
+      <div style="flex:1;min-height:0;display:flex;margin-top:16px;border-top:1px solid rgba(18,20,30,.055)">
+        <div style="width:228px;flex:none;border-right:1px solid rgba(18,20,30,.055);padding:18px 14px;overflow:auto">
+          <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#9297a2;padding:0 8px 10px">Temas</div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ temas }}" as="t" hint-placeholder-count="8">
+              <div class="tgb" onClick="{{ t.go }}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:11px;background:{{ t.bg }}" style-hover="background:#eef0f4">
+                <span style="font:400 12.5px 'Inter Tight',sans-serif;color:{{ t.fg }}">{{ t.t }}</span>
+                <span style="flex:1"></span>
+                <span style="font:400 11px 'Inter Tight',sans-serif;color:#adb2bc">{{ t.n }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex:1;min-width:0;overflow:auto;padding:22px 28px 28px">
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:940px">
+            <sc-for list="{{ sumulas }}" as="s" hint-placeholder-count="4">
+              <div class="tgc" style="display:flex;gap:20px;border-radius:20px;background:#fff;padding:20px 22px;box-shadow:0 1px 2px rgba(18,20,30,.05);animation:tgUp .35s ease both">
+                <div style="flex:none;width:104px">
+                  <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">Súmula</div>
+                  <div style="font:400 40px/1 'Source Serif 4',serif;color:#3a3960;margin:4px 0 10px;letter-spacing:-.02em">{{ s.n }}</div>
+                  <div style="font:500 10.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:3px 9px;display:inline-block">{{ s.tipo }}</div>
+                </div>
+                <div style="flex:1;min-width:0;border-left:1px solid rgba(18,20,30,.06);padding-left:20px">
+                  <div style="font:400 15px/1.7 'Source Serif 4',serif;color:#22252c;margin-bottom:14px">{{ s.txt }}</div>
+                  <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+                    <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 9px">{{ s.status }}</span>
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ s.orgao }} · {{ s.data }}</span>
+                    <span style="width:1px;height:12px;background:#e2e4ea"></span>
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ s.refs }}</span>
+                    <span style="flex:1"></span>
+                    <span class="tgb" onClick="{{ s.salvar }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:{{ s.salvaFg }};background:{{ s.salvaBg }};border-radius:999px;padding:6px 12px">{{ s.salvaTxt }}</span>
+                    <span class="tgb" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a">Precedentes ({{ s.prec }}) →</span>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ─── DOSIMETRIA ─── -->
+    <sc-if value="{{ isDosimetria }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex;animation:tgUp .35s ease both">
+      <div style="flex:1;min-width:0;overflow:auto;padding:24px 28px 30px">
+        <div style="max-width:690px">
+          <div style="font:400 26px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">Dosimetria trifásica</div>
+          <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin:6px 0 20px">Roubo majorado · art. 157, §2º, VII · réu primário, 24 anos, arma branca</div>
+
+          <!-- Aba de fase em dois ramos literais. Quando se troca de fase, o
+               único que mudaria seria a cor de fundo e a sombra — hole em
+               `style` dentro de sc-for não repinta, e a aba ficava morta. -->
+          <div style="display:flex;gap:9px;margin-bottom:18px">
+            <sc-for list="{{ fases }}" as="f" hint-placeholder-count="3">
+              <sc-if value="{{ f.ativa }}" hint-placeholder-val="{{ true }}">
+                <div class="tgb" onClick="{{ f.go }}" style="flex:1;padding:13px 15px;border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06),0 10px 24px -16px rgba(18,20,30,.4)">
+                  <div style="font:500 11px 'Inter Tight',sans-serif;color:#8a86b8">{{ f.k }}</div>
+                  <div style="font:500 13.5px 'Inter Tight',sans-serif;color:#16181d;margin-top:4px">{{ f.nome }}</div>
+                  <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#4b4a7a;margin-top:3px">{{ f.res }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ f.inativa }}" hint-placeholder-val="{{ false }}">
+                <div class="tgb" onClick="{{ f.go }}" style="flex:1;padding:13px 15px;border-radius:16px;background:#f2f3f7">
+                  <div style="font:500 11px 'Inter Tight',sans-serif;color:#a8adb8">{{ f.k }}</div>
+                  <div style="font:500 13.5px 'Inter Tight',sans-serif;color:#5b6068;margin-top:4px">{{ f.nome }}</div>
+                  <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#9297a2;margin-top:3px">{{ f.res }}</div>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ isFase1 }}" hint-placeholder-val="{{ true }}">
+          <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden;animation:tgUp .3s ease both">
+            <div style="padding:16px 20px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(18,20,30,.05)">
+              <span style="font:500 14px 'Inter Tight',sans-serif">Circunstâncias judiciais · art. 59</span>
+              <span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2">{{ negLabel }}</span>
+              <span style="flex:1"></span>
+              <span class="tgb" onClick="{{ resetVetores }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:6px 11px">Zerar</span>
+            </div>
+            <div style="padding:4px 20px 16px">
+              <sc-for list="{{ vetores }}" as="v" hint-placeholder-count="8">
+                <div style="display:flex;align-items:center;gap:16px;padding:11px 0;border-bottom:1px solid rgba(18,20,30,.04)">
+                  <div style="width:152px;flex:none">
+                    <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ v.nome }}</div>
+                    <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ v.hint }}</div>
+                  </div>
+                  <!-- Mesma regra do switch: a pastilha ativa é um ramo, a
+                       inativa é outro, ambos com cor literal. Com hole em
+                       `style` o segmentado não repintava e a primeira fase
+                       parecia não responder ao clique. -->
+                  <div style="flex:1;display:flex;gap:4px;background:#f2f3f7;border-radius:999px;padding:3px">
+                    <sc-for list="{{ v.opts }}" as="o" hint-placeholder-count="3">
+                      <sc-if value="{{ o.ativa }}" hint-placeholder-val="{{ false }}">
+                        <span class="tgb" onClick="{{ o.go }}" style="flex:1;text-align:center;font:500 11.5px 'Inter Tight',sans-serif;padding:6px 4px;border-radius:999px;background:#fff;color:#16181d;box-shadow:0 1px 3px rgba(18,20,30,.16)">{{ o.t }}</span>
+                      </sc-if>
+                      <sc-if value="{{ o.inativa }}" hint-placeholder-val="{{ true }}">
+                        <span class="tgb" onClick="{{ o.go }}" style="flex:1;text-align:center;font:500 11.5px 'Inter Tight',sans-serif;padding:6px 4px;border-radius:999px;color:#8b8f9a">{{ o.t }}</span>
+                      </sc-if>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ v.negativo }}" hint-placeholder-val="{{ false }}">
+                    <div style="width:78px;flex:none;text-align:right;font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a">{{ v.delta }}</div>
+                  </sc-if>
+                  <sc-if value="{{ v.semPeso }}" hint-placeholder-val="{{ true }}">
+                    <div style="width:78px;flex:none;text-align:right;font:500 12px 'Inter Tight',sans-serif;color:#adb2bc">—</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;gap:12px;padding:14px 0 2px">
+                <span style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;flex:1">Fração de 1/8 do intervalo por vetor negativo (critério majoritário do STJ). Súmula 444: inquéritos em curso não agravam a pena-base.</span>
+                <span class="tgb" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:999px;padding:6px 12px;white-space:nowrap" style-hover="background:#e9ebf0">Trocar critério</span>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ isFase23 }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden;animation:tgUp .3s ease both">
+            <div style="padding:16px 20px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(18,20,30,.05)">
+              <span style="font:500 14px 'Inter Tight',sans-serif">{{ tituloFase }}</span>
+              <span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2">{{ subFase }}</span>
+            </div>
+            <div style="padding:6px 20px 16px">
+              <!-- O bug que motivou a regra: aqui nada mais mudava além de
+                   `trackBg`, `knobLeft` e `frFg`, todos holes em `style` dentro
+                   de sc-for. O switch ficava congelado no estado inicial mesmo
+                   com o cálculo já refeito. Dois ramos mutuamente exclusivos,
+                   valores literais nos dois. -->
+              <sc-for list="{{ circunstancias }}" as="c" hint-placeholder-count="5">
+                <sc-if value="{{ c.ligado }}" hint-placeholder-val="{{ true }}">
+                  <div class="tgb" onClick="{{ c.go }}" style="display:flex;align-items:center;gap:14px;padding:12px 10px;margin:0 -10px;border-radius:12px;border-bottom:1px solid rgba(18,20,30,.04)" style-hover="background:#f7f8fa">
+                    <span style="width:38px;height:22px;flex:none;border-radius:999px;background:#3a3960;position:relative">
+                      <span style="position:absolute;top:2px;left:19px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+                    </span>
+                    <div style="flex:1;min-width:0">
+                      <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ c.nome }}</div>
+                      <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ c.base }}</div>
+                    </div>
+                    <span style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:#9297a2;width:200px;flex:none">{{ c.nota }}</span>
+                    <span style="font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a;width:66px;flex:none;text-align:right">{{ c.fr }}</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ c.desligado }}" hint-placeholder-val="{{ false }}">
+                  <div class="tgb" onClick="{{ c.go }}" style="display:flex;align-items:center;gap:14px;padding:12px 10px;margin:0 -10px;border-radius:12px;border-bottom:1px solid rgba(18,20,30,.04)" style-hover="background:#f7f8fa">
+                    <span style="width:38px;height:22px;flex:none;border-radius:999px;background:#e4e6ec;position:relative">
+                      <span style="position:absolute;top:2px;left:2px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+                    </span>
+                    <div style="flex:1;min-width:0">
+                      <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ c.nome }}</div>
+                      <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ c.base }}</div>
+                    </div>
+                    <span style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:#9297a2;width:200px;flex:none">{{ c.nota }}</span>
+                    <span style="font:500 12px 'Inter Tight',sans-serif;color:#adb2bc;width:66px;flex:none;text-align:right">{{ c.fr }}</span>
+                  </div>
+                </sc-if>
+              </sc-for>
+              <div style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;padding-top:14px">{{ avisoFase }}</div>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="width:352px;flex:none;border-left:1px solid rgba(18,20,30,.055);background:#fff;padding:24px 22px;overflow:auto">
+        <div style="font:500 12px 'Inter Tight',sans-serif;color:#9297a2;margin-bottom:14px">Resultado ao vivo</div>
+        <div style="border-radius:20px;background:linear-gradient(165deg,#43426b,#2c2b47);color:#fff;padding:20px;box-shadow:0 14px 34px -18px rgba(44,43,71,.9)">
+          <div style="font:400 12px 'Inter Tight',sans-serif;color:rgba(255,255,255,.66)">Pena definitiva</div>
+          <div style="font:400 34px/1.1 'Source Serif 4',serif;margin:6px 0 3px;letter-spacing:-.01em;animation:tgPop .32s ease both">{{ penaDef }}</div>
+          <div style="font:400 12.5px 'Inter Tight',sans-serif;color:rgba(255,255,255,.72)">{{ penaDefLongo }}</div>
+          <div style="display:flex;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14)">
+            <div style="flex:1"><div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.6)">Regime</div><div style="font:500 13px 'Inter Tight',sans-serif;margin-top:2px">{{ regime }}</div></div>
+            <div style="flex:1"><div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.6)">Substituição</div><div style="font:500 13px 'Inter Tight',sans-serif;margin-top:2px">{{ substituicao }}</div></div>
+            <div style="flex:1"><div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.6)">Prescrição</div><div style="font:500 13px 'Inter Tight',sans-serif;margin-top:2px">{{ prescricao }}</div></div>
+          </div>
+        </div>
+
+        <div style="margin:16px 0 0">
+          <sc-for list="{{ calculo }}" as="c" hint-placeholder-count="4">
+            <div class="tgb" onClick="{{ c.go }}" style="display:flex;align-items:flex-start;gap:12px;padding:12px 10px;margin:0 -10px;border-radius:12px" style-hover="background:#f7f8fa">
+              <span style="width:20px;height:20px;flex:none;border-radius:50%;background:#ecebf6;color:#4b4a7a;display:flex;align-items:center;justify-content:center;font:600 10.5px 'Inter Tight',sans-serif">{{ c.n }}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ c.rot }}</div>
+                <div style="font:400 11.5px/1.45 'Inter Tight',sans-serif;color:#9297a2">{{ c.det }}</div>
+              </div>
+              <span style="font:500 13px 'Inter Tight',sans-serif;color:#3a3960;flex:none">{{ c.val }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="border-radius:16px;background:#f7f8fa;padding:14px 15px;margin:8px 0 14px">
+          <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079;margin-bottom:7px">Fundamentação sugerida</div>
+          <div style="font:400 13px/1.65 'Source Serif 4',serif;color:#4c515c">{{ fundamentacao }}</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span class="tgb" onClick="{{ gerarMemorial }}" style="text-align:center;font:500 12.5px 'Inter Tight',sans-serif;color:#fff;background:#3a3960;border-radius:14px;padding:11px;box-shadow:0 6px 16px -8px rgba(58,57,96,.85)">{{ memorialTxt }}</span>
+          <span class="tgb" onClick="{{ goJuris }}" style="text-align:center;font:500 12.5px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:14px;padding:11px" style-hover="background:#e9ebf0">Comparar com casos análogos</span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ─── VADE MECUM ─── -->
+    <sc-if value="{{ isVade }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex;animation:tgUp .35s ease both">
+      <div style="flex:1;min-width:0;overflow:auto;padding:24px 28px 30px">
+        <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:20px">
+          <div>
+            <div style="font:400 26px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">Vade Mecum</div>
+            <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:6px">214 diplomas sincronizados do Planalto · verificação de hoje às 06:12</div>
+          </div>
+          <span style="flex:1"></span>
+          <span class="tgb" onClick="{{ toggleAlterados }}" style="font:500 12px 'Inter Tight',sans-serif;color:{{ altFg }};background:{{ altBg }};border-radius:999px;padding:8px 14px;box-shadow:0 1px 2px rgba(18,20,30,.05)">Somente alterados (18)</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <sc-for list="{{ ramos }}" as="r" hint-placeholder-count="9">
+            <div class="tgb tgc" onClick="{{ r.go }}" style="border-radius:18px;background:#fff;padding:16px 17px;box-shadow:{{ r.sh }};animation:tgUp .34s ease both">
+              <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">
+                <span style="width:26px;height:26px;flex:none;border-radius:9px;background:{{ r.icoBg }}"></span>
+                <span style="font:500 14.5px 'Inter Tight',sans-serif;color:#16181d">{{ r.nome }}</span>
+                <span style="flex:1"></span>
+                <sc-if value="{{ r.novo }}" hint-placeholder-val="{{ false }}"><span style="font:500 10px 'Inter Tight',sans-serif;color:#8d7b46;background:#f6f1e3;border-radius:999px;padding:3px 8px">Atualizado</span></sc-if>
+              </div>
+              <div style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;margin-bottom:12px;height:36px">{{ r.desc }}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px">
+                <sc-for list="{{ r.leis }}" as="l" hint-placeholder-count="3">
+                  <span style="font:400 11px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:3px 9px">{{ l.t }}</span>
+                </sc-for>
+              </div>
+              <div style="margin-top:12px;padding-top:11px;border-top:1px solid rgba(18,20,30,.05);display:flex;align-items:center;gap:8px;white-space:nowrap">
+                <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ r.qtd }} diplomas · {{ r.arts }} art.</span>
+                <span style="flex:1"></span>
+                <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a;flex:none">{{ r.cta }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="width:404px;flex:none;border-left:1px solid rgba(18,20,30,.055);background:#fff;display:flex;flex-direction:column">
+        <div style="flex:none;padding:20px 22px 16px;border-bottom:1px solid rgba(18,20,30,.05)">
+          <div style="font:500 12px 'Inter Tight',sans-serif;color:#9297a2;margin-bottom:9px">Leitor</div>
+          <div style="font:500 17px/1.25 'Source Serif 4',serif;color:#16181d">{{ leitorTitulo }}</div>
+          <div style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2;margin:5px 0 12px">{{ leitorSub }}</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="tgb" style="font:400 11.5px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:6px 11px" style-hover="background:#e9ebf0">Ir para o art. ⌄</span>
+            <span class="tgb" style="font:400 11.5px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:6px 11px" style-hover="background:#e9ebf0">Índice</span>
+            <span style="flex:1"></span>
+            <span class="tgb" onClick="{{ goChat }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:6px 11px">Perguntar sobre isto</span>
+          </div>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;padding:20px 22px 26px">
+          <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#a8adb8;margin-bottom:14px">{{ leitorSecao }}</div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ leitorArts }}" as="a" hint-placeholder-count="4">
+              <div style="border-radius:14px;padding:{{ a.pad }};background:{{ a.bg }};animation:tgUp .32s ease both">
+                <div style="font:400 14px/1.78 'Source Serif 4',serif;color:#33363d">{{ a.txt }}</div>
+                <sc-if value="{{ a.nota }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+                    <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#8d7b46;background:#f6f1e3;border-radius:999px;padding:3px 9px">Redação alterada</span>
+                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ a.notaTxt }}</span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:20px;border-radius:16px;background:#f7f8fa;padding:15px 16px">
+            <div style="font:500 12px 'Inter Tight',sans-serif;color:#6b7079;margin-bottom:11px">Neste artigo</div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ leitorLinks }}" as="l" hint-placeholder-count="3">
+                <div class="tgb" onClick="{{ l.go }}" style="display:flex;align-items:center;gap:10px">
+                  <span style="font:600 10px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:3px 8px;flex:none">{{ l.tag }}</span>
+                  <span style="font:400 12px 'Inter Tight',sans-serif;color:#5b6068">{{ l.t }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ─── FONTES ─── -->
+    <sc-if value="{{ isFontes }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;overflow:auto;padding:24px 28px 32px;animation:tgUp .35s ease both">
+      <div style="display:flex;align-items:flex-end;gap:16px;margin-bottom:20px">
+        <div>
+          <div style="font:400 26px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">Fontes e atualizações</div>
+          <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:6px">Coletores em Python sobre APIs de dados abertos e extração do Diário Oficial.</div>
+        </div>
+        <span style="flex:1"></span>
+        <span class="tgb" style="font:500 12px 'Inter Tight',sans-serif;color:#4c515c;background:#fff;border-radius:999px;padding:8px 14px;box-shadow:0 1px 2px rgba(18,20,30,.05)">Logs</span>
+        <span class="tgb" onClick="{{ sincronizar }}" style="display:flex;align-items:center;gap:8px;font:500 12px 'Inter Tight',sans-serif;color:#fff;background:#3a3960;border-radius:999px;padding:8px 14px;box-shadow:0 6px 16px -8px rgba(58,57,96,.85)">
+          <sc-if value="{{ sincronizando }}" hint-placeholder-val="{{ false }}"><span style="width:12px;height:12px;border-radius:50%;border:1.8px solid rgba(255,255,255,.35);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
+          {{ syncBtnTxt }}
+        </span>
+      </div>
+
+      <sc-if value="{{ sincronizando }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-bottom:16px;padding:14px 18px;border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);animation:tgUp .3s ease both">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ syncEtapa }}</span>
+            <span style="flex:1"></span>
+            <span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2">{{ syncPct }}</span>
+          </div>
+          <div style="height:6px;border-radius:999px;background:#eef0f4;overflow:hidden">
+            <div style="height:100%;width:{{ syncPct }};border-radius:999px;background:linear-gradient(90deg,#6d6a9c,#43426b);transition:width .35s ease"></div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px">
+        <sc-for list="{{ conectores }}" as="c" hint-placeholder-count="5">
+          <div class="tgc" style="border-radius:18px;background:#fff;padding:15px 16px;box-shadow:0 1px 2px rgba(18,20,30,.05)">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <span style="width:7px;height:7px;border-radius:50%;background:#3f9e79;flex:none;animation:tgPulse 2.4s ease-in-out infinite"></span>
+              <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#16181d">{{ c.nome }}</span>
+            </div>
+            <div style="font:400 11.5px/1.45 'Inter Tight',sans-serif;color:#9297a2;height:34px;margin-bottom:10px">{{ c.desc }}</div>
+            <div style="display:flex;gap:2.5px;align-items:flex-end;height:30px;margin-bottom:10px">
+              <sc-for list="{{ c.bars }}" as="b" hint-placeholder-count="12">
+                <span style="flex:1;border-radius:2px;background:{{ b.bg }};height:{{ b.h }};transform-origin:bottom;animation:tgGrow .5s ease both"></span>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:space-between;font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">
+              <span>{{ c.sync }}</span><span style="color:#3f7d68">{{ c.reg }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="flex:1;min-width:0;border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden">
+          <div style="padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(18,20,30,.05)">
+            <span style="font:500 14px 'Inter Tight',sans-serif">Alterações captadas</span>
+            <span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2">{{ feedResumo }}</span>
+            <span style="flex:1"></span>
+            <span class="tgb" style="font:400 11.5px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:6px 12px" style-hover="background:#e9ebf0">Todos os ramos ⌄</span>
+          </div>
+          <sc-for list="{{ feed }}" as="f" hint-placeholder-count="5">
+            <div class="tgb" onClick="{{ f.go }}" style="display:flex;gap:16px;padding:16px 20px;border-bottom:1px solid rgba(18,20,30,.04);animation:tgUp .34s ease both" style-hover="background:#f9fafb">
+              <div style="width:74px;flex:none">
+                <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079">{{ f.data }}</div>
+                <div style="font:400 11px 'Inter Tight',sans-serif;color:#adb2bc;margin-top:2px">{{ f.hora }}</div>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">
+                  <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:3px 9px">{{ f.tag }}</span>
+                  <span style="font:500 13px 'Inter Tight',sans-serif;color:#16181d">{{ f.titulo }}</span>
+                  <sc-if value="{{ f.novo }}" hint-placeholder-val="{{ false }}"><span style="font:500 10px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 8px">novo</span></sc-if>
+                </div>
+                <div style="font:400 13px/1.6 'Source Serif 4',serif;color:#4c515c">{{ f.txt }}</div>
+                <div style="display:flex;align-items:center;gap:12px;margin-top:9px">
+                  <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">{{ f.fonte }}</span>
+                  <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a">Ver diff</span>
+                  <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a">Impacto nas teses ({{ f.impacto }})</span>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="width:352px;flex:none;display:flex;flex-direction:column;gap:12px">
+          <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden">
+            <div style="padding:14px 17px;border-bottom:1px solid rgba(18,20,30,.05);font:500 13.5px 'Inter Tight',sans-serif">Comparador de redações</div>
+            <div style="padding:15px 17px">
+              <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2;margin-bottom:10px">CP art. 157, §2º · 2018 → 2019</div>
+              <div style="font:400 13px/1.65 'Source Serif 4',serif;background:#fdf1f1;border-radius:12px;padding:11px 13px;color:#8a5050;margin-bottom:8px">I – se a violência ou ameaça é exercida com <span style="text-decoration:line-through">emprego de arma</span>;</div>
+              <div style="font:400 13px/1.65 'Source Serif 4',serif;background:#eef7f2;border-radius:12px;padding:11px 13px;color:#3f6b57">VII – se a violência ou grave ameaça é exercida com <strong style="font-weight:600">emprego de arma branca</strong>;</div>
+            </div>
+          </div>
+          <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden">
+            <div style="padding:14px 17px;border-bottom:1px solid rgba(18,20,30,.05);font:500 13.5px 'Inter Tight',sans-serif">Saúde dos coletores</div>
+            <div style="padding:6px 17px 14px">
+              <sc-for list="{{ jobs }}" as="j" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(18,20,30,.04)">
+                  <span style="font:400 12px 'Inter Tight',sans-serif;color:#5b6068;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ j.nome }}</span>
+                  <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#adb2bc">{{ j.dur }}</span>
+                  <span style="font:500 10.5px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 9px">{{ j.st }}</span>
+                </div>
+              </sc-for>
+              <div style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#9297a2;padding-top:12px">Fila de reprocessamento vazia · rate limit da Câmara em 42% da cota diária.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ─── CONFIGURAÇÕES ───
+         Seis seções numa coluna de 250px, e "Sair da conta" empurrado para o
+         rodapé em #8a5050. Sair mora longe do resto de propósito: é a única
+         ação da tela que descarta trabalho, e ela não deve ficar a um pixel de
+         distância de "trilha de auditoria".
+
+         Toda linha tem a mesma anatomia — título e descrição à esquerda,
+         controle à direita — e toda seção fecha com uma nota em cinza que diz
+         a consequência de mexer ali. Switch sem consequência declarada é
+         switch que ninguém sabe se deve ligar. -->
+    <sc-if value="{{ isConfig }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;min-height:0;display:flex;animation:tgUp .35s ease both">
+      <div style="width:250px;flex:none;border-right:1px solid rgba(18,20,30,.055);padding:20px 14px 16px;display:flex;flex-direction:column">
+        <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#9297a2;padding:0 10px 10px">Configurações</div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <sc-for list="{{ secoes }}" as="s" hint-placeholder-count="6">
+            <sc-if value="{{ s.ativa }}" hint-placeholder-val="{{ true }}">
+              <div class="tgb" onClick="{{ s.go }}" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.07)">
+                <span style="width:16px;height:16px;flex:none;border-radius:5px;background:{{ s.ico }}"></span>
+                <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#16181d">{{ s.t }}</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ s.inativa }}" hint-placeholder-val="{{ false }}">
+              <div class="tgb" onClick="{{ s.go }}" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px" style-hover="background:#eef0f4">
+                <span style="width:16px;height:16px;flex:none;border-radius:5px;background:{{ s.ico }}"></span>
+                <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#4c515c">{{ s.t }}</span>
+              </div>
+            </sc-if>
+          </sc-for>
+        </div>
+
+        <span style="flex:1"></span>
+
+        <div class="tgb" onClick="{{ sair }}" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px" style-hover="background:#fdf1f1">
+          <span style="width:16px;height:16px;flex:none;border-radius:5px;background:#f2dede"></span>
+          <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#8a5050">Sair da conta</span>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:0;overflow:auto;padding:24px 28px 32px">
+        <div style="max-width:720px">
+          <div style="font:400 24px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">{{ secaoTitulo }}</div>
+          <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin:6px 0 20px">{{ secaoSub }}</div>
+
+          <sc-if value="{{ ehPerfil }}" hint-placeholder-val="{{ true }}">
+            <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);padding:20px">
+              <div style="display:flex;align-items:center;gap:16px">
+                <div style="width:62px;height:62px;flex:none;border-radius:20px;background:linear-gradient(160deg,#6d6a9c,#43426b);color:#fff;display:flex;align-items:center;justify-content:center;font:600 22px 'Inter Tight',sans-serif;box-shadow:0 8px 20px -8px rgba(67,66,107,.7)">MR</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font:500 16px 'Inter Tight',sans-serif;color:#16181d">Marina Ribeiro</div>
+                  <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:3px">OAB/SP 214.887 · Direito Penal</div>
+                </div>
+                <span class="tgb" style="font:500 12px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:999px;padding:8px 14px;flex:none" style-hover="background:#e9ebf0">Trocar foto</span>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px">
+                <sc-for list="{{ camposPerfil }}" as="c" hint-placeholder-count="4">
+                  <div>
+                    <div style="font:500 11px 'Inter Tight',sans-serif;color:#8b8f9a;margin-bottom:6px">{{ c.rot }}</div>
+                    <input value="{{ c.v }}" onChange="{{ c.on }}" style="width:100%;background:#f2f3f7;border:none;border-radius:12px;padding:11px 13px;font:400 13.5px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="font:500 11px 'Inter Tight',sans-serif;color:#8b8f9a;margin:20px 0 9px">Áreas de atuação</div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px">
+                <sc-for list="{{ chipsAreas }}" as="a" hint-placeholder-count="7">
+                  <sc-if value="{{ a.on }}" hint-placeholder-val="{{ false }}">
+                    <span class="tgb" onClick="{{ a.go }}" style="font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:7px 13px">{{ a.t }} ✓</span>
+                  </sc-if>
+                  <sc-if value="{{ a.off }}" hint-placeholder-val="{{ true }}">
+                    <span class="tgb" onClick="{{ a.go }}" style="font:400 12px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:7px 13px" style-hover="background:#e9ebf0">{{ a.t }}</span>
+                  </sc-if>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ temLinhas }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden">
+              <sc-for list="{{ linhasConfig }}" as="o" hint-placeholder-count="5">
+                <div style="display:flex;align-items:center;gap:16px;padding:15px 20px;border-bottom:1px solid rgba(18,20,30,.04)">
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 13px 'Inter Tight',sans-serif;color:#22252c">{{ o.nome }}</div>
+                    <div style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#9297a2;margin-top:2px">{{ o.desc }}</div>
+                  </div>
+                  <sc-if value="{{ o.ligado }}" hint-placeholder-val="{{ true }}">
+                    <span class="tgb" onClick="{{ o.go }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#3a3960;position:relative">
+                      <span style="position:absolute;top:2px;left:19px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ o.desligado }}" hint-placeholder-val="{{ false }}">
+                    <span class="tgb" onClick="{{ o.go }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#e4e6ec;position:relative">
+                      <span style="position:absolute;top:2px;left:2px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ o.ehValor }}" hint-placeholder-val="{{ false }}">
+                    <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#4b4a7a;flex:none;white-space:nowrap">{{ o.valor }}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <div style="font:400 11.5px/1.55 'Inter Tight',sans-serif;color:#9297a2;margin-top:12px;padding:0 4px">{{ notaSecao }}</div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</sc-if>
+
+<p style="max-width:1440px;margin:20px 4px 0;font:400 12.5px/1.7 'Inter Tight',sans-serif;color:#7c818c">Interações vivas: login com spinner e cadastro em três passos com barra contínua · envio com streaming em blocos e etapas de consulta · painel da fonte deslizando · filtros com carregamento em esqueleto · dosimetria recalculando de verdade, e o cartão dentro do chat acompanhando · configurações com switches que repintam · sincronização com barra de progresso.</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1512,&quot;height&quot;:1080}}">
+const ACC = '#3a3960', ACC_SOFT = '#ecebf6', ACC_TXT = '#4b4a7a';
+
+const RESPOSTAS = {
+  arma: {
+    paras: [
+      { t: 'Sim, o aumento voltou a incidir, mas por outro dispositivo. A Lei 13.654/2018 revogou a majorante genérica de emprego de arma; a Lei 13.964/2019 reintroduziu a arma branca como causa de aumento de um terço até metade, no art. 157, §2º, VII, do Código Penal.', cite: '1' },
+      { t: 'Para fatos praticados entre 24/04/2018 e 23/12/2019 a majorante não pode ser aplicada: a norma revogadora é mais benéfica e retroage, por força do art. 5º, XL, da Constituição. O STJ consolidou o ponto em recursos repetitivos, reconhecendo abolitio criminis parcial.', cite: '2' },
+      { t: 'Na dosimetria, o acréscimo incide na terceira fase. Com majorante única, a Súmula 443 do STJ exige fundamentação concreta para ir além do mínimo de um terço.', cite: '3' }
+    ],
+    steps: [
+      { t: 'Lendo o Código Penal consolidado', meta: 'Planalto · art. 157' },
+      { t: 'Buscando jurisprudência', meta: 'DataJud · 412 acórdãos' },
+      { t: 'Conferindo vigência e alterações', meta: 'DOU · 2 alterações' },
+      { t: 'Cruzando súmulas do STF e do STJ', meta: '3 pertinentes' }
+    ],
+    fontes: [
+      { n: '1', titulo: 'CP art. 157, §2º, VII', sub: 'redação da Lei 13.964/2019', selo: 'Em vigor', alvo: 'cp' },
+      { n: '2', titulo: 'STJ · recursos repetitivos', sub: 'abolitio criminis parcial entre 2018 e 2019', selo: 'Vigente', alvo: 'tema' },
+      { n: '3', titulo: 'Súmula 443 · STJ', sub: 'aumento acima do mínimo exige motivação concreta', selo: 'Vigente', alvo: 'sumula' }
+    ],
+    sugestoes: ['Redigir tese de retroatividade', 'Casos análogos no TJSP', 'Efeitos na progressão de regime']
+  },
+  prescricao: {
+    paras: [
+      { t: 'A prescrição da pretensão punitiva segue os prazos do art. 109 do Código Penal, calculados sobre a pena máxima em abstrato antes da sentença e sobre a pena concreta depois dela.', cite: '1' },
+      { t: 'No crime continuado, a Súmula 497 do STF afasta o acréscimo do art. 71 do cômputo prescricional: considera-se a pena imposta na sentença sem o aumento da continuidade.', cite: '2' },
+      { t: 'Verifique também as causas interruptivas do art. 117 — recebimento da denúncia e publicação da sentença são as mais frequentes na prática.', cite: null }
+    ],
+    steps: [
+      { t: 'Lendo arts. 109 a 119 do CP', meta: 'Planalto' },
+      { t: 'Buscando precedentes de prescrição', meta: 'DataJud · 188 acórdãos' },
+      { t: 'Cruzando súmulas correlatas', meta: '2 pertinentes' }
+    ],
+    fontes: [
+      { n: '1', titulo: 'CP arts. 109 e 110', sub: 'prazos prescricionais', selo: 'Em vigor', alvo: 'cp' },
+      { n: '2', titulo: 'Súmula 497 · STF', sub: 'crime continuado e cômputo da prescrição', selo: 'Vigente', alvo: 'sumula' }
+    ],
+    sugestoes: ['Calcular prescrição do meu caso', 'Prescrição na execução penal']
+  },
+  generico: {
+    paras: [
+      { t: 'Reuni a legislação vigente sobre o tema, os precedentes mais citados dos tribunais superiores e as súmulas correlatas. O ponto de partida está no dispositivo legal abaixo, com a redação em vigor conferida no Diário Oficial de hoje.', cite: '1' },
+      { t: 'Os tribunais têm exigido fundamentação concreta e vinculada aos elementos dos autos. Abra as fontes citadas para conferir o inteiro teor antes de usar em peça.', cite: '2' }
+    ],
+    steps: [
+      { t: 'Interpretando a pergunta', meta: '' },
+      { t: 'Consultando legislação consolidada', meta: 'Planalto · 214 diplomas' },
+      { t: 'Buscando jurisprudência', meta: 'DataJud' },
+      { t: 'Verificando vigência', meta: 'DOU de hoje' }
+    ],
+    fontes: [
+      { n: '1', titulo: 'Dispositivo legal aplicável', sub: 'texto consolidado, vigência conferida', selo: 'Em vigor', alvo: 'cp' },
+      { n: '2', titulo: 'Precedente mais citado', sub: 'tribunal superior · últimos 5 anos', selo: 'Vigente', alvo: 'tema' }
+    ],
+    sugestoes: ['Aprofundar na jurisprudência', 'Gerar minuta de petição', 'Ver súmulas do tema']
+  }
+};
+
+const FONTES_PANEL = {
+  cp: {
+    titulo: 'Roubo', sub: 'Código Penal · Título II · Capítulo II', ref: 'DL 2.848/1940',
+    blocos: [
+      { txt: 'Art. 157. Subtrair coisa móvel alheia, para si ou para outrem, mediante grave ameaça ou violência a pessoa, ou depois de havê-la, por qualquer meio, reduzido à impossibilidade de resistência.' },
+      { txt: 'Pena – reclusão, de quatro a dez anos, e multa.', bg: '#f7f8fa' },
+      { txt: '§ 2º A pena aumenta-se de um terço até metade: II – se há o concurso de duas ou mais pessoas; V – se o agente mantém a vítima em seu poder, restringindo sua liberdade.' },
+      { txt: 'VII – se a violência ou grave ameaça é exercida com emprego de arma branca.', bg: ACC_SOFT, marca: true, marcaTxt: 'incluído pela Lei 13.964/2019' },
+      { txt: '§ 2º-A A pena aumenta-se de dois terços: I – se a violência ou ameaça é exercida com emprego de arma de fogo.' }
+    ]
+  },
+  tema: {
+    titulo: 'Recursos repetitivos · arma branca', sub: 'STJ · Terceira Seção · tese firmada', ref: 'DataJud',
+    blocos: [
+      { txt: 'Tese: aos fatos praticados na vigência da Lei 13.654/2018 não se aplica a causa de aumento reintroduzida pela Lei 13.964/2019, sob pena de ofensa ao art. 5º, XL, da Constituição.', bg: ACC_SOFT, marca: true, marcaTxt: 'trecho da tese firmada' },
+      { txt: 'Modulação: os processos sobrestados retomam o curso com a aplicação imediata da tese pelas instâncias ordinárias.' },
+      { txt: 'Reflexo prático: cabe decote da majorante de ofício, com refazimento da dosimetria e reanálise do regime inicial.', bg: '#f7f8fa' }
+    ]
+  },
+  sumula: {
+    titulo: 'Súmula 443 · STJ', sub: 'Terceira Seção · 28/04/2010', ref: 'Repositório oficial',
+    blocos: [
+      { txt: 'O aumento na terceira fase de aplicação da pena no delito de roubo circunstanciado exige fundamentação concreta, não sendo suficiente para a sua exasperação a mera indicação do número de majorantes.', bg: ACC_SOFT, marca: true, marcaTxt: 'texto integral da súmula' },
+      { txt: 'Referências: CP art. 157, §2º · art. 68 · art. 59.' },
+      { txt: 'Aplicação: com uma única majorante reconhecida, o acréscimo permanece em um terço salvo motivação apoiada em dados do caso.', bg: '#f7f8fa' }
+    ]
+  }
+};
+
+const LEITOR = {
+  civil: {
+    titulo: 'Código Civil', sub: 'Lei 10.406/2002 · Parte Geral · Livro I', secao: 'Título I · Das pessoas naturais',
+    arts: [
+      { txt: 'Art. 1º Toda pessoa é capaz de direitos e deveres na ordem civil.' },
+      { txt: 'Art. 2º A personalidade civil da pessoa começa do nascimento com vida; mas a lei põe a salvo, desde a concepção, os direitos do nascituro.' },
+      { txt: 'Art. 3º São absolutamente incapazes de exercer pessoalmente os atos da vida civil os menores de 16 (dezesseis) anos.', destaque: true, notaTxt: 'Lei 13.146/2015 · ver redação anterior' },
+      { txt: 'Art. 4º São incapazes, relativamente a certos atos ou à maneira de os exercer: I – os maiores de dezesseis e menores de dezoito anos.' }
+    ]
+  },
+  penal: {
+    titulo: 'Código Penal', sub: 'Decreto-Lei 2.848/1940 · Parte Geral', secao: 'Título V · Da aplicação da pena',
+    arts: [
+      { txt: 'Art. 59. O juiz, atendendo à culpabilidade, aos antecedentes, à conduta social, à personalidade do agente, aos motivos, às circunstâncias e consequências do crime, bem como ao comportamento da vítima, estabelecerá as penas aplicáveis.' },
+      { txt: 'Art. 68. A pena-base será fixada atendendo-se ao critério do art. 59; em seguida serão consideradas as circunstâncias atenuantes e agravantes; por último, as causas de diminuição e de aumento.', destaque: true, notaTxt: 'base do cálculo trifásico' },
+      { txt: 'Art. 33, §2º. As penas privativas de liberdade deverão ser executadas em forma progressiva, segundo o mérito do condenado.' }
+    ]
+  },
+  constitucional: {
+    titulo: 'Constituição Federal', sub: 'CF/1988 · Título II · Direitos e garantias', secao: 'Art. 5º · Direitos individuais',
+    arts: [
+      { txt: 'XXXIX – não há crime sem lei anterior que o defina, nem pena sem prévia cominação legal.' },
+      { txt: 'XL – a lei penal não retroagirá, salvo para beneficiar o réu.', destaque: true, notaTxt: 'fundamento da retroatividade benéfica' },
+      { txt: 'LV – aos litigantes, em processo judicial ou administrativo, e aos acusados em geral são assegurados o contraditório e a ampla defesa.' }
+    ]
+  }
+};
+
+class Component extends DCLogic {
+  state = {
+    // sessao: 'login' | 'cadastro' | 'app' — o protótipo abre pela porta da
+    // frente, que é onde o produto abre.
+    sessao: 'login', entrando: false,
+    email: 'marina@ribeiroadv.com.br', senha: 'contrassenha', senhaVisivel: false, manter: true,
+    passo: 1, cadNome: '', cadEmail: '', cadEscritorio: '',
+    cadInscricao: '', cadSeccional: '', cadArea: '', plano: 'pro', aceite: false,
+
+    tela: 'chat', trib: 'STF', tema: 'Dosimetria da pena', fase: 1,
+    msgs: [], draft: '', ocupado: false,
+    painel: null, abaFonte: 'cp',
+    jurisCarregando: false, ordem: 'relevância',
+    filtros: { STJ: true, STF: false, TJSP: false, TJRJ: false, Repetitivos: true, HC: false, REsp: false, 'DataJud/CNJ': true },
+    salvas: {}, vetores: ['desf', 'fav', 'fav', 'neutra', 'neutra', 'neutra', 'neutra', 'neutra'],
+    circ2: { menoridade: true, confissao: false, reincidencia: false },
+    circ3: { arma: true, concurso: false, tentativa: false },
+    memorial: 0, ramo: 'civil', soAlterados: false,
+    sincronizando: false, syncPct: 0, feedExtra: 0,
+
+    secao: 'perfil',
+    perfil: { nome: 'Marina Ribeiro', inscricao: 'OAB/SP 214.887', email: 'marina@ribeiroadv.com.br', telefone: '(11) 9 8123-4477' },
+    areas: { 'Penal': true, 'Processo Penal': true, 'Execução Penal': true, 'Tributário': false, 'Trabalhista': false, 'Civil': false, 'Consumidor': false },
+    opcoes: {
+      citacao: true, vigencia: true, avisoIA: true, doutrina: false, minuta: true,
+      syncAuto: true, ocr: true, senadoBeta: false,
+      alertaDOU: true, alertaTeses: true, resumoSemanal: false, notifNavegador: false,
+      doisFatores: true, encerrarInativas: true, auditoria: true
+    }
+  };
+
+  componentWillUnmount() { [this.demo, this.stepT, this.typeT, this.jurisT, this.syncT, this.memT, this.loginT].forEach(clearTimeout); clearInterval(this.stepT); clearInterval(this.typeT); clearInterval(this.syncT); }
+
+  /**
+   * Entrar. O spinner de ~1,5 s não é teatro: é o tempo que uma validação de
+   * credencial mais carga de sessão leva de verdade, e o botão precisa mostrar
+   * que está ocupado, senão a pessoa clica duas vezes.
+   *
+   * A conversa de demonstração começa aqui, e não na montagem, para que quem
+   * entra veja a resposta sendo escrita em vez de encontrá-la pronta.
+   */
+  entrar() {
+    if (this.state.entrando) return;
+    this.setState({ entrando: true });
+    clearTimeout(this.loginT);
+    this.loginT = setTimeout(() => {
+      this.setState({ entrando: false, sessao: 'app', tela: 'chat' });
+      if (this.state.msgs.length === 0) {
+        this.demo = setTimeout(() => this.enviarTexto('Cliente respondeu por roubo com emprego de faca. O aumento pelo uso de arma branca ainda se aplica depois do Pacote Anticrime?'), 500);
+      }
+    }, 1500);
+  }
+
+  sair() {
+    clearInterval(this.stepT); clearInterval(this.typeT); clearTimeout(this.demo);
+    this.setState({ sessao: 'login', tela: 'chat', secao: 'perfil', msgs: [], ocupado: false, painel: null, draft: '' });
+  }
+
+  resposta(q) {
+    const s = (q || '').toLowerCase();
+    if (s.includes('arma') || s.includes('roubo') || s.includes('faca')) return RESPOSTAS.arma;
+    if (s.includes('prescri')) return RESPOSTAS.prescricao;
+    return RESPOSTAS.generico;
+  }
+
+  /**
+   * A pergunta tem elemento de cálculo penal?
+   *
+   * Deliberadamente generoso: o cartão é uma estimativa rotulada como tal, e o
+   * custo de mostrá-lo a mais é um cartão ignorado. O custo de não mostrar é a
+   * pessoa refazer a conta à mão numa aba separada.
+   */
+  temCalculo(q) {
+    const s = (q || '').toLowerCase();
+    return ['pena', 'dosimetria', 'majorante', 'agravante', 'atenuante', 'regime', 'arma', 'roubo', 'faca', 'primário', 'primario', 'reincid']
+      .some(k => s.includes(k));
+  }
+
+  enviarTexto(texto) {
+    if (!texto || this.state.ocupado) return;
+    const r = this.resposta(texto);
+    const total = r.paras.reduce((a, p) => a + p.t.length, 0);
+    this.setState(s => ({
+      draft: '', ocupado: true,
+      msgs: s.msgs.concat([{ role: 'user', text: texto }, { role: 'ai', r, step: 0, typed: 0, total, done: false, dos: this.temCalculo(texto) }])
+    }));
+    clearInterval(this.stepT); clearInterval(this.typeT);
+    this.stepT = setInterval(() => {
+      const m = this.state.msgs[this.state.msgs.length - 1];
+      if (!m || m.role !== 'ai') return clearInterval(this.stepT);
+      if (m.step >= m.r.steps.length) { clearInterval(this.stepT); return this.digitar(); }
+      this.mutar(x => ({ step: x.step + 1 }));
+    }, 620);
+  }
+
+  mutar(fn) {
+    this.setState(s => {
+      const msgs = s.msgs.slice();
+      const i = msgs.length - 1;
+      msgs[i] = Object.assign({}, msgs[i], fn(msgs[i]));
+      return { msgs };
+    });
+  }
+
+  /**
+   * Streaming da resposta.
+   *
+   * Blocos de 48 caracteres a cada 90 ms, e não 7 a cada 16 ms. A velocidade
+   * aparente é praticamente a mesma (~530 contra ~440 caracteres por segundo),
+   * mas o número de renderizações cai de 62 para 11 por segundo — e cada
+   * renderização aqui refaz a árvore inteira do frame, com as fontes, o cartão
+   * de dosimetria e a lateral junto. Caractere a caractere a tela engasgava
+   * justamente nas respostas longas, que são as que mais importam.
+   */
+  digitar() {
+    clearInterval(this.typeT);
+    this.typeT = setInterval(() => {
+      const m = this.state.msgs[this.state.msgs.length - 1];
+      if (!m || m.role !== 'ai') return clearInterval(this.typeT);
+      if (m.typed >= m.total) {
+        clearInterval(this.typeT);
+        this.mutar(() => ({ done: true }));
+        this.setState({ ocupado: false });
+        return;
+      }
+      this.mutar(x => ({ typed: Math.min(x.total, x.typed + 48) }));
+    }, 90);
+  }
+
+  fmt(m) {
+    const meses = Math.round(m), a = Math.floor(meses / 12), r = meses % 12;
+    if (a && r) return a + 'a ' + r + 'm';
+    if (a) return a + ' anos';
+    return r + ' meses';
+  }
+
+  calc() {
+    const neg = this.state.vetores.filter(v => v === 'desf').length;
+    const base = Math.min(120, 48 + neg * 9);
+    let prov = base;
+    if (this.state.circ2.reincidencia) prov = prov * 7 / 6;
+    if (this.state.circ2.menoridade) prov = Math.max(48, prov * 5 / 6);
+    if (this.state.circ2.confissao) prov = Math.max(48, prov * 5 / 6);
+    let def = prov;
+    if (this.state.circ3.arma) def = def * 4 / 3;
+    if (this.state.circ3.concurso) def = def * 4 / 3;
+    if (this.state.circ3.tentativa) def = def * 2 / 3;
+    return { neg, base, prov, def: Math.round(def) };
+  }
+
+  renderVals() {
+    const S = this.state, t = S.tela, c = this.calc();
+    const go = k => () => this.setState({ tela: k });
+    const titulos = {
+      chat: ['Consulta', 'assistente com fontes rastreáveis'],
+      juris: ['Jurisprudência', 'busca unificada · DataJud e tribunais'],
+      sumulas: ['Súmulas', 'STF e STJ por tema'],
+      dosimetria: ['Dosimetria', 'cálculo trifásico ao vivo'],
+      vade: ['Vade Mecum', 'consolidação por ramo'],
+      fontes: ['Fontes', 'cinco coletores em Python'],
+      config: ['Configurações', 'conta, IA, fontes e cobrança']
+    };
+    const pill = on => ({ bg: on ? ACC : '#fff', fg: on ? '#fff' : '#4c515c', sh: '0 1px 2px rgba(18,20,30,.06)' });
+
+    const navDef = [
+      { k: 'chat', label: 'Consulta em chat', ico: '#dcdbee' },
+      { k: 'juris', label: 'Jurisprudência', ico: '#dfe6ee' },
+      { k: 'sumulas', label: 'Súmulas', ico: '#e6e2da' },
+      { k: 'dosimetria', label: 'Dosimetria', ico: '#dde9e3' },
+      { k: 'vade', label: 'Vade Mecum', ico: '#e7dfe2' },
+      { k: 'fontes', label: 'Fontes e atualizações', ico: '#dfe1ea', badge: true, badgeTxt: '4' },
+      { k: 'config', label: 'Configurações', ico: '#e7e0ea' }
+    ];
+
+    // ─── cartão de dosimetria dentro da resposta ───
+    // Lê o mesmo `c` que a tela de Dosimetria acabou de produzir. Não existe
+    // segunda fórmula: mexer num vetor do art. 59 muda os dois lugares na mesma
+    // renderização, e é por isso que o cartão pode se chamar "cálculo ao vivo"
+    // sem mentir. Os chips também são derivados — quem desliga a arma branca
+    // na ferramenta vê o chip sumir aqui.
+    const regimeDe = p => p > 96 ? 'Fechado' : p > 48 ? 'Semiaberto' : 'Aberto';
+    const dosChips = [{ t: 'Roubo · art. 157' }]
+      .concat(S.circ3.arma ? [{ t: 'Arma branca · +1/3' }] : [])
+      .concat(S.circ3.concurso ? [{ t: 'Concurso de pessoas · +1/3' }] : [])
+      .concat(S.circ3.tentativa ? [{ t: 'Tentativa · −1/3' }] : [])
+      .concat(S.circ2.reincidencia ? [{ t: 'Reincidente' }] : [{ t: 'Réu primário' }])
+      .concat(S.circ2.menoridade ? [{ t: '24 anos · menoridade relativa' }] : [])
+      .concat([{ t: 'Fato em 2025' }]);
+    const dosFases = [
+      { k: '1ª fase · pena-base', v: this.fmt(c.base), d: c.neg + ' vetor(es) do art. 59 · fração de 1/8' },
+      { k: '2ª fase · provisória', v: this.fmt(c.prov), d: S.circ2.menoridade || S.circ2.confissao ? 'atenuante −1/6 · Súmula 231 respeitada' : 'nenhuma atenuante marcada' },
+      { k: '3ª fase · definitiva', v: this.fmt(c.def), d: S.circ3.arma ? 'arma branca +1/3 · mínimo da Súmula 443' : 'nenhuma majorante aplicada' }
+    ];
+
+    const msgs = S.msgs.map((m, i) => {
+      if (m.role === 'user') return { isUser: true, isAi: false, text: m.text };
+      const stepsFeitos = m.r.steps.slice(0, m.step).map((s, j) => ({
+        t: s.t, meta: s.meta,
+        pronto: j < m.step - 1 || m.typed > 0,
+        rodando: j === m.step - 1 && m.typed === 0,
+        bg: (j < m.step - 1 || m.typed > 0) ? '#3f9e79' : '#8a86b8'
+      }));
+      let resto = m.typed, paras = [];
+      m.r.paras.forEach((p, j) => {
+        const vis = Math.max(0, Math.min(p.t.length, resto));
+        resto -= p.t.length;
+        if (vis > 0) paras.push({
+          text: p.t.slice(0, vis),
+          cite: !!p.cite && vis === p.t.length, citeN: p.cite,
+          caret: !m.done && vis < p.t.length
+        });
+      });
+      return {
+        isUser: false, isAi: true,
+        pensando: m.step > 0 && m.typed === 0,
+        statusTxt: m.done ? '' : 'Consultando fontes oficiais',
+        steps: stepsFeitos,
+        mostrarTexto: paras.length > 0, paras,
+        done: m.done,
+        fontes: m.r.fontes.map(f => Object.assign({}, f, { open: () => this.setState({ painel: f.alvo, abaFonte: f.alvo }) })),
+        temDosimetria: !!m.dos,
+        dosChips: dosChips, dosFases: dosFases,
+        dosPena: this.fmt(c.def), dosRegime: regimeDe(c.def),
+        sugestoes: m.r.sugestoes.map(s => ({ t: s, go: () => this.enviarTexto(s) }))
+      };
+    });
+
+    const fonte = FONTES_PANEL[S.abaFonte] || FONTES_PANEL.cp;
+    const RAMO_DOC = { penal: 'penal', procpenal: 'penal', trabalho: 'penal', civil: 'civil', proccivil: 'civil', tributario: 'civil', consumidor: 'civil', constitucional: 'constitucional', administrativo: 'constitucional' };
+    const leitor = LEITOR[RAMO_DOC[S.ramo] || 'civil'];
+
+    const filtroGrupos = [
+      { nome: 'Tribunal', chaves: [['STJ', '412'], ['STF', '96'], ['TJSP', '388'], ['TJRJ', '141']] },
+      { nome: 'Classe', chaves: [['Repetitivos', '18'], ['HC', '602'], ['REsp', '311']] },
+      { nome: 'Fonte', chaves: [['DataJud/CNJ', '1.102']] }
+    ];
+    const toggleFiltro = k => () => {
+      this.setState(s => ({ filtros: Object.assign({}, s.filtros, { [k]: !s.filtros[k] }), jurisCarregando: true }));
+      clearTimeout(this.jurisT);
+      this.jurisT = setTimeout(() => this.setState({ jurisCarregando: false }), 850);
+    };
+
+    const acordaos = [
+      { tribunal: 'STJ', numero: 'REsp 2.0xx.xxx/SP', orgao: 'Terceira Seção', relator: 'Min. R. Andrade', data: '18/03/2026', selo: 'Paradigma', citacoes: 148, origem: 'DataJud · inteiro teor verificado', ementa: 'Penal. Roubo. Emprego de arma branca. Lei 13.654/2018. Abolitio criminis parcial. Lei 13.964/2019. Nova majorante. Irretroatividade. Aos fatos praticados na vigência da lei revogadora não se aplica a causa de aumento posteriormente reintroduzida.' },
+      { tribunal: 'STJ', numero: 'HC 9xx.xxx/MG', orgao: 'Quinta Turma', relator: 'Min. L. Marques', data: '02/02/2026', selo: 'Vigente', citacoes: 37, origem: 'DataJud · ementa oficial', ementa: 'Dosimetria. Terceira fase. Fração de aumento. Presente uma única majorante, o acréscimo deve corresponder ao mínimo legal, salvo fundamentação concreta apoiada em dados do caso — Súmula 443/STJ.' },
+      { tribunal: 'STF', numero: 'HC 2xx.xxx/RS', orgao: 'Segunda Turma', relator: 'Min. C. Teixeira', data: '11/11/2025', selo: 'Vigente', citacoes: 22, origem: 'Portal do STF · acórdão publicado', ementa: 'Novatio legis in pejus. A superveniência de lei que restabelece causa de aumento não alcança fatos anteriores. Ordem concedida para decotar a majorante e refazer a dosimetria.' },
+      { tribunal: 'TJSP', numero: 'Apelação 15xx.xxx-x', orgao: '9ª Câmara Criminal', relator: 'Des. A. Fontes', data: '27/06/2026', selo: 'Vigente', citacoes: 4, origem: 'DataJud · sincronizado hoje', ementa: 'Roubo majorado. Faca. Aumento em um terço. Regime semiaberto. Réu primário, pena inferior a oito anos, ausência de circunstâncias judiciais desfavoráveis suficientes ao regime mais gravoso.' }
+    ].map(a => Object.assign({}, a, { perguntar: () => this.enviarTexto('Analise o ' + a.numero + ' e diga se serve de precedente para o meu caso.') }));
+
+    const sumStf = [
+      { n: '711', tipo: 'Súmula', txt: 'A lei penal mais grave aplica-se ao crime continuado ou ao crime permanente, se a sua vigência é anterior à cessação da continuidade ou da permanência.', status: 'Vigente', orgao: 'Tribunal Pleno', data: '24/09/2003', refs: 'CP art. 71 · CF art. 5º, XL', prec: 14 },
+      { n: '719', tipo: 'Súmula', txt: 'A imposição do regime de cumprimento mais severo do que a pena aplicada permitir exige motivação idônea.', status: 'Vigente', orgao: 'Tribunal Pleno', data: '24/09/2003', refs: 'CP art. 33, §3º', prec: 41 },
+      { n: '26', tipo: 'Vinculante', txt: 'Para efeito de progressão de regime no cumprimento de pena por crime hediondo, o juiz determinará, de modo fundamentado, a realização de exame criminológico.', status: 'Vigente', orgao: 'Tribunal Pleno', data: '23/12/2009', refs: 'LEP art. 112', prec: 63 },
+      { n: '497', tipo: 'Súmula', txt: 'Quando se tratar de crime continuado, a prescrição regula-se pela pena imposta na sentença, não se computando o acréscimo decorrente da continuação.', status: 'Vigente', orgao: 'Tribunal Pleno', data: '03/12/1969', refs: 'CP arts. 71 e 109', prec: 52 }
+    ];
+    const sumStj = [
+      { n: '443', tipo: 'Súmula', txt: 'O aumento na terceira fase de aplicação da pena no delito de roubo circunstanciado exige fundamentação concreta, não sendo suficiente para a sua exasperação a mera indicação do número de majorantes.', status: 'Vigente', orgao: 'Terceira Seção', data: '28/04/2010', refs: 'CP art. 157, §2º', prec: 219 },
+      { n: '444', tipo: 'Súmula', txt: 'É vedada a utilização de inquéritos policiais e ações penais em curso para agravar a pena-base.', status: 'Vigente', orgao: 'Terceira Seção', data: '28/04/2010', refs: 'CP art. 59', prec: 128 },
+      { n: '231', tipo: 'Súmula', txt: 'A incidência da circunstância atenuante não pode conduzir à redução da pena abaixo do mínimo legal.', status: 'Vigente', orgao: 'Terceira Seção', data: '22/09/1999', refs: 'CP art. 65', prec: 302 },
+      { n: '269', tipo: 'Súmula', txt: 'É admissível a adoção do regime prisional semiaberto aos reincidentes condenados a pena igual ou inferior a quatro anos se favoráveis as circunstâncias judiciais.', status: 'Vigente', orgao: 'Terceira Seção', data: '22/05/2002', refs: 'CP art. 33 · art. 59', prec: 87 }
+    ];
+
+    const nomesVet = [
+      ['Culpabilidade', 'grau de reprovabilidade'], ['Antecedentes', 'certidões nos autos'],
+      ['Conduta social', 'meio familiar e laboral'], ['Personalidade', 'sem laudo — cautela'],
+      ['Motivos', 'motivação do agente'], ['Circunstâncias', 'modo de execução'],
+      ['Consequências', 'extensão do dano'], ['Vítima', 'comportamento da vítima']
+    ];
+    const setVet = (i, v) => () => this.setState(s => { const a = s.vetores.slice(); a[i] = v; return { vetores: a }; });
+
+    const circ2Def = [
+      { k: 'menoridade', nome: 'Menoridade relativa (art. 65, I)', base: 'réu com 24 anos na data do fato', nota: 'certidão nos autos', fr: '− 1/6' },
+      { k: 'confissao', nome: 'Confissão espontânea (art. 65, III, d)', base: 'não houve confissão em juízo', nota: 'Súmula 545/STJ', fr: '− 1/6' },
+      { k: 'reincidencia', nome: 'Reincidência (art. 61, I)', base: 'réu primário', nota: 'sem trânsito em julgado anterior', fr: '+ 1/6' }
+    ];
+    const circ3Def = [
+      { k: 'arma', nome: 'Emprego de arma branca (art. 157, §2º, VII)', base: 'faca apreendida e periciada', nota: 'fato posterior a 24/12/2019', fr: '+ 1/3' },
+      { k: 'concurso', nome: 'Concurso de pessoas (art. 157, §2º, II)', base: 'agente sozinho', nota: 'não reconhecido', fr: '+ 1/3' },
+      { k: 'tentativa', nome: 'Tentativa (art. 14, II)', base: 'crime consumado', nota: 'reduz de 1/3 a 2/3', fr: '− 1/3' }
+    ];
+    const grupo = S.fase === 2 ? 'circ2' : 'circ3';
+    const defs = S.fase === 2 ? circ2Def : circ3Def;
+
+    const ramosDef = [
+      { k: 'penal', doc: 'penal', nome: 'Direito Penal', desc: 'Código Penal, leis especiais e execução penal.', qtd: 22, arts: '4.180', novo: true, ico: '#e7dfe2', leis: ['DL 2.848/40', 'Lei 7.210/84', 'Lei 11.343/06'] },
+      { k: 'procpenal', doc: 'penal', nome: 'Processo Penal', desc: 'CPP, prisões, provas e recursos criminais.', qtd: 14, arts: '2.940', novo: false, ico: '#dfe6ee', leis: ['DL 3.689/41', 'Lei 9.099/95'] },
+      { k: 'civil', doc: 'civil', nome: 'Direito Civil', desc: 'Código Civil e legislação civil extravagante.', qtd: 31, arts: '6.115', novo: true, ico: '#dcdbee', leis: ['Lei 10.406/02', 'Lei 8.245/91'] },
+      { k: 'proccivil', doc: 'civil', nome: 'Processo Civil', desc: 'CPC, execução e cumprimento de sentença.', qtd: 11, arts: '1.720', novo: false, ico: '#dde9e3', leis: ['Lei 13.105/15', 'Lei 9.307/96'] },
+      { k: 'constitucional', doc: 'constitucional', nome: 'Constitucional', desc: 'Constituição, emendas e ADCT consolidados.', qtd: 6, arts: '1.024', novo: false, ico: '#e6e2da', leis: ['CF/1988', 'EC 132/23'] },
+      { k: 'trabalho', doc: 'penal', nome: 'Trabalho', desc: 'CLT, reforma trabalhista e normas conexas.', qtd: 18, arts: '2.310', novo: true, ico: '#e7e0ea', leis: ['DL 5.452/43', 'Lei 13.467/17'] },
+      { k: 'tributario', doc: 'civil', nome: 'Tributário', desc: 'CTN, reforma tributária e regimes especiais.', qtd: 26, arts: '3.402', novo: true, ico: '#dfe1ea', leis: ['Lei 5.172/66', 'LC 214/25'] },
+      { k: 'administrativo', doc: 'constitucional', nome: 'Administrativo', desc: 'Licitações, servidores e improbidade.', qtd: 19, arts: '2.088', novo: false, ico: '#e2e7df', leis: ['Lei 14.133/21', 'Lei 8.429/92'] },
+      { k: 'consumidor', doc: 'civil', nome: 'Consumidor', desc: 'CDC, superendividamento e regulação.', qtd: 9, arts: '640', novo: false, ico: '#eae0dc', leis: ['Lei 8.078/90', 'Lei 14.181/21'] }
+    ].filter(r => !S.soAlterados || r.novo);
+
+    const feedBase = [
+      { data: '11/08/2026', hora: '06:12', tag: 'DOU · Seção 1', titulo: 'Lei 15.2xx/2026', txt: 'Altera a Lei de Execução Penal quanto ao cômputo de remição por estudo. Vigência em 90 dias.', fonte: 'imprensanacional · PDF extraído', impacto: 3 },
+      { data: '10/08/2026', hora: '19:40', tag: 'Planalto', titulo: 'CP art. 33 · nova redação', txt: 'Consolidação atualizada com a alteração de julho; redação anterior arquivada para comparação.', fonte: 'scraper · diff validado', impacto: 7 },
+      { data: '10/08/2026', hora: '14:02', tag: 'Câmara', titulo: 'PL 1.4xx/2026 aprovado em comissão', txt: 'Proposta amplia hipóteses do acordo de não persecução penal; segue ao Senado.', fonte: 'dadosabertos.camara.leg.br', impacto: 2 },
+      { data: '09/08/2026', hora: '11:27', tag: 'DataJud', titulo: '18.402 novos acórdãos indexados', txt: 'Carga incremental de tribunais estaduais; 96% com ementa completa, 4% pendentes de OCR.', fonte: 'api-publica.datajud.cnj.jus.br', impacto: 0 },
+      { data: '08/08/2026', hora: '08:15', tag: 'Senado', titulo: 'Relatoria alterada no PLP 9x/2026', txt: 'Matéria tributária de interesse do escritório muda de relator na CAE.', fonte: 'legis.senado.leg.br', impacto: 1 }
+    ];
+    const novos = Array.from({ length: S.feedExtra }, (_, i) => ({
+      data: '12/08/2026', hora: '09:' + (10 + i * 7), tag: 'DOU · Seção 1', titulo: 'Portaria conjunta ' + (400 + i) + '/2026',
+      txt: 'Captada na sincronização manual: ajusta prazos processuais em plantão judiciário.', fonte: 'scraper · extraído agora', impacto: 1, novo: true
+    }));
+    const bars = seed => Array.from({ length: 12 }, (_, i) => ({ h: (28 + ((i * 7 + seed * 13) % 68)) + '%', bg: i > 9 ? '#8a86b8' : '#dcdbee' }));
+
+    // ─── cadastro ───
+    const camposDef = S.passo === 1
+      ? [['cadNome', 'Nome completo', 'Marina Ribeiro'],
+         ['cadEmail', 'E-mail profissional', 'marina@ribeiroadv.com.br'],
+         ['cadEscritorio', 'Escritório', 'Ribeiro Advocacia Criminal']]
+      : [['cadInscricao', 'Número de inscrição', 'OAB/SP 214.887'],
+         ['cadSeccional', 'Seccional', 'São Paulo'],
+         ['cadArea', 'Área principal', 'Direito Penal']];
+
+    const planosDef = [
+      { k: 'auto', nome: 'Autônomo', preco: 'R$ 179', ciclo: '/mês', desc: '200 consultas por mês, busca em legislação e jurisprudência, exportação em PDF.' },
+      { k: 'pro', nome: 'Profissional', preco: 'R$ 349', ciclo: '/mês', desc: 'Consultas ilimitadas, dosimetria trifásica e exportação em .docx.' },
+      { k: 'esc', nome: 'Escritório', preco: 'R$ 2.390', ciclo: '/mês', desc: '12 assentos, alertas de impacto nas teses e trilha de auditoria.' }
+    ];
+
+    // ─── configurações ───
+    // Cada linha é `sw` (switch) ou `val` (leitura), e as duas expõem `ligado`
+    // e `desligado` como booleanos mutuamente exclusivos — a linha de leitura
+    // deixa os dois em false. É isso que permite ao markup escolher o ramo por
+    // sc-if, com cor literal, em vez de pintar o track por hole de `style`.
+    // Hole de `style` dentro de sc-for não repinta, e o switch congelava.
+    const alternarOpcao = k => () => this.setState(s => ({ opcoes: Object.assign({}, s.opcoes, { [k]: !s.opcoes[k] }) }));
+    const sw = (k, nome, desc) => ({ nome, desc, ehValor: false, ligado: !!S.opcoes[k], desligado: !S.opcoes[k], go: alternarOpcao(k) });
+    const val = (nome, desc, valor) => ({ nome, desc, ehValor: true, ligado: false, desligado: false, valor, go: () => {} });
+
+    const SECOES = {
+      perfil: {
+        t: 'Perfil e OAB', ico: '#dcdbee',
+        sub: 'Como você aparece nas peças exportadas e nos alertas do escritório.',
+        linhas: [],
+        nota: 'O número de inscrição vai no rodapé de toda minuta gerada. Alterá-lo aqui não revalida a inscrição junto ao Conselho Federal.'
+      },
+      ia: {
+        t: 'IA e citações', ico: '#dde9e3',
+        sub: 'O que a assistente pode afirmar e o que ela é obrigada a mostrar.',
+        linhas: [
+          sw('citacao', 'Citação obrigatória', 'Toda afirmação da resposta precisa apontar para um dispositivo, acórdão ou súmula.'),
+          sw('vigencia', 'Selo de vigência', 'Mostrar a data da última conferência ao lado de cada fonte citada.'),
+          sw('avisoIA', 'Aviso de conteúdo por IA', 'Rodapé em toda resposta e em todo texto exportado.'),
+          sw('doutrina', 'Incluir doutrina do acervo', 'Somente as obras licenciadas para o escritório.'),
+          sw('minuta', 'Sugerir minuta de peça', 'Oferecer rascunho quando a conversa fechar uma tese.')
+        ],
+        nota: 'Desligar a citação obrigatória libera respostas sem fonte rastreável — e a exportação passa a sair com marca d’água de rascunho.'
+      },
+      fontes: {
+        t: 'Fontes e sincronização', ico: '#dfe1ea',
+        sub: 'De onde a base vem e com que frequência ela é conferida.',
+        linhas: [
+          sw('syncAuto', 'Sincronização automática', 'Os coletores rodam sozinhos e atualizam a base sem pedir confirmação.'),
+          sw('ocr', 'OCR em acórdãos sem texto', 'Reconhecimento óptico quando o tribunal publica só a imagem digitalizada.'),
+          sw('senadoBeta', 'API do Senado em beta', 'Matérias legislativas e relatorias. Ainda instável: pode faltar item.'),
+          val('Frequência do coletor do DOU', 'Quantas vezes por dia a edição é baixada e comparada.', 'A cada 3 horas'),
+          val('Fonte preferida em conflito', 'Quando Planalto e DOU divergem sobre a mesma redação.', 'Planalto consolidado')
+        ],
+        nota: 'Com a sincronização desligada, a base congela na última varredura e o selo de vigência passa a mostrar a data antiga — não some.'
+      },
+      alertas: {
+        t: 'Alertas', ico: '#e6e2da',
+        sub: 'O que interrompe o seu dia e o que espera o resumo.',
+        linhas: [
+          sw('alertaDOU', 'Publicação no DOU', 'Norma nova ou alterada nas áreas que você marcou no perfil.'),
+          sw('alertaTeses', 'Impacto nas minhas teses', 'Quando uma alteração atinge tese usada em peça sua.'),
+          sw('resumoSemanal', 'Resumo semanal', 'Segunda de manhã, com o que mudou na semana.'),
+          sw('notifNavegador', 'Notificação no navegador', 'Exige permissão do navegador na primeira vez.')
+        ],
+        nota: 'O alerta de impacto nas teses é o único que dispara fora do horário comercial. Os demais respeitam a janela de 8h às 20h.'
+      },
+      seguranca: {
+        t: 'Segurança', ico: '#e7dfe2',
+        sub: 'Acesso à conta e rastro do que foi feito nela.',
+        linhas: [
+          sw('doisFatores', 'Autenticação em dois fatores', 'Código do aplicativo autenticador a cada novo dispositivo.'),
+          sw('encerrarInativas', 'Encerrar sessões inativas', 'Depois de 30 dias sem uso, a sessão cai sozinha.'),
+          sw('auditoria', 'Trilha de auditoria', 'Registrar consulta, exportação e alteração de configuração.'),
+          val('Dispositivos conectados', 'Sessões abertas nesta conta agora.', '3 aparelhos')
+        ],
+        nota: 'A trilha de auditoria é exigida no plano Escritório e não pode ser desligada enquanto houver assento compartilhado ativo.'
+      },
+      escritorio: {
+        t: 'Escritório e cobrança', ico: '#dfe6ee',
+        sub: 'Assinatura, assentos e a próxima fatura.',
+        linhas: [
+          val('Plano', 'Assinatura vigente do escritório.', 'Escritório'),
+          val('Assentos em uso', 'Do total contratado.', '9 de 12'),
+          val('Valor', 'Com os assentos atuais.', 'R$ 2.390,00/mês'),
+          val('Próxima renovação', 'Cobrança automática no cartão final 4417.', '11/09/2026')
+        ],
+        nota: 'Assento liberado só deixa de ser cobrado no ciclo seguinte. O histórico de consultas do assento permanece na trilha de auditoria.'
+      }
+    };
+    const secaoAtual = SECOES[S.secao] || SECOES.perfil;
+    const perfilDef = [['nome', 'Nome'], ['inscricao', 'Inscrição'], ['email', 'E-mail'], ['telefone', 'Telefone']];
+
+    return {
+      // ─── sessão ───
+      isLogin: S.sessao === 'login', isCadastro: S.sessao === 'cadastro', isApp: S.sessao === 'app',
+      entrando: S.entrando,
+      email: S.email, onEmail: e => this.setState({ email: e.target.value }),
+      senha: S.senha, onSenha: e => this.setState({ senha: e.target.value }),
+      senhaOculta: !S.senhaVisivel, senhaAberta: S.senhaVisivel,
+      senhaTxt: S.senhaVisivel ? 'Ocultar' : 'Mostrar',
+      alternarSenha: () => this.setState(s => ({ senhaVisivel: !s.senhaVisivel })),
+      manterOn: S.manter, manterOff: !S.manter,
+      alternarManter: () => this.setState(s => ({ manter: !s.manter })),
+      entrarTxt: S.entrando ? 'Entrando…' : 'Entrar',
+      entrar: () => this.entrar(),
+      irCadastro: () => this.setState({ sessao: 'cadastro', passo: 1 }),
+      sair: () => this.sair(),
+      numerosLogin: [
+        { v: '214', t: 'diplomas consolidados' },
+        { v: '1,2 M', t: 'acórdãos indexados' },
+        { v: '06:12', t: 'última varredura do DOU' }
+      ],
+      alternativas: [
+        { t: 'Certificado digital A1 ou A3', sub: 'token, cartão ou arquivo instalado', ico: '#dcdbee', selo: true, go: () => this.entrar() },
+        { t: 'Entrar com o número da OAB', sub: 'validação na base do Conselho Federal', ico: '#dfe6ee', selo: false, go: () => this.entrar() }
+      ],
+
+      // ─── cadastro ───
+      passo: S.passo, passoPct: Math.round(S.passo / 3 * 100) + '%',
+      passoSub: ['Quem é você e onde trabalha.', 'Sua inscrição na Ordem.', 'Escolha o plano e aceite os termos.'][S.passo - 1],
+      ehPasso12: S.passo !== 3, ehPasso3: S.passo === 3,
+      camposPasso: camposDef.map(([k, rot, ph]) => ({
+        rot, ph, v: S[k],
+        on: e => { const v = e.target.value; this.setState({ [k]: v }); }
+      })),
+      planos: planosDef.map(p => Object.assign({}, p, {
+        escolhido: S.plano === p.k, naoEscolhido: S.plano !== p.k,
+        go: () => this.setState({ plano: p.k })
+      })),
+      aceiteOn: S.aceite, aceiteOff: !S.aceite,
+      alternarAceite: () => this.setState(s => ({ aceite: !s.aceite })),
+      podeContinuar: S.passo < 3 || S.aceite,
+      travadoNoAceite: S.passo === 3 && !S.aceite,
+      continuarTxt: S.passo === 3 ? 'Criar conta e entrar' : 'Continuar',
+      continuar: () => { if (S.passo < 3) this.setState({ passo: S.passo + 1 }); else this.entrar(); },
+      // No passo 1 não há passo anterior: Voltar sai do cadastro e devolve ao
+      // login, que é de onde a pessoa veio.
+      voltarPasso: () => { if (S.passo > 1) this.setState({ passo: S.passo - 1 }); else this.setState({ sessao: 'login' }); },
+
+      // ─── configurações ───
+      isConfig: t === 'config', goConfig: go('config'),
+      secoes: Object.keys(SECOES).map(k => ({
+        t: SECOES[k].t, ico: SECOES[k].ico,
+        ativa: S.secao === k, inativa: S.secao !== k,
+        go: () => this.setState({ secao: k, tela: 'config' })
+      })),
+      secaoTitulo: secaoAtual.t, secaoSub: secaoAtual.sub, notaSecao: secaoAtual.nota,
+      ehPerfil: S.secao === 'perfil', temLinhas: secaoAtual.linhas.length > 0,
+      linhasConfig: secaoAtual.linhas,
+      camposPerfil: perfilDef.map(([k, rot]) => ({
+        rot, v: S.perfil[k],
+        on: e => { const v = e.target.value; this.setState(s => ({ perfil: Object.assign({}, s.perfil, { [k]: v }) })); }
+      })),
+      chipsAreas: Object.keys(S.areas).map(a => ({
+        t: a, on: !!S.areas[a], off: !S.areas[a],
+        go: () => this.setState(s => ({ areas: Object.assign({}, s.areas, { [a]: !s.areas[a] }) }))
+      })),
+
+      titulo: titulos[t][0], subtitulo: titulos[t][1],
+      isChat: t === 'chat', isJuris: t === 'juris', isSumulas: t === 'sumulas',
+      isDosimetria: t === 'dosimetria', isVade: t === 'vade', isFontes: t === 'fontes',
+      goChat: go('chat'), goJuris: go('juris'), goDosimetria: go('dosimetria'), goFontes: go('fontes'),
+      nav: navDef.map(n => ({ label: n.label, ico: n.ico, on: t === n.k, txtColor: t === n.k ? '#16181d' : '#4c515c', badge: !!n.badge, badgeTxt: n.badgeTxt, go: go(n.k) })),
+      recentes: [
+        'Prescrição em crime continuado', 'Usucapião extrajudicial', 'Acordo de não persecução penal',
+        'Dano moral por inscrição indevida', 'Tema arma branca · STJ'
+      ].map(x => ({ t: x, go: () => this.enviarTexto(x) })),
+      syncLabel: S.sincronizando ? 'Sincronizando…' : 'Base sincronizada',
+      syncSub: 'DOU de 11/08/2026 · 4 normas novas e 12 alterações',
+      novaConsulta: () => { clearInterval(this.stepT); clearInterval(this.typeT); this.setState({ tela: 'chat', msgs: [], ocupado: false, painel: null, draft: '' }); },
+
+      vazio: S.msgs.length === 0,
+      atalhos: [
+        { tag: 'Penal', t: 'A majorante de arma branca se aplica ao meu caso após o Pacote Anticrime?' },
+        { tag: 'Prescrição', t: 'Como calcular a prescrição em crime continuado?' },
+        { tag: 'Civil', t: 'Requisitos atuais da usucapião extrajudicial' },
+        { tag: 'Processual', t: 'Prazo para embargos após decisão publicada em plantão' }
+      ].map(a => ({ tag: a.tag, t: a.t, go: () => this.enviarTexto(a.t) })),
+      msgs,
+      draft: S.draft, onDraft: e => this.setState({ draft: e.target.value }),
+      onKey: e => { if (e.key === 'Enter') { e.preventDefault(); this.enviarTexto(S.draft.trim()); } },
+      enviar: () => this.enviarTexto(S.draft.trim() || 'Como calcular a prescrição em crime continuado?'),
+      ocupado: S.ocupado, livre: !S.ocupado,
+      btnBg: S.ocupado ? '#8a86b8' : ACC,
+      dicaEnvio: S.ocupado ? 'consultando…' : 'Enter para enviar',
+      modos: [['Leis', 1], ['Jurisprudência', 1], ['Súmulas', 1], ['Doutrina', 0], ['Meus casos', 0]].map(([nome, on]) => ({
+        t: nome, bg: on ? ACC_SOFT : '#fff', fg: on ? ACC_TXT : '#6b7079', dot: on ? '#8a86b8' : '#d5d7de', go: () => {}
+      })),
+      painelAberto: !!S.painel, fecharPainel: () => this.setState({ painel: null }),
+      abasFonte: [['cp', 'CP art. 157'], ['tema', 'Tema STJ'], ['sumula', 'Súmula 443']].map(([k, label]) => ({
+        t: label, bg: S.abaFonte === k ? ACC : '#f2f3f7', fg: S.abaFonte === k ? '#fff' : '#4c515c', go: () => this.setState({ abaFonte: k })
+      })),
+      fonteTitulo: fonte.titulo, fonteSub: fonte.sub, fonteRef: fonte.ref,
+      fonteBlocos: fonte.blocos.map(b => ({ txt: b.txt, bg: b.bg || 'transparent', fg: b.bg === ACC_SOFT ? '#22252c' : '#33363d', pad: b.bg ? '13px 15px' : '0', marca: !!b.marca, marcaTxt: b.marcaTxt })),
+      timeline: [
+        { data: '1940', txt: 'Redação originária do Decreto-Lei 2.848 — majorante genérica de emprego de arma.' },
+        { data: '24/04/2018', txt: 'Lei 13.654/2018 revoga o inciso I do §2º; arma branca deixa de majorar.' },
+        { data: '24/12/2019', txt: 'Lei 13.964/2019 inclui o inciso VII e restabelece o aumento para arma branca.' }
+      ],
+
+      jurisQuery: 'majorante arma branca roubo retroatividade lei mais benéfica',
+      jurisCarregando: S.jurisCarregando, jurisPronto: !S.jurisCarregando,
+      jurisTotal: (1284 + Object.values(S.filtros).filter(Boolean).length * 37).toLocaleString('pt-BR'),
+      ordem: S.ordem, trocarOrdem: () => this.setState(s => ({ ordem: s.ordem === 'relevância' ? 'mais recentes' : 'relevância' })),
+      filtros: filtroGrupos.map(g => ({
+        nome: g.nome,
+        itens: g.chaves.map(([k, n]) => ({
+          t: k, n, on: !!S.filtros[k], go: toggleFiltro(k),
+          bg: S.filtros[k] ? '#f2f3f7' : 'transparent', boxBg: S.filtros[k] ? ACC : '#e4e6ec'
+        }))
+      })),
+      chipsAtivos: Object.keys(S.filtros).filter(k => S.filtros[k]).map(k => ({ t: k, go: toggleFiltro(k) })),
+      limparFiltros: () => { this.setState({ filtros: {}, jurisCarregando: true }); clearTimeout(this.jurisT); this.jurisT = setTimeout(() => this.setState({ jurisCarregando: false }), 850); },
+      skeletons: [{}, {}, {}], acordaos,
+
+      abasSumula: [['STF', 'STF'], ['STJ', 'STJ'], ['Vinculantes', 'Vinculantes'], ['Salvas', 'Salvas (' + Object.keys(S.salvas).filter(k => S.salvas[k]).length + ')']].map(([k, label]) => {
+        const p = pill(S.trib === k);
+        return { t: label, bg: p.bg, fg: p.fg, sh: p.sh, go: () => this.setState({ trib: k }) };
+      }),
+      temas: ['Dosimetria da pena', 'Roubo e furto', 'Execução penal', 'Prescrição', 'Prova ilícita', 'Tráfico de drogas', 'Competência', 'Nulidades'].map((x, i) => ({
+        t: x, n: [24, 18, 31, 12, 9, 21, 27, 15][i], go: () => this.setState({ tema: x }),
+        bg: S.tema === x ? '#f2f3f7' : 'transparent', fg: S.tema === x ? '#16181d' : '#4c515c'
+      })),
+      sumulas: (S.trib === 'STJ' ? sumStj : S.trib === 'Vinculantes' ? sumStf.filter(s => s.tipo === 'Vinculante') : S.trib === 'Salvas' ? sumStf.concat(sumStj).filter(s => S.salvas[s.n]) : sumStf).map(s => ({
+        n: s.n, tipo: s.tipo, txt: s.txt, status: s.status, orgao: s.orgao, data: s.data, refs: s.refs, prec: s.prec,
+        salvaTxt: S.salvas[s.n] ? 'Salva ✓' : 'Salvar',
+        salvaBg: S.salvas[s.n] ? ACC_SOFT : '#f2f3f7', salvaFg: S.salvas[s.n] ? ACC_TXT : '#4c515c',
+        salvar: () => this.setState(st => ({ salvas: Object.assign({}, st.salvas, { [s.n]: !st.salvas[s.n] }) }))
+      })),
+
+      fases: [
+        { k: '1ª fase', nome: 'Pena-base', res: this.fmt(c.base) },
+        { k: '2ª fase', nome: 'Pena provisória', res: this.fmt(c.prov) },
+        { k: '3ª fase', nome: 'Pena definitiva', res: this.fmt(c.def) }
+      ].map((f, i) => ({
+        k: f.k, nome: f.nome, res: f.res, go: () => this.setState({ fase: i + 1 }),
+        ativa: S.fase === i + 1, inativa: S.fase !== i + 1
+      })),
+      isFase1: S.fase === 1, isFase23: S.fase !== 1,
+      negLabel: c.neg === 0 ? 'nenhum vetor negativo · pena no mínimo' : c.neg + (c.neg > 1 ? ' vetores negativos' : ' vetor negativo'),
+      resetVetores: () => this.setState({ vetores: ['neutra', 'neutra', 'neutra', 'neutra', 'neutra', 'neutra', 'neutra', 'neutra'] }),
+      vetores: nomesVet.map(([nome, hint], i) => ({
+        nome, hint,
+        delta: '+ 9 meses',
+        negativo: S.vetores[i] === 'desf', semPeso: S.vetores[i] !== 'desf',
+        opts: [['fav', 'Favorável'], ['neutra', 'Neutra'], ['desf', 'Desfavorável']].map(([v, label]) => ({
+          t: label, go: setVet(i, v),
+          ativa: S.vetores[i] === v, inativa: S.vetores[i] !== v
+        }))
+      })),
+      tituloFase: S.fase === 2 ? 'Agravantes e atenuantes · arts. 61 a 66' : 'Causas de aumento e de diminuição',
+      subFase: S.fase === 2 ? 'entra em ' + this.fmt(c.base) + ' · sai em ' + this.fmt(c.prov) : 'entra em ' + this.fmt(c.prov) + ' · sai em ' + this.fmt(c.def),
+      avisoFase: S.fase === 2
+        ? 'Súmula 231/STJ: a atenuante não reduz a pena abaixo do mínimo legal de 4 anos.'
+        : 'Súmula 443/STJ: com majorante única, o acréscimo fica em 1/3 salvo fundamentação concreta.',
+      circunstancias: defs.map(d => ({
+        nome: d.nome, base: d.base, nota: d.nota, fr: d.fr,
+        ligado: !!S[grupo][d.k], desligado: !S[grupo][d.k],
+        go: () => this.setState(s => ({ [grupo]: Object.assign({}, s[grupo], { [d.k]: !s[grupo][d.k] }) }))
+      })),
+      penaDef: this.fmt(c.def),
+      penaDefLongo: this.fmt(c.def) + ' de reclusão e ' + (10 + c.neg * 3) + ' dias-multa',
+      regime: c.def > 96 ? 'Fechado' : c.def > 48 ? 'Semiaberto' : 'Aberto',
+      substituicao: c.def > 48 ? 'Vedada' : 'Possível',
+      prescricao: c.def > 96 ? '16 anos' : c.def > 48 ? '12 anos' : '8 anos',
+      calculo: [
+        { n: '1', rot: 'Pena-base', det: c.neg + ' vetor(es) negativo(s) · +1/8 do intervalo', val: this.fmt(c.base), fase: 1 },
+        { n: '2', rot: 'Agravantes', det: S.circ2.reincidencia ? 'reincidência +1/6' : 'nenhuma reconhecida', val: S.circ2.reincidencia ? this.fmt(c.base * 7 / 6) : '=', fase: 2 },
+        { n: '3', rot: 'Atenuantes', det: S.circ2.menoridade ? 'menoridade −1/6 · Súmula 231 respeitada' : 'nenhuma marcada', val: this.fmt(c.prov), fase: 2 },
+        { n: '4', rot: 'Majorantes', det: S.circ3.arma ? 'arma branca +1/3 (mínimo · Súmula 443)' : 'nenhuma aplicada', val: this.fmt(c.def), fase: 3 }
+      ].map(x => Object.assign({}, x, { go: () => this.setState({ fase: x.fase }) })),
+      fundamentacao: '“Presente ' + (c.neg || 'nenhuma') + ' circunstância judicial desfavorável, fixo a pena-base em ' + this.fmt(c.base) + ', que torno definitiva em ' + this.fmt(c.def) + ' após as fases seguintes.”',
+      memorialTxt: ['Gerar memorial de cálculo', 'Gerando memorial…', 'Memorial pronto ✓'][S.memorial],
+      gerarMemorial: () => {
+        if (S.memorial === 1) return;
+        this.setState({ memorial: 1 });
+        clearTimeout(this.memT);
+        this.memT = setTimeout(() => this.setState({ memorial: 2 }), 1400);
+      },
+
+      soAlterados: S.soAlterados, toggleAlterados: () => this.setState(s => ({ soAlterados: !s.soAlterados })),
+      altBg: S.soAlterados ? ACC : '#fff', altFg: S.soAlterados ? '#fff' : '#4c515c',
+      ramos: ramosDef.map(r => ({
+        nome: r.nome, desc: r.desc, qtd: r.qtd, arts: r.arts, novo: r.novo, icoBg: r.ico,
+        leis: r.leis.map(l => ({ t: l })),
+        cta: S.ramo === r.k ? 'No leitor' : 'Abrir →',
+        sh: S.ramo === r.k ? '0 1px 2px rgba(18,20,30,.06),0 14px 30px -20px rgba(58,57,96,.7)' : '0 1px 2px rgba(18,20,30,.05)',
+        go: () => this.setState({ ramo: r.k })
+      })),
+      leitorTitulo: leitor.titulo, leitorSub: leitor.sub, leitorSecao: leitor.secao,
+      leitorArts: leitor.arts.map(a => ({
+        txt: a.txt, bg: a.destaque ? ACC_SOFT : 'transparent', pad: a.destaque ? '14px 15px' : '0',
+        nota: !!a.notaTxt, notaTxt: a.notaTxt
+      })),
+      leitorLinks: [
+        { tag: 'Juris', t: '312 acórdãos citam este artigo', k: 'juris' },
+        { tag: 'Súmulas', t: '2 súmulas correlatas', k: 'sumulas' },
+        { tag: 'Doutrina', t: '7 obras indexadas no acervo', k: 'vade' }
+      ].map(l => ({ tag: l.tag, t: l.t, go: go(l.k) })),
+
+      sincronizando: S.sincronizando, syncPct: S.syncPct + '%',
+      syncBtnTxt: S.sincronizando ? 'Sincronizando' : 'Sincronizar agora',
+      syncEtapa: S.syncPct < 30 ? 'Baixando edição do DOU…' : S.syncPct < 60 ? 'Extraindo texto das páginas…' : S.syncPct < 90 ? 'Comparando com a consolidação do Planalto…' : 'Indexando alterações…',
+      sincronizar: () => {
+        if (S.sincronizando) return;
+        this.setState({ sincronizando: true, syncPct: 6 });
+        clearInterval(this.syncT);
+        this.syncT = setInterval(() => {
+          const p = this.state.syncPct + 11;
+          if (p >= 100) {
+            clearInterval(this.syncT);
+            this.setState(s => ({ sincronizando: false, syncPct: 100, feedExtra: Math.min(3, s.feedExtra + 1) }));
+          } else this.setState({ syncPct: p });
+        }, 320);
+      },
+      feedResumo: 'últimas 72 h · ' + (34 + S.feedExtra) + ' itens',
+      conectores: [
+        { nome: 'Planalto', desc: 'Raspagem da consolidação de leis federais.', sync: 'há 3 min', reg: '214 diplomas' },
+        { nome: 'DOU', desc: 'Extração de texto do Diário Oficial (PDF e HTML).', sync: 'há 12 min', reg: '+4 normas' },
+        { nome: 'Câmara', desc: 'API de dados abertos: proposições e votações.', sync: 'há 1 h', reg: '1.882 itens' },
+        { nome: 'Senado', desc: 'API de matérias legislativas e relatorias.', sync: 'há 1 h', reg: '921 itens' },
+        { nome: 'DataJud', desc: 'Metadados e ementas de processos do CNJ.', sync: 'há 26 min', reg: '1,2 M docs' }
+      ].map((x, i) => Object.assign({}, x, { bars: bars(i + 1), sync: S.feedExtra && i < 2 ? 'agora' : x.sync })),
+      feed: novos.concat(feedBase).map(f => Object.assign({}, f, { go: () => this.enviarTexto('Qual o impacto de ' + f.titulo + ' nas minhas teses?') })),
+      jobs: [
+        { nome: 'planalto_consolidado.py', dur: '48 s', st: 'OK' },
+        { nome: 'dou_extract_text.py', dur: '2 m 11 s', st: 'OK' },
+        { nome: 'camara_proposicoes.py', dur: '1 m 04 s', st: 'OK' },
+        { nome: 'datajud_bulk_sync.py', dur: '6 m 39 s', st: 'OK' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

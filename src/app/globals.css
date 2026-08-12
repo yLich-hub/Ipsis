@@ -1,1 +1,468 @@
 @import 'tailwindcss';
+
+/* =============================================================================
+   TOGA v2 — camada de design
+
+   Os valores abaixo são a transcrição literal do documento de design
+   (`Design_system/TOGA v2 - Assistente Jurídico.dc.html`). Ele desenha tudo em
+   `style=""` inline, com hexadecimais crus repetidos centenas de vezes; aqui
+   cada um vira token uma vez só. Trocar `--color-tg-acento` muda o produto
+   inteiro — no documento original seria um localizar-e-substituir por 200
+   ocorrências, que é como se perde fidelidade entre uma tela e a seguinte.
+
+   Nomes em português porque é a convenção do resto do código. A tabela de
+   equivalência com o documento está em `src/lib/toga/tokens.ts`, junto das
+   poucas cores que precisam ser calculadas em TypeScript (gradiente da barra de
+   progresso, altura das barrinhas dos coletores) e por isso não cabem aqui.
+   ============================================================================= */
+
+@theme {
+  --font-tg: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-tg-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+
+  /* superfícies */
+  --color-tg-fundo: #f7f8fa;
+  --color-tg-lateral: #f1f2f6;
+  --color-tg-preenche: #f2f3f7;
+  --color-tg-preenche-alto: #e9ebf0;
+  --color-tg-campo: #eef0f4;
+  --color-tg-hover: #e7e9ef;
+  --color-tg-caixa: #e4e6ec;
+
+  /* tinta — do mais escuro ao mais apagado, na ordem em que o documento usa */
+  --color-tg-tinta: #16181d;
+  --color-tg-tinta-2: #22252c;
+  --color-tg-tinta-3: #2a2d35;
+  --color-tg-tinta-4: #33363d;
+  --color-tg-tinta-5: #3a3d45;
+  --color-tg-corpo: #4c515c;
+  --color-tg-corpo-2: #5b6068;
+  --color-tg-suave: #6b7079;
+  --color-tg-fraco: #7c818c;
+  --color-tg-fraco-2: #8b8f9a;
+  --color-tg-fraco-3: #9297a2;
+  --color-tg-tenue: #a8adb8;
+  --color-tg-tenue-2: #adb2bc;
+
+  /* acento — o roxo da toga */
+  --color-tg-acento: #3a3960;
+  --color-tg-acento-txt: #4b4a7a;
+  --color-tg-acento-fraco: #ecebf6;
+  --color-tg-acento-fraco-2: #e6e5f2;
+  --color-tg-acento-fraco-3: #dedcf0;
+  --color-tg-acento-medio: #6d6a9c;
+  --color-tg-acento-claro: #8a86b8;
+  --color-tg-acento-palido: #b8b6d4;
+  --color-tg-acento-nevoa: #dcdbee;
+
+  /* estados */
+  --color-tg-verde: #3f9e79;
+  --color-tg-verde-txt: #3f7d68;
+  --color-tg-verde-fundo: #e8f3ee;
+  --color-tg-ambar-txt: #8d7b46;
+  --color-tg-ambar-fundo: #f6f1e3;
+  --color-tg-ambar-borda: #b9a877;
+  --color-tg-supressao-fundo: #fdf1f1;
+  --color-tg-supressao-txt: #8a5050;
+  --color-tg-insercao-fundo: #eef7f2;
+  --color-tg-insercao-txt: #3f6b57;
+
+  /* traços — o documento usa quatro opacidades distintas, e a diferença entre
+     .06 e .04 é visível quando duas divisórias se encostam */
+  --color-tg-linha: rgb(18 20 30 / 0.06);
+  --color-tg-linha-forte: rgb(18 20 30 / 0.07);
+  --color-tg-linha-media: rgb(18 20 30 / 0.055);
+  --color-tg-linha-fraca: rgb(18 20 30 / 0.05);
+  --color-tg-linha-tenue: rgb(18 20 30 / 0.04);
+}
+
+/* Sombras — fora do @theme porque são composições, não cores. `--tg-elev-1` é a
+   elevação de repouso de todo cartão branco; as demais entram no hover. */
+:root {
+  --tg-elev-1: 0 1px 2px rgb(18 20 30 / 0.05);
+  --tg-elev-1f: 0 1px 2px rgb(18 20 30 / 0.06);
+  --tg-elev-2: 0 4px 14px -6px rgb(18 20 30 / 0.25);
+  --tg-elev-3: 0 6px 18px -8px rgb(18 20 30 / 0.3);
+  --tg-elev-cartao: 0 2px 4px rgb(18 20 30 / 0.05), 0 18px 40px -22px rgb(18 20 30 / 0.28);
+  --tg-elev-entrada: 0 1px 2px rgb(18 20 30 / 0.06), 0 14px 34px -22px rgb(18 20 30 / 0.4);
+  --tg-elev-fase: 0 1px 2px rgb(18 20 30 / 0.06), 0 10px 24px -16px rgb(18 20 30 / 0.4);
+  --tg-elev-acento: 0 5px 14px -7px rgb(58 57 96 / 0.8);
+  --tg-elev-acento-forte: 0 6px 16px -8px rgb(58 57 96 / 0.85);
+  --tg-elev-marca: 0 4px 12px -4px rgb(58 57 96 / 0.6);
+  --tg-elev-painel: 0 14px 34px -18px rgb(44 43 71 / 0.9);
+}
+
+html,
+body {
+  background: var(--color-tg-fundo);
+  color: var(--color-tg-tinta);
+  font-family: var(--font-tg);
+  text-wrap: pretty;
+}
+
+/* Barra de rolagem do documento: fina, sem trilho, encostada na cor da
+   superfície. Sem isto o Windows desenha a barra cinza padrão de 17px e o
+   painel lateral de 420px passa a medir 403px na prática. */
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-thumb {
+  background: #cdd0d8;
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b6bac5;
+  background-clip: content-box;
+}
+
+/* =============================================================================
+   Animações
+
+   Transcritas do documento com os mesmos nomes (`tgUp`, `tgIn`, …) para que a
+   correspondência com o design seja procurável. Duração e curva importam: a
+   resposta do chat entra com `cubic-bezier(.2,.8,.2,1)`, que desacelera mais
+   tarde que `ease` e faz o bloco de texto "assentar" em vez de frear cedo.
+   ============================================================================= */
+
+@keyframes tgUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tgIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tgRight {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tgDot {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+@keyframes tgShim {
+  0% {
+    background-position: -380px 0;
+  }
+  100% {
+    background-position: 380px 0;
+  }
+}
+@keyframes tgSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes tgCaret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes tgPop {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.4;
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes tgPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+@keyframes tgGrow {
+  from {
+    transform: scaleY(0.15);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.tg-sobe {
+  animation: tgUp 0.35s ease both;
+}
+.tg-sobe-lento {
+  animation: tgUp 0.5s ease both;
+}
+.tg-entra {
+  animation: tgIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.tg-desliza {
+  animation: tgRight 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.tg-gira {
+  animation: tgSpin 0.7s linear infinite;
+}
+.tg-pulsa {
+  animation: tgPulse 2.6s ease-in-out infinite;
+}
+.tg-pipoca {
+  animation: tgPop 0.3s ease both;
+}
+.tg-cursor {
+  animation: tgCaret 1s steps(1) infinite;
+}
+.tg-cresce {
+  animation: tgGrow 0.5s ease both;
+}
+
+/* Respeitar quem desligou animação no sistema. O documento de design não trata
+   disso — protótipo não precisa; produto precisa. O conteúdo é o mesmo: o que
+   cai é só o movimento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =============================================================================
+   Interação
+
+   `.tgb` (botão) e `.tgc` (cartão) vêm do documento com esses nomes. São classe
+   e não utilitário do Tailwind porque combinam transição de cinco propriedades
+   com transform no hover e no active — repetir isso em cada `className` seria
+   ruído em toda tela.
+   ============================================================================= */
+
+.tgb {
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.22s ease,
+    transform 0.18s ease,
+    border-color 0.18s ease;
+}
+.tgb:hover {
+  transform: translateY(-1px);
+}
+.tgb:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.tgc {
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}
+.tgc:hover {
+  box-shadow: var(--tg-elev-cartao);
+  transform: translateY(-2px);
+}
+
+/* Esqueleto de carregamento. A largura do gradiente (380px) e a duração
+   (1,15s) saem do documento; juntas dão a velocidade de varredura que faz o
+   bloco parecer carregando em vez de piscando. */
+.tgsk {
+  background: linear-gradient(90deg, #eef0f4 0%, #f7f8fa 40%, #eef0f4 80%);
+  background-size: 380px 100%;
+  animation: tgShim 1.15s linear infinite;
+  border-radius: 8px;
+}
+
+/* O foco de teclado não existe no documento — protótipo se navega com o mouse.
+   Aqui ele precisa existir, e precisa ser o mesmo em toda parte, senão cada
+   tela inventa o seu. Anel do acento, deslocado para não encostar no texto. */
+:where(a, button, input, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-tg-acento-medio);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* =============================================================================
+   .lei-acervo — tipografia do texto legal importado (/vademecum)
+
+   O HTML vem do espelho do Planalto e traz a marcação dele: <p> para tudo,
+   <span class="artigo"> no número do artigo, <span class="paragrafo"> no §, e
+   #subtit / #ementa no cabeçalho. Não dá para aplicar classe do Tailwind
+   elemento a elemento — a marcação não é nossa. Então o estilo desce por
+   seletor, num bloco só, em vez de espalhar `prose-*` por cima.
+
+   Serifada, ao contrário do resto da interface: é o único lugar do produto onde
+   se lê texto corrido longo, e o documento de design reserva a Source Serif
+   exatamente para isso — texto de lei, ementa e resposta do assistente.
+
+   O tamanho do corpo é a variável --corpo, escrita pelo controle de fonte em
+   components/vademecum/barra-leitura.tsx.
+   ============================================================================= */
+
+.lei-acervo {
+  --corpo: 15px;
+  font-family: var(--font-tg-serif);
+  font-size: var(--corpo);
+  line-height: 1.78;
+  color: var(--color-tg-tinta-4);
+  text-wrap: pretty;
+}
+
+.lei-acervo p {
+  margin-block: 0.85em;
+}
+
+/* Recuo do parágrafo de lei: incisos e alíneas ficam visualmente pendurados no
+   caput, que é como o texto é lido em papel. */
+.lei-acervo p:not(#subtit, #ementa, #assinaturas) {
+  text-indent: 0;
+  padding-left: 0.9em;
+}
+
+.lei-acervo :is(h1, h2, h3, h4) {
+  margin-block: 2em 1em;
+  font-family: var(--font-tg);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--color-tg-tinta);
+  /* O cabeçalho da tela não cobre a rolagem (a casca não rola), mas o salto de
+     âncora encostado no topo fica ilegível — esta folga é o respiro. */
+  scroll-margin-top: 1.5rem;
+}
+
+.lei-acervo h1 {
+  font-size: 1.15em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--color-tg-linha);
+}
+.lei-acervo h2 {
+  font-size: 1.08em;
+}
+.lei-acervo :is(h3, h4) {
+  font-size: 1em;
+  color: var(--color-tg-corpo);
+}
+
+/* O número do artigo é a âncora visual de quem folheia: destacado, e nunca
+   quebrando longe do texto que abre. */
+.lei-acervo .artigo {
+  font-family: var(--font-tg);
+  font-weight: 600;
+  color: var(--color-tg-acento-txt);
+}
+
+.lei-acervo .paragrafo {
+  font-weight: 600;
+  color: var(--color-tg-tinta-2);
+}
+
+.lei-acervo #subtit {
+  font-family: var(--font-tg);
+  font-size: 0.86em;
+  font-weight: 500;
+  color: var(--color-tg-fraco-3);
+}
+
+.lei-acervo #ementa {
+  margin-block: 1em 2em;
+  padding: 0.75em 1em;
+  border-left: 2px solid var(--color-tg-acento-palido);
+  font-style: italic;
+  color: var(--color-tg-suave);
+}
+
+.lei-acervo #assinaturas {
+  margin-top: 2.5em;
+  font-size: 0.92em;
+  color: var(--color-tg-fraco-3);
+}
+
+/* Links do espelho: remissões a outras leis, vetos e ADIs. Discretos, para não
+   competirem com o texto legal. */
+.lei-acervo a {
+  color: var(--color-tg-acento-txt);
+  text-decoration: underline;
+  text-decoration-color: var(--color-tg-acento-palido);
+  text-underline-offset: 2px;
+}
+.lei-acervo a:hover {
+  text-decoration-color: currentColor;
+}
+
+.lei-acervo :is(b, strong) {
+  font-weight: 600;
+  color: var(--color-tg-tinta-2);
+}
+
+.lei-acervo table {
+  display: block;
+  overflow-x: auto;
+  margin-block: 1.5em;
+  font-family: var(--font-tg);
+  font-size: 0.86em;
+}
+.lei-acervo :is(td, th) {
+  padding: 0.4em 0.8em;
+  border: 1px solid var(--color-tg-linha);
+  text-align: left;
+  vertical-align: top;
+}
+
+.lei-acervo ul {
+  margin-block: 1em;
+  padding-left: 1.5em;
+  list-style: disc;
+}
+
+/* Busca dentro da lei — CSS Custom Highlight API.
+   Ver components/vademecum/barra-leitura.tsx: o destaque não mexe no DOM, então
+   as âncoras do sumário continuam apontando para os mesmos nós. */
+::highlight(acervo-busca) {
+  background-color: #f6f1e3;
+  color: #6b5a2a;
+}
+
+::highlight(acervo-atual) {
+  background-color: var(--color-tg-acento);
+  color: #fff;
+}

@@ -20,7 +20,7 @@ import { leis } from '@/lib/dados'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Busca — Jesbick',
+  title: 'Busca — Toga',
   description: 'Busca híbrida: rubrica, lexical e semântica fundidas por Reciprocal Rank Fusion.',
 }
 
@@ -54,15 +54,15 @@ export default async function BuscaPage({
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
           {/* ---------- formulário ---------- */}
           <form method="get" className="flex flex-wrap items-center gap-2">
-            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/10 bg-[#1E293B] px-3 py-2 focus-within:border-emerald-500/40">
-              <Icone nome="busca" className="size-4 shrink-0 text-slate-500" />
+            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-tg-linha bg-white px-3 py-2 focus-within:border-tg-acento-palido">
+              <Icone nome="busca" className="size-4 shrink-0 text-tg-fraco-3" />
               <input
                 name="q"
                 defaultValue={q}
                 autoFocus
                 placeholder="Termo do instituto, texto legal ou descrição do caso…"
                 aria-label="Consulta"
-                className="min-w-0 flex-1 bg-transparent text-[14px] text-slate-100 outline-none placeholder:text-slate-500"
+                className="min-w-0 flex-1 bg-transparent text-[14px] text-tg-tinta outline-none placeholder:text-tg-fraco-3"
               />
             </div>
 
@@ -70,7 +70,7 @@ export default async function BuscaPage({
               name="lei"
               defaultValue={lei ?? 'todas'}
               aria-label="Filtrar por lei"
-              className="rounded-xl border border-white/10 bg-[#1E293B] px-3 py-2.5 text-[13px] text-slate-300 outline-none focus:border-emerald-500/40"
+              className="rounded-xl border border-tg-linha bg-white px-3 py-2.5 text-[13px] text-tg-tinta-4 outline-none focus:border-tg-acento-palido"
             >
               <option value="todas">Todas as leis</option>
               {ls.ok &&
@@ -83,7 +83,7 @@ export default async function BuscaPage({
 
             <button
               type="submit"
-              className="rounded-xl bg-emerald-500 px-4 py-2.5 text-[13px] font-medium text-slate-950 transition-colors hover:bg-emerald-400"
+              className="rounded-xl bg-tg-acento px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-tg-acento"
             >
               Buscar
             </button>
@@ -92,7 +92,7 @@ export default async function BuscaPage({
           {/* ---------- resultado ---------- */}
           {!resposta ? (
             <div className="mt-8">
-              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
                 Consultas que mostram as três pernas
               </p>
               <ul className="mt-2 space-y-2">
@@ -100,15 +100,15 @@ export default async function BuscaPage({
                   <li key={e.q}>
                     <Link
                       href={`/busca?q=${encodeURIComponent(e.q)}`}
-                      className="group flex items-center gap-3 rounded-xl border border-white/[0.08] bg-[#0F172A] px-4 py-3 transition-colors hover:border-emerald-500/30"
+                      className="group flex items-center gap-3 rounded-xl border border-tg-linha bg-white px-4 py-3 transition-colors hover:border-tg-acento-palido"
                     >
                       <span className="min-w-0">
-                        <span className="block truncate text-[13.5px] text-slate-200">“{e.q}”</span>
-                        <span className="block text-[12px] text-slate-500">{e.nota}</span>
+                        <span className="block truncate text-[13.5px] text-tg-tinta-2">“{e.q}”</span>
+                        <span className="block text-[12px] text-tg-fraco-3">{e.nota}</span>
                       </span>
                       <Icone
                         nome="seta_direita"
-                        className="ml-auto size-4 shrink-0 text-slate-600 group-hover:text-emerald-400"
+                        className="ml-auto size-4 shrink-0 text-tg-tenue-2 group-hover:text-tg-acento-txt"
                       />
                     </Link>
                   </li>
@@ -117,7 +117,7 @@ export default async function BuscaPage({
             </div>
           ) : (
             <div className="mt-6">
-              <div className="flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
+              <div className="flex flex-wrap items-center gap-2 text-[12px] text-tg-fraco-3">
                 <Selo tom={resposta.intencao.molde === 'tema' ? 'esmeralda' : 'neutro'}>
                   {ROTULO_MOLDE[resposta.intencao.molde]}
                 </Selo>

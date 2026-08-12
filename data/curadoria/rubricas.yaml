@@ -1,0 +1,642 @@
+# =============================================================================
+# Rubricas curadas — o apelido do instituto, escrito à mão.
+#
+# Por que este arquivo existe (decisão nº 2 do CLAUDE.md): advogado não busca
+# pelo texto da lei, busca pelo apelido. "Tráfico privilegiado" não aparece em
+# lugar nenhum do art. 33 § 4º; "olheiro" e "fogueteiro" não aparecem no art. 37.
+# Sem esta camada, a busca lexical não acha, e a semântica erra feio — medido no
+# banco antes de escrever este arquivo:
+#
+#   "tráfico privilegiado"      → art. 332 do CP (tráfico de INFLUÊNCIA)
+#   "associação para o tráfico" → art. 149-A do CP (tráfico de PESSOAS)
+#   "dosimetria da pena"        → arts. 68 e 49 do CP, sem o art. 42 da Lei
+#
+# As 414 rubricas `oficial` vêm da margem impressa do Vade Mecum e cobrem o
+# Código Penal. A Lei de Drogas não tem NENHUMA — o Vade Mecum não imprime
+# rubrica marginal nela. Este arquivo é essa lacuna, preenchida à mão.
+#
+# --- regras de escrita -------------------------------------------------------
+#
+# `termo` e `variantes` casam por IGUALDADE EXATA do texto normalizado (sem
+# acento, caixa baixa) contra a consulta INTEIRA — ver a CTE `rub` em
+# 0003_busca.sql. Não é match parcial: "quero saber sobre tráfico privilegiado"
+# NÃO casa. Daí variantes serem o grosso do trabalho, e não enfeite.
+#
+# Não repetir termo de rubrica oficial: `rubricas.slug` é único, e uma curada com
+# o slug de uma oficial quebraria o seed. Por isso não há aqui "fixação da pena",
+# "cálculo da pena", "circunstâncias atenuantes", "reincidência", "tentativa" nem
+# "substituição da pena" — todas já são oficiais, do Código Penal.
+#
+# Nem "associação criminosa": é oficial E é outro crime (art. 288 do CP). Apontar
+# o apelido de um crime para o dispositivo de outro é exatamente o erro que esta
+# camada existe para evitar.
+#
+# `explicacao` é texto autoral próprio, curto e funcional: diz o que o
+# dispositivo faz. NÃO é resumo de doutrina — obra de Nucci, Greco ou Bitencourt
+# não entra aqui em nenhuma forma (CLAUDE.md, "Restrição de doutrina").
+#
+# `papel` ordena o cluster no resultado: principal → correlato → requisito.
+# `peso` desempata dentro do mesmo papel.
+#
+# Todo `id` abaixo foi conferido contra o banco antes de ser escrito. O seed
+# falha com violação de chave estrangeira se algum deixar de existir — que é o
+# comportamento desejado: id de citação quebrado tem de derrubar o seed, não
+# aparecer em peça.
+# =============================================================================
+
+# --- os crimes do recorte ----------------------------------------------------
+
+- termo: tráfico de drogas
+  slug: trafico-de-drogas
+  tipo: dispositivo
+  explicacao: >-
+    Os dezoito verbos do caput do art. 33. Praticar qualquer um deles basta para
+    o tipo; praticar vários no mesmo contexto não multiplica o crime.
+  variantes:
+    - tráfico
+    - traficância
+    - crime de tráfico
+    - tráfico ilícito de drogas
+    - tráfico ilícito de entorpecentes
+    - verbos do tráfico
+    - núcleos do tipo do tráfico
+  dispositivos:
+    - { id: lei_11343_2006_art33_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art33_p1, papel: correlato, peso: 70 }
+    - { id: lei_11343_2006_art33_p4, papel: correlato, peso: 60 }
+
+- termo: tráfico privilegiado
+  slug: trafico-privilegiado
+  tipo: dispositivo
+  explicacao: >-
+    Redução de um sexto a dois terços para quem é primário, tem bons
+    antecedentes, não se dedica a atividades criminosas e não integra
+    organização criminosa. Os quatro requisitos são cumulativos e estão no
+    próprio § 4º.
+  variantes:
+    - minorante do tráfico
+    - causa de diminuição do tráfico
+    - redução do tráfico
+    - figura privilegiada do tráfico
+    - privilégio do tráfico
+    - benefício do parágrafo quarto
+    - requisitos do tráfico privilegiado
+  dispositivos:
+    - { id: lei_11343_2006_art33_p4, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art33_caput, papel: correlato, peso: 80, nota: delito base sobre o qual a redução incide }
+    - { id: lei_11343_2006_art42_caput, papel: correlato, peso: 50 }
+
+- termo: associação para o tráfico
+  slug: associacao-para-o-trafico
+  tipo: dispositivo
+  explicacao: >-
+    Duas ou mais pessoas associadas para praticar os crimes dos arts. 33 e 34.
+    Crime autônomo, com pena própria — não se confunde com o concurso de agentes
+    no tráfico nem com a associação criminosa do art. 288 do Código Penal.
+  variantes:
+    - associação para tráfico
+    - associação para o tráfico de drogas
+    - associação para fins de tráfico
+    - associação no tráfico
+  dispositivos:
+    - { id: lei_11343_2006_art35_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art35_pu, papel: correlato, peso: 70 }
+    - { id: lei_11343_2006_art33_caput, papel: correlato, peso: 40 }
+
+- termo: financiamento do tráfico
+  slug: financiamento-do-trafico
+  tipo: dispositivo
+  explicacao: >-
+    Financiar ou custear os crimes dos arts. 33 e 34, como figura autônoma. Quem
+    financia e também pratica o tráfico responde pelo art. 33 com a majorante do
+    art. 40, VII — não pelos dois tipos.
+  variantes:
+    - financiar o tráfico
+    - custeio do tráfico
+    - financiador do tráfico
+    - quem banca o tráfico
+  dispositivos:
+    - { id: lei_11343_2006_art36_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art40_inc7, papel: correlato, peso: 60 }
+
+- termo: informante do tráfico
+  slug: informante-do-trafico
+  tipo: dispositivo
+  explicacao: >-
+    Colaborar como informante com grupo ou associação de tráfico. Pena bem menor
+    que a do art. 33, e é por isso que a classificação da conduta costuma ser o
+    ponto central da defesa de quem só vigiava.
+  variantes:
+    - olheiro
+    - fogueteiro
+    - colaborar como informante
+    - informante do grupo
+    - vigia do tráfico
+  dispositivos:
+    - { id: lei_11343_2006_art37_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art35_caput, papel: correlato, peso: 50 }
+
+- termo: maquinário para o tráfico
+  slug: maquinario-para-o-trafico
+  tipo: dispositivo
+  explicacao: >-
+    Fabricar, adquirir, transportar ou fornecer maquinário, aparelho ou
+    instrumento destinado à preparação de drogas. Independe de a droga já existir.
+  variantes:
+    - petrechos para o tráfico
+    - aparelhagem do tráfico
+    - equipamento para preparar droga
+    - instrumento destinado à fabricação de drogas
+  dispositivos:
+    - { id: lei_11343_2006_art34_caput, papel: principal, peso: 100 }
+
+- termo: porte de droga para consumo pessoal
+  slug: porte-de-droga-para-consumo-pessoal
+  tipo: dispositivo
+  explicacao: >-
+    Conduta do art. 28, sem pena privativa de liberdade — só advertência,
+    prestação de serviços e medida educativa.
+  variantes:
+    - uso pessoal
+    - porte para uso próprio
+    - porte de droga para uso
+    - usuário de drogas
+    - consumo pessoal de drogas
+  dispositivos:
+    - { id: lei_11343_2006_art28_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art28_p2, papel: requisito, peso: 80, nota: critérios para dizer se a droga era de consumo pessoal }
+    - { id: lei_11343_2006_art28_p1, papel: correlato, peso: 50 }
+
+# --- as causas de aumento ----------------------------------------------------
+
+- termo: causas de aumento do tráfico
+  slug: causas-de-aumento-do-trafico
+  tipo: tema
+  explicacao: >-
+    As sete majorantes do art. 40, de um sexto a dois terços, aplicáveis aos
+    crimes dos arts. 33 a 37.
+  variantes:
+    - majorantes do tráfico
+    - causas de aumento da lei de drogas
+    - aumento no tráfico
+    - majorantes da lei de drogas
+  dispositivos:
+    - { id: lei_11343_2006_art40_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art40_inc1, papel: correlato, peso: 70 }
+    - { id: lei_11343_2006_art40_inc3, papel: correlato, peso: 68 }
+    - { id: lei_11343_2006_art40_inc5, papel: correlato, peso: 66 }
+    - { id: lei_11343_2006_art40_inc6, papel: correlato, peso: 64 }
+    - { id: lei_11343_2006_art40_inc7, papel: correlato, peso: 62 }
+
+- termo: transnacionalidade do tráfico
+  slug: transnacionalidade-do-trafico
+  tipo: dispositivo
+  explicacao: >-
+    Majorante do art. 40, I. A natureza e a procedência da droga, mais as
+    circunstâncias do fato, é que evidenciam a transnacionalidade — não basta a
+    droga ser estrangeira.
+  variantes:
+    - tráfico internacional
+    - tráfico transnacional
+    - transnacionalidade
+    - droga vinda do exterior
+  dispositivos:
+    - { id: lei_11343_2006_art40_inc1, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art40_caput, papel: correlato, peso: 70 }
+
+- termo: tráfico interestadual
+  slug: trafico-interestadual
+  tipo: dispositivo
+  explicacao: Majorante do art. 40, V — tráfico entre Estados ou entre estes e o Distrito Federal.
+  variantes:
+    - tráfico entre estados
+    - interestadualidade
+    - tráfico de um estado para outro
+  dispositivos:
+    - { id: lei_11343_2006_art40_inc5, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art40_caput, papel: correlato, peso: 70 }
+
+- termo: tráfico nas imediações de presídio ou escola
+  slug: trafico-nas-imediacoes-de-presidio-ou-escola
+  tipo: dispositivo
+  explicacao: >-
+    Majorante do art. 40, III. O rol de locais é fechado, e "imediações" é
+    questão de fato — a distância medida no laudo costuma decidir.
+  variantes:
+    - tráfico perto de escola
+    - tráfico em presídio
+    - tráfico nas proximidades de presídio
+    - imediações de estabelecimento de ensino
+    - tráfico perto de hospital
+  dispositivos:
+    - { id: lei_11343_2006_art40_inc3, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art40_caput, papel: correlato, peso: 70 }
+
+- termo: tráfico envolvendo criança ou adolescente
+  slug: trafico-envolvendo-crianca-ou-adolescente
+  tipo: dispositivo
+  explicacao: >-
+    Majorante do art. 40, VI: envolver ou visar a atingir criança ou
+    adolescente, ou quem tenha a capacidade de entendimento diminuída.
+  variantes:
+    - tráfico com menor
+    - envolver menor no tráfico
+    - uso de adolescente no tráfico
+    - tráfico visando criança
+  dispositivos:
+    - { id: lei_11343_2006_art40_inc6, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art40_caput, papel: correlato, peso: 70 }
+
+# --- pena: os clusters que atravessam as duas leis ---------------------------
+
+- termo: dosimetria da pena
+  slug: dosimetria-da-pena
+  tipo: tema
+  explicacao: >-
+    Cluster de três dispositivos, em ordem de aplicação no tráfico: o art. 42 da
+    Lei de Drogas manda a natureza e a quantidade da droga PREPONDERAREM sobre as
+    circunstâncias do art. 59 do Código Penal; o art. 68 dá o método trifásico.
+  variantes:
+    - dosimetria
+    - dosimetria do tráfico
+    - dosimetria da pena na lei de drogas
+    - dosagem da pena
+    - método trifásico
+    - três fases da pena
+    - como calcular a pena do tráfico
+  dispositivos:
+    - { id: lei_11343_2006_art42_caput, papel: principal, peso: 100, nota: preponderância sobre o art. 59 — é o que distingue a dosimetria do tráfico }
+    - { id: dl_2848_1940_art59_caput, papel: correlato, peso: 80 }
+    - { id: dl_2848_1940_art68_caput, papel: correlato, peso: 70 }
+
+- termo: natureza e quantidade da droga
+  slug: natureza-e-quantidade-da-droga
+  tipo: dispositivo
+  explicacao: >-
+    O art. 42 é o vetor que mais pesa na primeira fase do tráfico: prepondera
+    sobre o art. 59 por determinação legal expressa.
+  variantes:
+    - quantidade de droga
+    - natureza da droga
+    - preponderância do art. 42
+    - peso da droga na pena
+    - quantidade apreendida
+  dispositivos:
+    - { id: lei_11343_2006_art42_caput, papel: principal, peso: 100 }
+    - { id: dl_2848_1940_art59_caput, papel: correlato, peso: 60 }
+    - { id: lei_11343_2006_art33_p4, papel: correlato, peso: 40 }
+
+- termo: regime inicial no tráfico
+  slug: regime-inicial-no-trafico
+  tipo: tema
+  explicacao: >-
+    O regime inicial sai dos critérios do art. 59, por remissão do art. 33, § 3º,
+    do Código Penal. No tráfico, o art. 42 entra antes, na fixação da pena que
+    define a faixa do regime.
+  variantes:
+    - regime inicial
+    - regime inicial de cumprimento de pena
+    - fixação do regime
+    - regime fechado no tráfico
+    - qual regime o réu vai cumprir
+  dispositivos:
+    - { id: dl_2848_1940_art33_p3, papel: principal, peso: 100 }
+    - { id: dl_2848_1940_art33_caput, papel: correlato, peso: 80 }
+    - { id: dl_2848_1940_art33_p2, papel: correlato, peso: 60 }
+    - { id: lei_11343_2006_art42_caput, papel: correlato, peso: 50 }
+
+- termo: substituição por restritiva de direitos no tráfico
+  slug: substituicao-por-restritiva-no-trafico
+  tipo: tema
+  explicacao: >-
+    Os requisitos gerais da substituição estão no art. 44 do Código Penal. No
+    tráfico, a pena resultante do § 4º do art. 33 é o que costuma trazer a
+    condenação para dentro do teto de quatro anos do inciso I.
+  variantes:
+    - substituição da pena no tráfico
+    - pena restritiva de direitos no tráfico
+    - pena alternativa no tráfico
+    - converter a pena em restritiva
+    - trocar prisão por pena alternativa
+  dispositivos:
+    - { id: dl_2848_1940_art44_caput, papel: principal, peso: 100 }
+    - { id: dl_2848_1940_art44_inc1, papel: requisito, peso: 80 }
+    - { id: lei_11343_2006_art33_p4, papel: correlato, peso: 60 }
+
+- termo: confissão espontânea
+  slug: confissao-espontanea
+  tipo: dispositivo
+  explicacao: Atenuante da alínea "d" do inciso III do art. 65, aplicada na segunda fase.
+  variantes:
+    - atenuante da confissão
+    - réu confessou
+    - confissão do réu
+  dispositivos:
+    - { id: dl_2848_1940_art65_inc3_ald, papel: principal, peso: 100 }
+    - { id: dl_2848_1940_art65_caput, papel: correlato, peso: 60 }
+
+- termo: menoridade relativa
+  slug: menoridade-relativa
+  tipo: dispositivo
+  explicacao: Atenuante do art. 65, I — agente menor de 21 anos na data do fato.
+  variantes:
+    - menor de 21 anos
+    - réu menor de 21
+    - atenuante da menoridade
+  dispositivos:
+    - { id: dl_2848_1940_art65_inc1, papel: principal, peso: 100 }
+    - { id: dl_2848_1940_art65_caput, papel: correlato, peso: 60 }
+
+# --- consequências da condenação ---------------------------------------------
+
+- termo: livramento condicional no tráfico
+  slug: livramento-condicional-no-trafico
+  tipo: dispositivo
+  explicacao: >-
+    Dois terços da pena, vedado ao reincidente específico — regra própria do
+    parágrafo único do art. 44 da Lei de Drogas.
+  variantes:
+    - livramento condicional tráfico
+    - dois terços da pena
+    - livramento no crime de tráfico
+  dispositivos:
+    - { id: lei_11343_2006_art44_pu, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art44_caput, papel: correlato, peso: 70 }
+
+- termo: vedações do art. 44 da Lei de Drogas
+  slug: vedacoes-do-art-44-da-lei-de-drogas
+  tipo: dispositivo
+  explicacao: >-
+    Texto conforme a redação vigente na data de corte desta base. A extensão de
+    cada vedação já foi objeto de controle de constitucionalidade — confira a
+    situação atual do dispositivo antes de citá-lo em peça.
+  variantes:
+    - inafiançabilidade do tráfico
+    - vedação de liberdade provisória no tráfico
+    - tráfico é inafiançável
+    - sursis no tráfico
+  dispositivos:
+    - { id: lei_11343_2006_art44_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art44_pu, papel: correlato, peso: 60 }
+
+- termo: dependência química
+  slug: dependencia-quimica
+  tipo: tema
+  explicacao: >-
+    Isenção de pena quando a dependência retirava, ao tempo do fato, a
+    capacidade de entender o caráter ilícito. Reduzida essa capacidade sem
+    suprimi-la, o caso é de redução do art. 46.
+  variantes:
+    - dependente químico
+    - isenção de pena por dependência
+    - inimputabilidade por dependência
+    - réu era dependente
+    - semi-imputabilidade na lei de drogas
+  dispositivos:
+    - { id: lei_11343_2006_art45_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art45_pu, papel: correlato, peso: 70 }
+    - { id: lei_11343_2006_art46_caput, papel: correlato, peso: 60 }
+
+- termo: delação premiada na lei de drogas
+  slug: delacao-premiada-na-lei-de-drogas
+  tipo: dispositivo
+  explicacao: >-
+    Redução de um terço a dois terços para quem colabora voluntariamente, desde
+    que a colaboração leve à identificação dos demais e à recuperação do produto
+    do crime. Regra própria da Lei de Drogas, no art. 41.
+  variantes:
+    - delação premiada
+    - colaboração premiada no tráfico
+    - colaborador na lei de drogas
+    - réu delatou
+  dispositivos:
+    - { id: lei_11343_2006_art41_caput, papel: principal, peso: 100 }
+
+# --- rito --------------------------------------------------------------------
+
+- termo: procedimento da lei de drogas
+  slug: procedimento-da-lei-de-drogas
+  tipo: processual
+  explicacao: >-
+    O rito dos crimes da Lei de Drogas é o do próprio Título IV, aplicando-se o
+    Código de Processo Penal apenas no que ela não dispuser.
+  variantes:
+    - rito da lei de drogas
+    - procedimento do tráfico
+    - processo por tráfico
+    - rito do art. 48
+  dispositivos:
+    - { id: lei_11343_2006_art48_caput, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art48_p1, papel: correlato, peso: 60 }
+
+- termo: distinção entre tráfico e uso
+  slug: distincao-entre-trafico-e-uso
+  tipo: tema
+  explicacao: >-
+    O § 2º do art. 28 dá os critérios que separam as duas condutas: natureza e
+    quantidade da droga, local e condições da ação, circunstâncias sociais e
+    pessoais, conduta e antecedentes. É a mesma pergunta vista dos dois lados.
+  variantes:
+    - tráfico ou uso
+    - usuário ou traficante
+    - diferença entre tráfico e uso
+    - era para uso ou para vender
+    - desclassificação para uso
+  dispositivos:
+    - { id: lei_11343_2006_art28_p2, papel: principal, peso: 100 }
+    - { id: lei_11343_2006_art33_caput, papel: correlato, peso: 70 }
+    - { id: lei_11343_2006_art28_caput, papel: correlato, peso: 60 }
+    - { id: lei_11343_2006_art42_caput, papel: correlato, peso: 40 }
+
+# --- rito: Código de Processo Penal ------------------------------------------
+#
+# O CPP entrou no corpus inteiro, e trouxe o mesmo problema que a Lei de Drogas
+# tinha: o Vade Mecum não imprime rubrica marginal nele (só 6 saíram da margem,
+# contra 379 do CP). Medido logo depois do seed, antes destas rubricas:
+#
+#   "resposta à acusação"  → art. 229 (acareação)
+#   "absolvição sumária"   → art. 416 (rito do júri, não o comum)
+#
+# As duas são o coração da peça deste projeto. Sem rubrica, a busca entrega o
+# artigo errado com cara de acerto.
+
+- termo: resposta à acusação
+  slug: resposta-a-acusacao
+  tipo: processual
+  explicacao: >-
+    A peça de defesa do art. 396-A, oferecida em 10 dias no rito ordinário. É
+    onde se alegam preliminares, se juntam documentos e se arrolam testemunhas —
+    e é a única peça que este projeto gera.
+  variantes:
+    - defesa prévia
+    - defesa preliminar
+    - peça de defesa
+    - prazo para responder à acusação
+    - art. 396-A
+  dispositivos:
+    - { id: dl_3689_1941_art396-a_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art396_caput, papel: correlato, peso: 80, nota: citação e prazo }
+    - { id: dl_3689_1941_art397_caput, papel: correlato, peso: 60, nota: o que o juiz decide depois dela }
+
+- termo: absolvição sumária
+  slug: absolvicao-sumaria
+  tipo: processual
+  explicacao: >-
+    Quatro hipóteses do art. 397, examinadas logo após a resposta à acusação, no
+    rito comum. Não confundir com a absolvição sumária do rito do júri, que está
+    no art. 415.
+  variantes:
+    - absolver sumariamente
+    - absolvição sumária no rito comum
+    - hipóteses do art. 397
+  dispositivos:
+    - { id: dl_3689_1941_art397_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art397_inc1, papel: correlato, peso: 80 }
+    - { id: dl_3689_1941_art397_inc2, papel: correlato, peso: 78 }
+    - { id: dl_3689_1941_art397_inc3, papel: correlato, peso: 76 }
+    - { id: dl_3689_1941_art397_inc4, papel: correlato, peso: 74 }
+    - { id: dl_3689_1941_art396-a_caput, papel: correlato, peso: 50 }
+
+- termo: busca domiciliar sem mandado
+  slug: busca-domiciliar-sem-mandado
+  tipo: processual
+  explicacao: >-
+    A busca domiciliar depende de mandado, salvo as exceções do próprio Código.
+    A execução é de dia, salvo consentimento do morador. Em tráfico é a questão
+    que mais decide o processo, porque dela depende a licitude da apreensão.
+  variantes:
+    - busca e apreensão domiciliar
+    - entrada em domicílio
+    - busca sem mandado
+    - invasão de domicílio pela polícia
+    - flagrante em domicílio
+  dispositivos:
+    - { id: dl_3689_1941_art240_p1, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art245_caput, papel: correlato, peso: 85, nota: execução de dia, salvo consentimento }
+    - { id: dl_3689_1941_art241_caput, papel: correlato, peso: 70 }
+    - { id: dl_3689_1941_art243_caput, papel: requisito, peso: 60, nota: requisitos do mandado }
+    - { id: dl_3689_1941_art157_caput, papel: correlato, peso: 55, nota: consequência da ilicitude }
+
+- termo: prova ilícita
+  slug: prova-ilicita
+  tipo: processual
+  explicacao: >-
+    Prova obtida em violação a norma constitucional ou legal é inadmissível e
+    deve ser desentranhada. O § 1º estende a inadmissibilidade às provas dela
+    derivadas.
+  variantes:
+    - provas ilícitas
+    - prova ilícita por derivação
+    - desentranhamento de prova
+    - fruto da árvore envenenada
+    - prova obtida ilegalmente
+  dispositivos:
+    - { id: dl_3689_1941_art157_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art157_p1, papel: correlato, peso: 80, nota: prova derivada }
+    - { id: dl_3689_1941_art155_caput, papel: correlato, peso: 60 }
+
+- termo: valor do inquérito como prova
+  slug: valor-do-inquerito-como-prova
+  tipo: processual
+  explicacao: >-
+    A condenação não pode se fundar exclusivamente em elementos colhidos na
+    investigação, ressalvadas as cautelares, as não repetíveis e as antecipadas.
+  variantes:
+    - prova produzida no inquérito
+    - depoimento policial como única prova
+    - condenação só com o inquérito
+    - livre apreciação da prova
+  dispositivos:
+    - { id: dl_3689_1941_art155_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art157_caput, papel: correlato, peso: 50 }
+
+- termo: absolvição
+  slug: absolvicao-art-386
+  tipo: processual
+  explicacao: >-
+    As hipóteses de absolvição ao fim da instrução, no art. 386 — entre elas a
+    insuficiência de prova para a condenação.
+  variantes:
+    - hipóteses de absolvição
+    - absolver o réu
+    - insuficiência de provas
+    - falta de prova para condenar
+  dispositivos:
+    - { id: dl_3689_1941_art386_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art386_inc7, papel: correlato, peso: 80, nota: insuficiência de prova }
+
+- termo: nulidade processual
+  slug: nulidade-processual
+  tipo: processual
+  explicacao: >-
+    Sem prejuízo não há nulidade, e não a argui quem lhe deu causa. É o filtro
+    por onde passa toda alegação de vício de forma.
+  variantes:
+    - nulidades
+    - pas de nullité sans grief
+    - não há nulidade sem prejuízo
+    - vício processual
+  dispositivos:
+    - { id: dl_3689_1941_art563_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art564_caput, papel: correlato, peso: 80, nota: rol de casos }
+    - { id: dl_3689_1941_art565_caput, papel: correlato, peso: 70 }
+    - { id: dl_3689_1941_art566_caput, papel: correlato, peso: 65 }
+
+- termo: audiência de instrução e julgamento
+  slug: audiencia-de-instrucao-e-julgamento
+  tipo: processual
+  explicacao: >-
+    A audiência una do rito ordinário, com a ordem de produção da prova e as
+    alegações finais orais — ou por memoriais, se houver diligência deferida.
+  variantes:
+    - audiência una
+    - alegações finais
+    - memoriais
+    - ordem de oitiva das testemunhas
+  dispositivos:
+    - { id: dl_3689_1941_art400_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art402_caput, papel: correlato, peso: 75 }
+    - { id: dl_3689_1941_art403_caput, papel: correlato, peso: 70 }
+
+- termo: prisão preventiva
+  slug: prisao-preventiva
+  tipo: processual
+  explicacao: >-
+    Os fundamentos do art. 312 e as hipóteses de cabimento do art. 313. No
+    tráfico, a preventiva costuma ser decretada na audiência de custódia.
+  variantes:
+    - preventiva
+    - requisitos da prisão preventiva
+    - fundamentos da preventiva
+    - decretação da preventiva
+  dispositivos:
+    - { id: dl_3689_1941_art312_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art313_caput, papel: correlato, peso: 80 }
+    - { id: dl_3689_1941_art310_caput, papel: correlato, peso: 60, nota: audiência de custódia }
+
+- termo: audiência de custódia
+  slug: audiencia-de-custodia
+  tipo: processual
+  explicacao: >-
+    Apresentação do preso em flagrante à autoridade judicial em até 24 horas,
+    quando o juiz relaxa a prisão, converte em preventiva ou concede liberdade.
+  variantes:
+    - apresentação do preso
+    - custódia em 24 horas
+    - conversão do flagrante em preventiva
+  dispositivos:
+    - { id: dl_3689_1941_art310_caput, papel: principal, peso: 100 }
+    - { id: dl_3689_1941_art312_caput, papel: correlato, peso: 60 }
+
+- termo: estrutura acusatória
+  slug: estrutura-acusatoria
+  tipo: processual
+  explicacao: >-
+    O art. 3º-A veda a iniciativa do juiz na investigação e a substituição da
+    atuação probatória da acusação.
+  variantes:
+    - sistema acusatório
+    - iniciativa probatória do juiz
+    - juiz não pode produzir prova
+  dispositivos:
+    - { id: dl_3689_1941_art3-a_caput, papel: principal, peso: 100 }

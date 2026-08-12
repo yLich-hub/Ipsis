@@ -16,7 +16,7 @@ import { Aviso } from '@/components/ui'
 import { usuarioAtual } from '@/lib/auth/servidor'
 
 export const metadata: Metadata = {
-  title: 'Nova senha — Jesbick',
+  title: 'Nova senha — Toga',
   description: 'Definição de nova senha pelo Supabase Auth.',
 }
 
@@ -32,7 +32,7 @@ export default async function RedefinirSenhaPage() {
           Abra esta tela pelo link enviado ao seu e-mail. Se o link já foi usado ou expirou, peça
           outro — leva alguns segundos.
         </Aviso>
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-tg-linha pt-4">
           <LinkAuth href="/esqueci-senha">Pedir novo link</LinkAuth>
           <LinkAuth href="/login">Voltar para o login</LinkAuth>
         </div>

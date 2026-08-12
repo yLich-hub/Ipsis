@@ -11,7 +11,7 @@ import type { Metadata } from 'next'
 import { FormularioEsqueciSenha } from '@/components/auth/esqueci-senha'
 
 export const metadata: Metadata = {
-  title: 'Recuperar senha — Jesbick',
+  title: 'Recuperar senha — Toga',
   description: 'Envio do link de redefinição de senha pelo Supabase Auth.',
 }
 

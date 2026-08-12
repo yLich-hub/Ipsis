@@ -18,7 +18,7 @@ import { dataBR, numeroBR } from '@/lib/formato'
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Legislação — Jesbick',
+  title: 'Legislação — Toga',
   description: 'Lei 11.343/2006 e Código Penal, com data de corte e cobertura declaradas.',
 }
 
@@ -51,10 +51,10 @@ export default async function LeisPage() {
               <li key={l.id}>
                 <Link
                   href={`/leis/${l.id}`}
-                  className="group block rounded-xl border border-white/[0.08] bg-[#0F172A] p-4 transition-colors hover:border-emerald-500/30"
+                  className="group block rounded-xl border border-tg-linha bg-white p-4 transition-colors hover:border-tg-acento-palido"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[15px] font-medium text-slate-100">{l.apelido}</span>
+                    <span className="text-[15px] font-medium text-tg-tinta">{l.apelido}</span>
                     {l.cobertura === 'parcial' ? (
                       <Selo tom="ambar" title={l.cobertura_nota ?? undefined}>
                         cobertura parcial
@@ -64,19 +64,19 @@ export default async function LeisPage() {
                     )}
                     <Icone
                       nome="seta_direita"
-                      className="ml-auto size-4 text-slate-600 transition-colors group-hover:text-emerald-400"
+                      className="ml-auto size-4 text-tg-tenue-2 transition-colors group-hover:text-tg-acento-txt"
                     />
                   </div>
-                  <p className="mt-1 text-[13px] text-slate-400">{l.nome}</p>
-                  <p className="mt-3 text-[12.5px] tabular-nums text-slate-400">
+                  <p className="mt-1 text-[13px] text-tg-corpo">{l.nome}</p>
+                  <p className="mt-3 text-[12.5px] tabular-nums text-tg-corpo">
                     {numeroBR(l.total_artigos)} artigos · {numeroBR(dispositivos)} dispositivos
                     citáveis
                   </p>
-                  <p className="mt-0.5 text-[11.5px] text-slate-600">
+                  <p className="mt-0.5 text-[11.5px] text-tg-tenue-2">
                     redação vigente em {dataBR(l.vigencia_ate)} · {l.fonte}
                   </p>
                   {l.cobertura_nota && (
-                    <p className="mt-2 text-[12px] leading-relaxed text-amber-300/70">
+                    <p className="mt-2 text-[12px] leading-relaxed text-tg-ambar-txt">
                       {l.cobertura_nota}
                     </p>
                   )}
@@ -95,8 +95,8 @@ export default async function LeisPage() {
           )}
 
           <Cartao className="mt-6 p-4">
-            <h2 className="text-[13px] font-medium text-slate-200">Buracos na numeração não são defeito</h2>
-            <p className="mt-1.5 text-[12.5px] leading-relaxed text-slate-500">
+            <h2 className="text-[13px] font-medium text-tg-tinta-2">Buracos na numeração não são defeito</h2>
+            <p className="mt-1.5 text-[12.5px] leading-relaxed text-tg-fraco-3">
               A Lei 11.343 pula do art. 8º ao 15 (arts. 9º a 14 revogados pela Lei 13.840/2019) e o
               Código Penal pula 186→196 e 218→223. Artigos revogados entram no banco marcados como
               tal, em vez de sumirem — sumir esconderia perda de extração do parser.

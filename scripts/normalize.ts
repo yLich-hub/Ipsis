@@ -70,15 +70,22 @@ const LEIS = [
     ordem: 2,
     obrigatorio: true,
   },
+  // O CPP era um subconjunto digitado à mão, com cobertura parcial. A premissa
+  // disso — a de que o Vade Mecum não trazia o CPP — não se sustentou: ele está
+  // nas páginas 366 a 424 do mesmo PDF, e `vade_parser.py` o extrai inteiro,
+  // com a mesma procedência e a mesma data de corte das outras duas leis.
+  //
+  // Preferir a extração a digitar à mão não é conveniência: digitar seria
+  // produzir texto legal fora da fonte, que é precisamente o que a decisão nº 1
+  // proíbe. Um CPP com buracos também obrigaria toda tela a exibir aviso de
+  // cobertura para uma limitação que deixou de existir.
   {
-    arquivo: 'cpp_subconjunto.json',
+    arquivo: 'codigo_processo_penal.json',
     id: 'dl_3689_1941',
-    apelido: 'CPP',
+    apelido: 'Código de Processo Penal',
     sufixoCitacao: 'do Código de Processo Penal',
-    cobertura: 'parcial' as const,
-    coberturaNota:
-      'Subconjunto curado: apenas os dispositivos que o recorte de tráfico de drogas utiliza. ' +
-      'Cada artigo traz a data em que foi conferido contra o texto oficial.',
+    cobertura: 'integral' as const,
+    coberturaNota: null,
     ordem: 3,
     obrigatorio: false,
   },

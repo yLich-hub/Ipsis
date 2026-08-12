@@ -14,7 +14,7 @@ import { Icone } from '@/components/icones'
 import { Cartao } from '@/components/ui'
 
 export const metadata: Metadata = {
-  title: 'Como funciona — Jesbick',
+  title: 'Como funciona — Toga',
   description: 'As três decisões que definem o projeto e onde verificar cada uma.',
 }
 
@@ -53,7 +53,7 @@ export default function SuportePage() {
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
-          <p className="text-[13.5px] leading-relaxed text-slate-400">
+          <p className="text-[13.5px] leading-relaxed text-tg-corpo">
             Escopo estreito de propósito: crimes de tráfico de drogas (Lei 11.343/2006), com Código
             Penal e um subconjunto curado do CPP disponíveis para consulta. Sem autenticação, sem
             multiusuário, sem cobrança — e uma peça processual só, a resposta à acusação.
@@ -63,15 +63,15 @@ export default function SuportePage() {
             {DECISOES.map((d, i) => (
               <Cartao key={d.titulo} className="p-4">
                 <div className="flex items-center gap-2">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-md bg-emerald-500/10 text-[11px] font-semibold text-emerald-300">
+                  <span className="grid size-6 shrink-0 place-items-center rounded-md bg-tg-acento-fraco text-[11px] font-semibold text-tg-acento-txt">
                     {i + 1}
                   </span>
-                  <h2 className="text-[14px] font-medium text-slate-100">{d.titulo}</h2>
+                  <h2 className="text-[14px] font-medium text-tg-tinta">{d.titulo}</h2>
                 </div>
-                <p className="mt-2 text-[13px] leading-relaxed text-slate-400">{d.corpo}</p>
+                <p className="mt-2 text-[13px] leading-relaxed text-tg-corpo">{d.corpo}</p>
                 <Link
                   href={d.onde.href}
-                  className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-emerald-300 hover:underline"
+                  className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-tg-acento-txt hover:underline"
                 >
                   {d.onde.rotulo}
                   <Icone nome="seta_direita" className="size-3.5" />
@@ -80,19 +80,19 @@ export default function SuportePage() {
             ))}
           </div>
 
-          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-slate-500">
+          <h2 className="mt-8 text-[11px] font-medium uppercase tracking-wider text-tg-fraco-3">
             Documentação no repositório
           </h2>
-          <Cartao className="mt-2 divide-y divide-white/[0.06]">
+          <Cartao className="mt-2 divide-y divide-tg-linha-fraca">
             {DOCS.map((d) => (
               <div key={d.arq} className="flex flex-wrap items-center gap-x-3 px-4 py-2.5">
-                <code className="text-[12.5px] text-slate-300">{d.arq}</code>
-                <span className="text-[12px] text-slate-500">{d.nota}</span>
+                <code className="text-[12.5px] text-tg-tinta-4">{d.arq}</code>
+                <span className="text-[12px] text-tg-fraco-3">{d.nota}</span>
               </div>
             ))}
           </Cartao>
 
-          <p className="mt-4 pb-6 text-[11.5px] leading-relaxed text-slate-600">
+          <p className="mt-4 pb-6 text-[11.5px] leading-relaxed text-tg-tenue-2">
             Os itens marcados com cadeado no menu levam a telas que explicam por que aquele recurso
             não existe. Preferi dizer isso na cara a preencher a interface com números inventados.
           </p>

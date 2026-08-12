@@ -1,0 +1,95 @@
+# =============================================================================
+# Curadoria do acervo Vade Mecum — consumida por scripts/vademecum.ts
+#
+# O repositório de origem carrega uma chave de área crua por lei ('penal',
+# 'civil'), às vezes vazia. Aqui ela vira rótulo em português, ganha ordem de
+# exibição e recebe as leis que vieram sem classificação.
+#
+# Curadoria que não casa ABORTA a importação: lei sem área conhecida ou sem
+# link para o texto oficial não entra. É a mesma postura de notas_editor.yaml.
+# =============================================================================
+
+# Ordem de exibição no catálogo. Penal primeiro: é o recorte do projeto.
+areas:
+  - chave: penal
+    rotulo: Direito Penal
+    descricao: Códigos e leis penais especiais. O recorte de tráfico do Toga vive no corpus curado, não aqui.
+  - chave: constitucional
+    rotulo: Direito Constitucional
+  - chave: civil
+    rotulo: Direito Civil
+  - chave: consumidor
+    rotulo: Direito do Consumidor
+  - chave: trabalho
+    rotulo: Direito do Trabalho
+  - chave: tributario
+    rotulo: Direito Tributário
+  - chave: administrativo
+    rotulo: Direito Administrativo
+  - chave: empresarial
+    rotulo: Direito Empresarial
+  - chave: previdenciario
+    rotulo: Direito Previdenciário
+  - chave: eleitoral
+    rotulo: Direito Eleitoral
+  - chave: ambiental
+    rotulo: Direito Ambiental
+  - chave: digital
+    rotulo: Direito Digital
+  - chave: militar
+    rotulo: Direito Militar
+  - chave: juizados
+    rotulo: Juizados Especiais
+  - chave: etica
+    rotulo: Ética e Advocacia
+  - chave: outras
+    rotulo: Outras normas
+
+# Leis que chegaram com `area: ''` no repositório de origem.
+# Preencher aqui até o script parar de reclamar.
+area_por_lei:
+  # Código de Trânsito Brasileiro. Tem capítulo de crimes de trânsito, mas o
+  # corpo da lei é regulação administrativa — é onde o leitor vai procurar.
+  ctb: administrativo
+  # Parcelamento do solo urbano (Lei 6.766/1979): direito urbanístico.
+  l6766: administrativo
+
+# O id vira URL. O fonte tem caixa mista e um erro de digitação; o script já
+# aplica slug, o que resolve o resto. Só entra aqui o que o slug não conserta.
+id_por_lei:
+  EstatutoIdodo: estatuto-do-idoso   # 'Idodo' é typo do repositório de origem
+  LAPop: acao-popular
+  concs: concessoes
+  res400anac: resolucao-400-anac
+
+# Link para o texto oficial das leis cujo espelho não trouxe nenhum — 42 das 75.
+#
+# NÃO derivar do número da lei. O padrão de URL do Planalto é regular o
+# bastante para tentar, e é aí que mora o erro grave: 'itcmd' é a Lei
+# 4.261/1989 do Rio de Janeiro e 'estsppi' é lei complementar do Piauí. Norma
+# estadual não está no ccivil_03, e a URL montada pelo número abriria a lei
+# FEDERAL homônima — um texto legal plausível e errado, que é o pior desfecho.
+#
+# Preencher à mão, conferindo cada uma, e validar com:
+#   npm run vademecum -- --verificar-links
+# Enquanto estiver vazio, a tela diz que o link falta em vez de inventar um.
+link_oficial: {}
+
+# Apelido curto quando o título do repositório é longo demais para o card.
+apelido: {}
+
+# ---------------------------------------------------------------------------
+# Ponte com o corpus curado.
+#
+# Estas leis existem nos dois lugares — e são coisas diferentes. Aqui é espelho
+# de leitura, sem data de vigência conferida. Lá é dispositivo com id de citação
+# estável, rubrica e data de corte auditada: o que pode entrar numa peça.
+# A tela do acervo mostra o link para o lado curado justamente para o leitor não
+# citar o lado errado.
+#
+# A Lei de Drogas não aparece: o repositório de origem não a tem (os
+# `linksRelacionados` apontam para um 'drogas' que nunca existiu como arquivo).
+# ---------------------------------------------------------------------------
+corpus:
+  cp: dl_2848_1940
+  cpp: dl_3689_1941

@@ -62,6 +62,7 @@ inexistente, em peça protocolada não é bug de UX — é dano ao cliente.
 |---|---|
 | **Consulta** | busca híbrida — rubrica, lexical e semântica fundidas por RRF numa chamada de rede |
 | **Peça** | seleção de caso → checklist de teses aplicáveis → minuta em DOCX |
+| **Acervo** | 75 legislações federais para leitura em `/vademecum` — separadas do corpus citável |
 | **Garantia** | citação quebrada é erro de compilação, não erro em audiência |
 
 ### Escopo deliberadamente estreito
@@ -74,6 +75,11 @@ disponíveis para consulta. Uma peça processual: resposta à acusação
 
 Fora de escopo, por decisão: autenticação, multiusuário, billing, painel
 administrativo, integração com PJe, qualquer crime além de tráfico.
+
+A exceção é o **acervo Vade Mecum** (`/vademecum`): 75 legislações federais de
+todas as áreas, para leitura. Ele amplia a consulta sem tocar no recorte, porque
+está deliberadamente fora do corpus citável — ver
+[docs/acervo-vademecum.md](docs/acervo-vademecum.md).
 
 ### As três decisões que definem o projeto
 
@@ -230,12 +236,14 @@ Jesbick/
 │   ├── audit.ts                # diff texto_bruto → texto, para revisão
 │   ├── seed.ts                 # → banco, uma transação, idempotente
 │   ├── embed.ts                # → vetores, só o que mudou de hash
-│   └── busca.ts                # a RPC pela linha de comando
+│   ├── busca.ts                # a RPC pela linha de comando
+│   └── vademecum.ts            # espelho de leitura → data/vademecum/
 │
 ├── data/
 │   ├── *.json                  # saída do parser — FONTE IMUTÁVEL
 │   ├── curadoria/*.yaml        # intervenção manual, versionada e revisável
-│   └── normalizado/            # gerado; só auditoria.md é versionado
+│   ├── normalizado/            # gerado; só auditoria.md é versionado
+│   └── vademecum/              # acervo de LEITURA — nunca entra no banco
 │
 ├── supabase/migrations/        # aditivas e numeradas
 │   ├── 0001_schema.sql         # tabelas, funções, triggers de integridade
@@ -276,6 +284,7 @@ Jesbick/
 | [docs/corpus.md](docs/corpus.md) | as 5 classes de artefato de extração, quantificadas; heurística × curadoria; as travas | quer ver a parte difícil do projeto |
 | [docs/busca.md](docs/busca.md) | fusão RRF, as três pernas, `texto_embed`, a armadilha do `IMMUTABLE` | vai mexer na busca |
 | [docs/seguranca.md](docs/seguranca.md) | segredos, RLS, superfície de gasto, integridade do texto legal, direito autoral | vai revisar segurança |
+| [docs/acervo-vademecum.md](docs/acervo-vademecum.md) | as 75 leis de leitura, por que ficam fora do corpus citável e como a separação é trancada | vai mexer no `/vademecum` |
 | [data/normalizado/auditoria.md](data/normalizado/auditoria.md) | o diff `texto_bruto → texto` das 506 alterações, gerado | quer auditar o corpus linha a linha |
 | [CLAUDE.md](CLAUDE.md) | documento de trabalho para desenvolvimento | vai contribuir com código |
 
@@ -342,6 +351,7 @@ npm run dev          # http://localhost:3000
 | `npm run seed` | popula o banco; rodar duas vezes não duplica nem deixa resto |
 | `npm run embed` | vetoriza; `-- --tudo` refaz todos |
 | `npm run busca -- "consulta"` | a RPC pela linha de comando; `--lei`, `--sem-vetor` |
+| `npm run vademecum` | importa o acervo de leitura; `-- --verificar-links` confere os links do Planalto |
 | `npm run typecheck` / `test` | `tsc --noEmit` / vitest |
 
 ---

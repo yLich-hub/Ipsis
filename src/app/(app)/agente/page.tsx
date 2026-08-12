@@ -1,13 +1,14 @@
-import type { Metadata } from 'next'
+// =============================================================================
+// /agente — rota antiga do console, agora em /consulta.
+//
+// O TOGA v2 tem uma tela de conversa só, e ela é `/consulta`. Manter o console
+// anterior vivo em paralelo significaria duas implementações do mesmo chat
+// divergindo a cada correção — o `redirect` é permanente porque a rota nova é
+// definitiva, e link antigo em histórico ou favorito continua chegando lá.
+// =============================================================================
 
-import { Console } from '@/components/agente/console'
+import { permanentRedirect } from 'next/navigation'
 
-export const metadata: Metadata = {
-  title: 'Agente Penal — Jesbick',
-  description:
-    'Consulta à Lei 11.343/2006 e ao Código Penal, com toda citação resolvendo para o texto do banco.',
-}
-
-export default function AgentePage() {
-  return <Console />
+export default function PaginaAgente(): never {
+  permanentRedirect('/consulta')
 }

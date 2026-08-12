@@ -13,26 +13,36 @@
     "embed": "tsx scripts/embed.ts",
     "busca": "tsx scripts/busca.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "vademecum": "tsx scripts/vademecum.ts",
+    "lint": "eslint .",
+    "verificar": "npm run lint && tsc --noEmit && vitest run"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.58.0",
+    "docx": "^9.7.1",
     "next": "^15.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.6",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "@types/sanitize-html": "^2.16.1",
     "dotenv": "^17.2.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.23",
     "openai": "^6.0.0",
     "postgres": "^3.4.7",
+    "sanitize-html": "^2.17.6",
     "tailwindcss": "^4.1.13",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^3.2.4",
     "yaml": "^2.8.1"
   }

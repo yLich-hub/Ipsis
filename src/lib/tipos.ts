@@ -93,6 +93,64 @@ export type LinhaRubricaOficial = {
   dispositivos: string[]
 }
 
+/**
+ * Valor de um fato do caso e de uma condição de gatilho.
+ *
+ * Primitivo de propósito: o checklist compara por igualdade direta
+ * (`fatos[k] === gatilho[k]`). Objeto ou array aqui tornaria a comparação uma
+ * decisão de implementação — igualdade profunda? por referência? — e o gatilho
+ * deixaria de ser objetivo, que é a razão de ele existir.
+ */
+export type ValorDeFato = string | number | boolean | null
+
+/** Uma entrada de `data/curadoria/teses.yaml`. */
+export type TeseCurada = {
+  id: string
+  nome: string
+  resumo: string
+  ordem: number
+  ativo?: boolean
+  /** Chaves objetivas, avaliadas por igualdade direta contra `casos.fatos`. */
+  gatilho: Record<string, ValorDeFato>
+  fundamentos: string[]
+  jurisprudencia?: { tribunal?: string; classe?: string; numero?: string; tese?: string; url?: string }[]
+  template_md: string
+}
+
+/** Uma entrada de `data/curadoria/casos.yaml`. */
+export type CasoCurado = {
+  id: string
+  titulo: string
+  narrativa: string
+  ordem: number
+  imputacao: string[]
+  /** Mesmas chaves de `teses.gatilho` — ver o cabeçalho de casos.yaml. */
+  fatos: Record<string, ValorDeFato>
+}
+
+/** Papel do dispositivo dentro do cluster de uma rubrica curada. */
+export type PapelRubrica = 'principal' | 'correlato' | 'requisito'
+
+/**
+ * Uma entrada de `data/curadoria/rubricas.yaml`. Diferente da oficial em três
+ * pontos que importam: tem `variantes` (o match é por igualdade exata, então é
+ * a variante que faz o trabalho), tem `explicacao` autoral, e aponta para um
+ * cluster ordenado em vez de um dispositivo só.
+ */
+export type RubricaCurada = {
+  termo: string
+  slug: string
+  tipo: 'dispositivo' | 'tema' | 'processual'
+  explicacao?: string
+  variantes?: string[]
+  dispositivos: {
+    id: string
+    papel?: PapelRubrica
+    peso?: number
+    nota?: string
+  }[]
+}
+
 // --- auditoria ---------------------------------------------------------------
 
 export type Alteracao = {
@@ -145,4 +203,64 @@ export type LeiNormalizada = {
   artigos: LinhaArtigo[]
   dispositivos: LinhaDispositivo[]
   rubricas: LinhaRubricaOficial[]
+}
+
+// --- acervo Vade Mecum (leitura, fora do corpus curado) ----------------------
+//
+// Tipos deliberadamente sem parentesco com LinhaDispositivo & cia.: o acervo é
+// um espelho de leitura, não fonte de citação. Ver scripts/vademecum.ts.
+
+/** Entrada do menu lateral: um Livro/Título/Capítulo, com âncora no corpo. */
+export type TopicoSumario = {
+  /** 1 a 4, na hierarquia do próprio documento */
+  nivel: number
+  titulo: string
+  /** id injetado no heading em build; destino do link do sumário */
+  id: string
+}
+
+export type LeiAcervo = {
+  id: string
+  titulo: string
+  apelido: string
+  area: string
+  area_rotulo: string
+  jurisdicao: string
+  num_lei: string | null
+  ementa: string | null
+  /**
+   * Texto oficial no Planalto — a única redação que vale conferir.
+   *
+   * `null` quando o espelho não trouxe link e ninguém curou um à mão. A tela
+   * diz que falta, em vez de apontar para destino derivado por chute: normas
+   * estaduais do acervo não vivem no ccivil_03, e uma URL montada pelo número
+   * abriria a lei federal homônima. Ver scripts/vademecum.ts, linkOficial().
+   */
+  link_oficial: string | null
+  /** id no corpus curado, quando a mesma lei existe lá com citação estável */
+  corpus_id: string | null
+  artigos: number
+  bytes: number
+  relacionadas: { id: string; nome: string }[]
+  sumario: TopicoSumario[]
+}
+
+export type AreaAcervo = {
+  chave: string
+  rotulo: string
+  descricao: string | null
+  total: number
+}
+
+export type IndiceAcervo = {
+  /** procedência do espelho: vai à tela, não fica só no commit */
+  origem: {
+    repo: string
+    url: string
+    sha: string
+    commit_em: string
+    licenca: string
+  }
+  areas: AreaAcervo[]
+  leis: LeiAcervo[]
 }

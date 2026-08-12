@@ -25,4 +25,11 @@ data/normalizado/*
 !data/normalizado/auditoria.md
 !data/normalizado/headings.propostas.yaml
 
+# data/vademecum/ (9,4 MB) NÃO entra na regra acima, apesar de também ser saída
+# de script. A diferença é a entrada: normalize.ts parte de arquivos que estão
+# neste repositório, enquanto vademecum.ts busca um repositório de TERCEIRO na
+# rede. Ignorar a pasta amarraria o build da Vercel a um `fetch` para o GitHub e
+# deixaria o acervo irrecuperável no dia em que a origem sair do ar. O espelho
+# versionado é o artefato de deploy; o SHA fixado no script é a receita.
+
 .DS_Store

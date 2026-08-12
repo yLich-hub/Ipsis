@@ -1,0 +1,186 @@
+# =============================================================================
+# Casos de demonstração — três situações de tráfico, realistas e anonimizadas.
+#
+# Existem para que a demo nunca dependa de upload de arquivo: o fluxo da peça
+# começa escolhendo um destes.
+#
+# `fatos` usa EXATAMENTE as mesmas chaves de `teses.gatilho`. Essa é a razão de
+# o checklist ser avaliação direta — igualdade de valor, chave a chave — e não
+# heurística sobre texto livre. Todos os três casos carregam todas as chaves de
+# gatilho, inclusive as que não os favorecem: chave ausente viraria `undefined`,
+# e um checklist que trata ausência como "não se aplica" esconde a diferença
+# entre "o fato não ocorreu" e "ninguém apurou".
+#
+# `tests/citacao.test.ts` falha se um caso não tiver alguma chave de gatilho, ou
+# se um id de `imputacao` não existir no corpus.
+#
+# Nenhum dos três reproduz processo real: são composições feitas para exercitar
+# combinações diferentes do checklist. Os nomes são fictícios por construção —
+# não há nome de pessoa em lugar nenhum deste arquivo.
+# =============================================================================
+
+- id: caso_flagrante_via_publica
+  ordem: 1
+  titulo: Flagrante em via pública, pequena quantidade, acusado primário
+  imputacao:
+    - lei_11343_2006_art33_caput
+  narrativa: >-
+    Acusado de 20 anos abordado em via pública durante patrulhamento de rotina,
+    com 14 porções de maconha totalizando 21 g, distribuídas em dois bolsos da
+    bermuda. Não havia balança, material de embalagem nem anotação de
+    contabilidade. Não houve flagrante de ato de venda, e nenhuma testemunha
+    além dos dois policiais que efetuaram a abordagem. Em interrogatório, o
+    acusado admitiu a posse e declarou destinação a consumo próprio. Primário,
+    sem antecedentes, residência fixa e vínculo empregatício comprovado.
+  fatos:
+    primario: true
+    bons_antecedentes: true
+    integra_organizacao: false
+    dedica_se_a_atividades_criminosas: false
+    quantidade_pequena: true
+    apreendido_com_apetrechos_de_venda: false
+    flagrante_de_venda: false
+    associacao_imputada: false
+    vinculo_estavel_demonstrado: false
+    transnacional_imputado: false
+    prova_de_destinacao_internacional: false
+    interestadual_imputado: false
+    prova_de_intencao_interestadual: false
+    quantidade_usada_na_pena_base: false
+    quantidade_usada_na_fracao_do_privilegio: false
+    confessou: true
+    menor_de_21_na_data_do_fato: true
+    violencia_ou_grave_ameaca: false
+    apenas_vigilancia: false
+    apreensao_de_droga_com_o_acusado: true
+    dependente_quimico: false
+    busca_domiciliar_sem_mandado: false
+    consentimento_do_morador_comprovado: false
+    prova_apenas_de_policiais: true
+
+- id: caso_rodovia_interestadual
+  ordem: 2
+  titulo: Apreensão em rodovia, majorante interestadual e associação imputadas
+  narrativa: >-
+    Veículo abordado em rodovia federal que liga dois Estados, com 3,2 kg de
+    cocaína em compartimento adaptado no assoalho. No interior do carro havia
+    material de embalagem e uma balança de precisão. Viajavam duas pessoas; a
+    denúncia imputa a ambas o tráfico, a associação e as majorantes da
+    transnacionalidade e da interestadualidade, sem descrever atuação anterior
+    conjunta, divisão de tarefas ou qualquer vínculo que anteceda a viagem. A
+    transnacionalidade se apoia apenas no laudo que aponta procedência
+    estrangeira da substância; não há prova do destino da carga nem elemento
+    que indique rota internacional. A sentença usou a quantidade de droga para
+    elevar a pena-base e, na terceira fase, a mesma quantidade para fixar a
+    fração mínima do § 4º. O acusado é primário e não confessou.
+  imputacao:
+    - lei_11343_2006_art33_caput
+    - lei_11343_2006_art35_caput
+    - lei_11343_2006_art40_inc1
+    - lei_11343_2006_art40_inc5
+  fatos:
+    primario: true
+    bons_antecedentes: true
+    integra_organizacao: false
+    dedica_se_a_atividades_criminosas: false
+    quantidade_pequena: false
+    apreendido_com_apetrechos_de_venda: true
+    flagrante_de_venda: false
+    associacao_imputada: true
+    vinculo_estavel_demonstrado: false
+    transnacional_imputado: true
+    prova_de_destinacao_internacional: false
+    interestadual_imputado: true
+    prova_de_intencao_interestadual: false
+    quantidade_usada_na_pena_base: true
+    quantidade_usada_na_fracao_do_privilegio: true
+    confessou: false
+    menor_de_21_na_data_do_fato: false
+    violencia_ou_grave_ameaca: false
+    apenas_vigilancia: false
+    apreensao_de_droga_com_o_acusado: true
+    dependente_quimico: false
+    busca_domiciliar_sem_mandado: false
+    consentimento_do_morador_comprovado: false
+    prova_apenas_de_policiais: false
+
+- id: caso_vigilancia_sem_apreensao
+  ordem: 3
+  titulo: Acusado que vigiava a entrada da via, sem apreensão em seu poder
+  narrativa: >-
+    Operação policial em comunidade resultou na apreensão de entorpecente em
+    imóvel abandonado. O acusado foi detido a cerca de sessenta metros do local,
+    sentado em um muro, sem droga, dinheiro em espécie ou aparelho de rádio em
+    seu poder. A denúncia atribui-lhe a função de avisar da chegada de viaturas
+    e o inclui no tráfico e na associação, com base no depoimento de dois
+    policiais. Reincidente por crime anterior de furto, com laudo de dependência
+    química juntado aos autos e anterior aos fatos. Confessou que avisava, em
+    troca de droga para consumo próprio.
+  imputacao:
+    - lei_11343_2006_art33_caput
+    - lei_11343_2006_art35_caput
+  fatos:
+    primario: false
+    bons_antecedentes: false
+    integra_organizacao: false
+    dedica_se_a_atividades_criminosas: false
+    quantidade_pequena: false
+    apreendido_com_apetrechos_de_venda: false
+    flagrante_de_venda: false
+    associacao_imputada: true
+    vinculo_estavel_demonstrado: false
+    transnacional_imputado: false
+    prova_de_destinacao_internacional: false
+    interestadual_imputado: false
+    prova_de_intencao_interestadual: false
+    quantidade_usada_na_pena_base: false
+    quantidade_usada_na_fracao_do_privilegio: false
+    confessou: true
+    menor_de_21_na_data_do_fato: false
+    violencia_ou_grave_ameaca: false
+    apenas_vigilancia: true
+    apreensao_de_droga_com_o_acusado: false
+    dependente_quimico: true
+    busca_domiciliar_sem_mandado: false
+    consentimento_do_morador_comprovado: false
+    prova_apenas_de_policiais: true
+
+- id: caso_entrada_em_residencia
+  ordem: 4
+  titulo: Entrada em residência sem mandado, a partir de denúncia anônima
+  narrativa: >-
+    Guarnição recebeu denúncia anônima de que havia droga em uma residência e
+    dirigiu-se ao local no início da tarde. Sem mandado judicial, os policiais
+    ingressaram no imóvel e apreenderam 180 g de cocaína em um armário do
+    quarto. Não houve campana prévia, monitoramento nem qualquer diligência
+    anterior à entrada; as razões da suspeita foram registradas no boletim
+    depois da apreensão. O termo de consentimento foi assinado após a entrada e
+    não há registro audiovisual. O acusado é primário, tem residência fixa e
+    admitiu a posse da droga.
+  imputacao:
+    - lei_11343_2006_art33_caput
+  fatos:
+    primario: true
+    bons_antecedentes: true
+    integra_organizacao: false
+    dedica_se_a_atividades_criminosas: false
+    quantidade_pequena: false
+    apreendido_com_apetrechos_de_venda: false
+    flagrante_de_venda: false
+    associacao_imputada: false
+    vinculo_estavel_demonstrado: false
+    transnacional_imputado: false
+    prova_de_destinacao_internacional: false
+    interestadual_imputado: false
+    prova_de_intencao_interestadual: false
+    quantidade_usada_na_pena_base: false
+    quantidade_usada_na_fracao_do_privilegio: false
+    confessou: true
+    menor_de_21_na_data_do_fato: false
+    violencia_ou_grave_ameaca: false
+    apenas_vigilancia: false
+    apreensao_de_droga_com_o_acusado: true
+    dependente_quimico: false
+    busca_domiciliar_sem_mandado: true
+    consentimento_do_morador_comprovado: false
+    prova_apenas_de_policiais: true

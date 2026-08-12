@@ -1,8 +1,8 @@
 // =============================================================================
-// Casca do app — sidebar + trilho + área de conteúdo.
+// Casca do app — lateral de 246px + topo de 60px + área de conteúdo.
 //
-// `h-dvh` + `overflow-hidden`: a casca não rola. Quem rola é o conteúdo, dentro
-// da <main> — do contrário a caixa de entrada do agente sai da tela numa
+// `h-dvh` + `overflow-hidden` (dentro de `<Casca>`): a casca não rola. Quem rola
+// é o conteúdo — do contrário a caixa de entrada do chat sai da tela numa
 // consulta longa, e o cabeçalho some ao percorrer um artigo do CP.
 //
 // Tudo abaixo deste layout exige sessão. O porteiro é o middleware; a
@@ -15,7 +15,7 @@
 import { redirect } from 'next/navigation'
 
 import { ProvedorSessao } from '@/components/casca/sessao'
-import { SidebarPrincipal, Trilho } from '@/components/casca/navegacao'
+import { Casca } from '@/components/toga/casca'
 import { ROTA_LOGIN } from '@/lib/auth/rotas'
 import { usuarioAtual } from '@/lib/auth/servidor'
 
@@ -25,11 +25,7 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
 
   return (
     <ProvedorSessao usuarioInicial={usuario}>
-      <div className="flex h-dvh overflow-hidden bg-[#0B1220] text-slate-100">
-        <SidebarPrincipal />
-        <Trilho />
-        <main className="flex min-w-0 flex-1 flex-col">{children}</main>
-      </div>
+      <Casca>{children}</Casca>
     </ProvedorSessao>
   )
 }
