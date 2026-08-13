@@ -34,10 +34,10 @@ export default function Erro({ error, reset }: { error: Error; reset: () => void
           Tentar de novo
         </button>
         <Link
-          href="/painel"
+          href="/consulta"
           className="rounded-xl border border-tg-linha px-4 py-2.5 text-[13px] text-tg-tinta-4 transition-colors hover:bg-tg-preenche"
         >
-          Ver o painel
+          Ir para a consulta
         </Link>
       </div>
     </main>

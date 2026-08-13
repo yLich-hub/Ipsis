@@ -126,10 +126,10 @@ export default async function LeiPage({
             <div className="mt-8">
               <Vazio icone="filtro" titulo="Nenhum artigo com esse filtro">
                 O filtro casa número, rubrica e heading. Para o texto do dispositivo, use a{' '}
-                <Link href={`/busca?lei=${leiId}`} className="text-tg-acento-txt hover:underline">
-                  busca híbrida
+                <Link href="/consulta" className="text-tg-acento-txt hover:underline">
+                  consulta em chat
                 </Link>
-                .
+                , que faz a busca híbrida sobre o texto.
               </Vazio>
             </div>
           ) : (

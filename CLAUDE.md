@@ -513,15 +513,23 @@ Cor nova que possa ser classe **tem** que ser classe.
 | `/dosimetria` | cálculo trifásico ao vivo | aritmética local, sem banco |
 | `/vademecum` | grade de ramos + leitor | índice do acervo, em disco |
 
-A lateral tem quatro itens. O documento desenha seis, e duas saíram a pedido:
-`/sumulas` e `/fontes`. Eram independentes — nada fora delas importava seus
-módulos —, e o único acoplamento era o cartão "Base conferida" da lateral, que
-linkava para `/fontes`. O cartão ficou e o link saiu: o que importava nele nunca
-foi o destino, era a data de corte. As telas do produto que
-não cabem nessas seis (`/painel`, `/busca`, `/leis`, `/pecas`, `/suporte`,
-`/configuracoes`) vivem atrás do `⌄` ao lado da marca — afordância que o próprio
-documento desenha e deixa sem função. `/agente` virou `permanentRedirect` para
-`/consulta`: duas implementações do mesmo chat divergem a cada correção.
+A lateral tem quatro itens: Consulta, Jurisprudência, Dosimetria e Vade Mecum.
+O documento desenha seis, e as demais saíram a pedido, para o sistema ficar só
+com o que se usa.
+
+Atrás do `⌄` sobraram duas, e sobraram por serem **destino, não ponto de
+partida**: `/leis` (o corpus navegável) e `/pecas` (onde a minuta é baixada).
+Com elas ficam `/artigo/[id]` e `/dispositivo/[id]`, que não são navegação —
+são o alvo dos links de citação, e removê-los quebraria a decisão nº 1.
+
+Removidas: `/sumulas`, `/fontes`, `/painel`, `/busca`, `/suporte`,
+`/configuracoes`, `/fila`, `/processos` e `/relatorios`. As quatro primeiras
+duplicavam o que a Consulta já faz ou eram diagnóstico de desenvolvimento; as
+três últimas eram avisos de "fora de escopo" que nem estavam no menu.
+
+Os links que apontavam para elas foram redirecionados, não apagados: a página
+de erro e a de 404 agora levam à Consulta, e a rubrica clicável do artigo abre
+`/consulta?p=<termo>` — a mesma busca híbrida que `/busca` fazia.
 
 ### Onde o desenho foi recusado, e por quê
 

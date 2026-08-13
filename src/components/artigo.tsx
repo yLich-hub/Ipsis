@@ -143,7 +143,9 @@ export async function PaginaArtigo({
             {rubricasDoArtigo.map((r) => (
               <li key={r.termo}>
                 <Link
-                  href={`/busca?q=${encodeURIComponent(r.termo)}`}
+                  // Vai para o chat com a rubrica já consultada. É a mesma busca
+                  // híbrida da página `/busca`, que saiu por ser a duplicata dela.
+                  href={`/consulta?p=${encodeURIComponent(r.termo)}`}
                   className="flex items-center gap-1.5 rounded-lg border border-tg-linha bg-tg-fundo px-2.5 py-1.5 text-[12.5px] text-tg-tinta-4 transition-colors hover:border-tg-acento-palido hover:text-tg-acento-txt"
                   title={
                     r.origem === 'oficial'

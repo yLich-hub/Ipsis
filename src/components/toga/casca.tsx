@@ -27,7 +27,7 @@ import { GRADIENTE_CONTA, GRADIENTE_MARCA, MATIZ } from '@/lib/toga/tokens'
 // --- mapa de telas -----------------------------------------------------------
 
 /**
- * As seis telas do documento, na ordem dele. `matiz` é só a cor do quadradinho
+ * As quatro telas do produto, na ordem do documento. `matiz` é só a cor do quadradinho
  * de 18px que faz as vezes de ícone — ver `lib/toga/tokens.ts`.
  */
 const TELAS = [
@@ -49,29 +49,22 @@ const CABECALHOS: Record<string, [string, string]> = {
   '/jurisprudencia': ['Jurisprudência', 'entendimento consolidado por tema'],
   '/dosimetria': ['Dosimetria', 'cálculo trifásico ao vivo'],
   '/vademecum': ['Vade Mecum', 'acervo de leitura, por ramo'],
-  '/busca': ['Busca na legislação', 'rubrica, léxico e vetor na mesma consulta'],
   '/leis': ['Legislação', 'corpus curado e citável'],
   '/pecas': ['Peças', 'resposta à acusação'],
-  '/painel': ['Painel', 'estado do corpus'],
-  '/suporte': ['Como funciona', 'as decisões por trás do produto'],
-  '/configuracoes': ['Diagnóstico', 'ambiente e conexões'],
 }
 
 /**
- * Telas reais do produto que não cabem nas seis do desenho.
+ * As duas telas de apoio, atrás do `⌄` ao lado da marca.
  *
- * O documento de design prevê seis itens na lateral e é assim que fica — enfiar
- * um sétimo desalinharia o bloco de "Recentes" e apertaria o cartão de base.
- * Estas vivem atrás do `⌄` ao lado da marca, que é uma afordância que o próprio
- * documento desenha e deixa sem função.
+ * Legislação e Peças ficam fora da lateral por serem destino, não ponto de
+ * partida: chega-se a elas por uma citação ou pelo fim de um fluxo. As demais
+ * que viviam aqui — Painel, Busca, Como funciona e Diagnóstico — foram
+ * removidas por duplicarem o que a Consulta já faz ou por serem diagnóstico de
+ * desenvolvimento.
  */
 const OUTRAS = [
-  { href: '/painel', rotulo: 'Painel', nota: 'cobertura e contagens do corpus' },
-  { href: '/busca', rotulo: 'Busca na legislação', nota: 'as três pernas da busca híbrida' },
   { href: '/leis', rotulo: 'Legislação curada', nota: 'Lei 11.343, CP e recorte do CPP' },
   { href: '/pecas', rotulo: 'Peças', nota: 'resposta à acusação, art. 396-A' },
-  { href: '/suporte', rotulo: 'Como funciona', nota: 'o porquê de cada decisão' },
-  { href: '/configuracoes', rotulo: 'Diagnóstico', nota: 'ambiente, chaves e banco' },
 ]
 
 /** Perguntas de partida da lateral. Levam ao chat já com a consulta feita. */

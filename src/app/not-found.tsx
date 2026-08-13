@@ -18,8 +18,8 @@ export default function NaoEncontrado() {
           legislação
         </Link>{' '}
         ou pela{' '}
-        <Link href="/busca" className="text-tg-acento-txt hover:underline">
-          busca
+        <Link href="/consulta" className="text-tg-acento-txt hover:underline">
+          consulta em chat
         </Link>
         .
       </p>
