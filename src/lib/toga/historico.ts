@@ -42,6 +42,9 @@ export type Conversa = {
 /** Uma conversa aberta, com o conteúdo. */
 export type ConversaCompleta = Conversa & { conteudo: Troca[] }
 
+/** Uma faixa de tempo na lateral: "Hoje", "Últimos 7 dias", "março de 2026". */
+export type Grupo = { rotulo: string; itens: Conversa[] }
+
 /** Disparado depois de toda escrita, para a lateral se atualizar sem recarregar. */
 export const EVENTO_HISTORICO = 'toga:historico'
 
@@ -179,6 +182,114 @@ export async function registra(
   } catch {
     return null
   }
+}
+
+/**
+ * Busca no histórico por título **e por pergunta de dentro da conversa**.
+ *
+ * Procurar só no título seria quase inútil: o título é a PRIMEIRA pergunta, e o
+ * que se costuma procurar é uma pergunta de seguimento — "onde foi que eu
+ * perguntei sobre busca domiciliar?" raramente é o começo do chat.
+ *
+ * São duas consultas em vez de uma porque o PostgREST não faz `or` que atravesse
+ * a tabela embutida. Duas idas paralelas custam menos que uma view nova.
+ */
+export async function procura(termo: string): Promise<Conversa[]> {
+  const t = termo.trim()
+  if (!t) return lista()
+
+  const sb = supabaseNavegador()
+
+  // `%` e `_` são curingas do `ilike`, e **escapá-los com barra invertida não
+  // funciona por aqui**: conferido contra o banco, `%100\%%` casa exatamente o
+  // mesmo que `%100%%`, e `%\_%` devolve tudo — a barra não sobrevive ao
+  // PostgREST. Então eles são removidos do termo, não escapados.
+  //
+  // O efeito é o certo: procurar "100%" procura "100" e acha "Redução de 100% da
+  // pena". Um caractere a menos de precisão é muito melhor que uma busca que
+  // silenciosamente devolve o histórico inteiro.
+  const padrao = `%${t.replace(/[%_\\]/g, '')}%`
+  if (padrao === '%%') return lista()
+
+  const [porTitulo, porPergunta] = await Promise.all([
+    sb
+      .from('conversas')
+      .select('id,titulo,criada_em,atualizada_em,conversa_trocas(count)')
+      .ilike('titulo', padrao)
+      .order('atualizada_em', { ascending: false }),
+    sb.from('conversa_trocas').select('conversa_id').ilike('pergunta', padrao).limit(500),
+  ])
+
+  const achadas = new Map<string, Conversa>()
+  for (const c of porTitulo.data ?? []) {
+    achadas.set(c.id as string, {
+      id: c.id as string,
+      titulo: c.titulo as string,
+      criadaEm: c.criada_em as string,
+      atualizadaEm: c.atualizada_em as string,
+      trocas: (c.conversa_trocas as { count: number }[] | null)?.[0]?.count ?? 0,
+    })
+  }
+
+  const idsPorPergunta = [
+    ...new Set((porPergunta.data ?? []).map((r) => r.conversa_id as string)),
+  ].filter((id) => !achadas.has(id))
+
+  if (idsPorPergunta.length) {
+    const { data } = await sb
+      .from('conversas')
+      .select('id,titulo,criada_em,atualizada_em,conversa_trocas(count)')
+      .in('id', idsPorPergunta)
+    for (const c of data ?? []) {
+      achadas.set(c.id as string, {
+        id: c.id as string,
+        titulo: c.titulo as string,
+        criadaEm: c.criada_em as string,
+        atualizadaEm: c.atualizada_em as string,
+        trocas: (c.conversa_trocas as { count: number }[] | null)?.[0]?.count ?? 0,
+      })
+    }
+  }
+
+  return [...achadas.values()].sort(
+    (a, b) => Date.parse(b.atualizadaEm) - Date.parse(a.atualizadaEm),
+  )
+}
+
+/**
+ * Agrupa por faixa de tempo, como o histórico de qualquer chat.
+ *
+ * Sem isto, 200 conversas viram uma lista plana de 200 linhas iguais. As faixas
+ * existem para o olho encontrar "aquela de terça" sem ler tudo.
+ *
+ * A lista tem de vir ordenada da mais recente para a mais antiga — os grupos
+ * saem na ordem em que aparecem, e não são reordenados depois.
+ */
+export function agrupa(conversas: Conversa[], agora = new Date()): Grupo[] {
+  const inicioDoDia = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  const hoje = inicioDoDia(agora)
+  const DIA = 86_400_000
+
+  const rotuloDe = (iso: string): string => {
+    const d = new Date(iso)
+    const dia = inicioDoDia(d)
+    if (dia >= hoje) return 'Hoje'
+    if (dia >= hoje - DIA) return 'Ontem'
+    if (dia > hoje - 7 * DIA) return 'Últimos 7 dias'
+    if (dia > hoje - 30 * DIA) return 'Últimos 30 dias'
+    // Mais antigo que um mês vira mês por extenso. Com o ano junto, porque
+    // "março" sem ano é ambíguo assim que o produto passa de um aniversário.
+    return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  }
+
+  const grupos: Grupo[] = []
+  for (const c of conversas) {
+    const rotulo = rotuloDe(c.atualizadaEm)
+    const ultimo = grupos[grupos.length - 1]
+    if (ultimo && ultimo.rotulo === rotulo) ultimo.itens.push(c)
+    else grupos.push({ rotulo, itens: [c] })
+  }
+  return grupos
 }
 
 /** Apaga a conversa. As trocas vão junto, por `on delete cascade`. */

@@ -25,7 +25,9 @@ import { supabaseNavegador } from '@/lib/auth/navegador'
 import {
   EVENTO_HISTORICO,
   type Conversa,
+  agrupa as agrupaConversas,
   lista as listaConversas,
+  procura as procuraConversas,
   remove as removeConversa,
 } from '@/lib/toga/historico'
 import { GRADIENTE_CONTA, GRADIENTE_MARCA, MATIZ } from '@/lib/toga/tokens'
@@ -117,29 +119,33 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
   const params = useSearchParams()
   const [menu, setMenu] = useState(false)
   const [conversas, setConversas] = useState<Conversa[]>([])
+  const [busca, setBusca] = useState('')
   const router = useRouter()
 
   /** Qual conversa está aberta agora, para marcá-la na lista. */
   const conversaAtiva = caminho === '/consulta' ? params.get('c') : null
 
-  // O histórico só é lido depois de montar: `localStorage` não existe no
-  // servidor, e usá-lo no primeiro render faria o HTML divergir.
+  // O histórico só é lido depois de montar: a consulta precisa da sessão, que
+  // no servidor não existe, e listar no primeiro render faria o HTML divergir.
   //
-  // Duas fontes de atualização, e as duas são necessárias: `EVENTO_HISTORICO`
-  // para gravações desta aba, e `storage` para as de outra — quem conversa em
-  // duas abas espera ver o mesmo histórico nas duas.
+  // A busca é debounced: cada tecla dispararia duas consultas ao banco, e o
+  // resultado da penúltima chegaria depois da última em rede lenta.
   useEffect(() => {
-    // Assíncrono agora: a lista vem do banco. Falha vira lista vazia dentro do
-    // próprio módulo, então não há caso de erro a tratar aqui.
-    const reler = () => { void listaConversas().then(setConversas) }
-    reler()
-    window.addEventListener(EVENTO_HISTORICO, reler)
-    window.addEventListener('storage', reler)
-    return () => {
-      window.removeEventListener(EVENTO_HISTORICO, reler)
-      window.removeEventListener('storage', reler)
+    // Assíncrono: a lista vem do banco. Falha vira lista vazia dentro do próprio
+    // módulo, então não há caso de erro a tratar aqui.
+    const reler = () => {
+      void (busca.trim() ? procuraConversas(busca) : listaConversas()).then(setConversas)
     }
-  }, [])
+
+    const t = setTimeout(reler, busca.trim() ? 220 : 0)
+    window.addEventListener(EVENTO_HISTORICO, reler)
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener(EVENTO_HISTORICO, reler)
+    }
+  }, [busca])
+
+  const grupos = useMemo(() => agrupaConversas(conversas), [conversas])
 
   const apagar = useCallback(
     (id: string) => {
@@ -277,14 +283,45 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
           })}
         </nav>
 
-        {/* recentes */}
+        {/* histórico */}
         <div className="mt-[22px] flex min-h-0 flex-1 flex-col">
-          <p className="px-3 pb-2 pt-1.5 text-[11px] font-medium text-tg-fraco-3">Recentes</p>
+          {/* O campo só aparece quando há o que procurar. Uma caixa de busca
+              sobre uma lista vazia é convite para o usuário achar que existe
+              histórico escondido. */}
+          {(conversas.length > 0 || busca) && (
+            <div className="mb-1.5 flex items-center gap-1.5 rounded-[10px] bg-tg-caixa px-2.5 py-1.5 focus-within:bg-white">
+              <span aria-hidden="true" className="text-[11px] text-tg-fraco-3">
+                ⌕
+              </span>
+              <input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Buscar nas conversas…"
+                aria-label="Buscar no histórico"
+                className="min-w-0 flex-1 bg-transparent text-[12px] text-tg-tinta outline-none placeholder:text-tg-fraco-3"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  onClick={() => setBusca('')}
+                  aria-label="Limpar busca"
+                  className="shrink-0 rounded px-1 text-[12px] leading-none text-tg-tenue-2 hover:text-tg-tinta-4"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-col gap-px overflow-auto">
-            {conversas.length === 0
-              ? // Sem histórico ainda, a lista vira ponto de partida: as mesmas
-                // perguntas de sempre, que somem assim que houver conversa real.
-                SUGESTOES.map((r) => (
+            {conversas.length === 0 && !busca ? (
+              <>
+                <p className="px-3 pb-2 pt-1.5 text-[11px] font-medium text-tg-fraco-3">
+                  Para começar
+                </p>
+                {/* Sem histórico ainda, a lista vira ponto de partida. Some assim
+                    que houver conversa real. */}
+                {SUGESTOES.map((r) => (
                   <Link
                     key={r}
                     href={perguntar(r)}
@@ -294,35 +331,49 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
                     <span aria-hidden="true" className="size-[5px] shrink-0 rounded-full bg-[#c6c9d2]" />
                     <span className="truncate">{r}</span>
                   </Link>
-                ))
-              : conversas.map((c) => (
-                  <div key={c.id} className="group relative flex items-center">
-                    <Link
-                      href={`/consulta?c=${encodeURIComponent(c.id)}`}
-                      onClick={aoFechar}
-                      title={`${c.titulo} · ${c.trocas} ${c.trocas === 1 ? 'pergunta' : 'perguntas'}`}
-                      className={`tgb flex min-w-0 flex-1 items-center gap-2 overflow-hidden whitespace-nowrap rounded-[10px] px-3 py-[7px] text-[12.5px] hover:bg-tg-hover hover:text-tg-tinta ${
-                        conversaAtiva === c.id ? 'bg-tg-hover text-tg-tinta' : 'text-tg-suave'
-                      }`}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="size-[5px] shrink-0 rounded-full bg-[#c6c9d2]"
-                      />
-                      <span className="truncate">{c.titulo}</span>
-                    </Link>
-                    {/* Aparece no hover e no foco de teclado — só no hover, quem
-                        navega por Tab nunca alcançaria o botão. */}
-                    <button
-                      type="button"
-                      onClick={() => apagar(c.id)}
-                      aria-label={`Apagar conversa "${c.titulo}"`}
-                      className="absolute right-1 rounded-md px-1.5 py-1 text-[13px] leading-none text-tg-tenue-2 opacity-0 transition-opacity hover:bg-tg-caixa hover:text-tg-tinta-4 focus-visible:opacity-100 group-hover:opacity-100"
-                    >
-                      ×
-                    </button>
-                  </div>
                 ))}
+              </>
+            ) : conversas.length === 0 ? (
+              <p className="px-3 py-2 text-[12px] leading-relaxed text-tg-fraco-3">
+                Nenhuma conversa com “{busca}”. A busca procura no título e nas perguntas.
+              </p>
+            ) : (
+              grupos.map((g) => (
+                <div key={g.rotulo}>
+                  <p className="px-3 pb-1 pt-2.5 text-[11px] font-medium text-tg-fraco-3">
+                    {g.rotulo}
+                  </p>
+                  {g.itens.map((c) => (
+                    <div key={c.id} className="group relative flex items-center">
+                      <Link
+                        href={`/consulta?c=${encodeURIComponent(c.id)}`}
+                        onClick={aoFechar}
+                        title={`${c.titulo} · ${c.trocas} ${c.trocas === 1 ? 'pergunta' : 'perguntas'}`}
+                        className={`tgb flex min-w-0 flex-1 items-center gap-2 overflow-hidden whitespace-nowrap rounded-[10px] py-[7px] pl-3 pr-7 text-[12.5px] hover:bg-tg-hover hover:text-tg-tinta ${
+                          conversaAtiva === c.id ? 'bg-tg-hover text-tg-tinta' : 'text-tg-suave'
+                        }`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="size-[5px] shrink-0 rounded-full bg-[#c6c9d2]"
+                        />
+                        <span className="truncate">{c.titulo}</span>
+                      </Link>
+                      {/* Aparece no hover e no foco de teclado — só no hover, quem
+                          navega por Tab nunca alcançaria o botão. */}
+                      <button
+                        type="button"
+                        onClick={() => apagar(c.id)}
+                        aria-label={`Apagar conversa "${c.titulo}"`}
+                        className="absolute right-1 rounded-md px-1.5 py-1 text-[13px] leading-none text-tg-tenue-2 opacity-0 transition-opacity hover:bg-tg-caixa hover:text-tg-tinta-4 focus-visible:opacity-100 group-hover:opacity-100"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))
+            )}
           </div>
         </div>
 
