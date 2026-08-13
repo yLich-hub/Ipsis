@@ -26,6 +26,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Girador, Selo, Visto } from '@/components/toga/base'
 import { EVENTO_NOVA } from '@/components/toga/casca'
 import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
+import type { EventoAoVivo } from '@/lib/consulta/contrato'
 import { calcula, leDaConversa, meses } from '@/lib/toga/dosimetria'
 import { busca, registra } from '@/lib/toga/historico'
 import { comporResposta, type Fonte, type RespostaComposta } from '@/lib/toga/resposta'
@@ -82,6 +83,22 @@ const ATALHOS = [
 
 type MsgUsuario = { papel: 'usuario'; texto: string }
 
+/**
+ * Estado do caminho "gerar ao vivo", quando o usuário o aciona.
+ *
+ * `previa` é o texto que chega token a token enquanto o JSON do modelo ainda
+ * está aberto. Ela é **descartada** quando o objeto fecha e passa na validação:
+ * o que fica é o `comp` reconstruído a partir do JSON validado. Prévia é
+ * animação; resposta é o que sobreviveu à validação.
+ */
+type AoVivo = {
+  estado: 'gerando' | 'pronto' | 'falhou'
+  previa: string
+  erro: string | null
+  /** Qual modelo redigiu. Vem do servidor: a tela não pode adivinhar. */
+  modelo: string | null
+}
+
 type MsgAssistente = {
   papel: 'assistente'
   /** A pergunta que a originou. O cartão de dosimetria lê os fatos dela. */
@@ -93,6 +110,7 @@ type MsgAssistente = {
   digitado: number
   total: number
   pronto: boolean
+  aoVivo: AoVivo | null
 }
 
 type Msg = MsgUsuario | MsgAssistente
@@ -107,6 +125,7 @@ const vazia = (pergunta: string): MsgAssistente => ({
   digitado: 0,
   total: 0,
   pronto: false,
+  aoVivo: null,
 })
 
 // --- tela --------------------------------------------------------------------
@@ -168,6 +187,20 @@ export function Consulta({
     }
   }, [pararRelogios])
 
+  /** Aplica uma mudança a uma mensagem qualquer, pelo índice. */
+  const mutarEm = useCallback(
+    (i: number, fn: (m: MsgAssistente) => Partial<MsgAssistente>) => {
+      setMsgs((ms) => {
+        const m = ms[i]
+        if (!m || m.papel !== 'assistente') return ms
+        const copia = ms.slice()
+        copia[i] = { ...m, ...fn(m) }
+        return copia
+      })
+    },
+    [],
+  )
+
   /** Aplica uma mudança à última mensagem, que é sempre a do assistente em curso. */
   const mutar = useCallback((fn: (m: MsgAssistente) => Partial<MsgAssistente>) => {
     setMsgs((ms) => {
@@ -179,6 +212,104 @@ export function Consulta({
       return copia
     })
   }, [])
+
+  /**
+   * "Gerar ao vivo" — o único caminho do produto que chama um modelo em runtime.
+   *
+   * A resposta composta continua na tela até o JSON do modelo fechar e passar na
+   * validação do servidor. Se qualquer coisa falhar — teto do mês, rede,
+   * validação recusada duas vezes —, o que estava lá continua lá e a tela diz
+   * por quê. **O demo nunca depende deste caminho funcionar**, e é isso que essa
+   * ordem garante.
+   */
+  const gerarAoVivo = useCallback(
+    async (i: number) => {
+      const alvo = msgsRef.current[i]
+      if (!alvo || alvo.papel !== 'assistente' || alvo.aoVivo?.estado === 'gerando') return
+
+      mutarEm(i, () => ({ aoVivo: { estado: 'gerando', previa: '', erro: null, modelo: null } }))
+
+      const falhar = (motivo: string) =>
+        mutarEm(i, (m) => ({
+          aoVivo: { estado: 'falhou', previa: '', erro: motivo, modelo: null },
+          // A resposta composta permanece intacta — não se apaga o que funciona
+          // porque o opcional falhou.
+          comp: m.comp,
+        }))
+
+      try {
+        const r = await fetch('/api/consulta/aovivo', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ q: alvo.pergunta }),
+        })
+
+        if (!r.ok || !r.body) {
+          const j = (await r.json().catch(() => null)) as { erro?: string } | null
+          return falhar(j?.erro ?? `o servidor respondeu ${r.status}`)
+        }
+
+        const leitor = r.body.getReader()
+        const dec = new TextDecoder()
+        let resto = ''
+
+        for (;;) {
+          const { value, done } = await leitor.read()
+          if (done) break
+          resto += dec.decode(value, { stream: true })
+
+          // SSE separa eventos por linha em branco; o último pedaço pode estar
+          // partido, e volta para o buffer.
+          const partes = resto.split('\n\n')
+          resto = partes.pop() ?? ''
+
+          for (const parte of partes) {
+            const linha = parte.split('\n').find((l) => l.startsWith('data: '))
+            if (!linha) continue
+
+            let e: EventoAoVivo
+            try {
+              e = JSON.parse(linha.slice(6)) as EventoAoVivo
+            } catch {
+              continue
+            }
+            if (!vivo.current) return
+
+            if (e.tipo === 'passo') {
+              mutarEm(i, (m) => ({
+                passos: [...m.passos, { t: e.t, meta: e.meta }],
+                passo: m.passos.length + 1,
+              }))
+            } else if (e.tipo === 'texto') {
+              mutarEm(i, (m) => ({
+                aoVivo: m.aoVivo
+                  ? { ...m.aoVivo, previa: m.aoVivo.previa + e.delta }
+                  : { estado: 'gerando', previa: e.delta, erro: null, modelo: null },
+              }))
+            } else if (e.tipo === 'fim') {
+              // O objeto validado substitui a prévia. Nada do que foi revelado
+              // token a token sobrevive a este ponto — ele era animação.
+              const total = e.comp.paras.reduce((a, p) => a + p.t.length, 0)
+              mutarEm(i, () => ({
+                comp: e.comp,
+                passos: e.comp.passos,
+                passo: e.comp.passos.length,
+                digitado: total,
+                total,
+                pronto: true,
+                aoVivo: { estado: 'pronto', previa: '', erro: null, modelo: e.modelo },
+              }))
+            } else if (e.tipo === 'erro') {
+              return falhar(e.motivo)
+            }
+          }
+        }
+      } catch (err) {
+        falhar(err instanceof Error ? err.message : 'falha de rede')
+      }
+    },
+    [mutarEm],
+  )
 
   const digitar = useCallback(() => {
     if (!vivo.current) return
@@ -216,42 +347,154 @@ export function Consulta({
         mutar((x) => ({ passo: x.passo + 1 }))
       }, MS_POR_PASSO)
 
-      let bruta: RespostaBusca
+      // --- caminho padrão: geração com o contexto recuperado -----------------
+      //
+      // Uma requisição só. A rota devolve, no mesmo fluxo, os passos reais, a
+      // busca crua (para o painel de fonte e o histórico) e a resposta redigida
+      // a partir dos dispositivos recuperados. Antes daqui a prosa era composta
+      // de fatos sobre a busca — verdadeira, mas igual para toda pergunta.
+      let bruta: RespostaBusca | null = null
+      let gerada: RespostaComposta | null = null
+      let modelo: string | null = null
+      let motivo: string | null = null
+
       try {
-        const res = await fetch('/api/busca', {
+        const res = await fetch('/api/consulta/aovivo', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ q, lei: escopo, qtd }),
+          body: JSON.stringify({ q, lei: escopo }),
         })
-        bruta = (await res.json()) as RespostaBusca
+
+        if (!res.ok || !res.body) {
+          const j = (await res.json().catch(() => null)) as { erro?: string } | null
+          motivo = j?.erro ?? `o servidor respondeu ${res.status}`
+        } else {
+          const leitor = res.body.getReader()
+          const dec = new TextDecoder()
+          let resto = ''
+
+          for (;;) {
+            const { value, done } = await leitor.read()
+            if (done) break
+            resto += dec.decode(value, { stream: true })
+
+            // SSE separa eventos por linha em branco; o último pedaço pode
+            // estar partido, e volta para o buffer.
+            const partes = resto.split('\n\n')
+            resto = partes.pop() ?? ''
+
+            for (const parte of partes) {
+              const linha = parte.split('\n').find((l) => l.startsWith('data: '))
+              if (!linha) continue
+
+              let e: EventoAoVivo
+              try {
+                e = JSON.parse(linha.slice(6)) as EventoAoVivo
+              } catch {
+                continue
+              }
+              if (!vivo.current) return
+
+              if (e.tipo === 'passo') {
+                mutar((m) => ({
+                  passos: [...m.passos, { t: e.t, meta: e.meta }],
+                }))
+              } else if (e.tipo === 'busca') {
+                bruta = e.bruta
+                mutar(() => ({ achados: e.bruta.itens }))
+                // Os passos provisórios saem de cena assim que os reais chegam.
+                if (passoT.current) clearInterval(passoT.current)
+                passoT.current = null
+                mutar((m) => ({ passo: m.passos.length }))
+              } else if (e.tipo === 'texto') {
+                mutar((m) => ({
+                  aoVivo: {
+                    estado: 'gerando',
+                    previa: (m.aoVivo?.previa ?? '') + e.delta,
+                    erro: null,
+                    modelo: null,
+                  },
+                }))
+              } else if (e.tipo === 'fim') {
+                gerada = e.comp
+                modelo = e.modelo
+              } else if (e.tipo === 'erro') {
+                motivo = e.motivo
+              }
+            }
+          }
+        }
       } catch (e) {
-        bruta = {
-          consulta: q,
-          lei: escopo,
-          intencao: { molde: 'aberta', sinal: 'rede' },
-          itens: [],
-          direta: false,
-          vetor: false,
-          aviso: null,
-          erro: e instanceof Error ? e.message : 'falha de rede',
-          ms: 0,
+        motivo = e instanceof Error ? e.message : 'falha de rede'
+      }
+
+      // --- rede de segurança: a resposta composta ----------------------------
+      //
+      // Chega aqui quem não gerou: sem chave, teto do mês estourado, rede fora,
+      // modelo recusando, validação recusando duas vezes. A composta não
+      // depende de modelo nenhum e não pode falhar — é por isso que ela não foi
+      // removida quando a geração virou o padrão.
+      if (!gerada && !bruta) {
+        try {
+          const res = await fetch('/api/busca', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ q, lei: escopo, qtd }),
+          })
+          bruta = (await res.json()) as RespostaBusca
+        } catch (e) {
+          bruta = {
+            consulta: q,
+            lei: escopo,
+            intencao: { molde: 'aberta', sinal: 'rede' },
+            itens: [],
+            direta: false,
+            vetor: false,
+            aviso: null,
+            erro: e instanceof Error ? e.message : 'falha de rede',
+            ms: 0,
+          }
         }
       }
 
-      const comp = comporResposta(bruta)
+      const crua = bruta!
+      const comp = gerada ?? comporResposta(crua)
       const total = comp.paras.reduce((a, p) => a + p.t.length, 0)
-
-      mutar(() => ({ comp, achados: bruta.itens, passos: comp.passos, total }))
 
       // Guarda a troca assim que a resposta chega, e não quando a digitação
       // termina: quem fecha a aba no meio da animação não deve perder a
-      // pergunta. Grava a resposta CRUA — a prosa é recomposta na leitura.
-      // Histórico é conforto, não função: `registra` devolve null em qualquer
-      // falha e a conversa em curso segue normalmente. O id volta porque, na
-      // primeira troca, quem o cria é o banco.
-      void registra(conversaRef.current, { pergunta: q, bruta }).then((id) => {
+      // pergunta. Guarda a busca crua E a prosa gerada — a composta é derivada e
+      // se reconstrói igual, mas a gerada não: reabrir a conversa e encontrar
+      // outro texto seria pior que não ter histórico.
+      void registra(conversaRef.current, { pergunta: q, bruta: crua, gerada }).then((id) => {
         if (id) conversaRef.current = id
       })
+
+      if (gerada) {
+        // O texto já foi revelado enquanto chegava. A prévia sai de cena e dá
+        // lugar ao objeto validado, com os superíndices e as fontes.
+        pararRelogios()
+        mutar(() => ({
+          comp,
+          achados: crua.itens,
+          passos: comp.passos,
+          passo: comp.passos.length,
+          digitado: total,
+          total,
+          pronto: true,
+          aoVivo: { estado: 'pronto', previa: '', erro: null, modelo },
+        }))
+        setOcupado(false)
+        return
+      }
+
+      mutar(() => ({
+        comp,
+        achados: crua.itens,
+        passos: comp.passos,
+        total,
+        aoVivo: motivo ? { estado: 'falhou', previa: '', erro: motivo, modelo: null } : null,
+      }))
 
       // Deixa os passos terminarem de aparecer antes de começar a digitar — a
       // sobreposição das duas animações é o que faz a tela parecer atropelada.
@@ -290,7 +533,7 @@ export function Consulta({
       conversaRef.current = c.id
       setMsgs(
         c.conteudo.flatMap((t): Msg[] => {
-          const comp = comporResposta(t.bruta)
+          const comp = t.gerada ?? comporResposta(t.bruta)
           const total = comp.paras.reduce((a, p) => a + p.t.length, 0)
           return [
             { papel: 'usuario', texto: t.pergunta },
@@ -304,6 +547,7 @@ export function Consulta({
               digitado: total,
               total,
               pronto: true,
+              aoVivo: t.gerada ? { estado: 'pronto', previa: '', erro: null, modelo: null } : null,
             },
           ]
         }),
@@ -362,7 +606,13 @@ export function Consulta({
                   </p>
                 </div>
               ) : (
-                <Resposta key={i} m={m} aoAbrirFonte={abrirFonte} aoSugerir={enviar} />
+                <Resposta
+                  key={i}
+                  m={m}
+                  aoAbrirFonte={abrirFonte}
+                  aoSugerir={enviar}
+                  aoGerarAoVivo={() => void gerarAoVivo(i)}
+                />
               ),
             )}
 
@@ -437,10 +687,12 @@ function Resposta({
   m,
   aoAbrirFonte,
   aoSugerir,
+  aoGerarAoVivo,
 }: {
   m: MsgAssistente
   aoAbrirFonte: (achados: Achado[], id: string) => void
   aoSugerir: (t: string) => void
+  aoGerarAoVivo: () => void
 }) {
   const pensando = m.passo > 0 && m.digitado === 0
 
@@ -522,7 +774,40 @@ function Resposta({
             </div>
           )}
 
-          {paras.length > 0 && (
+          {/*
+            Prévia do caminho ao vivo. Fica no lugar da resposta enquanto o JSON
+            do modelo não fechou — e some inteira quando ele fecha e passa na
+            validação, substituída pelo objeto validado. Sem superíndice: um
+            marcador de citação antes de a validação confirmar que a fonte existe
+            é exatamente o que este projeto não faz.
+          */}
+          {m.aoVivo?.estado === 'gerando' && (
+            <div className="tg-entra">
+              <div className="mb-2 flex items-center gap-2">
+                <Girador tamanho={11} />
+                <span className="text-[11.5px] font-medium text-tg-acento-txt">
+                  Redigindo com o contexto recuperado · claude-opus-5
+                </span>
+              </div>
+              {m.aoVivo.previa
+                .split('\n\n')
+                .filter((t) => t.trim())
+                .map((t, j) => (
+                  <p
+                    key={j}
+                    className="mb-[13px] font-tg-serif text-[15px] leading-[1.72] text-tg-tinta-2"
+                  >
+                    {t}
+                  </p>
+                ))}
+              <span
+                aria-hidden="true"
+                className="tg-cursor inline-block h-4 w-0.5 translate-y-[3px] bg-tg-acento-medio"
+              />
+            </div>
+          )}
+
+          {paras.length > 0 && m.aoVivo?.estado !== 'gerando' && (
             <div>
               {paras.map((p, j) => (
                 <p
@@ -547,7 +832,13 @@ function Resposta({
           )}
 
           {m.pronto && m.comp && (
-            <Rodape m={m} comp={m.comp} aoAbrirFonte={aoAbrirFonte} aoSugerir={aoSugerir} />
+            <Rodape
+              m={m}
+              comp={m.comp}
+              aoAbrirFonte={aoAbrirFonte}
+              aoSugerir={aoSugerir}
+              aoGerarAoVivo={aoGerarAoVivo}
+            />
           )}
         </div>
       </div>
@@ -663,11 +954,13 @@ function Rodape({
   comp,
   aoAbrirFonte,
   aoSugerir,
+  aoGerarAoVivo,
 }: {
   m: MsgAssistente
   comp: RespostaComposta
   aoAbrirFonte: (achados: Achado[], id: string) => void
   aoSugerir: (t: string) => void
+  aoGerarAoVivo: () => void
 }) {
   return (
     <div className="tg-sobe">
@@ -704,10 +997,11 @@ function Rodape({
       </div>
 
       {/*
-        No documento este aviso diz "Resposta gerada por IA". Aqui ele diz a
-        verdade deste produto, que é mais forte: nenhuma frase acima saiu de um
-        modelo. Trocar o texto e manter a forma é o que mantém o desenho fiel
-        sem mentir na única linha da tela que existe para não mentir.
+        No documento este aviso diz "Resposta gerada por IA". Aqui ele diz qual
+        dos dois caminhos produziu ESTA resposta — e é por isso que ele tem duas
+        redações. Manter a frase "nenhum parágrafo foi escrito por modelo" numa
+        resposta gerada ao vivo seria mentir na única linha da tela que existe
+        para não mentir.
       */}
       <div className="mt-3.5 flex items-start gap-[9px] rounded-[13px] bg-tg-preenche px-3.5 py-2.5">
         <span
@@ -717,9 +1011,60 @@ function Rodape({
           !
         </span>
         <p className="text-[11.5px] leading-[1.5] text-tg-fraco">
-          Nenhum parágrafo acima foi escrito por modelo — são fatos sobre a busca. O texto legal vem
-          do banco, sem intermediário. Confira o inteiro teor antes de peticionar.
+          {m.aoVivo?.estado === 'pronto' ? (
+            <>
+              A argumentação acima foi escrita{' '}
+              {m.aoVivo.modelo && (
+                <>
+                  por <strong className="font-medium">{m.aoVivo.modelo}</strong>{' '}
+                </>
+              )}
+              a partir dos {m.achados.length} dispositivos que a busca recuperou do acervo —{' '}
+              <strong className="font-medium">sem consultar a internet</strong>. O modelo não tem
+              acesso à rede nesta rota: ele recebe o texto extraído do Vade Mecum do Senado, e o
+              servidor recusa a resposta se ela citar id que não veio da busca. Texto legal,
+              vigência e cobertura continuam vindo do banco. Confira o inteiro teor antes de
+              peticionar.
+            </>
+          ) : (
+            <>
+              Nenhum parágrafo acima foi escrito por modelo — são fatos sobre a busca. O texto legal
+              vem do banco, sem intermediário. Confira o inteiro teor antes de peticionar.
+            </>
+          )}
         </p>
+      </div>
+
+      {/*
+        O botão opcional que o CLAUDE.md sempre previu. Fica no fim, discreto, e
+        o produto funciona inteiro sem ele: a resposta que está na tela já é a
+        resposta. Falha aqui não apaga nada — só escreve o motivo ao lado.
+      */}
+      <div className="mt-2.5 flex flex-wrap items-center gap-2.5">
+        <button
+          type="button"
+          onClick={aoGerarAoVivo}
+          disabled={m.aoVivo?.estado === 'gerando'}
+          title="Reescreve a argumentação com o Claude, usando só os dispositivos já recuperados. Limitado por teto mensal."
+          className="tgb inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-[6px] text-[11.5px] font-medium text-tg-corpo shadow-[var(--tg-elev-1f)] hover:shadow-[var(--tg-elev-3)] disabled:cursor-not-allowed disabled:text-tg-tenue"
+        >
+          {m.aoVivo?.estado === 'gerando' ? (
+            <>
+              <Girador tamanho={10} /> Gerando…
+            </>
+          ) : m.aoVivo?.estado === 'pronto' ? (
+            'Gerar de novo'
+          ) : (
+            'Gerar ao vivo'
+          )}
+        </button>
+
+        {m.aoVivo?.estado === 'falhou' && (
+          <span className="text-[11.5px] leading-[1.45] text-tg-ambar-txt">
+            Não foi possível gerar ao vivo ({m.aoVivo.erro}). A resposta acima é a composta, e ela
+            não depende de modelo nenhum.
+          </span>
+        )}
       </div>
 
       {comp.sugestoes.length > 0 && (

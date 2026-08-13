@@ -12,7 +12,9 @@ com Código Penal e Código de Processo Penal disponíveis para consulta.
 
 Next.js (App Router) + TypeScript + Tailwind + Supabase (Postgres + pgvector).
 Deploy na Vercel. Embeddings: OpenAI `text-embedding-3-small` (1536 dims).
-Geração de argumentação: Claude (`claude-opus-5`), com thinking adaptativo.
+Geração da resposta do chat: OpenAI (`gpt-5.4-mini` por padrão, `OPENAI_MODEL`),
+com structured output estrito, por `fetch` cru — sem SDK no runtime, como já era
+com os embeddings.
 
 ## Fora de escopo (não implementar)
 
@@ -74,9 +76,30 @@ antes de a curadoria existir: `tráfico privilegiado` devolvia o art. 332 do CP
 (tráfico de *pessoas*).
 
 O match é por **igualdade exata da consulta inteira** contra `termo` ou uma
-entrada de `variantes` (CTE `rub` em `0003_busca.sql`) — não é match parcial.
+entrada de `variantes`, **ou pelo termo contido na frase** quando ele tem 12 ou
+mais caracteres normalizados (CTE `rub`, hoje em `0011_rubrica_na_frase.sql`).
 Por isso as variantes são o grosso do trabalho do arquivo, não enfeite: é
 `variantes` que faz "olheiro" e "fogueteiro" caírem no art. 37.
+
+**O match contido entrou em 0011, e entrou por um bug caro.** Até então era só
+igualdade da consulta inteira, o que funciona para quem digita "associação para
+o tráfico" na caixa e falha para quem pergunta "Associação para o tráfico e
+concurso de pessoas: qual a diferença?". A frase nunca é igual à rubrica, a
+perna de rubrica não dispara, e sobram léxico e vetor — que devolviam o art.
+149-A do CP, tráfico de PESSOAS. É o mesmo erro que esta seção descreve como
+motivo de a camada existir, reaparecendo pela porta dos fundos assim que a
+consulta vira frase. Conferido antes e depois de 0011: a mesma pergunta passa a
+devolver o art. 35 da Lei 11.343, via rubrica.
+
+A trava contra falso positivo é o comprimento. Só termo com 12+ caracteres pode
+casar contido; sem isso "tráfico" (7) casaria em toda pergunta sobre tráfico e a
+rubrica — que tem peso dominante na fusão — mandaria em consultas que ela não
+entende. Igualdade exata continua valendo para qualquer comprimento.
+
+O erro só ficou visível quando a resposta do chat passou a ser redigida a partir
+do contexto recuperado: com a prosa composta de fatos sobre a busca, trazer o
+artigo errado passava por "resultado ruim"; com a resposta gerada, vira um texto
+inteiro sobre o crime errado.
 
 Uma rubrica aponta para N dispositivos via `rubrica_dispositivos`, com `papel`
 (`principal` | `correlato` | `requisito`) e `peso`. "Dosimetria da pena" é um
@@ -387,22 +410,141 @@ Conexão direta ao banco (via pooler, porta 6543, modo transaction) apenas em
 A rota de geração de DOCX declara `export const runtime = 'nodejs'`; a lib de
 docx não roda no Edge.
 
-### Nenhuma chamada a LLM em runtime
+### Nenhuma chamada a LLM no caminho padrão
 
-Sem autenticação (fora de escopo), qualquer rota pública que chame a API do
-Claude é superfície de gasto anônima. A costura argumentativa é gerada
-**offline** por `scripts/argumentar.ts`, revisada à mão, versionada em
-`data/curadoria/argumentacao.yaml` e servida do banco.
+A regra nunca foi "LLM é proibido", e sim "nenhuma rota que responda sem sessão
+pode gastar com modelo". Sem autenticação, uma rota pública que chame a API do
+Claude é superfície de gasto anônima — e a autenticação, quando entrou, não
+apagou a regra: apagou o motivo de ela ser absoluta.
 
-Efeito colateral desejável: cada frase da minuta passa por revisão humana antes
-de ir ao ar — padrão profissional real para peça jurídica.
+**A minuta continua sem modelo nenhum**: a argumentação da peça está escrita à
+mão em `teses.yaml`, e não há chamada a modelo em `/api/peca/[casoId]`. Cada
+frase do `.docx` passou por revisão humana, que é padrão profissional real para
+peça jurídica.
 
-O botão opcional "gerar ao vivo" é limitado por IP e por teto mensal (contador
-no banco); estourado o teto, cai para a versão armazenada. **O demo nunca
-depende do caminho ao vivo funcionar.**
+**A resposta do chat, essa, é gerada** — `/api/consulta/aovivo` é o caminho
+padrão da Consulta desde que a prosa composta se mostrou o que era: verdadeira e
+sempre igual, qualquer que fosse a pergunta. Explicar o próprio pipeline é bom
+como rodapé; não serve como resposta. `comporResposta()` não foi removida —
+virou a rede de segurança, e é ela que responde quando falta chave, falta rede,
+o teto estoura, o modelo recusa ou a validação recusa duas vezes.
 
-Embeddings de consulta em runtime são aceitáveis: `text-embedding-3-small`
+A rota é o único ponto do produto que chama um modelo em runtime. Três freios,
+em camadas:
+
+1. a rota **exige sessão** — não está em `lib/auth/rotas.ts`, e rota nova nasce
+   fechada;
+2. limite por IP na memória do processo — quebra-molas, não portão: em
+   serverless cada instância tem o próprio mapa;
+3. **teto mensal no banco**, `consome_uso_llm()` (migration 0010), 200 chamadas
+   por mês. A função decide e escreve na mesma instrução, então duas requisições
+   simultâneas não passam juntas pela última vaga. Conferido: com `teto = 1`, a
+   segunda chamada devolve `permitido = false`.
+
+`uso_llm` deixou de ser tabela morta: era a única peça de 0001 que nunca tinha
+sido usada, e é ela que sustenta o teto.
+
+**O demo nunca depende do caminho ao vivo funcionar.** Sem `ANTHROPIC_API_KEY` a
+rota devolve 503, e a resposta composta continua na tela. Falha de rede, teto
+estourado, recusa do modelo, validação recusada duas vezes: em todos os casos o
+que já estava na tela permanece e a interface diz o motivo ao lado do botão.
+
+Embeddings de consulta em runtime continuam aceitáveis: `text-embedding-3-small`
 custa fração de centavo por milhão de buscas.
+
+### O contrato da geração
+
+Não se pede prosa ao modelo; pede-se **JSON com esquema fechado** (structured
+output), e o servidor valida antes de a tela ver. Quatro arquivos em
+`lib/consulta/`, um trabalho cada:
+
+- `contrato.ts` — tipos, o esquema JSON e a instrução do sistema.
+- `valida.ts` — as quatro recusas. Puro, offline.
+- `enriquece.ts` — o banco sobrescreve tudo que não é argumentação. Puro.
+- `aovivo.ts` — a chamada ao `claude-opus-5`, o streaming e a regeneração.
+
+**O esquema é curto de propósito.** O modelo devolve `paragraphs[]` (texto +
+índices de citação), `sources[]` (só `id` e `doc_id`), `confidence` e
+`followups`. Rótulo, trecho, vigência, cobertura, status e `url` **não são
+pedidos** — vêm do `Achado` que a busca recuperou. Pedir vigência ao modelo seria
+deixá-lo afirmar que um artigo está em vigor, que é a informação plausível e
+falsa que a decisão nº 3 existe para impedir. Pedir o trecho seria deixá-lo
+gerar texto de lei, que a decisão nº 1 proíbe.
+
+`checked_at` não existe, e não por esquecimento: não há coletor conferindo nada.
+O que existe é `vigencia_ate` — a data em que a fotografia foi tirada. Carimbar
+"conferido às 06:12 de hoje" sem que nada tenha conferido seria o pior tipo de
+mentira que este produto pode contar.
+
+`penalty_calc` também ficou fora. Os fatos da dosimetria já são extraídos por
+`leDaConversa()`, por regra, em TS, com 16 asserções travando a conta — pedir a
+mesma extração ao modelo criaria um segundo extrator para divergir do primeiro.
+
+**As quatro recusas de `valida()`**, todas no servidor, todas testadas offline:
+
+| Recusa | Por quê |
+|---|---|
+| `doc_id` fora do contexto recuperado | id que não veio da busca é alucinação, mesmo existindo no banco |
+| citação para `sources[].id` inexistente | marcador que não abre nada é pior que nenhum |
+| forma diferente do esquema | segunda camada, para o dia em que o esquema mudar |
+| **transcrição de lei** | doze palavras seguidas iguais às de um dispositivo do contexto e a resposta cai: a decisão nº 1 diz que texto legal nunca é gerado, e "gerar" inclui copiar do contexto para a prosa |
+
+Recusado, o servidor **regenera uma vez** com a violação nomeada. Recusado de
+novo, cai para a resposta composta. Não há terceira tentativa: ela custa o dobro
+do tempo para um caso que já se mostrou ruim.
+
+**Sem modelo de reserva, e é decisão.** A recomendação usual é declarar um
+segundo modelo para o caso de o primeiro recusar. Aqui já existe reserva melhor:
+`comporResposta()`, que não custa nada e não pode falhar. Pagar uma segunda
+chamada de modelo para recuperar o que uma função pura entrega seria trocar o
+determinístico pelo caro.
+
+**A prosa gerada é guardada no histórico**, ao contrário da composta. A composta
+é derivada e `comporResposta()` a reconstrói igual; a gerada não — pedir de novo
+ao modelo daria outro texto, e reabrir uma conversa para encontrar uma resposta
+diferente da que se leu é pior que não ter histórico. `conversa_trocas.resposta`
+passou a guardar `{ bruta, gerada }`; `leResposta()` reconhece as duas formas, e
+linha antiga continua abrindo.
+
+**Streaming.** Os passos animados são os eventos reais do pipeline, emitidos
+enquanto rodam. O texto é revelado token a token por um leitor incremental
+(`LeitorDeTexto`) que extrai os campos `text` do JSON parcial — o modelo emite
+JSON, a tela não pode mostrar JSON. **A prévia nunca é a resposta**: ela é
+descartada quando o objeto fecha e passa na validação, e o que fica é o objeto
+validado. Fontes e cartão só aparecem nesse momento.
+
+`enriquece()` devolve um `RespostaComposta` — o mesmo tipo de `comporResposta()`.
+Não é coincidência: é o que permite a tela ter um renderizador só e o caminho ao
+vivo cair para o composto sem pulo de layout.
+
+**A resposta sai do acervo, não da memória do modelo.** A regra zero da
+instrução diz que o bloco de `<dispositivo>` é a única fonte, que o modelo não
+tem acesso à internet e não deve simular ter, e que conhecimento vindo do
+treinamento não vale como fonte aqui — mesmo estando certo, ele não é conferível
+nesta tela, e o usuário confere a resposta contra os dispositivos que aparecem
+ao lado dela. Sem contexto que sustente a pergunta, o modelo diz isso na
+primeira frase e usa confidence `baixa`.
+
+A parte estrutural disso não depende de prompt: a chamada não declara ferramenta
+nenhuma, então navegar não é uma capacidade que o modelo tenha nesta rota, e a
+validação recusa qualquer `doc_id` que não veio da busca. O prompt cuida do que
+a validação não alcança — a prosa apoiada em memória, que não cita id nenhum.
+
+Conferido com uma pergunta que o corpus não responde (o enunciado da Súmula 512
+do STJ): a resposta diz que o contexto não a traz, nomeia o que ele cobre (§ 4º
+do art. 33, art. 42, caput do art. 33) e não inventa o enunciado.
+
+**O aviso de origem tem duas redações**, e essa é a parte que não se negocia:
+resposta composta diz "nenhum parágrafo acima foi escrito por modelo"; resposta
+gerada nomeia o modelo, diz de quantos dispositivos recuperados ela saiu e
+afirma que não houve consulta à internet. Manter a primeira frase numa resposta
+gerada seria mentir na única linha da tela que existe para não mentir.
+
+**O nome do modelo vem do servidor, no evento `fim`** — a tela não o adivinha. A
+primeira versão trazia `claude-opus-5` escrito no JSX, e continuou exibindo isso
+depois da troca de provedor: o aviso que existe para não mentir passou a mentir
+sobre si mesmo. Com `OPENAI_MODEL` configurável, qualquer nome fixo no cliente
+nasce errado.
 
 ### O demo precisa sobreviver à inatividade
 
@@ -513,14 +655,17 @@ só, no bloco `@theme` de `src/app/globals.css` (`bg-tg-acento`, `text-tg-fraco-
 cor escolhida por índice, valor calculado em runtime e cor dentro de gradiente.
 Cor nova que possa ser classe **tem** que ser classe.
 
-### As quatro telas
+### As sete telas
 
 | Rota | Tela | De onde vêm os dados |
 |---|---|---|
-| `/consulta` | chat, painel de fonte, dosimetria e histórico | `/api/busca` + `localStorage` |
+| `/consulta` | chat, painel de fonte, dosimetria e histórico | `/api/busca` + `conversas` |
 | `/jurisprudencia` | entendimento consolidado | `teses.jurisprudencia` (jsonb) |
 | `/dosimetria` | cálculo trifásico ao vivo | aritmética local, sem banco |
 | `/vademecum` | grade de ramos + leitor | índice do acervo, em disco |
+| `/clientes` | cadastro do escritório | `clientes` (RLS por sessão) |
+| `/fontes` | vigília sobre a data de corte | `vigilia_*` (migration 0012) |
+| `/configuracoes` | perfil, garantias, fontes, aparência, segurança | `perfil` + `leis` do banco |
 
 **A lateral colapsa** para uma trilha de 64px, por `⌘B` ou pelo botão ao lado da
 marca, com a preferência guardada em `localStorage`. Não contradiz a largura
@@ -528,23 +673,259 @@ fixa: são dois valores fixos, 246 e 64, e não uma lateral fluida. Só a partir
 `lg` — abaixo disso ela já é uma gaveta, e recolher gaveta não quer dizer nada.
 
 Na trilha somem rótulos, histórico, busca e o cartão de base; ficam a marca,
-"Nova consulta", os quatro quadradinhos com `title` e **o ponto vivo da data de
+"Nova consulta", os seis quadradinhos com `title` e **o ponto vivo da data de
 corte**, porque a decisão nº 3 diz que a data é visível o tempo todo e "recolhi o
 menu" não é motivo para ela sumir.
 
-A lateral tem quatro itens: Consulta, Jurisprudência, Dosimetria e Vade Mecum.
-O documento desenha seis, e as demais saíram a pedido, para o sistema ficar só
-com o que se usa.
+A lateral tem sete itens: Consulta, Jurisprudência, Dosimetria, Vade Mecum,
+Clientes, Fontes e atualizações e Configurações. O documento desenha seis; o
+sétimo é a vigília, que voltou a pedido — ver "Vigília do corpus" abaixo.
 
 Atrás do `⌄` sobraram duas, e sobraram por serem **destino, não ponto de
 partida**: `/leis` (o corpus navegável) e `/pecas` (onde a minuta é baixada).
 Com elas ficam `/artigo/[id]` e `/dispositivo/[id]`, que não são navegação —
 são o alvo dos links de citação, e removê-los quebraria a decisão nº 1.
 
-Removidas: `/sumulas`, `/fontes`, `/painel`, `/busca`, `/suporte`,
-`/configuracoes`, `/fila`, `/processos` e `/relatorios`. As quatro primeiras
-duplicavam o que a Consulta já faz ou eram diagnóstico de desenvolvimento; as
-três últimas eram avisos de "fora de escopo" que nem estavam no menu.
+Removidas: `/sumulas`, `/painel`, `/busca`, `/suporte`, `/fila`, `/processos` e
+`/relatorios`. As três primeiras duplicavam o que a Consulta já faz ou eram
+diagnóstico de desenvolvimento; as quatro últimas eram avisos de "fora de
+escopo" que nem estavam no menu.
+
+`/fontes` também estava nesta lista e **voltou com outro trabalho**. Ela saíra
+por ser diagnóstico do pipeline de normalização; hoje é a vigília do corpus, que
+é pergunta de produto e não de desenvolvimento — ver a seção abaixo.
+
+### Configurações
+
+`/configuracoes` voltou a pedido, com a forma do documento (trilha de 250px,
+cartões de raio 20, listas de opção com interruptor à direita) e o conteúdo
+trocado pelo que existe de verdade. O documento ajusta outro produto — 12
+assentos de escritório, fatura de R$ 2.390/mês, cinco coletores em Python,
+sincronização do DOU a cada 30 minutos —, e desenhar isso encheria a tela do
+dado plausível e falso que a decisão nº 3 existe para impedir.
+
+| Seção do documento | Aqui | Por quê |
+|---|---|---|
+| Perfil e OAB | Perfil e OAB | igual; guardado no navegador |
+| IA e citações | IA e citações | vira o que já é garantido, sem interruptor |
+| Fontes e sincronização | Fontes e data de corte | não há coletor; há corpus |
+| Alertas | Aparência | nada notifica; a interface tem duas preferências reais |
+| Segurança | Segurança | sessão, senha, encerrar em todos os aparelhos |
+| Escritório e cobrança | — | multiusuário e billing são fora de escopo |
+
+**Nenhum interruptor da tela é decorativo.** Existem dois, e os dois mexem em
+coisa visível na hora: "lateral recolhida" (a mesma preferência do `⌘B`) e
+"reduzir movimento" (põe `data-movimento="reduzido"` no `<html>`, que
+`globals.css` trata com as mesmas regras da media query de
+`prefers-reduced-motion`). O resto das linhas é leitura, com pílula de estado no
+lugar do interruptor — a diferença entre "ajustável" e "garantido" fica na forma,
+não numa nota de rodapé.
+
+A seção "IA e citações" é onde as três decisões do projeto aparecem como
+garantias sem chave de desligar. O documento deixa desligar "citação obrigatória"
+e "selo de vigência"; aqui elas são a razão de o sistema existir, e o que as
+segura (`tests/citacao.test.ts`, os triggers e a recusa de montar peça com
+citação órfã) não tem interruptor.
+
+`lib/toga/preferencias.ts` guarda as duas preferências locais — lateral e
+movimento — e emite `toga:preferencias`. O evento é o que faz o ajuste mexer na
+lateral na hora: `Casca` e `/configuracoes` são árvores diferentes, e sem ele a
+escolha só apareceria no próximo carregamento. `storage` entra junto, para duas
+abas não discordarem da mesma preferência.
+
+**O perfil saiu do `localStorage` e foi para o banco** (`public.perfil`,
+migration 0008): trocar de navegador apagava o nome e a inscrição na OAB, o que
+fazia dele anotação do aparelho, não cadastro. `lib/toga/perfil.ts` continua
+usando o `localStorage`, mas como **cache**: o avatar aparece em toda tela e não
+pode esperar uma ida ao banco para pintar duas letras. O cache pinta na hora, o
+banco corrige depois, e é o banco que vale quando discordam. Quem tinha perfil
+gravado antes da migration não o perde — sem linha no banco e com cache cheio,
+`carrega()` sobe o que estava no navegador.
+
+**O perfil não entra na minuta.** Ele alimenta as iniciais do avatar e o menu da
+conta, e para aí: o `.docx` continua saindo com "Autos nº ____" e "Advogado(a) —
+OAB/__ nº ______" como campos a preencher. Preencher o cabeçalho de uma peça a
+partir de um ajuste de tela é decisão sobre a peça, não sobre a tela de ajustes.
+Só há campo de nome, OAB e telefone — nada de foto: não há upload nem
+armazenamento de imagem, e o botão "Trocar foto" do documento seria um botão que
+não faz nada.
+
+### Clientes do escritório
+
+`/clientes` e `public.clientes` (migration 0009). É a **primeira tabela que
+guarda dado de pessoa de fora** — tudo o mais no banco é texto de lei, curadoria
+ou conversa do próprio usuário. Daí três regras que as outras telas não têm:
+
+- **RLS por `auth.uid()`, sem exceção.** Sem a âncora em `usuario_id`, a chave
+  publishable — que roda no navegador de qualquer um — leria a agenda inteira.
+  Conferido: sem sessão, o `select` devolve `[]` e o `insert` devolve 42501.
+- **Falha não é silenciosa.** O histórico engole erro de banco e vira lista
+  vazia, porque perder conforto é aceitável; aqui o erro aparece na tela e o
+  formulário continua preenchido. As funções devolvem `{ ok, erro }`, não `null`.
+- **Só o nome é obrigatório.** Cadastro que exige CPF empurra quem não o tem a
+  digitar qualquer coisa, e CPF inventado é pior que campo vazio porque parece
+  conferido. O que é digitado, porém, é conferido: `cpfValido()` calcula os dois
+  dígitos verificadores e recusa os onze repetidos. O banco só olha o formato —
+  dígito verificador é conta, e `tests/clientes.test.ts` (14 asserções, offline)
+  a tranca junto com os tetos, que têm de bater com os checks de 0009.
+
+CPF é guardado como 11 dígitos crus: máscara é assunto da tela, e gravar
+`123.456.789-09` faria a busca depender de o usuário digitar a pontuação do mesmo
+jeito das duas vezes. O vínculo com `casos` é `on delete set null`, e não
+`cascade`: o caso é peça de demonstração resemeável, o cliente é dado do usuário
+— reseed da curadoria não pode levar a agenda junto.
+
+**Isto não abre o projeto para multiusuário.** Continua sendo um usuário só;
+`usuario_id` existe para ancorar a policy, como em `conversas` e `perfil`.
+
+A seção de fontes lê `leis` e `contagemDispositivos` do banco, e não uma
+constante: número de dispositivo escrito à mão envelhece calado. Com o banco
+pausado, a seção diz que não pôde ler e as outras quatro continuam de pé.
+
+### Vigília do corpus
+
+`/fontes` e as tabelas `vigilia_coletas` e `vigilia_alteracoes` (migration 0012).
+Responde uma pergunta só: **a fotografia de 28/02/2025 envelheceu?**
+
+O documento desenha o painel de outro produto — cinco coletores em Python
+raspando DOU e DataJud a cada 30 minutos, 1,2 milhão de documentos, "Sincronizar
+agora", comparador de redações lado a lado. A forma foi mantida; o conteúdo, não.
+
+**A vigília nunca escreve em `dispositivos`, `artigos` ou `leis`, e essa é a
+regra que sustenta as outras.** Um coletor que reescrevesse texto legal em
+runtime faria `leis.vigencia_ate` deixar de ser verdade, e nenhum dispositivo
+citado numa peça teria mais passado por conferência humana — a decisão nº 3
+estaria perdida pela porta dos fundos. A vigília avisa; quem corrige é gente,
+rodando `vade_parser.py` sobre a nova redação e conferindo o diff. Por isso ela
+pode errar sem estragar nada, e é o que permite que o filtro seja heurístico.
+
+**As cinco fontes do desenho existem.** Três delas rodam em Python, em
+`coletores/` — detalhe completo em `coletores/README.md`.
+
+| Fonte | O que entrega | Onde roda |
+|---|---|---|
+| **Planalto** | texto compilado; alteração **já em vigor**, por artigo | Python (scraping) |
+| Câmara | proposições e situação da tramitação | Vercel (TS) |
+| Senado | processos e `normaGerada`, com data de publicação no DOU | Vercel (TS) |
+| DOU | confirma publicação da norma e guarda o endereço oficial | Python |
+| DataJud | contagem de processos por assunto | Python |
+
+**A coleta é de dois andares, e isso é decisão.** O Vercel Cron roda o andar
+leve — Câmara e Senado, duas APIs REST que cabem numa função serverless e
+mantêm a tela viva sem depender de nada fora da Vercel. O GitHub Actions
+(`.github/workflows/vigilia.yml`) roda o completo: scraping de 900 KB de HTML por
+lei, extração de página do DOU e consulta Elasticsearch não cabem — nem devem —
+no runtime que serve a tela. É a mesma separação que já vale para
+`vade_parser.py`: trabalho de lote não mora no caminho do usuário.
+
+**Os dois andares não divergem por construção.** `data/curadoria/vigilia.yaml` é
+a fonte única dos padrões de reconhecimento; `coletores/config.py` o lê em tempo
+de execução, e `tests/vigilia.test.ts` falha se `alvos.ts` se afastar de qualquer
+linha dele. As duas suítes usam as mesmas ementas reais — se uma passar e a
+outra falhar, a divergência aparece na hora. É a escolha de `tests/citacao.test.ts`:
+não eliminar a duplicação, trancá-la.
+
+**O Planalto é o coletor mais importante dos cinco, e a razão é estrutural.**
+Câmara e Senado contam o que foi *proposto*; só o texto compilado mostra o que
+*está em vigor*. Na primeira execução ele encontrou **63 alterações posteriores à
+data de corte**, entre elas a Lei 15.581/2025 (art. 23 da Lei de Drogas) e a Lei
+15.358/2026 (art. 40-A) — duas que nenhuma API de proposição reportaria como
+alteração consumada. **A fotografia de 28/02/2025 já está furada, e o projeto não
+sabia.**
+
+**O que ficou de fora, e por quê:** o LexML (SRU atrás de verificação com
+JavaScript — fonte que só funciona no navegador não serve para coleta), o INLABS
+(edição completa do DOU em ZIP, com cadastro — e não fez falta, porque o Senado
+já informa data e veículo de publicação em `normaGerada`), a ementa de acórdão
+(nem STF nem STJ têm API pública de jurisprudência) e o STF no DataJud
+(`api_publica_stf` devolve 404: o Supremo não se submete ao controle
+administrativo do CNJ e não está na base).
+
+**O DataJud não participa da detecção de alteração**, e por isso tem tabela
+própria (`vigilia_jurimetria`, migration 0013). Ele devolve capa e movimentação
+processual, não ementa nem inteiro teor, e nada em processo judicial altera o
+texto de uma lei. O card do documento promete "metadados e ementas"; a metade
+das ementas não existe na API. O que ele responde de verdade — quanto o recorte
+pesa no Judiciário — vira estatística num painel com título próprio.
+
+**Três armadilhas de scraping, todas com o mesmo modo de falha:** nenhum erro,
+nenhuma exceção, lista vazia e a tela afirmando que o corpus está em dia.
+(1) O Planalto derruba User-Agent que não comece por `Mozilla` — a saída foi a
+forma `compatible`, que passa pelo filtro de prefixo e continua se identificando,
+não fingir ser Chrome. (2) `get_text("\n")` do BeautifulSoup separa nós inline e
+encontrava 11 das 283 anotações. (3) O separador de bloco não pode ser `\n`,
+porque o próprio texto do Planalto contém `\r\n\t` no meio da anotação. As três
+estão anotadas no código e cobertas por `coletores/tests/test_planalto.py`.
+
+**O filtro é a peça que pode errar em silêncio**, e por isso mora inteiro em
+`lib/vigilia/alvos.ts`, puro e offline, com 31 asserções em `tests/vigilia.test.ts`
+sobre ementas reais colhidas das duas APIs. Três regras:
+
+1. **Verbo de alteração obrigatório.** Metade das ementas que citam a Lei 11.343
+   a citam como referência ("nos termos da Lei nº 11.343"). Sem essa exigência a
+   tela diria que a fotografia envelheceu sem nada ter mudado — alarme falso é o
+   modo mais confiável de fazer alguém parar de ler a lista.
+2. **`(?!\s+militar)` nos dois códigos.** O Código Penal Militar é o DL
+   1.001/1969 e o CPP Militar é o 1.002/1969 — leis que o banco não tem.
+3. **O erro é enviesado para o falso positivo.** Achado a mais custa uma linha
+   que se lê e descarta; achado a menos custa uma peça protocolada com redação
+   revogada.
+
+**O vínculo com as teses é o que torna a tela legível.** Medido contra a API em
+13/08/2026: 666 proposições declaram alterar o Código Penal desde a data de
+corte. Uma lista de 666 linhas afoga a única que importa. `artigosDe()` extrai os
+artigos que a ementa nomeia e a tela cruza com `teses.fundamentos` — o mesmo
+grafo de citação da decisão nº 1. É o "Impacto nas teses (7)" do documento,
+verdadeiro porque os dois lados saem do banco.
+
+Duas travas contra atribuição errada, e as duas devolvem lista vazia em vez de
+chutar: ementa que altera **duas leis do corpus** não recebe artigo nenhum
+("altera o CP e o CPP, nos arts. 33 e 155" não diz qual é de qual), e ementa com
+**mais de um diploma numerado** também não — "Altera o art. 2º da Lei nº 7.209 e
+a Lei nº 11.343" produziria `lei_11343_2006_art2`, um id que existe no banco,
+aponta para o artigo errado e não levantaria suspeita de ninguém.
+
+**"Sincronizar agora" não existe.** A coleta é o cron diário
+(`/api/vigilia/coletar`, `20 9 * * *` em `vercel.json`); a tela só lê. Botão que
+dispara duas APIs públicas a cada clique é superfície de bloqueio por rate limit,
+e o que ele prometia — saber quando foi a última coleta — está no card.
+
+**O comparador de redações virou o painel de teses.** O produto não guarda
+redações anteriores; inventar um "2018 → 2019" lado a lado é exatamente o que a
+decisão nº 3 impede.
+
+**A janela do cron é de 60 dias, e isso não abre buraco.** O Senado devolve o
+intervalo inteiro numa resposta só (~4 MB desde a data de corte), e repetir isso
+todo dia é desperdício. Mas o achado que importa é o projeto de 2025 sancionado
+hoje, que está fora de qualquer janela por data de apresentação — daí
+`atualizaPendentes()`, que reconsulta por id tudo que o banco já conhece e ainda
+não virou lei, nas duas fontes.
+
+**A rota de cron é a única exceção do projeto à regra "sessão ou nada"**, e ela
+troca uma porta por outra em vez de remover a porta: está em `PUBLICAS` porque
+cron não tem cookie, e exige `Authorization: Bearer $CRON_SECRET`. Sem o segredo
+configurado ela recusa tudo com 503.
+
+**`lib/vigilia/escrita.ts` é o único arquivo de `src/` que toca a service role.**
+A coleta grava numa tabela com RLS fechada e não tem sessão para ancorar policy.
+As duas alternativas foram recusadas e estão escritas no cabeçalho do arquivo:
+policy de insert para `anon` daria a qualquer visitante o direito de escrever
+linhas na vigília, e `security definer` com segredo em argumento poria o segredo
+no log de consulta do Supabase. `lib/supabase.ts` continua limpo.
+
+Marcar como conferido é a única escrita que sai do navegador, e o `grant` é **por
+coluna** (`reconferido_em`, `reconferido_por`): RLS decide linha, não coluna, e
+sem isso "pode marcar como lido" viraria "pode reescrever o link do ato oficial".
+Conferido no banco: sem sessão, `select` devolve 0 linhas e `insert`/`update`
+devolvem 42501.
+
+`npm run vigilia -- --seco` roda as duas APIs do andar leve e o filtro sem gravar
+nada. `.venv/Scripts/python -m coletores --seco` faz o mesmo com as cinco fontes,
+incluindo o scraping — é como se confere o que o filtro está pegando antes de
+encher a tabela. `--tudo` faz a carga inicial, que nenhum dos dois crons faz.
+
+`.venv/Scripts/python -m pytest coletores -q` roda as 35 asserções do lado
+Python, offline e sem segredo, como as oito suítes do vitest.
 
 ### O chat é a tela principal
 
@@ -607,16 +988,20 @@ O protótipo é de outro produto: ele raspa DOU e DataJud, indexa acórdão, mos
 colide de frente com as três decisões deste projeto. A forma foi mantida ao
 pixel; o conteúdo foi trocado pelo verdadeiro.
 
-- **A prosa do chat não é gerada por modelo.** Ela é composta em
-  `src/lib/toga/resposta.ts` a partir de **fatos sobre a busca**: qual molde a
-  classificação reconheceu, se a rubrica bateu, quantos dispositivos vieram, qual
-  a data de corte, o que degradou. Tudo verificável na mesma tela. O conteúdo
-  jurídico fica onde tem de ficar — no texto do dispositivo, lido do banco, no
-  painel da fonte. Efeito colateral bom: a resposta explica a própria busca.
-- **A digitação é animação, os passos são reais.** 7 caracteres a cada 16 ms,
-  como no documento; o texto já chegou inteiro e está sendo revelado. Os quatro
-  passos são os do pipeline, e o `meta` de cada um é o número que aquele passo
-  produziu.
+- **A prosa do chat É gerada por modelo, e isso foi uma reversão consciente.** A
+  versão anterior compunha a prosa em `src/lib/toga/resposta.ts` a partir de
+  **fatos sobre a busca** — qual molde a classificação reconheceu, se a rubrica
+  bateu, quantos dispositivos vieram, a data de corte, o que degradou. Era
+  verdadeira, verificável na mesma tela, e **respondia a mesma coisa para toda
+  pergunta**. Explicar o próprio pipeline é bom como rodapé; não serve como
+  resposta a quem perguntou a diferença entre associação e concurso de pessoas.
+  O que a geração NÃO afrouxou: o conteúdo jurídico continua vindo do texto do
+  dispositivo, lido do banco, e toda citação é conferida contra o contexto
+  recuperado antes de a tela ver. `comporResposta()` continua no código como rede
+  de segurança — ver "O contrato da geração".
+- **A digitação é animação no caminho composto, e revelação real no gerado.**
+  7 caracteres a cada 16 ms quando o texto já chegou inteiro; token a token
+  quando ele está chegando. Os passos são os mesmos nos dois casos, e são reais.
 - **Esqueleto só onde a espera existe.** O documento aciona esqueleto a cada
   toque em filtro. Em `/jurisprudencia` filtrar é local e síncrono; o esqueleto
   ficou no `loading.tsx`, onde a espera é a ida ao Supabase.
@@ -682,18 +1067,49 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As três suítes (41 asserções) rodam **offline**, sem segredo: `citacao` e `peca`
-leem `data/normalizado/`, e `vademecum` lê o acervo em disco.
+As oito suítes (125 asserções) rodam **offline**, sem segredo: `citacao`, `peca` e
+`vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco, e
+`dosimetria`, `historico`, `clientes` e `consulta` testam função pura. `consulta`
+é a que tranca o contrato da geração ao vivo — validação e leitura incremental —
+sem chamar modelo nenhum. O que fala com o Supabase é verificado contra o banco
+de verdade, não em teste offline.
+
+`npm run verificar` **não roda o lado Python**, e a separação é proposital: o
+vitest não deve depender de um venv que pode não existir na máquina de quem só
+mexe na interface. Os coletores têm a própria suíte, com o mesmo critério —
+offline, sem segredo:
+
+```
+.venv/Scripts/python -m pytest coletores -q      # 35 asserções
+```
+
+`tests/vigilia.test.ts` e `coletores/tests/test_filtro.py` testam a **mesma
+regra** contra as **mesmas ementas reais**, em runtimes diferentes. Não é
+redundância: é a trava que faz a divergência entre os dois filtros aparecer na
+hora, em vez de virar uma tela que diz que nada mudou. O workflow do GitHub
+Actions roda o pytest **antes** de coletar — uma coleta que grava com o filtro
+quebrado é pior que uma que não roda.
+
+`npm run migrar -- 0008_perfil.sql` aplica uma migration pela conexão direta de
+`scripts/db.ts`. Não há ledger de "o que já rodou", e não precisa haver: toda
+migration do projeto é idempotente (`create table if not exists`, `drop policy if
+exists` antes do `create policy`), e a ordem está na numeração do arquivo, que se
+revisa em diff — um ledger no banco esconderia num registro invisível o que hoje
+está no `ls` da pasta.
 
 ## Pendências conhecidas
 
 - **`art. 761` do CPP termina em `"art. 82.49"`.** O `49` é marcador de rodapé
   que a regra B recusa remover, por ser indistinguível de decimal (`82.49`).
   Aparece em `relatorio.json` como o único suspeito. Fora do recorte.
-- **`argumentacao` e `uso_llm` estão vazias e sem uso.** A costura offline por
-  `scripts/argumentar.ts` não existe, e hoje não é necessária: a argumentação
-  vive em `teses.template_md`, escrita à mão. O botão "gerar ao vivo" e o teto
-  mensal do CLAUDE.md nunca foram implementados — não invente que existem.
+- **`argumentacao` continua vazia e sem uso.** A costura offline por
+  `scripts/argumentar.ts` não existe, e hoje não é necessária: a argumentação da
+  peça vive em `teses.template_md`, escrita à mão. `uso_llm` saiu desta lista —
+  é o teto mensal do botão "gerar ao vivo", ver "Nenhuma chamada a LLM no
+  caminho padrão".
+- **A geração ao vivo só existe na Consulta.** A minuta continua sem modelo
+  nenhum, e não é lacuna a preencher sem pedido: cada frase do `.docx` passou por
+  revisão humana, que é padrão profissional real para peça jurídica.
 - **`/sumulas` e `/fontes` foram removidas** a pedido, para o sistema ficar só
   com o que se usa. Saíram por inteiro: rota, componente e módulo de dados
   (`lib/toga/sumulas.ts` e `lib/toga/pipeline.ts`). Nada mais as importava, e o
