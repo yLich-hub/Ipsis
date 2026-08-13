@@ -33,10 +33,8 @@ import { GRADIENTE_CONTA, GRADIENTE_MARCA, MATIZ } from '@/lib/toga/tokens'
 const TELAS = [
   { href: '/consulta', rotulo: 'Consulta em chat', matiz: MATIZ.lavanda },
   { href: '/jurisprudencia', rotulo: 'Jurisprudência', matiz: MATIZ.gelo },
-  { href: '/sumulas', rotulo: 'Súmulas', matiz: MATIZ.areia },
   { href: '/dosimetria', rotulo: 'Dosimetria', matiz: MATIZ.sabia },
   { href: '/vademecum', rotulo: 'Vade Mecum', matiz: MATIZ.rosa },
-  { href: '/fontes', rotulo: 'Fontes e procedência', matiz: MATIZ.ardosia, selo: '3' },
 ] as const
 
 /**
@@ -49,10 +47,8 @@ const TELAS = [
 const CABECALHOS: Record<string, [string, string]> = {
   '/consulta': ['Consulta', 'assistente com fontes rastreáveis'],
   '/jurisprudencia': ['Jurisprudência', 'entendimento consolidado por tema'],
-  '/sumulas': ['Súmulas', 'STF e STJ por tema'],
   '/dosimetria': ['Dosimetria', 'cálculo trifásico ao vivo'],
   '/vademecum': ['Vade Mecum', 'acervo de leitura, por ramo'],
-  '/fontes': ['Fontes', 'procedência, cobertura e data de corte'],
   '/busca': ['Busca na legislação', 'rubrica, léxico e vetor na mesma consulta'],
   '/leis': ['Legislação', 'corpus curado e citável'],
   '/pecas': ['Peças', 'resposta à acusação'],
@@ -234,12 +230,6 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
                   style={{ background: t.matiz }}
                 />
                 <span className="relative truncate">{t.rotulo}</span>
-                <span className="flex-1" />
-                {'selo' in t && t.selo && (
-                  <span className="relative rounded-full bg-tg-acento-fraco-2 px-[7px] py-0.5 text-[10.5px] font-medium text-tg-acento-txt">
-                    {t.selo}
-                  </span>
-                )}
               </Link>
             )
           })}
@@ -267,14 +257,13 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
           Cartão de base. No documento ele anuncia sincronização em tempo real;
           aqui ele carrega a data de corte, que é a decisão nº 3 do projeto —
           citar redação revogada em peça criminal é grave, e o aviso não pode
-          depender de a tela da vez lembrar de mostrá-lo. A forma é a mesma:
-          ponto vivo, rótulo, linha de apoio, tudo clicável para /fontes.
+          depender de a tela da vez lembrar de mostrá-lo.
+
+          Deixou de ser link quando `/fontes` saiu da navegação. O cartão fica:
+          o que importava nele nunca foi o destino, era a data. Link que não
+          leva a lugar nenhum seria pior que texto.
         */}
-        <Link
-          href="/fontes"
-          onClick={aoFechar}
-          className="tgb mt-3 block rounded-[14px] bg-white px-3 py-[11px] shadow-[var(--tg-elev-1)] hover:shadow-[var(--tg-elev-3)]"
-        >
+        <div className="mt-3 block rounded-[14px] bg-white px-3 py-[11px] shadow-[var(--tg-elev-1)]">
           <span className="mb-1.5 flex items-center gap-[7px]">
             <Ponto pulsa />
             <span className="text-[11.5px] font-medium text-tg-verde-txt">Base conferida</span>
@@ -283,7 +272,7 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
             Vade Mecum do Senado, 1ª ed. · redação de{' '}
             <strong className="font-medium text-tg-corpo">28/02/2025</strong>
           </span>
-        </Link>
+        </div>
       </aside>
     </>
   )

@@ -15,10 +15,6 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/vademecum': ['./data/vademecum/**'],
     '/vademecum/[leiId]': ['./data/vademecum/**'],
-    // Mesma razão em /fontes: `src/lib/toga/pipeline.ts` lê o relatório do
-    // normalize com caminho montado em variável, e sem isto a tela perderia o
-    // lado do pipeline só em produção — justo a metade que não depende do banco.
-    '/fontes': ['./data/normalizado/relatorio.json'],
   },
 }
 

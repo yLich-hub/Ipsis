@@ -504,18 +504,20 @@ só, no bloco `@theme` de `src/app/globals.css` (`bg-tg-acento`, `text-tg-fraco-
 cor escolhida por índice, valor calculado em runtime e cor dentro de gradiente.
 Cor nova que possa ser classe **tem** que ser classe.
 
-### As seis telas
+### As quatro telas
 
 | Rota | Tela | De onde vêm os dados |
 |---|---|---|
 | `/consulta` | chat com streaming e painel de fonte | `/api/busca` — busca híbrida real |
 | `/jurisprudencia` | entendimento consolidado | `teses.jurisprudencia` (jsonb) |
-| `/sumulas` | súmulas por tema | `src/lib/toga/sumulas.ts`, curadoria manual |
 | `/dosimetria` | cálculo trifásico ao vivo | aritmética local, sem banco |
 | `/vademecum` | grade de ramos + leitor | índice do acervo, em disco |
-| `/fontes` | procedência e data de corte | os cinco estágios do pipeline |
 
-A lateral tem seis itens porque o documento tem seis. As telas do produto que
+A lateral tem quatro itens. O documento desenha seis, e duas saíram a pedido:
+`/sumulas` e `/fontes`. Eram independentes — nada fora delas importava seus
+módulos —, e o único acoplamento era o cartão "Base conferida" da lateral, que
+linkava para `/fontes`. O cartão ficou e o link saiu: o que importava nele nunca
+foi o destino, era a data de corte. As telas do produto que
 não cabem nessas seis (`/painel`, `/busca`, `/leis`, `/pecas`, `/suporte`,
 `/configuracoes`) vivem atrás do `⌄` ao lado da marca — afordância que o próprio
 documento desenha e deixa sem função. `/agente` virou `permanentRedirect` para
@@ -615,4 +617,9 @@ leem `data/normalizado/`, e `vademecum` lê o acervo em disco.
   `scripts/argumentar.ts` não existe, e hoje não é necessária: a argumentação
   vive em `teses.template_md`, escrita à mão. O botão "gerar ao vivo" e o teto
   mensal do CLAUDE.md nunca foram implementados — não invente que existem.
-- **Súmulas são curadoria em TS** (`lib/toga/sumulas.ts`), não banco.
+- **`/sumulas` e `/fontes` foram removidas** a pedido, para o sistema ficar só
+  com o que se usa. Saíram por inteiro: rota, componente e módulo de dados
+  (`lib/toga/sumulas.ts` e `lib/toga/pipeline.ts`). Nada mais as importava, e o
+  `outputFileTracingIncludes` de `/fontes` saiu junto. Se voltarem, o relatório
+  do normalize continua em `data/normalizado/relatorio.json` — a fonte que
+  `/fontes` lia nunca esteve na tela.
