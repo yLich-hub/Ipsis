@@ -129,7 +129,9 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
   // para gravações desta aba, e `storage` para as de outra — quem conversa em
   // duas abas espera ver o mesmo histórico nas duas.
   useEffect(() => {
-    const reler = () => setConversas(listaConversas())
+    // Assíncrono agora: a lista vem do banco. Falha vira lista vazia dentro do
+    // próprio módulo, então não há caso de erro a tratar aqui.
+    const reler = () => { void listaConversas().then(setConversas) }
     reler()
     window.addEventListener(EVENTO_HISTORICO, reler)
     window.addEventListener('storage', reler)
@@ -141,7 +143,7 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
 
   const apagar = useCallback(
     (id: string) => {
-      removeConversa(id)
+      void removeConversa(id)
       // Apagar a conversa aberta deixaria a tela mostrando algo que já não está
       // no histórico. Sai para um chat novo.
       if (conversaAtiva === id) {
@@ -298,7 +300,7 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
                     <Link
                       href={`/consulta?c=${encodeURIComponent(c.id)}`}
                       onClick={aoFechar}
-                      title={`${c.titulo} · ${c.trocas.length} ${c.trocas.length === 1 ? 'pergunta' : 'perguntas'}`}
+                      title={`${c.titulo} · ${c.trocas} ${c.trocas === 1 ? 'pergunta' : 'perguntas'}`}
                       className={`tgb flex min-w-0 flex-1 items-center gap-2 overflow-hidden whitespace-nowrap rounded-[10px] px-3 py-[7px] text-[12.5px] hover:bg-tg-hover hover:text-tg-tinta ${
                         conversaAtiva === c.id ? 'bg-tg-hover text-tg-tinta' : 'text-tg-suave'
                       }`}

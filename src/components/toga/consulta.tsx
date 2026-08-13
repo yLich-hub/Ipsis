@@ -27,7 +27,7 @@ import { Girador, Selo, Visto } from '@/components/toga/base'
 import { EVENTO_NOVA } from '@/components/toga/casca'
 import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
 import { calcula, leDaConversa, meses } from '@/lib/toga/dosimetria'
-import { busca, novoId, registra } from '@/lib/toga/historico'
+import { busca, registra } from '@/lib/toga/historico'
 import { comporResposta, type Fonte, type RespostaComposta } from '@/lib/toga/resposta'
 import { ACENTO, ACENTO_CLARO, GRADIENTE_MARCA, GRADIENTE_RESULTADO } from '@/lib/toga/tokens'
 
@@ -130,7 +130,7 @@ export function Consulta({
 
   // Id da conversa em curso. Ref e não estado: muda fora do ciclo de render
   // (em "Nova consulta" e ao gravar) e nada na tela depende dele.
-  const conversaRef = useRef<string>(novoId())
+  const conversaRef = useRef<string | null>(null)
 
   const msgsRef = useRef<Msg[]>(msgs)
   msgsRef.current = msgs
@@ -246,12 +246,12 @@ export function Consulta({
       // Guarda a troca assim que a resposta chega, e não quando a digitação
       // termina: quem fecha a aba no meio da animação não deve perder a
       // pergunta. Grava a resposta CRUA — a prosa é recomposta na leitura.
-      try {
-        registra(conversaRef.current, { pergunta: q, bruta })
-      } catch {
-        // Histórico é conforto, não função. Se a gravação falhar (cota, modo
-        // privado), a conversa em curso segue normalmente.
-      }
+      // Histórico é conforto, não função: `registra` devolve null em qualquer
+      // falha e a conversa em curso segue normalmente. O id volta porque, na
+      // primeira troca, quem o cria é o banco.
+      void registra(conversaRef.current, { pergunta: q, bruta }).then((id) => {
+        if (id) conversaRef.current = id
+      })
 
       // Deixa os passos terminarem de aparecer antes de começar a digitar — a
       // sobreposição das duas animações é o que faz a tela parecer atropelada.
@@ -282,30 +282,33 @@ export function Consulta({
     if (jaCarregou.current || !conversaInicial) return
     jaCarregou.current = true
 
-    const c = busca(conversaInicial)
-    if (!c) return // conversa apagada ou de outro navegador: começa vazia
+    void busca(conversaInicial).then((c) => {
+      // Conversa apagada, de outro usuário, ou banco fora: começa vazia. Não é
+      // erro de tela — é o histórico não estar disponível.
+      if (!c || !vivo.current) return
 
-    conversaRef.current = c.id
-    setMsgs(
-      c.trocas.flatMap((t): Msg[] => {
-        const comp = comporResposta(t.bruta)
-        const total = comp.paras.reduce((a, p) => a + p.t.length, 0)
-        return [
-          { papel: 'usuario', texto: t.pergunta },
-          {
-            papel: 'assistente',
-            pergunta: t.pergunta,
-            comp,
-            achados: t.bruta.itens,
-            passos: comp.passos,
-            passo: comp.passos.length,
-            digitado: total,
-            total,
-            pronto: true,
-          },
-        ]
-      }),
-    )
+      conversaRef.current = c.id
+      setMsgs(
+        c.conteudo.flatMap((t): Msg[] => {
+          const comp = comporResposta(t.bruta)
+          const total = comp.paras.reduce((a, p) => a + p.t.length, 0)
+          return [
+            { papel: 'usuario', texto: t.pergunta },
+            {
+              papel: 'assistente',
+              pergunta: t.pergunta,
+              comp,
+              achados: t.bruta.itens,
+              passos: comp.passos,
+              passo: comp.passos.length,
+              digitado: total,
+              total,
+              pronto: true,
+            },
+          ]
+        }),
+      )
+    })
   }, [conversaInicial])
 
   // Pergunta que veio na URL (?p=…) — é como a lateral, a paleta do ⌘K e os
@@ -325,9 +328,10 @@ export function Consulta({
       setOcupado(false)
       setPainel(null)
       setRascunho('')
-      // Conversa nova de verdade: id novo. Sem isto, a próxima pergunta seria
-      // gravada como continuação do chat que o usuário acabou de fechar.
-      conversaRef.current = novoId()
+      // Conversa nova de verdade: solta o id. A próxima resposta cria uma
+      // conversa no banco; sem isto, ela seria gravada como continuação do chat
+      // que o usuário acabou de fechar.
+      conversaRef.current = null
     }
     window.addEventListener(EVENTO_NOVA, limpar)
     return () => window.removeEventListener(EVENTO_NOVA, limpar)

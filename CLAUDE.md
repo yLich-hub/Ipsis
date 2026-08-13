@@ -549,10 +549,23 @@ dobrado do art. 42 na primeira, e terceira fase podendo cair abaixo do mínimo.
 interpretação: **o que não é reconhecido não vira suposição**, fica no padrão, e
 os chips mostram o que foi lido para o usuário conferir.
 
-**Histórico de conversas.** `lib/toga/historico.ts`, em `localStorage`. A lista
-"Recentes" da lateral era uma lista fixa de sugestões — promessa falsa, já que
-nada ali tinha sido consultado por ninguém. Agora lista conversas reais, e as
-sugestões só aparecem enquanto não houver nenhuma.
+**Histórico de conversas.** `lib/toga/historico.ts`, sobre as tabelas
+`conversas` e `conversa_trocas` (migration 0007). A lista "Recentes" da lateral
+era uma lista fixa de sugestões — promessa falsa, já que nada ali tinha sido
+consultado por ninguém. Agora lista conversas reais, e as sugestões só aparecem
+enquanto não houver nenhuma.
+
+**Sem teto e sem expiração.** A primeira versão guardava em `localStorage` com
+limite de 20 conversas e despejo silencioso da mais antiga; nem o limite nem o
+despejo sobreviveram à pergunta óbvia — "e se eu fizer 200 perguntas?". Conversa
+agora some quando o usuário a apaga, e só então. Conferido no banco: 25
+conversas gravadas, 25 devolvidas; 12 trocas numa conversa, 12 devolvidas.
+
+Quem escreve é o cliente do **navegador**, carregando a sessão — é a RLS por
+`auth.uid()` que torna o histórico inacessível a qualquer outra sessão.
+Conferido: a chave publishable sem sessão enxerga zero conversas. É a única
+parte do produto que escreve no banco em runtime, e a única tabela com policy
+de INSERT.
 
 Guarda a resposta **crua** da busca, não a prosa composta: a prosa é derivada e
 `comporResposta()` a reconstrói igual, então guardar o derivado dobraria o
@@ -560,11 +573,9 @@ tamanho e congelaria uma segunda versão da mesma frase. Reabrir é `?c=<id>`, e
 conversa volta já pronta — reanimar a digitação de algo que o usuário veio reler
 seria fazê-lo esperar de novo.
 
-**A consequência é aceita e precisa ser dita: o histórico não atravessa navegador
-nem máquina.** Uma tabela exigiria migration, policy de RLS e uma ida de rede a
-cada troca, para guardar o que o navegador guarda de graça num produto de usuário
-único. Se isso passar a importar, o caminho é uma tabela `conversas` com RLS por
-`auth.uid()`, e o módulo vira a interface que ela implementa.
+Apagar a conversa leva as trocas junto, por `on delete cascade`. Histórico é
+conforto: toda falha de leitura ou escrita vira lista vazia ou `null`, e a
+conversa em curso segue.
 
 Os links que apontavam para elas foram redirecionados, não apagados: a página
 de erro e a de 404 agora levam à Consulta, e a rubrica clicável do artigo abre
