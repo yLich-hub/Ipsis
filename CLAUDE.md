@@ -508,7 +508,7 @@ Cor nova que possa ser classe **tem** que ser classe.
 
 | Rota | Tela | De onde vêm os dados |
 |---|---|---|
-| `/consulta` | chat com streaming e painel de fonte | `/api/busca` — busca híbrida real |
+| `/consulta` | chat, painel de fonte, dosimetria e histórico | `/api/busca` + `localStorage` |
 | `/jurisprudencia` | entendimento consolidado | `teses.jurisprudencia` (jsonb) |
 | `/dosimetria` | cálculo trifásico ao vivo | aritmética local, sem banco |
 | `/vademecum` | grade de ramos + leitor | índice do acervo, em disco |
@@ -526,6 +526,45 @@ Removidas: `/sumulas`, `/fontes`, `/painel`, `/busca`, `/suporte`,
 `/configuracoes`, `/fila`, `/processos` e `/relatorios`. As quatro primeiras
 duplicavam o que a Consulta já faz ou eram diagnóstico de desenvolvimento; as
 três últimas eram avisos de "fora de escopo" que nem estavam no menu.
+
+### O chat é a tela principal
+
+Duas coisas moram nele além da busca, e as duas seguem a mesma regra: nada de
+cálculo nem de estado duplicado.
+
+**Dosimetria dentro da resposta.** Um cartão recolhido aparece em **toda**
+resposta, porque a pergunta de um advogado raramente diz "calcule a pena" — ele
+pergunta sobre o § 4º, e a pena é a consequência que ele quer ver. Um cartão
+condicionado a palavra-chave erraria justamente aí.
+
+A conta vem de `lib/toga/dosimetria.ts`, **a mesma** que a tela de Dosimetria
+usa. Antes a aritmética morava dentro do componente da tela; duas cópias
+divergiriam na primeira correção, e divergir aqui é a tela dizer uma pena e o
+cartão dizer outra sobre o mesmo caso. `tests/dosimetria.test.ts` (16 asserções)
+tranca as regras que a conta tem de respeitar: Súmula 231 na segunda fase, peso
+dobrado do art. 42 na primeira, e terceira fase podendo cair abaixo do mínimo.
+
+`leDaConversa()` lê da pergunta os fatos que sabe representar — "reincidente",
+"primário", "3 kg", "perto de escola". É reconhecimento de termo, não
+interpretação: **o que não é reconhecido não vira suposição**, fica no padrão, e
+os chips mostram o que foi lido para o usuário conferir.
+
+**Histórico de conversas.** `lib/toga/historico.ts`, em `localStorage`. A lista
+"Recentes" da lateral era uma lista fixa de sugestões — promessa falsa, já que
+nada ali tinha sido consultado por ninguém. Agora lista conversas reais, e as
+sugestões só aparecem enquanto não houver nenhuma.
+
+Guarda a resposta **crua** da busca, não a prosa composta: a prosa é derivada e
+`comporResposta()` a reconstrói igual, então guardar o derivado dobraria o
+tamanho e congelaria uma segunda versão da mesma frase. Reabrir é `?c=<id>`, e a
+conversa volta já pronta — reanimar a digitação de algo que o usuário veio reler
+seria fazê-lo esperar de novo.
+
+**A consequência é aceita e precisa ser dita: o histórico não atravessa navegador
+nem máquina.** Uma tabela exigiria migration, policy de RLS e uma ida de rede a
+cada troca, para guardar o que o navegador guarda de graça num produto de usuário
+único. Se isso passar a importar, o caminho é uma tabela `conversas` com RLS por
+`auth.uid()`, e o módulo vira a interface que ela implementa.
 
 Os links que apontavam para elas foram redirecionados, não apagados: a página
 de erro e a de 404 agora levam à Consulta, e a rubrica clicável do artigo abre

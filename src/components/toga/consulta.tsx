@@ -26,8 +26,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Girador, Selo, Visto } from '@/components/toga/base'
 import { EVENTO_NOVA } from '@/components/toga/casca'
 import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
+import { calcula, leDaConversa, meses } from '@/lib/toga/dosimetria'
+import { busca, novoId, registra } from '@/lib/toga/historico'
 import { comporResposta, type Fonte, type RespostaComposta } from '@/lib/toga/resposta'
-import { ACENTO, ACENTO_CLARO, GRADIENTE_MARCA } from '@/lib/toga/tokens'
+import { ACENTO, ACENTO_CLARO, GRADIENTE_MARCA, GRADIENTE_RESULTADO } from '@/lib/toga/tokens'
 
 // --- constantes de animação (todas do documento de design) -------------------
 
@@ -82,6 +84,8 @@ type MsgUsuario = { papel: 'usuario'; texto: string }
 
 type MsgAssistente = {
   papel: 'assistente'
+  /** A pergunta que a originou. O cartão de dosimetria lê os fatos dela. */
+  pergunta: string
   comp: RespostaComposta | null
   achados: Achado[]
   passos: { t: string; meta: string }[]
@@ -93,8 +97,9 @@ type MsgAssistente = {
 
 type Msg = MsgUsuario | MsgAssistente
 
-const vazia = (): MsgAssistente => ({
+const vazia = (pergunta: string): MsgAssistente => ({
   papel: 'assistente',
+  pergunta,
   comp: null,
   achados: [],
   passos: PASSOS_PROVISORIOS,
@@ -109,9 +114,12 @@ const vazia = (): MsgAssistente => ({
 export function Consulta({
   saudacao,
   perguntaInicial,
+  conversaInicial,
 }: {
   saudacao: string
   perguntaInicial?: string
+  /** `?c=` — id da conversa a reabrir. Ver `lib/toga/historico.ts`. */
+  conversaInicial?: string
 }) {
   const [msgs, setMsgs] = useState<Msg[]>([])
   const [rascunho, setRascunho] = useState('')
@@ -119,6 +127,10 @@ export function Consulta({
   const [qtd, setQtd] = useState(8)
   const [escopo, setEscopo] = useState<string | null>(null)
   const [painel, setPainel] = useState<{ achados: Achado[]; id: string } | null>(null)
+
+  // Id da conversa em curso. Ref e não estado: muda fora do ciclo de render
+  // (em "Nova consulta" e ao gravar) e nada na tela depende dele.
+  const conversaRef = useRef<string>(novoId())
 
   const msgsRef = useRef<Msg[]>(msgs)
   msgsRef.current = msgs
@@ -193,7 +205,7 @@ export function Consulta({
       setRascunho('')
       setOcupado(true)
       setPainel(null)
-      setMsgs((ms) => ms.concat([{ papel: 'usuario', texto: q }, vazia()]))
+      setMsgs((ms) => ms.concat([{ papel: 'usuario', texto: q }, vazia(q)]))
 
       // O relógio dos passos anda sozinho; ele para no último passo e espera a
       // resposta, em vez de correr até o fim e deixar a tela parada.
@@ -231,6 +243,16 @@ export function Consulta({
 
       mutar(() => ({ comp, achados: bruta.itens, passos: comp.passos, total }))
 
+      // Guarda a troca assim que a resposta chega, e não quando a digitação
+      // termina: quem fecha a aba no meio da animação não deve perder a
+      // pergunta. Grava a resposta CRUA — a prosa é recomposta na leitura.
+      try {
+        registra(conversaRef.current, { pergunta: q, bruta })
+      } catch {
+        // Histórico é conforto, não função. Se a gravação falhar (cota, modo
+        // privado), a conversa em curso segue normalmente.
+      }
+
       // Deixa os passos terminarem de aparecer antes de começar a digitar — a
       // sobreposição das duas animações é o que faz a tela parecer atropelada.
       // O último passo pode não ser da assistente se a tela foi limpa no meio;
@@ -251,14 +273,49 @@ export function Consulta({
     [digitar, escopo, mutar, ocupado, pararRelogios, qtd],
   )
 
+  // Conversa que veio na URL (?c=…) — é como a lateral devolve o usuário a um
+  // chat anterior. Reconstrói as mensagens a partir das trocas gravadas, já
+  // "prontas": reanimar a digitação de uma resposta que o usuário já leu seria
+  // fazê-lo esperar de novo por algo que ele veio reler.
+  const jaCarregou = useRef(false)
+  useEffect(() => {
+    if (jaCarregou.current || !conversaInicial) return
+    jaCarregou.current = true
+
+    const c = busca(conversaInicial)
+    if (!c) return // conversa apagada ou de outro navegador: começa vazia
+
+    conversaRef.current = c.id
+    setMsgs(
+      c.trocas.flatMap((t): Msg[] => {
+        const comp = comporResposta(t.bruta)
+        const total = comp.paras.reduce((a, p) => a + p.t.length, 0)
+        return [
+          { papel: 'usuario', texto: t.pergunta },
+          {
+            papel: 'assistente',
+            pergunta: t.pergunta,
+            comp,
+            achados: t.bruta.itens,
+            passos: comp.passos,
+            passo: comp.passos.length,
+            digitado: total,
+            total,
+            pronto: true,
+          },
+        ]
+      }),
+    )
+  }, [conversaInicial])
+
   // Pergunta que veio na URL (?p=…) — é como a lateral, a paleta do ⌘K e os
   // atalhos de outras telas chegam aqui. Dispara uma vez só.
   const jaDisparou = useRef(false)
   useEffect(() => {
-    if (jaDisparou.current || !perguntaInicial) return
+    if (jaDisparou.current || !perguntaInicial || conversaInicial) return
     jaDisparou.current = true
     void enviar(perguntaInicial)
-  }, [enviar, perguntaInicial])
+  }, [conversaInicial, enviar, perguntaInicial])
 
   // "Nova consulta" da lateral funciona mesmo já estando nesta tela.
   useEffect(() => {
@@ -268,6 +325,9 @@ export function Consulta({
       setOcupado(false)
       setPainel(null)
       setRascunho('')
+      // Conversa nova de verdade: id novo. Sem isto, a próxima pergunta seria
+      // gravada como continuação do chat que o usuário acabou de fechar.
+      conversaRef.current = novoId()
     }
     window.addEventListener(EVENTO_NOVA, limpar)
     return () => window.removeEventListener(EVENTO_NOVA, limpar)
@@ -491,6 +551,109 @@ function Resposta({
   )
 }
 
+/**
+ * Dosimetria estimada a partir da conversa.
+ *
+ * Fica recolhido por padrão e disponível em TODA resposta, porque a pergunta que
+ * o advogado faz raramente diz "calcule a pena" — ele pergunta sobre o § 4º e a
+ * pena é a consequência que ele quer ver. Um cartão que só aparecesse quando a
+ * pergunta contivesse a palavra certa erraria justamente nesses casos.
+ *
+ * A conta vem de `lib/toga/dosimetria.ts`, a MESMA que a tela de Dosimetria usa.
+ * Os chips mostram o que foi reconhecido no texto — e o que não foi reconhecido
+ * não vira suposição: fica no padrão, e o rodapé diz que é estimativa.
+ */
+function CartaoDosimetria({ pergunta }: { pergunta: string }) {
+  const [aberto, setAberto] = useState(false)
+  const { entrada, chips } = useMemo(() => leDaConversa(pergunta), [pergunta])
+  const c = useMemo(() => calcula(entrada), [entrada])
+
+  const fases = [
+    { k: '1ª fase', nome: 'Pena-base', v: meses(c.base), d: `${c.negativos} circunstância${c.negativos === 1 ? '' : 's'} desfavorável${c.negativos === 1 ? '' : 'eis'}` },
+    { k: '2ª fase', nome: 'Provisória', v: meses(c.provisoria), d: 'agravantes e atenuantes' },
+    { k: '3ª fase', nome: 'Definitiva', v: meses(c.definitiva), d: 'causas de aumento e diminuição' },
+  ]
+
+  return (
+    <div className="mt-4 overflow-hidden rounded-[14px] border border-tg-linha bg-white">
+      <button
+        type="button"
+        onClick={() => setAberto((a) => !a)}
+        aria-expanded={aberto}
+        className="tgb flex w-full items-center gap-2.5 px-4 py-3 text-left hover:bg-tg-preenche"
+      >
+        <span className="text-[13px] font-medium text-tg-tinta">Dosimetria estimada</span>
+        <Selo tom="acento">art. 33 · 5 a 15 anos</Selo>
+        <span className="flex-1" />
+        <span className="text-[12.5px] tabular-nums text-tg-acento-txt">{meses(c.definitiva)}</span>
+        <span aria-hidden="true" className={`text-[11px] text-tg-fraco-3 transition-transform ${aberto ? 'rotate-180' : ''}`}>
+          ⌄
+        </span>
+      </button>
+
+      {aberto && (
+        <div className="border-t border-tg-linha-fraca px-4 pb-4 pt-3">
+          {chips.length > 0 ? (
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {chips.map((t) => (
+                <span
+                  key={t}
+                  className="rounded-md bg-tg-acento-fraco px-2 py-0.5 text-[11.5px] text-tg-acento-txt"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="mb-3 text-[12px] leading-relaxed text-tg-fraco-3">
+              Nada de dosimetria foi reconhecido nesta pergunta — o cálculo abaixo usa o cenário
+              padrão. Escreva fatos como “réu primário”, “confessou”, “reincidente” ou “grande
+              quantidade” para o cartão lê-los.
+            </p>
+          )}
+
+          <div className="grid grid-cols-3 gap-2">
+            {fases.map((f) => (
+              <div key={f.k} className="rounded-lg bg-tg-preenche px-3 py-2.5">
+                <p className="text-[10.5px] uppercase tracking-wider text-tg-fraco-3">{f.k}</p>
+                <p className="mt-0.5 text-[15px] font-medium tabular-nums text-tg-tinta">{f.v}</p>
+                <p className="mt-0.5 text-[11px] leading-tight text-tg-fraco-3">{f.d}</p>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl px-4 py-3"
+            style={{ background: GRADIENTE_RESULTADO }}
+          >
+            <span className="font-tg-serif text-[20px] leading-none text-white">
+              {meses(c.definitiva)}
+            </span>
+            <span className="text-[11.5px] text-white/70">
+              regime inicial {c.regime}
+              {c.abaixoDoMinimo ? ' · abaixo do mínimo pelo § 4º' : ''}
+            </span>
+            <span className="flex-1" />
+            <Link
+              href="/dosimetria"
+              className="rounded-lg bg-white/95 px-2.5 py-1.5 text-[11.5px] font-medium text-tg-acento-txt hover:bg-white"
+            >
+              Abrir na ferramenta →
+            </Link>
+          </div>
+
+          <p className="mt-2.5 text-[11px] leading-relaxed text-tg-tenue-2">
+            Estimativa, não parecer. Usa as frações majoritárias (1/8 do intervalo por
+            circunstância, art. 42 com peso dobrado) e respeita a Súmula 231 na segunda fase. O
+            regime sai das faixas do art. 33, § 2º, do CP, sem a fundamentação concreta que as
+            Súmulas 440/STJ e 719/STF exigem.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Rodape({
   m,
   comp,
@@ -511,6 +674,8 @@ function Rodape({
           ))}
         </div>
       )}
+
+      <CartaoDosimetria pergunta={m.pergunta} />
 
       <div className="mt-3.5 flex flex-wrap items-center gap-3">
         <Confianca n={comp.primarias} />

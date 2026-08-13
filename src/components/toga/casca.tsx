@@ -16,12 +16,18 @@
 // =============================================================================
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useUsuario, marcarSaidaDeliberada } from '@/components/casca/sessao'
 import { Ponto, Selo } from '@/components/toga/base'
 import { supabaseNavegador } from '@/lib/auth/navegador'
+import {
+  EVENTO_HISTORICO,
+  type Conversa,
+  lista as listaConversas,
+  remove as removeConversa,
+} from '@/lib/toga/historico'
 import { GRADIENTE_CONTA, GRADIENTE_MARCA, MATIZ } from '@/lib/toga/tokens'
 
 // --- mapa de telas -----------------------------------------------------------
@@ -67,8 +73,14 @@ const OUTRAS = [
   { href: '/pecas', rotulo: 'Peças', nota: 'resposta à acusação, art. 396-A' },
 ]
 
-/** Perguntas de partida da lateral. Levam ao chat já com a consulta feita. */
-const RECENTES = [
+/**
+ * Perguntas de partida, exibidas só enquanto não há histórico.
+ *
+ * Antes esta lista ERA a lista de "Recentes", e isso a tornava uma promessa
+ * falsa: nada ali tinha sido consultado por ninguém. Agora ela é o que é —
+ * sugestão de primeira pergunta — e sai de cena assim que existe conversa real.
+ */
+const SUGESTOES = [
   'Tráfico privilegiado, art. 33 §4º',
   'Dosimetria da pena na Lei de Drogas',
   'Busca domiciliar sem mandado',
@@ -102,8 +114,43 @@ export const EVENTO_NOVA = 'toga:nova-consulta'
 
 export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () => void }) {
   const caminho = usePathname()
+  const params = useSearchParams()
   const [menu, setMenu] = useState(false)
+  const [conversas, setConversas] = useState<Conversa[]>([])
   const router = useRouter()
+
+  /** Qual conversa está aberta agora, para marcá-la na lista. */
+  const conversaAtiva = caminho === '/consulta' ? params.get('c') : null
+
+  // O histórico só é lido depois de montar: `localStorage` não existe no
+  // servidor, e usá-lo no primeiro render faria o HTML divergir.
+  //
+  // Duas fontes de atualização, e as duas são necessárias: `EVENTO_HISTORICO`
+  // para gravações desta aba, e `storage` para as de outra — quem conversa em
+  // duas abas espera ver o mesmo histórico nas duas.
+  useEffect(() => {
+    const reler = () => setConversas(listaConversas())
+    reler()
+    window.addEventListener(EVENTO_HISTORICO, reler)
+    window.addEventListener('storage', reler)
+    return () => {
+      window.removeEventListener(EVENTO_HISTORICO, reler)
+      window.removeEventListener('storage', reler)
+    }
+  }, [])
+
+  const apagar = useCallback(
+    (id: string) => {
+      removeConversa(id)
+      // Apagar a conversa aberta deixaria a tela mostrando algo que já não está
+      // no histórico. Sai para um chat novo.
+      if (conversaAtiva === id) {
+        window.dispatchEvent(new CustomEvent(EVENTO_NOVA))
+        router.push('/consulta')
+      }
+    },
+    [conversaAtiva, router],
+  )
 
   const novaConsulta = useCallback(() => {
     window.dispatchEvent(new CustomEvent(EVENTO_NOVA))
@@ -232,17 +279,48 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
         <div className="mt-[22px] flex min-h-0 flex-1 flex-col">
           <p className="px-3 pb-2 pt-1.5 text-[11px] font-medium text-tg-fraco-3">Recentes</p>
           <div className="flex flex-col gap-px overflow-auto">
-            {RECENTES.map((r) => (
-              <Link
-                key={r}
-                href={perguntar(r)}
-                onClick={aoFechar}
-                className="tgb flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-[10px] px-3 py-[7px] text-[12.5px] text-tg-suave hover:bg-tg-hover hover:text-tg-tinta"
-              >
-                <span aria-hidden="true" className="size-[5px] shrink-0 rounded-full bg-[#c6c9d2]" />
-                <span className="truncate">{r}</span>
-              </Link>
-            ))}
+            {conversas.length === 0
+              ? // Sem histórico ainda, a lista vira ponto de partida: as mesmas
+                // perguntas de sempre, que somem assim que houver conversa real.
+                SUGESTOES.map((r) => (
+                  <Link
+                    key={r}
+                    href={perguntar(r)}
+                    onClick={aoFechar}
+                    className="tgb flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-[10px] px-3 py-[7px] text-[12.5px] text-tg-suave hover:bg-tg-hover hover:text-tg-tinta"
+                  >
+                    <span aria-hidden="true" className="size-[5px] shrink-0 rounded-full bg-[#c6c9d2]" />
+                    <span className="truncate">{r}</span>
+                  </Link>
+                ))
+              : conversas.map((c) => (
+                  <div key={c.id} className="group relative flex items-center">
+                    <Link
+                      href={`/consulta?c=${encodeURIComponent(c.id)}`}
+                      onClick={aoFechar}
+                      title={`${c.titulo} · ${c.trocas.length} ${c.trocas.length === 1 ? 'pergunta' : 'perguntas'}`}
+                      className={`tgb flex min-w-0 flex-1 items-center gap-2 overflow-hidden whitespace-nowrap rounded-[10px] px-3 py-[7px] text-[12.5px] hover:bg-tg-hover hover:text-tg-tinta ${
+                        conversaAtiva === c.id ? 'bg-tg-hover text-tg-tinta' : 'text-tg-suave'
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="size-[5px] shrink-0 rounded-full bg-[#c6c9d2]"
+                      />
+                      <span className="truncate">{c.titulo}</span>
+                    </Link>
+                    {/* Aparece no hover e no foco de teclado — só no hover, quem
+                        navega por Tab nunca alcançaria o botão. */}
+                    <button
+                      type="button"
+                      onClick={() => apagar(c.id)}
+                      aria-label={`Apagar conversa "${c.titulo}"`}
+                      className="absolute right-1 rounded-md px-1.5 py-1 text-[13px] leading-none text-tg-tenue-2 opacity-0 transition-opacity hover:bg-tg-caixa hover:text-tg-tinta-4 focus-visible:opacity-100 group-hover:opacity-100"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
           </div>
         </div>
 

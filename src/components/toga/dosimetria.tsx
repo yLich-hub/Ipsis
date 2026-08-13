@@ -20,167 +20,47 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { Chave, Segmentado } from '@/components/toga/base'
+import {
+  AGRAVANTES,
+  CAUSAS,
+  ENTRADA_PADRAO,
+  POR_VETOR,
+  PREPONDERANTE,
+  VETORES,
+  calcula,
+  meses,
+  type ChaveAgravante,
+  type ChaveCausa,
+  type Peso,
+} from '@/lib/toga/dosimetria'
 import { GRADIENTE_RESULTADO } from '@/lib/toga/tokens'
 
-// --- a lei -------------------------------------------------------------------
-
-/** Art. 33, caput da Lei 11.343/2006 — reclusão de 5 a 15 anos. Em meses. */
-const MINIMO = 60
-const MAXIMO = 180
-const INTERVALO = MAXIMO - MINIMO
-
-/**
- * A fração por vetor negativo na primeira fase.
- *
- * 1/8 do intervalo é o critério majoritário do STJ, e é *critério*, não lei: o
- * art. 59 manda o juiz fixar a pena "conforme seja necessário e suficiente" sem
- * dizer quanto vale cada circunstância. Há juízo que usa 1/6 e há quem module.
- * Fixar 1/8 aqui é escolha explícita, não descuido.
- */
-const POR_VETOR = INTERVALO / 8
-
-type Peso = 'fav' | 'neutra' | 'desf'
-
-const VETORES = [
-  { nome: 'Culpabilidade', dica: 'grau de reprovabilidade' },
-  { nome: 'Antecedentes', dica: 'certidões nos autos' },
-  { nome: 'Conduta social', dica: 'meio familiar e laboral' },
-  { nome: 'Personalidade', dica: 'sem laudo — cautela' },
-  { nome: 'Motivos', dica: 'motivação do agente' },
-  { nome: 'Circunstâncias', dica: 'modo de execução' },
-  { nome: 'Consequências', dica: 'extensão do dano' },
-  { nome: 'Vítima', dica: 'comportamento da vítima' },
-  // O nono não é do art. 59. Ver PREPONDERANTE, abaixo.
-  { nome: 'Natureza e quantidade', dica: 'art. 42 — preponderante' },
-] as const
-
-/**
- * Índice do vetor do art. 42 da Lei de Drogas.
- *
- * O artigo manda o juiz considerar "com preponderância sobre o previsto no art.
- * 59 do Código Penal" a natureza e a quantidade da droga. Preponderância que não
- * pesa mais que as outras não é preponderância — daí o peso dobrado. É a
- * tradução aritmética mais simples e defensável da palavra; um juiz pode chegar
- * a outro número, e por isso o rodapé da fase diz que fração está sendo usada.
- */
-const PREPONDERANTE = 8
-
-const AGRAVANTES = [
-  {
-    k: 'menoridade',
-    nome: 'Menoridade relativa (art. 65, I)',
-    base: 'réu com menos de 21 anos na data do fato',
-    nota: 'atenuante preponderante',
-    fr: '− 1/6',
-  },
-  {
-    k: 'confissao',
-    nome: 'Confissão espontânea (art. 65, III, d)',
-    base: 'confissão usada na fundamentação',
-    nota: 'Súmula 545/STJ',
-    fr: '− 1/6',
-  },
-  {
-    k: 'reincidencia',
-    nome: 'Reincidência (art. 61, I)',
-    base: 'condenação anterior transitada em julgado',
-    nota: 'agravante preponderante',
-    fr: '+ 1/6',
-  },
-] as const
-
-const CAUSAS = [
-  {
-    k: 'privilegiado',
-    nome: 'Tráfico privilegiado (art. 33, §4º)',
-    base: 'primário, bons antecedentes, sem organização nem dedicação',
-    nota: 'redução de 1/6 a 2/3 — aqui, 2/3',
-    fr: '− 2/3',
-  },
-  {
-    k: 'proximidade',
-    nome: 'Proximidade de escola (art. 40, III)',
-    base: 'nas imediações de estabelecimento de ensino',
-    nota: 'aumento de 1/6 a 2/3 — aqui, o mínimo',
-    fr: '+ 1/6',
-  },
-  {
-    k: 'tentativa',
-    nome: 'Tentativa (art. 14, II)',
-    base: 'execução iniciada e não consumada',
-    nota: 'redução de 1/3 a 2/3 — aqui, 1/3',
-    fr: '− 1/3',
-  },
-] as const
-
-type ChaveAgravante = (typeof AGRAVANTES)[number]['k']
-type ChaveCausa = (typeof CAUSAS)[number]['k']
-
-// --- formatação --------------------------------------------------------------
-
-/** `74` → `6a 2m`. Meses arredondados: a lei não conta pena em fração de mês. */
-function meses(m: number): string {
-  const total = Math.round(m)
-  const anos = Math.floor(total / 12)
-  const resto = total % 12
-  if (anos && resto) return `${anos}a ${resto}m`
-  if (anos) return `${anos} ${anos === 1 ? 'ano' : 'anos'}`
-  return `${resto} ${resto === 1 ? 'mês' : 'meses'}`
-}
+// A conta mora em `lib/toga/dosimetria.ts`, compartilhada com o cartão que
+// aparece dentro da resposta do chat. Duas cópias divergiriam na primeira
+// correção — e divergir aqui é a tela dizer uma pena e o cartão dizer outra.
 
 // --- tela --------------------------------------------------------------------
 
 export function Dosimetria() {
   const [fase, setFase] = useState<1 | 2 | 3>(1)
-  const [vetores, setVetores] = useState<Peso[]>(() => Array(VETORES.length).fill('neutra'))
-  const [agravantes, setAgravantes] = useState<Record<ChaveAgravante, boolean>>({
-    menoridade: false,
-    confissao: true,
-    reincidencia: false,
-  })
-  const [causas, setCausas] = useState<Record<ChaveCausa, boolean>>({
-    privilegiado: true,
-    proximidade: false,
-    tentativa: false,
-  })
+  // O ponto de partida é o mesmo de `ENTRADA_PADRAO`, que o cartão do chat
+  // também usa. Cópia local aqui significaria a ferramenta abrir num estado e o
+  // cartão em outro, sobre o mesmo crime.
+  const [vetores, setVetores] = useState<Peso[]>(() => [...ENTRADA_PADRAO.vetores])
+  const [agravantes, setAgravantes] = useState<Record<ChaveAgravante, boolean>>(() => ({
+    ...ENTRADA_PADRAO.agravantes,
+  }))
+  const [causas, setCausas] = useState<Record<ChaveCausa, boolean>>(() => ({
+    ...ENTRADA_PADRAO.causas,
+  }))
   const [memorial, setMemorial] = useState<0 | 1 | 2>(0)
 
-  const c = useMemo(() => {
-    const negativos = vetores.filter((v) => v === 'desf').length
-    const peso = vetores.reduce(
-      (a, v, i) => a + (v === 'desf' ? (i === PREPONDERANTE ? 2 : 1) : 0),
-      0,
-    )
-    const base = Math.min(MAXIMO, MINIMO + peso * POR_VETOR)
+  const c = useMemo(
+    () => calcula({ vetores, agravantes, causas }),
+    [vetores, agravantes, causas],
+  )
 
-    let provisoria = base
-    if (agravantes.reincidencia) provisoria *= 7 / 6
-    // Súmula 231/STJ: a atenuante não leva a pena abaixo do mínimo legal. É a
-    // trava mais desrespeitada em cálculo de padaria, e por isso é `Math.max` e
-    // não subtração livre.
-    if (agravantes.menoridade) provisoria = Math.max(MINIMO, provisoria * 5 / 6)
-    if (agravantes.confissao) provisoria = Math.max(MINIMO, provisoria * 5 / 6)
-    provisoria = Math.min(MAXIMO, provisoria)
-
-    // Terceira fase: aqui a pena PODE ficar abaixo do mínimo. Causa de
-    // diminuição não é atenuante, e a Súmula 231 não a alcança — é exatamente o
-    // que faz o §4º valer a pena no tráfico.
-    let definitiva = provisoria
-    if (causas.proximidade) definitiva *= 7 / 6
-    if (causas.privilegiado) definitiva *= 1 / 3
-    if (causas.tentativa) definitiva *= 2 / 3
-
-    return {
-      negativos,
-      peso,
-      base,
-      provisoria,
-      definitiva: Math.round(definitiva),
-      multa: Math.min(1500, 500 + peso * 125),
-    }
-  }, [vetores, agravantes, causas])
-
-  const abaixoDoMinimo = c.definitiva < MINIMO
+  const abaixoDoMinimo = c.abaixoDoMinimo
 
   const fases = [
     { k: '1ª fase', nome: 'Pena-base', res: meses(c.base) },

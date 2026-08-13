@@ -33,8 +33,16 @@ function saudacaoDeAgora(): string {
 export default async function PaginaConsulta({
   searchParams,
 }: {
-  searchParams: Promise<{ p?: string }>
+  searchParams: Promise<{ p?: string; c?: string }>
 }) {
-  const { p } = await searchParams
-  return <Consulta saudacao={saudacaoDeAgora()} perguntaInicial={p?.trim() || undefined} />
+  const { p, c } = await searchParams
+  return (
+    <Consulta
+      saudacao={saudacaoDeAgora()}
+      perguntaInicial={p?.trim() || undefined}
+      // `?c=` reabre uma conversa do histórico. Quem manda é ela: com os dois
+      // parâmetros na URL, reabrir vence disparar pergunta nova.
+      conversaInicial={c?.trim() || undefined}
+    />
+  )
 }
