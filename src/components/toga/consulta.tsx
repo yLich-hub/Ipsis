@@ -127,14 +127,34 @@ export function Consulta({
   const digitaT = useRef<ReturnType<typeof setInterval> | null>(null)
   const fim = useRef<HTMLDivElement>(null)
 
+  /**
+   * A espera entre o fim dos passos e o início da digitação.
+   *
+   * Precisa de ref como os intervalos: sem isso, sair da tela enquanto a
+   * resposta chega deixava o timeout pendente disparar depois do desmonte,
+   * chamando `digitar()` — que abria um intervalo novo, já fora do alcance da
+   * limpeza, tiquetaqueando a cada 16 ms pelo resto da sessão.
+   */
+  const esperaT = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** Falso depois do desmonte: nenhum relógio deve ressuscitar a partir daí. */
+  const vivo = useRef(true)
+
   const pararRelogios = useCallback(() => {
     if (passoT.current) clearInterval(passoT.current)
     if (digitaT.current) clearInterval(digitaT.current)
+    if (esperaT.current) clearTimeout(esperaT.current)
     passoT.current = null
     digitaT.current = null
+    esperaT.current = null
   }, [])
 
-  useEffect(() => pararRelogios, [pararRelogios])
+  useEffect(() => {
+    vivo.current = true
+    return () => {
+      vivo.current = false
+      pararRelogios()
+    }
+  }, [pararRelogios])
 
   /** Aplica uma mudança à última mensagem, que é sempre a do assistente em curso. */
   const mutar = useCallback((fn: (m: MsgAssistente) => Partial<MsgAssistente>) => {
@@ -149,6 +169,7 @@ export function Consulta({
   }, [])
 
   const digitar = useCallback(() => {
+    if (!vivo.current) return
     if (digitaT.current) clearInterval(digitaT.current)
     digitaT.current = setInterval(() => {
       const m = msgsRef.current[msgsRef.current.length - 1]
@@ -212,11 +233,15 @@ export function Consulta({
 
       // Deixa os passos terminarem de aparecer antes de começar a digitar — a
       // sobreposição das duas animações é o que faz a tela parecer atropelada.
-      const restantes = Math.max(
-        0,
-        comp.passos.length - (msgsRef.current[msgsRef.current.length - 1] as MsgAssistente).passo,
-      )
-      setTimeout(() => {
+      // O último passo pode não ser da assistente se a tela foi limpa no meio;
+      // sem o `?? 0` a subtração vira NaN e o `setTimeout` dispara na hora.
+      const ultima = msgsRef.current[msgsRef.current.length - 1]
+      const passoAtual = ultima?.papel === 'assistente' ? ultima.passo : 0
+      const restantes = Math.max(0, comp.passos.length - passoAtual)
+
+      esperaT.current = setTimeout(() => {
+        esperaT.current = null
+        if (!vivo.current) return
         if (passoT.current) clearInterval(passoT.current)
         passoT.current = null
         mutar((x) => ({ passo: x.passos.length }))

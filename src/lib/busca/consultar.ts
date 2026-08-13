@@ -113,25 +113,53 @@ async function resolveDireto(
         'capitulo,tipo,rotulo,citacao,texto,revogado,ordem',
     )
     .in('artigo_id', ids)
-    .order('lei_id')
     .order('ordem')
-    .limit(qtd)
+    // Teto de segurança, não paginação: um artigo tem dezenas de dispositivos,
+    // não centenas. O corte por `qtd` acontece depois de ordenar por lei, e é
+    // por isso que ele não pode ser feito aqui — ver abaixo.
+    .limit(200)
 
   if (error || !data?.length) return null
 
+  // `ordem` é buscada mas não faz parte de `Achado`: serve só para ordenar o
+  // artigo internamente antes de o resultado ser montado.
   type LinhaDireta = Omit<
     Achado,
     'dispositivo_id' | 'score' | 'via_rubrica' | 'rubrica_termo' | 'papel'
-  > & { id: string }
+  > & { id: string; ordem: number }
 
-  return (data as unknown as LinhaDireta[]).map((d) => ({
-    ...d,
-    dispositivo_id: d.id,
-    score: 0,
-    via_rubrica: false,
-    rubrica_termo: null,
-    papel: null,
-  }))
+  // A ordem das leis é a de `LEIS_CONHECIDAS`, e ordenar aqui não é preciosismo.
+  // Antes o `.order('lei_id')` ordenava alfabeticamente no banco, e
+  // `dl_2848_1940` vem antes de `lei_11343_2006`: a consulta "art. 33" gastava
+  // as primeiras posições com o art. 33 do Código Penal (regimes de pena) e o
+  // do CPP, e o `§ 4º` da Lei de Drogas — o tráfico privilegiado, o dispositivo
+  // mais citado deste projeto — caía fora do limite e nunca era exibido.
+  //
+  // Lei desconhecida vai para o fim em vez de para o começo: `indexOf` devolve
+  // -1, que ordenaria antes de tudo.
+  const prioridade = (leiId: string) => {
+    const i = LEIS_CONHECIDAS.indexOf(leiId)
+    return i === -1 ? LEIS_CONHECIDAS.length : i
+  }
+
+  // `Math.max(qtd, 1)` com `qtd` não numérico devolveria NaN, e `slice(0, NaN)`
+  // é lista vazia — que o chamador leria como "endereço resolvido, zero
+  // dispositivos". A rota já saneia; isto é a segunda linha, para quem chamar
+  // `consultar()` direto (a página /busca chama).
+  const limite = Number.isFinite(qtd) ? Math.max(Math.trunc(qtd), 1) : 12
+
+  return (data as unknown as LinhaDireta[])
+    .slice()
+    .sort((a, b) => prioridade(a.lei_id) - prioridade(b.lei_id) || a.ordem - b.ordem)
+    .slice(0, limite)
+    .map((d) => ({
+      ...d,
+      dispositivo_id: d.id,
+      score: 0,
+      via_rubrica: false,
+      rubrica_termo: null,
+      papel: null,
+    }))
 }
 
 export async function consultar({

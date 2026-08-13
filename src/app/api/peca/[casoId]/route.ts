@@ -33,12 +33,17 @@ export async function GET(
 
   if (!c.ok) return NextResponse.json({ erro: c.erro }, { status: 503 })
   if (!ts.ok) return NextResponse.json({ erro: ts.erro }, { status: 503 })
+  // Caso inexistente é 404, não 503: até `tentaTalvez` existir, "não encontrado"
+  // vinha como erro de banco e este ramo era inalcançável.
   if (!c.dados) return NextResponse.json({ erro: 'caso não encontrado' }, { status: 404 })
 
-  const aplicaveis = ts.dados.filter((t) => aplicaA(t, c.dados))
+  // Ligado a um const local porque o estreitamento de `c.dados` não atravessa a
+  // fronteira do callback abaixo.
+  const caso = c.dados
+  const aplicaveis = ts.dados.filter((t) => aplicaA(t, caso))
 
   try {
-    const peca = await montarPeca(c.dados, aplicaveis)
+    const peca = await montarPeca(caso, aplicaveis)
     const buffer = await pecaEmDocx(peca)
 
     return new NextResponse(new Uint8Array(buffer), {

@@ -31,6 +31,28 @@ async function tenta<T>(
   }
 }
 
+/**
+ * Para consultas `maybeSingle()`, onde a ausência de linha é resposta legítima
+ * e não falha.
+ *
+ * `tenta` trata `data === null` como erro, e para uma lista isso está certo. Já
+ * para uma busca por id, "não existe" virava `ok: false` e a tela renderizava
+ * "a base está fora do ar" — quando o problema era um id inexistente na URL. O
+ * `notFound()` das telas de dispositivo e artigo era, por causa disso, código
+ * inalcançável.
+ */
+async function tentaTalvez<T>(
+  consulta: PromiseLike<{ data: unknown; error: { message: string } | null }>,
+): Promise<Resultado<T | null>> {
+  try {
+    const { data, error } = await consulta
+    if (error) return { ok: false, erro: error.message }
+    return { ok: true, dados: (data ?? null) as T | null }
+  } catch (e) {
+    return { ok: false, erro: e instanceof Error ? e.message : String(e) }
+  }
+}
+
 // --- formatos de linha -------------------------------------------------------
 
 export type Lei = {
@@ -112,7 +134,7 @@ export const leis = () =>
   tenta<Lei[]>(supabase.from('leis').select('*').order('ordem'))
 
 export const lei = (id: string) =>
-  tenta<Lei>(supabase.from('leis').select('*').eq('id', id).maybeSingle())
+  tentaTalvez<Lei>(supabase.from('leis').select('*').eq('id', id).maybeSingle())
 
 export const artigosDaLei = (leiId: string) =>
   tenta<Artigo[]>(
@@ -124,7 +146,7 @@ export const artigosDaLei = (leiId: string) =>
   )
 
 export const artigo = (id: string) =>
-  tenta<Artigo>(supabase.from('artigos').select('*').eq('id', id).maybeSingle())
+  tentaTalvez<Artigo>(supabase.from('artigos').select('*').eq('id', id).maybeSingle())
 
 export const dispositivosDoArtigo = (artigoId: string) =>
   tenta<Dispositivo[]>(
@@ -132,7 +154,7 @@ export const dispositivosDoArtigo = (artigoId: string) =>
   )
 
 export const dispositivo = (id: string) =>
-  tenta<Dispositivo>(
+  tentaTalvez<Dispositivo>(
     supabase.from('v_dispositivo').select(COLUNAS_DISPOSITIVO).eq('id', id).maybeSingle(),
   )
 
@@ -248,7 +270,7 @@ export type Caso = {
 }
 
 export const caso = (id: string) =>
-  tenta<Caso>(
+  tentaTalvez<Caso>(
     supabase
       .from('casos')
       .select('id,titulo,narrativa,imputacao,fatos,ordem')

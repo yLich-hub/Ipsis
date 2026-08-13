@@ -39,7 +39,11 @@ export function Sumulas() {
   useEffect(() => {
     try {
       const bruto = window.localStorage.getItem(CHAVE)
-      if (bruto) setSalvas(JSON.parse(bruto) as string[])
+      // `JSON.parse` só garante que é JSON, não que é a lista que gravamos.
+      // Um valor corrompido que fosse objeto passaria por aqui e estouraria no
+      // primeiro `.includes()`, já em render.
+      const lido: unknown = bruto ? JSON.parse(bruto) : null
+      if (Array.isArray(lido)) setSalvas(lido.filter((x): x is string => typeof x === 'string'))
     } catch {
       // Modo privado de alguns navegadores estoura no getItem. Seguir sem
       // favoritos é melhor que a tela não abrir.

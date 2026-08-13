@@ -43,8 +43,11 @@ export default async function LeiPage({
   const filtro = ((await searchParams).f ?? '').trim()
 
   const [l, as] = await Promise.all([buscaLei(leiId), artigosDaLei(leiId)])
-  if (l.ok && !l.dados) notFound()
 
+  // A ordem importa e é o conserto de um bug: primeiro se descarta a falha de
+  // banco, e só então a ausência da lei vira 404. Enquanto "não encontrado"
+  // chegava como erro, este `notFound()` nunca era alcançado e um id inexistente
+  // na URL exibia "a base está fora do ar".
   if (!l.ok || !as.ok) {
     return (
       <>
@@ -55,6 +58,9 @@ export default async function LeiPage({
       </>
     )
   }
+
+  if (!l.dados) notFound()
+  const lei = l.dados
 
   const alvo = semAcento(filtro)
   const artigos = alvo
@@ -71,11 +77,11 @@ export default async function LeiPage({
   return (
     <>
       <Cabecalho
-        titulo={l.dados.apelido}
-        sub={`${numeroBR(l.dados.total_artigos)} artigos · redação vigente em ${dataBR(l.dados.vigencia_ate)}`}
+        titulo={lei.apelido}
+        sub={`${numeroBR(lei.total_artigos)} artigos · redação vigente em ${dataBR(lei.vigencia_ate)}`}
       >
-        {l.dados.cobertura === 'parcial' ? (
-          <Selo tom="ambar" title={l.dados.cobertura_nota ?? undefined}>
+        {lei.cobertura === 'parcial' ? (
+          <Selo tom="ambar" title={lei.cobertura_nota ?? undefined}>
             cobertura parcial
           </Selo>
         ) : (
