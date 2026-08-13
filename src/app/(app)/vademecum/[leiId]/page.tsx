@@ -105,7 +105,7 @@ export default async function LeiDoAcervoPage({
             )}
 
             <div className="mt-4">
-              <Procedencia lei={lei} origem={origem} />
+              <Procedencia lei={lei} />
             </div>
 
             {lei.ementa && (

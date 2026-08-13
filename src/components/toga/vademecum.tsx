@@ -100,28 +100,15 @@ export function VadeMecum({
         </TituloTela>
 
         {/*
-          A procedência não é rodapé: quem chega aqui pelo menu precisa saber,
-          antes de ler qualquer coisa, que este texto não serve para citar.
+          O aviso de procedência que ficava aqui saiu a pedido: ele aparecia
+          antes de qualquer coisa e atrapalhava quem só queria procurar uma lei.
+          A separação entre acervo e corpus curado não dependia dele — ela é
+          estrutural, não visual: os ids do acervo nunca casam o padrão do
+          corpus, nada é escrito em `dispositivos`, a busca híbrida não enxerga
+          o acervo, e `tests/vademecum.test.ts` falha se alguém ligar os dois.
+          O crédito da fonte continua no rodapé do leitor, que é obrigação de
+          licença, não aviso ao usuário.
         */}
-        <p className="mt-4 rounded-[14px] bg-tg-ambar-fundo px-4 py-3 text-[12px] leading-[1.6] text-tg-ambar-txt">
-          <strong className="font-semibold">Acervo de leitura, separado do corpus curado.</strong>{' '}
-          Espelho do Planalto importado de{' '}
-          <a
-            href={`${origem.url}/tree/${origem.sha}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2"
-          >
-            {origem.repo}
-          </a>{' '}
-          num SHA fixado, em {origem.commit_em}. Serve para ler e localizar, não para fundamentar:
-          os fundamentos das peças saem da{' '}
-          <Link href="/leis" className="font-semibold underline underline-offset-2">
-            legislação curada
-          </Link>
-          , que tem data de corte auditada e id de citação estável.
-        </p>
-
         <div className="mt-4 flex items-center gap-2.5 rounded-[18px] bg-white px-4 py-3 shadow-[var(--tg-elev-1f)]">
           <span
             aria-hidden="true"

@@ -476,8 +476,17 @@ pudesse virar fundamento de peça, a decisão nº 3 estaria perdida.
 - Nada é escrito em `dispositivos`; sem embedding; a busca híbrida não enxerga.
 - `seed.ts`, `embed.ts`, `normalize.ts` e `busca/consultar.ts` **não podem
   referenciar `vademecum`** — `tests/vademecum.test.ts` falha se alguém ligar.
-- Toda tela do acervo carrega selo, aviso de procedência e, no CP e no CPP, link
-  cruzado para o lado curado.
+- No CP e no CPP, a tela do acervo traz link cruzado para o lado curado.
+
+**O aviso âmbar de procedência foi removido a pedido.** Ele abria a grade e o
+leitor, e atrapalhava quem só queria localizar uma lei. **A separação não
+dependia dele** — ela é estrutural, e os quatro pontos acima continuam valendo
+sem uma linha de texto na tela. O que saiu foi o aviso, não a garantia.
+
+O que ficou, e por quê: o link para o texto oficial no Planalto (atalho, não
+advertência), o link cruzado para o corpus curado, e o crédito de licença no
+rodapé do leitor — este é obrigação para com o espelho de terceiro, não escolha
+de produto, e não deve ser removido.
 
 **Não derivar URL do Planalto pelo número da lei.** 42 das 75 estão sem link
 oficial porque o espelho não trouxe. `itcmd` é lei do Rio de Janeiro e `estsppi`

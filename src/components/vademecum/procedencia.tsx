@@ -1,12 +1,18 @@
 // =============================================================================
-// Procedência do acervo — o aviso que sustenta a separação.
+// Atalhos do leitor do acervo.
 //
-// O resto do produto trata texto legal como material citável: id estável, data
-// de corte auditada, cobertura declarada. Este acervo não é isso, e a diferença
-// não pode ficar só no CLAUDE.md — quem abre a tela precisa ver.
+// Aqui morava o aviso âmbar de procedência, removido a pedido: ele abria toda
+// tela do acervo e atrapalhava quem só queria localizar uma lei.
 //
-// Componente de servidor, sem estado e sem botão de fechar, de propósito: um
-// aviso que o leitor dispensa uma vez e nunca mais vê não avisa nada.
+// **A separação entre acervo e corpus curado não dependia dele.** Ela é
+// estrutural: os ids do acervo (`cf`, `cdc`) nunca casam o padrão do corpus
+// (`dl_2848_1940`), nada é escrito em `dispositivos`, a busca híbrida não
+// enxerga o acervo, e `tests/vademecum.test.ts` falha se alguém ligar os dois.
+// O que sai é o texto do aviso, não a garantia.
+//
+// O que fica: o link para o texto oficial (atalho, não advertência), o link
+// cruzado para o lado curado quando a mesma lei existe lá, e o crédito de
+// licença no rodapé — este último é obrigação, não escolha.
 // =============================================================================
 
 import Link from 'next/link'
@@ -15,46 +21,23 @@ import { Icone } from '@/components/icones'
 import { Aviso } from '@/components/ui'
 import type { IndiceAcervo, LeiAcervo } from '@/lib/tipos'
 
-export function Procedencia({
-  lei,
-  origem,
-}: {
-  lei: LeiAcervo
-  origem: IndiceAcervo['origem']
-}) {
+export function Procedencia({ lei }: { lei: LeiAcervo }) {
   return (
     <div className="space-y-2">
-      <Aviso tom="ambar">
-        <strong className="font-medium">Acervo de consulta, não fonte de citação.</strong> Este
-        texto é espelho do Planalto importado de{' '}
+      {/* O link para o texto oficial fica: não é aviso, é atalho. Quem lê uma
+          lei do acervo e quer conferir a redação vigente tem para onde ir num
+          clique, sem precisar procurar no Planalto. */}
+      {lei.link_oficial && (
         <a
-          href={`${origem.url}/tree/${origem.sha}`}
+          href={lei.link_oficial}
           target="_blank"
           rel="noopener noreferrer"
-          className="underline decoration-tg-ambar-borda underline-offset-2 hover:decoration-tg-ambar-txt"
+          className="flex w-fit items-center gap-1.5 text-[12.5px] font-medium text-tg-acento-txt hover:underline"
         >
-          {origem.repo}
-        </a>{' '}
-        em {origem.commit_em}, <strong className="font-medium">sem data de vigência conferida</strong>
-        . Não entra na busca híbrida e não deve ser citado em peça — confira a redação vigente na
-        fonte oficial antes de usar.
-        {lei.link_oficial ? (
-          <a
-            href={lei.link_oficial}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1.5 flex w-fit items-center gap-1.5 font-medium text-tg-ambar-txt hover:text-tg-ambar-txt"
-          >
-            Texto oficial no Planalto
-            <Icone nome="link_externo" className="size-3" />
-          </a>
-        ) : (
-          <span className="mt-1.5 block text-tg-ambar-txt">
-            O espelho não trouxe link para o texto oficial
-            {lei.num_lei ? ` — procure por ${lei.num_lei}` : ''}.
-          </span>
-        )}
-      </Aviso>
+          Texto oficial no Planalto
+          <Icone nome="link_externo" className="size-3" />
+        </a>
+      )}
 
       {/* A mesma lei existe dos dois lados, e só um deles é citável. Mandar o
           leitor para lá é o que evita a peça sair com fundamento do espelho. */}
