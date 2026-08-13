@@ -522,6 +522,16 @@ Cor nova que possa ser classe **tem** que ser classe.
 | `/dosimetria` | cálculo trifásico ao vivo | aritmética local, sem banco |
 | `/vademecum` | grade de ramos + leitor | índice do acervo, em disco |
 
+**A lateral colapsa** para uma trilha de 64px, por `⌘B` ou pelo botão ao lado da
+marca, com a preferência guardada em `localStorage`. Não contradiz a largura
+fixa: são dois valores fixos, 246 e 64, e não uma lateral fluida. Só a partir de
+`lg` — abaixo disso ela já é uma gaveta, e recolher gaveta não quer dizer nada.
+
+Na trilha somem rótulos, histórico, busca e o cartão de base; ficam a marca,
+"Nova consulta", os quatro quadradinhos com `title` e **o ponto vivo da data de
+corte**, porque a decisão nº 3 diz que a data é visível o tempo todo e "recolhi o
+menu" não é motivo para ela sumir.
+
 A lateral tem quatro itens: Consulta, Jurisprudência, Dosimetria e Vade Mecum.
 O documento desenha seis, e as demais saíram a pedido, para o sistema ficar só
 com o que se usa.

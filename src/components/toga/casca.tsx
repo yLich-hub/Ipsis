@@ -13,6 +13,16 @@
 // foram medidos contra estes 246px, e deixar a lateral respirar desalinharia
 // todos eles. Abaixo de `lg` a lateral sai de cena inteira, e o topo ganha o
 // botão que a traz de volta.
+//
+// **Colapso não contradiz isso.** São dois valores fixos — 246px e 64px —, e não
+// uma lateral fluida: o conteúdo continua encontrando uma das duas medidas, nunca
+// uma intermediária. Só vale a partir de `lg`; abaixo disso a lateral já é uma
+// gaveta que entra e sai inteira, e recolher uma gaveta não significa nada.
+//
+// O que some na trilha: rótulos, histórico, busca e o cartão de base. O que
+// fica: a marca, "Nova consulta", os quatro quadradinhos coloridos com `title`,
+// e o ponto vivo da data de corte — este último porque a decisão nº 3 diz que a
+// data é visível o tempo todo, e "recolhi o menu" não é motivo para ela sumir.
 // =============================================================================
 
 import Link from 'next/link'
@@ -114,7 +124,21 @@ export const EVENTO_NOVA = 'toga:nova-consulta'
 
 // --- lateral -----------------------------------------------------------------
 
-export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () => void }) {
+export function Lateral({
+  aberta,
+  aoFechar,
+  colapsada,
+  aoAlternar,
+}: {
+  aberta: boolean
+  aoFechar: () => void
+  /**
+   * Só vale a partir de `lg`. Abaixo disso a lateral já é uma gaveta que entra e
+   * sai inteira, e colapsar uma gaveta não significa nada.
+   */
+  colapsada: boolean
+  aoAlternar: () => void
+}) {
   const caminho = usePathname()
   const params = useSearchParams()
   const [menu, setMenu] = useState(false)
@@ -191,18 +215,32 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
         />
       )}
 
+      {/*
+        A largura continua fixa, e continua sendo por medida: os painéis do
+        documento (420px no chat, 352px na dosimetria, 404px no Vade Mecum) foram
+        desenhados contra 246px. Colapsar não fere isso — são dois valores fixos,
+        246 e 64, e não uma lateral fluida.
+
+        `transition-[width]` junto de `transition-transform` porque em `lg` o que
+        muda é a largura, e abaixo dela é a posição.
+      */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[246px] shrink-0 flex-col border-r border-tg-linha bg-tg-lateral px-3 pb-3.5 pt-[18px] transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[246px] shrink-0 flex-col border-r border-tg-linha bg-tg-lateral pb-3.5 pt-[18px] transition-[transform,width,padding] duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:static lg:translate-x-0 ${
           aberta ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        } ${colapsada ? 'px-3 lg:w-[64px] lg:px-2' : 'px-3'}`}
       >
         {/* marca */}
-        <div className="relative flex items-center gap-2.5 px-2 pb-5 pt-0.5">
+        <div
+          className={`relative flex items-center pb-5 pt-0.5 ${
+            colapsada ? 'lg:flex-col lg:gap-2 lg:px-0' : 'gap-2.5 px-2'
+          }`}
+        >
           <Link
             href="/consulta"
             className="flex min-w-0 items-center gap-2.5"
             onClick={aoFechar}
             aria-label="Toga — início"
+            title={colapsada ? 'Toga' : undefined}
           >
             <span
               className="grid size-8 shrink-0 place-items-center rounded-[11px] font-tg-serif text-[15px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
@@ -210,7 +248,7 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
             >
               T
             </span>
-            <span className="min-w-0">
+            <span className={`min-w-0 ${colapsada ? 'lg:hidden' : ''}`}>
               <span className="block text-[15.5px] font-semibold leading-[1.1] -tracking-[0.01em] text-tg-tinta">
                 Toga
               </span>
@@ -219,17 +257,42 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
               </span>
             </span>
           </Link>
-          <span className="flex-1" />
+
+          <span className={`flex-1 ${colapsada ? 'lg:hidden' : ''}`} />
+
+          {/* O `⌄` das outras telas não cabe na trilha — some junto com os
+              rótulos, e as duas telas de apoio continuam alcançáveis por link. */}
           <button
             type="button"
             onClick={() => setMenu((m) => !m)}
             aria-expanded={menu}
             aria-haspopup="menu"
             aria-label="Outras telas"
-            className="tgb grid size-6 shrink-0 place-items-center rounded-lg text-tg-fraco-2 hover:bg-tg-caixa"
+            className={`tgb grid size-6 shrink-0 place-items-center rounded-lg text-tg-fraco-2 hover:bg-tg-caixa ${
+              colapsada ? 'lg:hidden' : ''
+            }`}
           >
             <span aria-hidden="true" className="-mt-1 text-[13px] leading-none">
               ⌄
+            </span>
+          </button>
+
+          {/* Recolher/expandir. Só existe a partir de `lg`: abaixo disso a
+              lateral é uma gaveta, e recolher uma gaveta não quer dizer nada. */}
+          <button
+            type="button"
+            onClick={aoAlternar}
+            aria-label={colapsada ? 'Expandir menu' : 'Recolher menu'}
+            title={`${colapsada ? 'Expandir' : 'Recolher'} menu  ⌘B`}
+            className="tgb hidden size-6 shrink-0 place-items-center rounded-lg text-tg-fraco-2 hover:bg-tg-caixa lg:grid"
+          >
+            <span
+              aria-hidden="true"
+              className={`text-[13px] leading-none transition-transform ${
+                colapsada ? '' : 'rotate-180'
+              }`}
+            >
+              ›
             </span>
           </button>
 
@@ -240,14 +303,20 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
         <button
           type="button"
           onClick={novaConsulta}
-          className="tgb mb-4 flex items-center gap-[9px] rounded-xl bg-white px-3 py-[9px] text-[13px] font-medium shadow-[var(--tg-elev-1f)] hover:shadow-[var(--tg-elev-2)]"
+          title={colapsada ? 'Nova consulta  ⌘N' : undefined}
+          className={`tgb mb-4 flex items-center rounded-xl bg-white text-[13px] font-medium shadow-[var(--tg-elev-1f)] hover:shadow-[var(--tg-elev-2)] ${
+            colapsada ? 'gap-[9px] px-3 py-[9px] lg:justify-center lg:px-0' : 'gap-[9px] px-3 py-[9px]'
+          }`}
         >
           <span className="grid size-4 shrink-0 place-items-center rounded-full bg-tg-acento text-[12px] font-medium leading-none text-white">
             +
           </span>
-          Nova consulta
-          <span className="flex-1" />
-          <span aria-hidden="true" className="text-[11px] font-normal text-tg-tenue">
+          <span className={colapsada ? 'lg:hidden' : ''}>Nova consulta</span>
+          <span className={`flex-1 ${colapsada ? 'lg:hidden' : ''}`} />
+          <span
+            aria-hidden="true"
+            className={`text-[11px] font-normal text-tg-tenue ${colapsada ? 'lg:hidden' : ''}`}
+          >
             ⌘N
           </span>
         </button>
@@ -262,9 +331,12 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
                 href={t.href}
                 onClick={aoFechar}
                 aria-current={ativo ? 'page' : undefined}
-                className={`tgb relative flex items-center gap-2.5 rounded-[11px] px-[11px] py-2 text-[13px] font-medium ${
-                  ativo ? 'text-tg-tinta' : 'text-tg-corpo hover:bg-tg-hover'
-                }`}
+                // Na trilha o rótulo some, então o `title` passa a ser a única
+                // forma de saber o que o quadradinho colorido significa.
+                title={colapsada ? t.rotulo : undefined}
+                className={`tgb relative flex items-center gap-2.5 rounded-[11px] py-2 text-[13px] font-medium ${
+                  colapsada ? 'px-[11px] lg:justify-center lg:px-0' : 'px-[11px]'
+                } ${ativo ? 'text-tg-tinta' : 'text-tg-corpo hover:bg-tg-hover'}`}
               >
                 {ativo && (
                   <span
@@ -277,14 +349,19 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
                   className="relative size-[18px] shrink-0 rounded-md"
                   style={{ background: t.matiz }}
                 />
-                <span className="relative truncate">{t.rotulo}</span>
+                <span className={`relative truncate ${colapsada ? 'lg:hidden' : ''}`}>
+                  {t.rotulo}
+                </span>
               </Link>
             )
           })}
         </nav>
 
-        {/* histórico */}
-        <div className="mt-[22px] flex min-h-0 flex-1 flex-col">
+        {/* histórico — não cabe na trilha, e uma lista de títulos truncados a
+            64px não seria histórico, seria enfeite. */}
+        <div
+          className={`mt-[22px] flex min-h-0 flex-1 flex-col ${colapsada ? 'lg:hidden' : ''}`}
+        >
           {/* O campo só aparece quando há o que procurar. Uma caixa de busca
               sobre uma lista vazia é convite para o usuário achar que existe
               histórico escondido. */}
@@ -387,7 +464,11 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
           o que importava nele nunca foi o destino, era a data. Link que não
           leva a lugar nenhum seria pior que texto.
         */}
-        <div className="mt-3 block rounded-[14px] bg-white px-3 py-[11px] shadow-[var(--tg-elev-1)]">
+        <div
+          className={`mt-3 block rounded-[14px] bg-white px-3 py-[11px] shadow-[var(--tg-elev-1)] ${
+            colapsada ? 'lg:hidden' : ''
+          }`}
+        >
           <span className="mb-1.5 flex items-center gap-[7px]">
             <Ponto pulsa />
             <span className="text-[11.5px] font-medium text-tg-verde-txt">Base conferida</span>
@@ -397,6 +478,21 @@ export function Lateral({ aberta, aoFechar }: { aberta: boolean; aoFechar: () =>
             <strong className="font-medium text-tg-corpo">28/02/2025</strong>
           </span>
         </div>
+
+        {/*
+          Na trilha o cartão não cabe, mas a data de corte não pode simplesmente
+          sumir — ela é a decisão nº 3 do projeto. Vira o ponto vivo sozinho, com
+          a data no `title`: o sinal continua na tela e a informação continua a
+          um hover de distância.
+        */}
+        {colapsada && (
+          <div
+            className="mt-auto hidden justify-center py-2 lg:flex"
+            title="Base conferida · Vade Mecum do Senado, 1ª ed. · redação de 28/02/2025"
+          >
+            <Ponto pulsa />
+          </div>
+        )}
       </aside>
     </>
   )
@@ -724,17 +820,62 @@ function Paleta({ aoFechar }: { aoFechar: () => void }) {
 
 // --- casca completa ----------------------------------------------------------
 
+/** Preferência de lateral colapsada. Chave própria, não parte do histórico. */
+const CHAVE_COLAPSO = 'toga:lateral-colapsada'
+
 export function Casca({ children }: { children: React.ReactNode }) {
   const [menu, setMenu] = useState(false)
+  const [colapsada, setColapsada] = useState(false)
   const caminho = usePathname()
 
   // Navegou: fecha a lateral do modo estreito. Sem isto ela fica por cima da
   // tela que acabou de abrir.
   useEffect(() => setMenu(false), [caminho])
 
+  // A preferência é lida depois de montar: `localStorage` não existe no
+  // servidor, e usá-la no primeiro render faria o HTML divergir. O custo é a
+  // lateral nascer aberta e encolher — preferível a um erro de hidratação.
+  useEffect(() => {
+    try {
+      setColapsada(window.localStorage.getItem(CHAVE_COLAPSO) === '1')
+    } catch {
+      // Modo privado de alguns navegadores estoura no getItem.
+    }
+  }, [])
+
+  const alternar = useCallback(() => {
+    setColapsada((c) => {
+      const nova = !c
+      try {
+        window.localStorage.setItem(CHAVE_COLAPSO, nova ? '1' : '0')
+      } catch {
+        /* a preferência não persiste; a sessão atual funciona igual */
+      }
+      return nova
+    })
+  }, [])
+
+  // ⌘B / Ctrl+B, como em qualquer editor. Fica aqui e não na `Lateral` porque o
+  // atalho tem de funcionar com o foco em qualquer lugar da tela.
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault()
+        alternar()
+      }
+    }
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [alternar])
+
   return (
     <div className="flex h-dvh overflow-hidden bg-tg-fundo text-tg-tinta">
-      <Lateral aberta={menu} aoFechar={() => setMenu(false)} />
+      <Lateral
+        aberta={menu}
+        aoFechar={() => setMenu(false)}
+        colapsada={colapsada}
+        aoAlternar={alternar}
+      />
       <div className="flex min-w-0 flex-1 flex-col bg-tg-fundo">
         <Topo aoAbrirMenu={() => setMenu(true)} />
         <main className="flex min-h-0 flex-1 flex-col">{children}</main>
