@@ -266,6 +266,18 @@ body {
   }
 }
 
+/* O mesmo, pedido dentro do produto (Configurações → Aparência). As regras são
+   idênticas às de cima; o que muda é só o gatilho — quem já desligou no sistema
+   continua atendido pela media query, e não precisa vir aqui pedir de novo.
+   `lib/toga/preferencias.ts` põe e tira o atributo no <html>. */
+[data-movimento='reduzido'] *,
+[data-movimento='reduzido'] *::before,
+[data-movimento='reduzido'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
 /* =============================================================================
    Interação
 

@@ -22,13 +22,49 @@
 // =============================================================================
 
 import type { RespostaBusca } from '@/lib/busca/consultar'
+import type { RespostaComposta } from '@/lib/toga/resposta'
 import { supabaseNavegador } from '@/lib/auth/navegador'
 
 export type Troca = {
   pergunta: string
-  /** Resposta crua da busca. A prosa é recomposta na leitura. */
+  /** Resposta crua da busca. É dela que saem as fontes e a composta. */
   bruta: RespostaBusca
+  /**
+   * A prosa gerada pelo modelo, quando houve.
+   *
+   * A composta é derivada — `comporResposta()` a reconstrói igual, e guardá-la
+   * dobraria o tamanho por nada. A gerada não: pedir de novo ao modelo daria
+   * outro texto. Reabrir uma conversa e encontrar uma resposta diferente da que
+   * se leu é pior que não ter histórico, então esta é a exceção à regra de só
+   * guardar o cru.
+   */
+  gerada?: RespostaComposta | null
 }
+
+/**
+ * A coluna `conversa_trocas.resposta` teve duas formas, e as duas continuam
+ * válidas na leitura.
+ *
+ * Antes de a geração existir, ela guardava a `RespostaBusca` crua e nada mais.
+ * Agora guarda `{ bruta, gerada }`. Migrar as linhas antigas exigiria um
+ * `update` de escrita numa tabela que só o dono enxerga, para ganhar nada:
+ * reconhecer as duas formas na leitura custa quatro linhas e não pode falhar.
+ *
+ * A distinção é a presença da chave `bruta` — `RespostaBusca` não tem esse
+ * campo, então não há ambiguidade.
+ */
+function leResposta(cru: unknown): { bruta: RespostaBusca; gerada: RespostaComposta | null } {
+  const o = cru as Record<string, unknown> | null
+  if (o && typeof o === 'object' && 'bruta' in o) {
+    return {
+      bruta: o.bruta as RespostaBusca,
+      gerada: (o.gerada as RespostaComposta | null) ?? null,
+    }
+  }
+  return { bruta: cru as RespostaBusca, gerada: null }
+}
+
+const gravaResposta = (t: Troca) => ({ bruta: t.bruta, gerada: t.gerada ?? null })
 
 /** Uma conversa na lista da lateral. Não traz as trocas — a lista não precisa delas. */
 export type Conversa = {
@@ -114,7 +150,7 @@ export async function busca(id: string): Promise<ConversaCompleta | null> {
     trocas: ts?.length ?? 0,
     conteudo: (ts ?? []).map((t) => ({
       pergunta: t.pergunta as string,
-      bruta: t.resposta as RespostaBusca,
+      ...leResposta(t.resposta),
     })),
   }
 }
@@ -173,7 +209,7 @@ export async function registra(
       conversa_id: id,
       ordem: count ?? 0,
       pergunta: troca.pergunta,
-      resposta: troca.bruta,
+      resposta: gravaResposta(troca),
     })
     if (error) return null
 

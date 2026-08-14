@@ -33,6 +33,14 @@ export const ROTAS_DE_FORMULARIO = ['/login', '/cadastro', '/esqueci-senha'] as 
  * expõe sob RLS somente-leitura, e devolver um redirect 307 para /login a um
  * `fetch()` de JSON produz erro incompreensível no console do agente.
  *
+ * `/api/vigilia/coletar` é o alvo do segundo cron. Ela está aqui pelo mesmo
+ * motivo de `/api/health` — cron não tem navegador nem cookie, e um redirect
+ * para `/login` faria a coleta falhar em silêncio todo dia. **Pública aqui não
+ * quer dizer aberta**: a rota exige `Authorization: Bearer $CRON_SECRET` e
+ * recusa tudo quando o segredo não está configurado. É a única exceção do
+ * projeto à regra "sessão ou nada", e ela troca uma porta por outra em vez de
+ * remover a porta.
+ *
  * `/` não está aqui, e não está por ser protegida: ela não é tela nenhuma. O
  * middleware a trata antes desta lista, desviando para `/consulta` ou `/login`
  * conforme a sessão. Ver `ehRaiz` em `middleware.ts`.
@@ -45,6 +53,7 @@ const PUBLICAS = [
   '/auth',
   '/api/health',
   '/api/busca',
+  '/api/vigilia/coletar',
 ]
 
 export function ehPublica(caminho: string): boolean {

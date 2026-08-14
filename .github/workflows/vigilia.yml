@@ -1,0 +1,101 @@
+# =============================================================================
+# Vigília do corpus — a coleta completa, em Python
+#
+# **Por que aqui e não na Vercel.** A Vercel roda o andar leve: `/api/vigilia/
+# coletar`, com Câmara e Senado, duas APIs REST que cabem numa função
+# serverless. O andar completo não cabe, e não deveria — são 900 KB de HTML por
+# lei no scraping do Planalto, extração de página do DOU e consulta
+# Elasticsearch no DataJud. Pôr isso no runtime que serve a tela é como pôr o
+# `vade_parser.py` lá: trabalho de lote no caminho do usuário.
+#
+# O GitHub Actions é gratuito para repositório público, roda Python de verdade e
+# não tem teto de 60 s. É o lugar certo para o que raspa.
+#
+# **Os dois andares não divergem por acaso, e sim por construção.** Os dois leem
+# `data/curadoria/vigilia.yaml`, e `tests/vigilia.test.ts` falha se o lado
+# TypeScript se afastar dele. Ver `coletores/README.md`.
+#
+# Segredos exigidos (Settings → Secrets and variables → Actions):
+#   NEXT_PUBLIC_SUPABASE_URL
+#   SUPABASE_SERVICE_ROLE_KEY   — ignora RLS; a tabela de vigília é fechada para
+#                                 anon e authenticated, e a coleta não tem sessão
+#
+# Opcionais (cadastro gratuito em inlabs.in.gov.br):
+#   INLABS_EMAIL, INLABS_SENHA  — sem eles a confirmação da publicação no
+#                                 Diário cai para a busca web, que é frágil.
+#                                 As outras quatro fontes não dependem disto.
+# =============================================================================
+
+name: vigília do corpus
+
+on:
+  schedule:
+    # 06:40 UTC = 03:40 em Brasília. Depois do cron da Vercel (09:20 UTC) não
+    # ficaria bom: os dois escreveriam o mesmo card com minutos de diferença e a
+    # tela diria "há 1 min" o dia inteiro por engano.
+    - cron: '40 6 * * *'
+  workflow_dispatch:
+    inputs:
+      desde:
+        description: 'Data ISO (padrão: janela de 60 dias). Use a data de corte para carga completa.'
+        required: false
+      seco:
+        description: 'Rodar sem gravar'
+        type: boolean
+        default: false
+
+# Duas execuções simultâneas escreveriam as mesmas linhas e disputariam o
+# diário de bordo. A coleta é idempotente, então cancelar a anterior é seguro.
+concurrency:
+  group: vigilia
+  cancel-in-progress: true
+
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: coletores/requirements.txt
+
+      - name: instalar dependências
+        run: pip install -r coletores/requirements.txt
+
+      # O filtro roda antes da rede. Se ele estiver quebrado, uma coleta que
+      # grava é pior que uma que não roda: a tabela fica com o resultado de uma
+      # regra errada e ninguém sabe qual linha é confiável.
+      - name: testar o filtro antes de coletar
+        run: python -m pytest coletores -q
+
+      - name: coletar
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Opcionais: sem eles a confirmação no Diário cai para a busca
+          # web, que é frágil. Cadastro gratuito em inlabs.in.gov.br.
+          INLABS_EMAIL: ${{ secrets.INLABS_EMAIL }}
+          INLABS_SENHA: ${{ secrets.INLABS_SENHA }}
+        run: |
+          python -m coletores \
+            ${{ inputs.seco && '--seco' || '' }} \
+            ${{ inputs.desde && format('--desde {0}', inputs.desde) || '' }}
+
+      # O relatório da execução fica no log do Actions, que é o histórico de
+      # coleta que ninguém precisa construir. Em falha, sobe o que deu para
+      # colher — o modo seco escreve em data/vigilia/ e não depende de segredo.
+      - name: guardar o resultado em caso de falha
+        if: failure()
+        run: python -m coletores --para-disco --sem-cache || true
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: vigilia-parcial
+          path: data/vigilia/*.json
+          if-no-files-found: ignore

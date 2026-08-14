@@ -1,0 +1,102 @@
+# =============================================================================
+# Vigília do corpus — a curadoria compartilhada
+#
+# Este arquivo existe porque o filtro da vigília vive em DOIS lugares: em
+# TypeScript (`src/lib/vigilia/alvos.ts`, que a tela e o cron da Vercel usam) e
+# em Python (`coletores/filtro.py`, que o scraping e os coletores pesados usam).
+# Duas cópias da mesma regra divergem na primeira correção, e divergir aqui
+# significa a tela dizer que nada mudou enquanto o coletor sabe que mudou.
+#
+# A saída NÃO foi eliminar uma das duas — cada runtime tem um trabalho que o
+# outro não faz. Foi torná-las conferíveis: este YAML é a fonte, o Python o lê
+# em tempo de execução, e `tests/vigilia.test.ts` falha se `alvos.ts` divergir
+# de qualquer linha daqui. É a mesma escolha de `tests/citacao.test.ts`, que não
+# elimina a duplicação entre curadoria e banco — ele a tranca.
+#
+# Curadoria manual, versionada, revisável em diff. Nunca gerar este arquivo.
+# =============================================================================
+
+# A fotografia. Tudo anterior a esta data já está dentro do corpus, por
+# definição — o parser leu o Vade Mecum nesta redação. A verdade continua sendo
+# `leis.vigencia_ate` no banco; esta cópia existe para o coletor saber a janela
+# antes de falar com o banco.
+data_de_corte: '2025-02-28'
+
+# As três leis do corpus, com o que basta para reconhecê-las numa ementa e o
+# endereço da versão compilada no Planalto.
+#
+# Os dois `(?!\s+militar)` não são preciosismo: o Código Penal Militar é o
+# Decreto-Lei 1.001/1969 e o CPP Militar é o 1.002/1969 — leis diferentes, que
+# não estão no banco. Sem a exclusão, todo projeto sobre justiça militar
+# entraria na vigília como se mexesse no corpus.
+alvos:
+  - lei_id: lei_11343_2006
+    rotulo: Lei 11.343/2006
+    reconhece: '\b11\.?343\b|\blei (antidrogas|de drogas|de toxicos|antitoxicos)\b'
+    planalto: https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2006/lei/l11343.htm
+
+  - lei_id: dl_2848_1940
+    rotulo: Código Penal
+    reconhece: '\b2\.?848\b|\bcodigo penal\b(?!\s+militar)'
+    planalto: https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm
+
+  - lei_id: dl_3689_1941
+    rotulo: Código de Processo Penal
+    reconhece: '\b3\.?689\b|\bcodigo de processo penal\b(?!\s+militar)'
+    planalto: https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689compilado.htm
+
+# Verbos que caracterizam mudança no texto legal. Exigir um deles é o que separa
+# "esta proposição muda a lei" de "esta proposição fala da lei" — metade das
+# ementas que citam a Lei 11.343 a citam como referência.
+verbos: '\b(altera(r|m|cao|coes)?|acrescenta|inclui|insere|revoga|modifica|renumera|substitui|suprime|da nova redacao|nova redacao|atualiza|reformula|derroga)\b'
+
+# `2.848` sozinho é ambíguo — pode ser valor em reais numa ementa orçamentária.
+# Quando a lei é reconhecida só pelo número, exige-se o contexto que a nomeia
+# como diploma legal.
+contexto_de_lei: '\b(lei|decreto-?lei|codigo|estatuto|dec\.?-?lei)\b'
+
+# --- Câmara dos Deputados ----------------------------------------------------
+#
+# `keywords` é o índice de assunto curado pela própria Câmara; a API não aceita
+# busca livre na ementa (`?ementa=` devolve 400, conferido). Os termos são a
+# REDE, não o filtro — erram para o lado de trazer demais, e quem decide é
+# `toca_o_corpus`.
+#
+# `crime` foi tentado e recusado: sozinho traz 11 páginas de 100 desde a data de
+# corte, quase tudo sobre tipos penais em leis especiais que o corpus não
+# guarda. Os quatro abaixo dão 12 páginas somadas.
+camara:
+  termos: [drogas, tráfico de drogas, código penal, processo penal]
+  tipos: [PL, PLP, MPV, PLV]
+  paginas: 12
+
+# --- DataJud (CNJ) -----------------------------------------------------------
+#
+# O DataJud NÃO participa da detecção de alteração legislativa, e não por
+# limitação de tempo: ele devolve capa e movimentação processual, não ementa nem
+# inteiro teor, e nada em processo judicial altera o texto de uma lei.
+#
+# O que ele responde de verdade é outra pergunta, legítima e mensurável: quanto
+# o recorte deste projeto pesa no Judiciário. Os códigos abaixo são da Tabela
+# Processual Unificada do CNJ e a contagem vai para `vigilia_jurimetria` — como
+# estatística, nunca como fonte de texto.
+datajud:
+  chave_publica: cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==
+  assuntos:
+    - codigo: 3608
+      nome: Tráfico de Drogas e Condutas Afins
+  # `stf` foi tentado e removido: `api_publica_stf` devolve 404. Não é falha
+  # transitória — o DataJud é a base do CNJ, e o Supremo não se submete ao
+  # controle administrativo do Conselho. O tribunal simplesmente não está na
+  # base. Deixá-lo na lista produziria um erro por execução, todo dia, para
+  # sempre.
+  tribunais: [stj, tjsp, tjrj, tjmg]
+
+# --- Diário Oficial da União -------------------------------------------------
+#
+# O INLABS (inlabs.in.gov.br) exige cadastro e entrega ZIP de edição inteira.
+# O coletor de DOU aqui NÃO baixa edição: ele abre a página da norma já
+# identificada por outra fonte e extrai o texto publicado, para confirmar a
+# publicação e guardar o endereço oficial. É confirmação, não varredura.
+dou:
+  base: https://www.in.gov.br

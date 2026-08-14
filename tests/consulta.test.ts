@@ -1,0 +1,161 @@
+// =============================================================================
+// O contrato do caminho ao vivo — validação e leitura incremental.
+//
+// Estas são as duas peças que decidem se uma resposta gerada por modelo pode
+// chegar à tela. Ambas são puras: não chamam modelo, não tocam banco, e por isso
+// rodam offline no CI, sem segredo — a mesma separação que existe entre
+// `lib/peca/resolver.ts` e `lib/peca/montar.ts`.
+//
+// O que está trancado aqui:
+//
+// - citação para `doc_id` fora do contexto recuperado é RECUSADA. É a regra que
+//   elimina a alucinação de número de súmula e de artigo, e é o motivo de a
+//   validação existir no servidor em vez de na confiança do prompt;
+// - marcador que aponta para fonte inexistente é recusado;
+// - parágrafo que transcreve o texto da lei é recusado — a decisão nº 1 diz que
+//   texto legal nunca é gerado, e "gerar" inclui copiar do contexto para a prosa;
+// - o leitor incremental devolve exatamente o texto dos parágrafos, e nada da
+//   estrutura JSON em volta, mesmo com o JSON partido em pedaços arbitrários.
+// =============================================================================
+
+import { describe, expect, it } from 'vitest'
+
+import { LeitorDeTexto } from '@/lib/consulta/aovivo'
+import { transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
+
+const CONTEXTO: Recuperado[] = [
+  {
+    docId: 'lei_11343_2006_art33_p4',
+    texto:
+      'Nos delitos definidos no caput e no § 1º deste artigo, as penas poderão ser reduzidas de um sexto a dois terços, desde que o agente seja primário, de bons antecedentes, não se dedique às atividades criminosas nem integre organização criminosa.',
+  },
+  {
+    docId: 'lei_11343_2006_art42',
+    texto:
+      'O juiz, na fixação das penas, considerará, com preponderância sobre o previsto no art. 59 do Código Penal, a natureza e a quantidade da substância ou do produto, a personalidade e a conduta social do agente.',
+  },
+]
+
+/** Uma resposta válida mínima, sobre a qual cada teste estraga uma coisa só. */
+const boa = () => ({
+  paragraphs: [
+    { text: 'A redução do § 4º depende de quatro requisitos cumulativos, e a acusação costuma atacar o último deles.', citations: [1] },
+    { text: 'Na primeira fase, a natureza e a quantidade preponderam sobre os vetores genéricos.', citations: [2] },
+  ],
+  sources: [
+    { id: 1, doc_id: 'lei_11343_2006_art33_p4' },
+    { id: 2, doc_id: 'lei_11343_2006_art42' },
+  ],
+  confidence: 'alta' as const,
+  followups: ['Requisitos do tráfico privilegiado'],
+})
+
+describe('validação da resposta ao vivo', () => {
+  it('aceita a resposta que respeita o contrato', () => {
+    const v = valida(boa(), CONTEXTO)
+    expect(v.ok).toBe(true)
+  })
+
+  it('recusa doc_id que não veio da busca — mesmo que exista no banco', () => {
+    const r = boa()
+    r.sources[1]!.doc_id = 'dl_2848_1940_art157'
+    const v = valida(r, CONTEXTO)
+    expect(v.ok).toBe(false)
+    if (!v.ok) {
+      expect(v.violacoes.some((x) => x.codigo === 'doc_id_fora_do_contexto')).toBe(true)
+      expect(v.violacoes[0]!.detalhe).toContain('dl_2848_1940_art157')
+    }
+  })
+
+  it('recusa marcador que aponta para fonte inexistente', () => {
+    const r = boa()
+    r.paragraphs[0]!.citations = [7]
+    const v = valida(r, CONTEXTO)
+    expect(v.ok).toBe(false)
+    if (!v.ok) expect(v.violacoes.some((x) => x.codigo === 'citacao_orfa')).toBe(true)
+  })
+
+  it('recusa parágrafo que transcreve o texto da lei', () => {
+    const r = boa()
+    r.paragraphs[0]!.text =
+      'Vale lembrar que as penas poderão ser reduzidas de um sexto a dois terços, desde que o agente seja primário, de bons antecedentes, não se dedique às atividades criminosas.'
+    const v = valida(r, CONTEXTO)
+    expect(v.ok).toBe(false)
+    if (!v.ok) expect(v.violacoes.some((x) => x.codigo === 'transcreveu_lei')).toBe(true)
+  })
+
+  it('não confunde o apelido do instituto com transcrição', () => {
+    // Nome de tese, expressão consagrada e citação curta continuam permitidos —
+    // recusá-los tornaria a validação inútil na prática.
+    expect(transcreveuLei('Trata-se do chamado tráfico privilegiado.', CONTEXTO)).toBeNull()
+    expect(transcreveuLei('A natureza e a quantidade preponderam.', CONTEXTO)).toBeNull()
+  })
+
+  it('pega a transcrição mesmo com acento e pontuação trocados', () => {
+    const copia =
+      'as penas poderao ser reduzidas de um sexto a dois tercos desde que o agente seja primario de bons antecedentes'
+    expect(transcreveuLei(copia, CONTEXTO)).toBe('lei_11343_2006_art33_p4')
+  })
+
+  it('recusa o que não tem a forma do esquema', () => {
+    expect(valida(null, CONTEXTO).ok).toBe(false)
+    expect(valida({ paragraphs: 'texto' }, CONTEXTO).ok).toBe(false)
+    const semConfianca = { ...boa(), confidence: 'altíssima' }
+    expect(valida(semConfianca, CONTEXTO).ok).toBe(false)
+  })
+
+  it('recusa resposta sem nenhum parágrafo com texto', () => {
+    const r = { ...boa(), paragraphs: [{ text: '   ', citations: [] }] }
+    const v = valida(r, CONTEXTO)
+    expect(v.ok).toBe(false)
+    if (!v.ok) expect(v.violacoes.some((x) => x.codigo === 'vazia')).toBe(true)
+  })
+})
+
+describe('leitura incremental do JSON', () => {
+  const JSON_EXEMPLO = JSON.stringify({
+    paragraphs: [
+      { text: 'Primeiro parágrafo com "aspas" e\nquebra.', citations: [1] },
+      { text: 'Segundo parágrafo.', citations: [] },
+    ],
+    sources: [{ id: 1, doc_id: 'lei_11343_2006_art33_p4' }],
+    confidence: 'alta',
+    followups: ['Uma sugestão'],
+  })
+
+  /** Fatiar em pedaços de tamanho fixo simula a chegada por rede. */
+  const emPedacos = (s: string, n: number) => s.match(new RegExp(`.{1,${n}}`, 'gs')) ?? []
+
+  it('devolve só o texto dos parágrafos, não a estrutura em volta', () => {
+    const leitor = new LeitorDeTexto()
+    const saida = emPedacos(JSON_EXEMPLO, 7).map((p) => leitor.empurra(p)).join('')
+
+    expect(saida).toContain('Primeiro parágrafo com "aspas" e\nquebra.')
+    expect(saida).toContain('Segundo parágrafo.')
+    // Nada da estrutura vaza para a tela.
+    expect(saida).not.toContain('doc_id')
+    expect(saida).not.toContain('citations')
+    expect(saida).not.toContain('lei_11343_2006_art33_p4')
+    expect(saida).not.toContain('alta')
+  })
+
+  it('dá o mesmo resultado com qualquer corte de pedaço', () => {
+    const inteiro = new LeitorDeTexto().empurra(JSON_EXEMPLO)
+    for (const n of [1, 2, 3, 13, 64]) {
+      const leitor = new LeitorDeTexto()
+      const partido = emPedacos(JSON_EXEMPLO, n).map((p) => leitor.empurra(p)).join('')
+      expect(partido, `pedaços de ${n}`).toBe(inteiro)
+    }
+  })
+
+  it('decodifica escape unicode partido entre dois pedaços', () => {
+    const cru = '{"paragraphs":[{"text":"caf\\u00e9 e p\\u00e3o","citations":[]}]}'
+    const leitor = new LeitorDeTexto()
+    // O corte cai no meio de `é` de propósito.
+    const saida = ['{"paragraphs":[{"text":"caf\\u00', 'e9 e p\\u00e3o","citations":[]}]}']
+      .map((p) => leitor.empurra(p))
+      .join('')
+    expect(saida.trim()).toBe('café e pão')
+    expect(new LeitorDeTexto().empurra(cru).trim()).toBe('café e pão')
+  })
+})

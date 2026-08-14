@@ -20,7 +20,7 @@
 // gaveta que entra e sai inteira, e recolher uma gaveta não significa nada.
 //
 // O que some na trilha: rótulos, histórico, busca e o cartão de base. O que
-// fica: a marca, "Nova consulta", os quatro quadradinhos coloridos com `title`,
+// fica: a marca, "Nova consulta", os cinco quadradinhos coloridos com `title`,
 // e o ponto vivo da data de corte — este último porque a decisão nº 3 diz que a
 // data é visível o tempo todo, e "recolhi o menu" não é motivo para ela sumir.
 // =============================================================================
@@ -40,19 +40,37 @@ import {
   procura as procuraConversas,
   remove as removeConversa,
 } from '@/lib/toga/historico'
+import { carrega as carregaPerfil, iniciais, usePerfil } from '@/lib/toga/perfil'
+import {
+  EVENTO_PREFERENCIAS,
+  aplicaMovimento,
+  gravaColapso,
+  leColapso,
+  leMovimentoReduzido,
+} from '@/lib/toga/preferencias'
 import { GRADIENTE_CONTA, GRADIENTE_MARCA, MATIZ } from '@/lib/toga/tokens'
 
 // --- mapa de telas -----------------------------------------------------------
 
 /**
- * As quatro telas do produto, na ordem do documento. `matiz` é só a cor do quadradinho
+ * As telas do produto, na ordem do documento. `matiz` é só a cor do quadradinho
  * de 18px que faz as vezes de ícone — ver `lib/toga/tokens.ts`.
+ *
+ * Configurações é a quinta, e entra no fim como no documento: é onde se ajusta
+ * o produto, não onde se trabalha nele.
  */
 const TELAS = [
   { href: '/consulta', rotulo: 'Consulta em chat', matiz: MATIZ.lavanda },
   { href: '/jurisprudencia', rotulo: 'Jurisprudência', matiz: MATIZ.gelo },
   { href: '/dosimetria', rotulo: 'Dosimetria', matiz: MATIZ.sabia },
   { href: '/vademecum', rotulo: 'Vade Mecum', matiz: MATIZ.rosa },
+  { href: '/clientes', rotulo: 'Clientes', matiz: MATIZ.lilas },
+  // Fontes voltou à lateral, mas como vigília e não como painel de coletor: ela
+  // é o lugar em que a decisão nº 3 vira uma pergunta respondível — "a
+  // fotografia de 28/02/2025 ainda vale?". Fica antes de Configurações porque é
+  // tela de trabalho, não de ajuste.
+  { href: '/fontes', rotulo: 'Fontes e atualizações', matiz: MATIZ.areia },
+  { href: '/configuracoes', rotulo: 'Configurações', matiz: MATIZ.ardosia },
 ] as const
 
 /**
@@ -69,6 +87,9 @@ const CABECALHOS: Record<string, [string, string]> = {
   '/vademecum': ['Vade Mecum', 'acervo de leitura, por ramo'],
   '/leis': ['Legislação', 'corpus curado e citável'],
   '/pecas': ['Peças', 'resposta à acusação'],
+  '/clientes': ['Clientes', 'cadastro do escritório'],
+  '/fontes': ['Fontes', 'vigília sobre a data de corte'],
+  '/configuracoes': ['Configurações', 'conta, fontes e aparência'],
 }
 
 /**
@@ -102,15 +123,6 @@ const SUGESTOES = [
 
 const ativoEm = (caminho: string, href: string) =>
   caminho === href || caminho.startsWith(`${href}/`)
-
-/** Duas letras do e-mail — não há nome de exibição no escopo, e não vale inventar. */
-function iniciais(email: string): string {
-  const local = email.split('@')[0] ?? ''
-  const partes = local.split(/[._-]+/).filter(Boolean)
-  const bruto =
-    partes.length > 1 ? `${partes[0]![0]}${partes[1]![0]}` : local.slice(0, 2) || email.slice(0, 2)
-  return bruto.toUpperCase()
-}
 
 /** Link para o chat já com a pergunta na URL. Ver `consulta/pergunta.ts`. */
 export const perguntar = (q: string) => `/consulta?p=${encodeURIComponent(q)}`
@@ -615,6 +627,7 @@ export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
  */
 function Conta() {
   const usuario = useUsuario()
+  const perfil = usePerfil()
   const [aberto, setAberto] = useState(false)
   const [saindo, setSaindo] = useState(false)
 
@@ -657,11 +670,11 @@ function Conta() {
         onClick={() => setAberto((a) => !a)}
         aria-expanded={aberto}
         aria-haspopup="menu"
-        title={email}
+        title={perfil.nome.trim() ? `${perfil.nome.trim()} · ${email}` : email}
         className="tgb grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(67_66_107_/_0.7)]"
         style={{ background: GRADIENTE_CONTA }}
       >
-        {iniciais(email)}
+        {iniciais(perfil.nome, email)}
         <span className="sr-only">Conta de {email}</span>
       </button>
 
@@ -672,11 +685,25 @@ function Conta() {
         >
           <div className="px-3 py-2.5">
             <p className="text-[10.5px] font-medium text-tg-fraco-3">Sessão ativa</p>
-            <p className="mt-0.5 truncate text-[12.5px] text-tg-tinta-2" title={email}>
+            {perfil.nome.trim() && (
+              <p className="mt-0.5 truncate text-[12.5px] font-medium text-tg-tinta-2">
+                {perfil.nome.trim()}
+              </p>
+            )}
+            <p className="mt-0.5 truncate text-[12.5px] text-tg-fraco-2" title={email}>
               {email}
             </p>
           </div>
           <div className="my-1 border-t border-tg-linha-tenue" />
+          {/* O caminho curto para os ajustes é o avatar — é onde se procura. */}
+          <Link
+            href="/configuracoes"
+            role="menuitem"
+            onClick={() => setAberto(false)}
+            className="block rounded-[10px] px-3 py-2 text-[12.5px] text-tg-corpo transition-colors hover:bg-tg-preenche"
+          >
+            Configurações
+          </Link>
           <button
             type="button"
             role="menuitem"
@@ -820,9 +847,6 @@ function Paleta({ aoFechar }: { aoFechar: () => void }) {
 
 // --- casca completa ----------------------------------------------------------
 
-/** Preferência de lateral colapsada. Chave própria, não parte do histórico. */
-const CHAVE_COLAPSO = 'toga:lateral-colapsada'
-
 export function Casca({ children }: { children: React.ReactNode }) {
   const [menu, setMenu] = useState(false)
   const [colapsada, setColapsada] = useState(false)
@@ -832,28 +856,38 @@ export function Casca({ children }: { children: React.ReactNode }) {
   // tela que acabou de abrir.
   useEffect(() => setMenu(false), [caminho])
 
-  // A preferência é lida depois de montar: `localStorage` não existe no
-  // servidor, e usá-la no primeiro render faria o HTML divergir. O custo é a
+  // As preferências são lidas depois de montar: `localStorage` não existe no
+  // servidor, e usá-las no primeiro render faria o HTML divergir. O custo é a
   // lateral nascer aberta e encolher — preferível a um erro de hidratação.
+  //
+  // O listener é o que faz o interruptor de `/configuracoes` mexer na lateral na
+  // hora: o ajuste mora em outra árvore de componentes, e sem o evento a escolha
+  // só apareceria no próximo carregamento.
   useEffect(() => {
-    try {
-      setColapsada(window.localStorage.getItem(CHAVE_COLAPSO) === '1')
-    } catch {
-      // Modo privado de alguns navegadores estoura no getItem.
+    const reler = () => {
+      setColapsada(leColapso())
+      aplicaMovimento(leMovimentoReduzido())
+    }
+    reler()
+    window.addEventListener(EVENTO_PREFERENCIAS, reler)
+    window.addEventListener('storage', reler)
+    return () => {
+      window.removeEventListener(EVENTO_PREFERENCIAS, reler)
+      window.removeEventListener('storage', reler)
     }
   }, [])
 
-  const alternar = useCallback(() => {
-    setColapsada((c) => {
-      const nova = !c
-      try {
-        window.localStorage.setItem(CHAVE_COLAPSO, nova ? '1' : '0')
-      } catch {
-        /* a preferência não persiste; a sessão atual funciona igual */
-      }
-      return nova
-    })
+  // O perfil vem do banco (migration 0008), mas o avatar não espera por ele: o
+  // cache local pinta na hora e esta leitura corrige depois, avisando pelo mesmo
+  // evento. Uma vez por montagem da casca, não por navegação — o `[]` é o ponto.
+  useEffect(() => {
+    void carregaPerfil()
   }, [])
+
+  // Escreve e deixa o listener acima devolver o valor — assim o botão da lateral
+  // e o interruptor dos ajustes passam pelo mesmo caminho, e não há dois donos
+  // da mesma preferência.
+  const alternar = useCallback(() => gravaColapso(!leColapso()), [])
 
   // ⌘B / Ctrl+B, como em qualquer editor. Fica aqui e não na `Lateral` porque o
   // atalho tem de funcionar com o foco em qualquer lugar da tela.

@@ -33,3 +33,15 @@ data/normalizado/*
 # versionado é o artefato de deploy; o SHA fixado no script é a receita.
 
 .DS_Store
+
+# Cache de páginas dos coletores da vigília. Conteúdo de terceiro, regenerável,
+# e o do Planalto passa de 1,8 MB por execução.
+data/vigilia/
+
+# Python — os coletores da vigília e o vade_parser.py rodam num venv local.
+# O venv tem centenas de MB e é reconstruível a partir de coletores/requirements.txt;
+# o bytecode é regenerado a cada import e sujaria todo diff.
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

@@ -1,0 +1,13 @@
+# Dependências dos coletores da vigília.
+#
+#   python -m venv .venv
+#   .venv/Scripts/pip install -r coletores/requirements.txt      # Windows
+#   .venv/bin/pip install -r coletores/requirements.txt          # Unix
+#
+# `pdfplumber` NÃO entra aqui: ele é do `vade_parser.py`, que é outro trabalho
+# (extrair o corpus do PDF do Vade Mecum) e roda uma vez por edição. Misturar as
+# duas listas faria quem só quer rodar a vigília baixar um parser de PDF.
+requests>=2.32
+beautifulsoup4>=4.12
+PyYAML>=6.0
+pytest>=8.0

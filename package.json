@@ -15,8 +15,10 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "vademecum": "tsx scripts/vademecum.ts",
+    "vigilia": "tsx scripts/vigilia.ts",
     "lint": "eslint .",
-    "verificar": "npm run lint && tsc --noEmit && vitest run"
+    "verificar": "npm run lint && tsc --noEmit && vitest run",
+    "migrar": "tsx scripts/migrar.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

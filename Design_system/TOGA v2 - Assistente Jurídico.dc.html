@@ -34,258 +34,13 @@ input,textarea,button{font:inherit;color:inherit}
 <div style="padding:36px 36px 64px">
 <div style="display:flex;align-items:center;gap:10px;margin:0 0 18px;padding-left:4px">
   <span style="font:600 11px 'Inter Tight',sans-serif;color:#4b4a7a;background:#e6e5f2;padding:5px 11px;border-radius:999px">TOGA v2</span>
-  <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#7c818c">Protótipo vivo — começa no login: entre, crie conta, digite no chat, mude a dosimetria, mexa nas configurações.</span>
+  <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#7c818c">Protótipo vivo — tudo abaixo funciona: digite no chat, troque filtros, mude a dosimetria, sincronize as fontes.</span>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════════════
-     LOGIN — frame inteiro, sem sidebar
-
-     O split é 520 / resto. A faixa escura não é decoração: ela é o único
-     lugar do produto onde cabe dizer o que ele faz antes de a pessoa
-     entrar, e por isso carrega manchete, três números e a ressalva de que
-     a IA não substitui parecer. A ressalva fica embaixo, no rodapé da
-     faixa, e não num modal de aceite — quem lê aceite de modal não lê.
-     ═══════════════════════════════════════════════════════════════════════ -->
-<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
-<div style="width:1440px;height:940px;display:flex;background:#f7f8fa;color:#16181d;overflow:hidden;border-radius:22px;box-shadow:0 1px 2px rgba(18,20,30,.06),0 40px 90px -40px rgba(18,20,30,.42);border:1px solid rgba(18,20,30,.07);animation:tgUp .5s ease both">
-
-  <div style="width:520px;flex:none;background:linear-gradient(165deg,#43426b,#24233c);color:#fff;display:flex;flex-direction:column;padding:44px 46px 38px">
-    <div style="display:flex;align-items:center;gap:11px">
-      <div style="width:36px;height:36px;flex:none;border-radius:12px;background:rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;font:600 17px 'Source Serif 4',serif">T</div>
-      <div>
-        <div style="font:600 16px/1.1 'Inter Tight',sans-serif">Toga</div>
-        <div style="font:400 11.5px/1.3 'Inter Tight',sans-serif;color:rgba(255,255,255,.55)">Pesquisa jurídica assistida</div>
-      </div>
-    </div>
-
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0">
-      <div style="font:400 34px/1.28 'Source Serif 4',serif;letter-spacing:-.01em;max-width:400px">A pesquisa jurídica que mostra de onde veio cada palavra.</div>
-      <div style="font:400 14px/1.65 'Inter Tight',sans-serif;color:rgba(255,255,255,.62);margin-top:16px;max-width:392px">Legislação consolidada, jurisprudência dos tribunais superiores e súmulas — com a fonte aberta ao lado de cada afirmação e a data da última conferência à vista.</div>
-
-      <div style="display:flex;gap:30px;margin-top:38px">
-        <sc-for list="{{ numerosLogin }}" as="n" hint-placeholder-count="3">
-          <div>
-            <div style="font:400 24px/1 'Source Serif 4',serif;letter-spacing:-.01em">{{ n.v }}</div>
-            <div style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:rgba(255,255,255,.5);margin-top:6px;max-width:112px">{{ n.t }}</div>
-          </div>
-        </sc-for>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:flex-start;gap:9px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12)">
-      <span style="width:15px;height:15px;flex:none;border-radius:50%;border:1.4px solid rgba(255,255,255,.4);color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;font:600 10px 'Inter Tight',sans-serif;margin-top:1px">!</span>
-      <span style="font:400 11.5px/1.55 'Inter Tight',sans-serif;color:rgba(255,255,255,.5)">A resposta da IA é apoio à pesquisa e não substitui parecer de advogado. Confira o inteiro teor antes de peticionar.</span>
-    </div>
-  </div>
-
-  <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:40px">
-    <div style="width:396px">
-      <div style="font:600 24px/1.2 'Inter Tight',sans-serif;letter-spacing:-.01em">Entrar</div>
-      <div style="font:400 13px/1.55 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:7px">Use o e-mail cadastrado no escritório.</div>
-
-      <div style="margin-top:26px">
-        <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079;margin-bottom:7px">E-mail</div>
-        <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="voce@escritorio.adv.br" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
-      </div>
-
-      <div style="margin-top:16px">
-        <div style="display:flex;align-items:center;margin-bottom:7px">
-          <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079">Senha</span>
-          <span style="flex:1"></span>
-          <span class="tgb" onClick="{{ alternarSenha }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a">{{ senhaTxt }}</span>
-        </div>
-        <!-- Dois ramos e não `type="{{ … }}"`: atributo que muda por hole é
-             justamente o caso que não repinta. -->
-        <sc-if value="{{ senhaOculta }}" hint-placeholder-val="{{ true }}">
-          <input type="password" value="{{ senha }}" onChange="{{ onSenha }}" placeholder="••••••••" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
-        </sc-if>
-        <sc-if value="{{ senhaAberta }}" hint-placeholder-val="{{ false }}">
-          <input type="text" value="{{ senha }}" onChange="{{ onSenha }}" placeholder="sua senha" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
-        </sc-if>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:10px;margin-top:18px">
-        <sc-if value="{{ manterOn }}" hint-placeholder-val="{{ true }}">
-          <span class="tgb" onClick="{{ alternarManter }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#3a3960;position:relative">
-            <span style="position:absolute;top:2px;left:19px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
-          </span>
-        </sc-if>
-        <sc-if value="{{ manterOff }}" hint-placeholder-val="{{ false }}">
-          <span class="tgb" onClick="{{ alternarManter }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#e4e6ec;position:relative">
-            <span style="position:absolute;top:2px;left:2px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
-          </span>
-        </sc-if>
-        <span class="tgb" onClick="{{ alternarManter }}" style="font:400 12.5px 'Inter Tight',sans-serif;color:#4c515c">Manter conectada neste computador</span>
-        <span style="flex:1"></span>
-        <span class="tgb" style="font:500 12.5px 'Inter Tight',sans-serif;color:#4b4a7a;white-space:nowrap">Esqueci a senha</span>
-      </div>
-
-      <div class="tgb" onClick="{{ entrar }}" style="margin-top:22px;height:46px;border-radius:14px;background:#3a3960;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font:500 14px 'Inter Tight',sans-serif;box-shadow:0 8px 20px -10px rgba(58,57,96,.85)">
-        <sc-if value="{{ entrando }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
-        {{ entrarTxt }}
-      </div>
-
-      <div style="display:flex;align-items:center;gap:12px;margin:22px 0">
-        <span style="flex:1;height:1px;background:rgba(18,20,30,.08)"></span>
-        <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">ou</span>
-        <span style="flex:1;height:1px;background:rgba(18,20,30,.08)"></span>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:9px">
-        <sc-for list="{{ alternativas }}" as="a" hint-placeholder-count="2">
-          <div class="tgb tgc" onClick="{{ a.go }}" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06)" style-hover="box-shadow:0 6px 18px -8px rgba(18,20,30,.3)">
-            <span style="width:32px;height:32px;flex:none;border-radius:10px;background:{{ a.ico }}"></span>
-            <div style="flex:1;min-width:0">
-              <div style="font:500 13px 'Inter Tight',sans-serif;color:#22252c">{{ a.t }}</div>
-              <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#8b8f9a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.sub }}</div>
-            </div>
-            <sc-if value="{{ a.selo }}" hint-placeholder-val="{{ true }}"><span style="font:500 10px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 8px;flex:none">ICP-Brasil</span></sc-if>
-            <span style="color:#adb2bc;flex:none;font-size:13px">›</span>
-          </div>
-        </sc-for>
-      </div>
-
-      <div style="text-align:center;font:400 12.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:26px">
-        Ainda não tem conta? <span class="tgb" onClick="{{ irCadastro }}" style="font-weight:500;color:#4b4a7a">Criar conta</span>
-      </div>
-    </div>
-  </div>
-</div>
-</sc-if>
-
-<!-- ═══════════════════════════════════════════════════════════════════════
-     CADASTRO — mesmo split, três passos
-
-     A barra de progresso é uma trilha só com um preenchimento que anda por
-     `width`, e não três barrinhas acesas em sequência: três barras contam
-     quantos passos existem, uma barra contínua conta quanto falta — e é
-     "quanto falta" que segura alguém num formulário de três telas.
-     ═══════════════════════════════════════════════════════════════════════ -->
-<sc-if value="{{ isCadastro }}" hint-placeholder-val="{{ false }}">
-<div style="width:1440px;height:940px;display:flex;background:#f7f8fa;color:#16181d;overflow:hidden;border-radius:22px;box-shadow:0 1px 2px rgba(18,20,30,.06),0 40px 90px -40px rgba(18,20,30,.42);border:1px solid rgba(18,20,30,.07);animation:tgUp .5s ease both">
-
-  <div style="width:520px;flex:none;background:linear-gradient(165deg,#43426b,#24233c);color:#fff;display:flex;flex-direction:column;padding:44px 46px 38px">
-    <div style="display:flex;align-items:center;gap:11px">
-      <div style="width:36px;height:36px;flex:none;border-radius:12px;background:rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;font:600 17px 'Source Serif 4',serif">T</div>
-      <div>
-        <div style="font:600 16px/1.1 'Inter Tight',sans-serif">Toga</div>
-        <div style="font:400 11.5px/1.3 'Inter Tight',sans-serif;color:rgba(255,255,255,.55)">Pesquisa jurídica assistida</div>
-      </div>
-    </div>
-
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0">
-      <div style="font:400 34px/1.28 'Source Serif 4',serif;letter-spacing:-.01em;max-width:400px">A pesquisa jurídica que mostra de onde veio cada palavra.</div>
-      <div style="font:400 14px/1.65 'Inter Tight',sans-serif;color:rgba(255,255,255,.62);margin-top:16px;max-width:392px">Legislação consolidada, jurisprudência dos tribunais superiores e súmulas — com a fonte aberta ao lado de cada afirmação e a data da última conferência à vista.</div>
-
-      <div style="display:flex;gap:30px;margin-top:38px">
-        <sc-for list="{{ numerosLogin }}" as="n" hint-placeholder-count="3">
-          <div>
-            <div style="font:400 24px/1 'Source Serif 4',serif;letter-spacing:-.01em">{{ n.v }}</div>
-            <div style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:rgba(255,255,255,.5);margin-top:6px;max-width:112px">{{ n.t }}</div>
-          </div>
-        </sc-for>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:flex-start;gap:9px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12)">
-      <span style="width:15px;height:15px;flex:none;border-radius:50%;border:1.4px solid rgba(255,255,255,.4);color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;font:600 10px 'Inter Tight',sans-serif;margin-top:1px">!</span>
-      <span style="font:400 11.5px/1.55 'Inter Tight',sans-serif;color:rgba(255,255,255,.5)">A resposta da IA é apoio à pesquisa e não substitui parecer de advogado. Confira o inteiro teor antes de peticionar.</span>
-    </div>
-  </div>
-
-  <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:40px">
-    <div style="width:396px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font:600 24px/1.2 'Inter Tight',sans-serif;letter-spacing:-.01em">Criar conta</span>
-        <span style="flex:1"></span>
-        <span style="font:400 12px 'Inter Tight',sans-serif;color:#8b8f9a">Passo {{ passo }} de 3</span>
-      </div>
-
-      <div style="height:3px;border-radius:999px;background:#eef0f4;margin-top:16px;overflow:hidden">
-        <div style="height:100%;width:{{ passoPct }};border-radius:999px;background:linear-gradient(90deg,#6d6a9c,#43426b);transition:width .45s cubic-bezier(.2,.8,.2,1)"></div>
-      </div>
-
-      <div style="font:400 13px/1.55 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:14px">{{ passoSub }}</div>
-
-      <sc-if value="{{ ehPasso12 }}" hint-placeholder-val="{{ true }}">
-        <div style="display:flex;flex-direction:column;gap:14px;margin-top:22px">
-          <sc-for list="{{ camposPasso }}" as="c" hint-placeholder-count="3">
-            <div>
-              <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#6b7079;margin-bottom:7px">{{ c.rot }}</div>
-              <input value="{{ c.v }}" onChange="{{ c.on }}" placeholder="{{ c.ph }}" style="width:100%;border:1px solid rgba(18,20,30,.1);background:#fff;border-radius:12px;padding:12px 14px;font:400 14px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
-            </div>
-          </sc-for>
-        </div>
-      </sc-if>
-
-      <sc-if value="{{ ehPasso3 }}" hint-placeholder-val="{{ false }}">
-        <div style="margin-top:20px">
-          <sc-for list="{{ planos }}" as="p" hint-placeholder-count="3">
-            <sc-if value="{{ p.escolhido }}" hint-placeholder-val="{{ false }}">
-              <div class="tgb" onClick="{{ p.go }}" style="display:flex;gap:12px;padding:14px 15px;border-radius:16px;background:#fff;border:1.5px solid #3a3960;box-shadow:0 8px 22px -12px rgba(58,57,96,.7);margin-bottom:9px">
-                <!-- `checked="checked"` e não `checked` seco: atributo booleano
-                     vazio chega como string vazia e o runtime o lê como falso,
-                     e o radio ficava apagado dentro do cartão selecionado. -->
-                <input type="radio" name="plano" checked="checked" onChange="{{ p.go }}" style="accent-color:#3a3960;width:16px;height:16px;margin-top:2px;flex:none" />
-                <div style="flex:1;min-width:0">
-                  <div style="display:flex;align-items:baseline;gap:8px">
-                    <span style="font:500 13.5px 'Inter Tight',sans-serif;color:#16181d">{{ p.nome }}</span>
-                    <span style="flex:1"></span>
-                    <span style="font:400 17px 'Source Serif 4',serif;color:#3a3960">{{ p.preco }}</span>
-                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#8b8f9a">{{ p.ciclo }}</span>
-                  </div>
-                  <div style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#6b7079;margin-top:5px">{{ p.desc }}</div>
-                </div>
-              </div>
-            </sc-if>
-            <sc-if value="{{ p.naoEscolhido }}" hint-placeholder-val="{{ true }}">
-              <div class="tgb" onClick="{{ p.go }}" style="display:flex;gap:12px;padding:14px 15px;border-radius:16px;background:#fff;border:1.5px solid rgba(18,20,30,.08);margin-bottom:9px" style-hover="border-color:#b8b6d4">
-                <input type="radio" name="plano" onChange="{{ p.go }}" style="accent-color:#3a3960;width:16px;height:16px;margin-top:2px;flex:none" />
-                <div style="flex:1;min-width:0">
-                  <div style="display:flex;align-items:baseline;gap:8px">
-                    <span style="font:500 13.5px 'Inter Tight',sans-serif;color:#22252c">{{ p.nome }}</span>
-                    <span style="flex:1"></span>
-                    <span style="font:400 17px 'Source Serif 4',serif;color:#4c515c">{{ p.preco }}</span>
-                    <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">{{ p.ciclo }}</span>
-                  </div>
-                  <div style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:5px">{{ p.desc }}</div>
-                </div>
-              </div>
-            </sc-if>
-          </sc-for>
-
-          <div style="display:flex;align-items:flex-start;gap:10px;margin-top:14px">
-            <sc-if value="{{ aceiteOn }}" hint-placeholder-val="{{ false }}">
-              <input type="checkbox" checked="checked" onChange="{{ alternarAceite }}" style="accent-color:#3a3960;width:16px;height:16px;margin-top:1px;flex:none" />
-            </sc-if>
-            <sc-if value="{{ aceiteOff }}" hint-placeholder-val="{{ true }}">
-              <input type="checkbox" onChange="{{ alternarAceite }}" style="width:16px;height:16px;margin-top:1px;flex:none" />
-            </sc-if>
-            <span class="tgb" onClick="{{ alternarAceite }}" style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#6b7079">Li e aceito os <span style="color:#4b4a7a">termos de uso</span> e a <span style="color:#4b4a7a">política de privacidade</span>, e entendo que a resposta da IA não substitui parecer de advogado.</span>
-          </div>
-        </div>
-      </sc-if>
-
-      <div style="display:flex;gap:10px;margin-top:24px">
-        <span class="tgb" onClick="{{ voltarPasso }}" style="flex:none;height:46px;padding:0 20px;border-radius:14px;background:#f2f3f7;color:#4c515c;display:flex;align-items:center;font:500 13.5px 'Inter Tight',sans-serif" style-hover="background:#e9ebf0">Voltar</span>
-        <sc-if value="{{ podeContinuar }}" hint-placeholder-val="{{ true }}">
-          <span class="tgb" onClick="{{ continuar }}" style="flex:1;height:46px;border-radius:14px;background:#3a3960;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font:500 13.5px 'Inter Tight',sans-serif;box-shadow:0 8px 20px -10px rgba(58,57,96,.85)">
-            <sc-if value="{{ entrando }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
-            {{ continuarTxt }}
-          </span>
-        </sc-if>
-        <sc-if value="{{ travadoNoAceite }}" hint-placeholder-val="{{ false }}">
-          <span style="flex:1;height:46px;border-radius:14px;background:#e4e6ec;color:#a8adb8;display:flex;align-items:center;justify-content:center;font:500 13.5px 'Inter Tight',sans-serif;cursor:not-allowed">Aceite os termos para continuar</span>
-        </sc-if>
-      </div>
-    </div>
-  </div>
-</div>
-</sc-if>
-
-<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
 <div style="width:1440px;height:940px;display:flex;background:#f7f8fa;color:#16181d;overflow:hidden;border-radius:22px;box-shadow:0 1px 2px rgba(18,20,30,.06),0 40px 90px -40px rgba(18,20,30,.42);border:1px solid rgba(18,20,30,.07)">
 
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;min-width:0;display:flex">
   <!-- ═══ SIDEBAR ═══ -->
   <div style="width:246px;flex:none;background:#f1f2f6;border-right:1px solid rgba(18,20,30,.06);display:flex;flex-direction:column;padding:18px 12px 14px">
     <div style="display:flex;align-items:center;gap:10px;padding:2px 8px 20px">
@@ -438,55 +193,44 @@ input,textarea,button{font:inherit;color:inherit}
                             </sc-for>
                           </div>
 
-                          <!-- ─── cartão de dosimetria dentro da resposta ───
-                               Entra depois das fontes e antes da linha de
-                               confiança, porque é conclusão apoiada nelas, não
-                               fonte. Todos os números saem de `calc()`, a mesma
-                               função da tela de Dosimetria: mexer num vetor do
-                               art. 59 lá muda o valor aqui, e é isso que
-                               diferencia estimativa de enfeite. -->
                           <sc-if value="{{ m.temDosimetria }}" hint-placeholder-val="{{ false }}">
-                            <div style="margin-top:14px;border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06);overflow:hidden;animation:tgUp .4s ease both">
-                              <div style="display:flex;align-items:center;gap:10px;padding:14px 16px 12px">
-                                <span style="width:20px;height:20px;flex:none;border-radius:7px;background:#dde9e3"></span>
+                            <div style="margin-top:14px;border-radius:18px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06),0 16px 36px -26px rgba(18,20,30,.5);overflow:hidden;animation:tgUp .4s ease both">
+                              <div style="display:flex;align-items:center;gap:9px;padding:14px 17px 12px">
+                                <span style="width:18px;height:18px;flex:none;border-radius:6px;background:#dde9e3"></span>
                                 <span style="font:500 13px 'Inter Tight',sans-serif;color:#16181d">Dosimetria estimada a partir da conversa</span>
                                 <span style="flex:1"></span>
-                                <span style="display:flex;align-items:center;gap:6px;font:500 10.5px 'Inter Tight',sans-serif;color:#3f7d68;background:#e8f3ee;border-radius:999px;padding:3px 9px;flex:none">
-                                  <span style="width:5px;height:5px;border-radius:50%;background:#3f9e79;animation:tgPulse 2.4s ease-in-out infinite"></span>cálculo ao vivo
-                                </span>
+                                <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">cálculo ao vivo</span>
                               </div>
-
-                              <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 14px">
-                                <sc-for list="{{ m.dosChips }}" as="ch" hint-placeholder-count="5">
-                                  <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:999px;padding:5px 11px;white-space:nowrap">{{ ch.t }}</span>
+                              <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 17px 14px">
+                                <sc-for list="{{ m.extraidos }}" as="e" hint-placeholder-count="4">
+                                  <span style="display:flex;align-items:center;gap:6px;font:400 11.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:5px 11px">
+                                    <span style="width:5px;height:5px;border-radius:50%;background:#8a86b8"></span>{{ e.t }}
+                                  </span>
                                 </sc-for>
                               </div>
-
-                              <div style="display:flex;border-top:1px solid rgba(18,20,30,.05)">
+                              <div style="display:flex;gap:1px;background:rgba(18,20,30,.06)">
                                 <sc-for list="{{ m.dosFases }}" as="f" hint-placeholder-count="3">
-                                  <div style="flex:1;min-width:0;padding:13px 16px;border-right:1px solid rgba(18,20,30,.05)">
-                                    <div style="font:500 10.5px 'Inter Tight',sans-serif;color:#8a86b8">{{ f.k }}</div>
-                                    <div style="font:400 19px/1.2 'Source Serif 4',serif;color:#16181d;margin:5px 0 4px">{{ f.v }}</div>
-                                    <div style="font:400 11px/1.45 'Inter Tight',sans-serif;color:#9297a2">{{ f.d }}</div>
+                                  <div style="flex:1;background:#fbfbfd;padding:13px 15px">
+                                    <div style="font:400 11px 'Inter Tight',sans-serif;color:#9297a2">{{ f.k }}</div>
+                                    <div style="font:400 19px 'Source Serif 4',serif;color:#16181d;margin:5px 0 3px">{{ f.v }}</div>
+                                    <div style="font:400 11px/1.4 'Inter Tight',sans-serif;color:#a8adb8">{{ f.d }}</div>
                                   </div>
                                 </sc-for>
                               </div>
-
-                              <div style="background:#2c2b47;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px">
+                              <div style="display:flex;align-items:center;gap:10px;padding:14px 17px;background:#2c2b47;color:#fff">
                                 <div>
-                                  <div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.6)">Pena definitiva</div>
-                                  <div style="font:400 22px/1.15 'Source Serif 4',serif;margin-top:3px;animation:tgPop .32s ease both">{{ m.dosPena }}</div>
+                                  <div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.62)">Pena definitiva</div>
+                                  <div style="font:400 22px 'Source Serif 4',serif;margin-top:3px;animation:tgPop .3s ease both">{{ m.dosPena }}</div>
                                 </div>
-                                <span style="width:1px;height:34px;background:rgba(255,255,255,.14);flex:none"></span>
+                                <div style="width:1px;height:34px;background:rgba(255,255,255,.16);margin:0 6px"></div>
                                 <div>
-                                  <div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.6)">Regime inicial</div>
-                                  <div style="font:500 13.5px 'Inter Tight',sans-serif;margin-top:4px">{{ m.dosRegime }}</div>
+                                  <div style="font:400 11px 'Inter Tight',sans-serif;color:rgba(255,255,255,.62)">Regime inicial</div>
+                                  <div style="font:500 13px 'Inter Tight',sans-serif;margin-top:5px">{{ m.dosRegime }}</div>
                                 </div>
                                 <span style="flex:1"></span>
-                                <span class="tgb" onClick="{{ goDosimetria }}" style="font:500 12px 'Inter Tight',sans-serif;color:#2c2b47;background:#fff;border-radius:999px;padding:9px 14px;flex:none;box-shadow:0 6px 16px -8px rgba(0,0,0,.55);white-space:nowrap">Abrir na ferramenta →</span>
+                                <span class="tgb" onClick="{{ goDosimetria }}" style="font:500 12px 'Inter Tight',sans-serif;color:#2c2b47;background:#fff;border-radius:999px;padding:8px 14px;white-space:nowrap">Abrir na ferramenta →</span>
                               </div>
-
-                              <div style="padding:12px 16px;font:400 11.5px/1.55 'Inter Tight',sans-serif;color:#8b8f9a">Estimativa montada com os elementos que apareceram na conversa e as frações majoritárias. O número acompanha os ajustes feitos na tela de Dosimetria — trocar um vetor do art. 59 lá muda o valor aqui.</div>
+                              <div style="padding:12px 17px;font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#9297a2">{{ m.dosNota }}</div>
                             </div>
                           </sc-if>
 
@@ -769,25 +513,13 @@ input,textarea,button{font:inherit;color:inherit}
           <div style="font:400 26px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">Dosimetria trifásica</div>
           <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin:6px 0 20px">Roubo majorado · art. 157, §2º, VII · réu primário, 24 anos, arma branca</div>
 
-          <!-- Aba de fase em dois ramos literais. Quando se troca de fase, o
-               único que mudaria seria a cor de fundo e a sombra — hole em
-               `style` dentro de sc-for não repinta, e a aba ficava morta. -->
           <div style="display:flex;gap:9px;margin-bottom:18px">
             <sc-for list="{{ fases }}" as="f" hint-placeholder-count="3">
-              <sc-if value="{{ f.ativa }}" hint-placeholder-val="{{ true }}">
-                <div class="tgb" onClick="{{ f.go }}" style="flex:1;padding:13px 15px;border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.06),0 10px 24px -16px rgba(18,20,30,.4)">
-                  <div style="font:500 11px 'Inter Tight',sans-serif;color:#8a86b8">{{ f.k }}</div>
-                  <div style="font:500 13.5px 'Inter Tight',sans-serif;color:#16181d;margin-top:4px">{{ f.nome }}</div>
-                  <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#4b4a7a;margin-top:3px">{{ f.res }}</div>
-                </div>
-              </sc-if>
-              <sc-if value="{{ f.inativa }}" hint-placeholder-val="{{ false }}">
-                <div class="tgb" onClick="{{ f.go }}" style="flex:1;padding:13px 15px;border-radius:16px;background:#f2f3f7">
-                  <div style="font:500 11px 'Inter Tight',sans-serif;color:#a8adb8">{{ f.k }}</div>
-                  <div style="font:500 13.5px 'Inter Tight',sans-serif;color:#5b6068;margin-top:4px">{{ f.nome }}</div>
-                  <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#9297a2;margin-top:3px">{{ f.res }}</div>
-                </div>
-              </sc-if>
+              <div class="tgb" onClick="{{ f.go }}" style="flex:1;padding:13px 15px;border-radius:16px;background:{{ f.bg }};box-shadow:{{ f.sh }}">
+                <div style="font:500 11px 'Inter Tight',sans-serif;color:{{ f.kfg }}">{{ f.k }}</div>
+                <div style="font:500 13.5px 'Inter Tight',sans-serif;color:{{ f.fg }};margin-top:4px">{{ f.nome }}</div>
+                <div style="font:400 12.5px 'Inter Tight',sans-serif;color:{{ f.rfg }};margin-top:3px">{{ f.res }}</div>
+              </div>
             </sc-for>
           </div>
 
@@ -806,26 +538,12 @@ input,textarea,button{font:inherit;color:inherit}
                     <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ v.nome }}</div>
                     <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ v.hint }}</div>
                   </div>
-                  <!-- Mesma regra do switch: a pastilha ativa é um ramo, a
-                       inativa é outro, ambos com cor literal. Com hole em
-                       `style` o segmentado não repintava e a primeira fase
-                       parecia não responder ao clique. -->
                   <div style="flex:1;display:flex;gap:4px;background:#f2f3f7;border-radius:999px;padding:3px">
                     <sc-for list="{{ v.opts }}" as="o" hint-placeholder-count="3">
-                      <sc-if value="{{ o.ativa }}" hint-placeholder-val="{{ false }}">
-                        <span class="tgb" onClick="{{ o.go }}" style="flex:1;text-align:center;font:500 11.5px 'Inter Tight',sans-serif;padding:6px 4px;border-radius:999px;background:#fff;color:#16181d;box-shadow:0 1px 3px rgba(18,20,30,.16)">{{ o.t }}</span>
-                      </sc-if>
-                      <sc-if value="{{ o.inativa }}" hint-placeholder-val="{{ true }}">
-                        <span class="tgb" onClick="{{ o.go }}" style="flex:1;text-align:center;font:500 11.5px 'Inter Tight',sans-serif;padding:6px 4px;border-radius:999px;color:#8b8f9a">{{ o.t }}</span>
-                      </sc-if>
+                      <span class="tgb" onClick="{{ o.go }}" style="flex:1;text-align:center;font:500 11.5px 'Inter Tight',sans-serif;padding:6px 4px;border-radius:999px;background:{{ o.bg }};color:{{ o.fg }};box-shadow:{{ o.sh }}">{{ o.t }}</span>
                     </sc-for>
                   </div>
-                  <sc-if value="{{ v.negativo }}" hint-placeholder-val="{{ false }}">
-                    <div style="width:78px;flex:none;text-align:right;font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a">{{ v.delta }}</div>
-                  </sc-if>
-                  <sc-if value="{{ v.semPeso }}" hint-placeholder-val="{{ true }}">
-                    <div style="width:78px;flex:none;text-align:right;font:500 12px 'Inter Tight',sans-serif;color:#adb2bc">—</div>
-                  </sc-if>
+                  <div style="width:78px;flex:none;text-align:right;font:500 12px 'Inter Tight',sans-serif;color:{{ v.dfg }}">{{ v.delta }}</div>
                 </div>
               </sc-for>
               <div style="display:flex;align-items:center;gap:12px;padding:14px 0 2px">
@@ -843,38 +561,25 @@ input,textarea,button{font:inherit;color:inherit}
               <span style="font:400 12px 'Inter Tight',sans-serif;color:#9297a2">{{ subFase }}</span>
             </div>
             <div style="padding:6px 20px 16px">
-              <!-- O bug que motivou a regra: aqui nada mais mudava além de
-                   `trackBg`, `knobLeft` e `frFg`, todos holes em `style` dentro
-                   de sc-for. O switch ficava congelado no estado inicial mesmo
-                   com o cálculo já refeito. Dois ramos mutuamente exclusivos,
-                   valores literais nos dois. -->
               <sc-for list="{{ circunstancias }}" as="c" hint-placeholder-count="5">
-                <sc-if value="{{ c.ligado }}" hint-placeholder-val="{{ true }}">
-                  <div class="tgb" onClick="{{ c.go }}" style="display:flex;align-items:center;gap:14px;padding:12px 10px;margin:0 -10px;border-radius:12px;border-bottom:1px solid rgba(18,20,30,.04)" style-hover="background:#f7f8fa">
+                <div class="tgb" onClick="{{ c.go }}" style="display:flex;align-items:center;gap:14px;padding:12px 10px;margin:0 -10px;border-radius:12px;border-bottom:1px solid rgba(18,20,30,.04)" style-hover="background:#f7f8fa">
+                  <sc-if value="{{ c.ligado }}" hint-placeholder-val="{{ true }}">
                     <span style="width:38px;height:22px;flex:none;border-radius:999px;background:#3a3960;position:relative">
-                      <span style="position:absolute;top:2px;left:19px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+                      <span style="position:absolute;top:2px;left:18px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
                     </span>
-                    <div style="flex:1;min-width:0">
-                      <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ c.nome }}</div>
-                      <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ c.base }}</div>
-                    </div>
-                    <span style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:#9297a2;width:200px;flex:none">{{ c.nota }}</span>
-                    <span style="font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a;width:66px;flex:none;text-align:right">{{ c.fr }}</span>
-                  </div>
-                </sc-if>
-                <sc-if value="{{ c.desligado }}" hint-placeholder-val="{{ false }}">
-                  <div class="tgb" onClick="{{ c.go }}" style="display:flex;align-items:center;gap:14px;padding:12px 10px;margin:0 -10px;border-radius:12px;border-bottom:1px solid rgba(18,20,30,.04)" style-hover="background:#f7f8fa">
+                  </sc-if>
+                  <sc-if value="{{ c.desligado }}" hint-placeholder-val="{{ false }}">
                     <span style="width:38px;height:22px;flex:none;border-radius:999px;background:#e4e6ec;position:relative">
-                      <span style="position:absolute;top:2px;left:2px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+                      <span style="position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.28)"></span>
                     </span>
-                    <div style="flex:1;min-width:0">
-                      <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ c.nome }}</div>
-                      <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ c.base }}</div>
-                    </div>
-                    <span style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:#9297a2;width:200px;flex:none">{{ c.nota }}</span>
-                    <span style="font:500 12px 'Inter Tight',sans-serif;color:#adb2bc;width:66px;flex:none;text-align:right">{{ c.fr }}</span>
+                  </sc-if>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:500 12.5px 'Inter Tight',sans-serif;color:#22252c">{{ c.nome }}</div>
+                    <div style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">{{ c.base }}</div>
                   </div>
-                </sc-if>
+                  <span style="font:400 11.5px/1.4 'Inter Tight',sans-serif;color:#9297a2;width:200px;flex:none">{{ c.nota }}</span>
+                  <span style="font:500 12px 'Inter Tight',sans-serif;color:{{ c.frFg }};width:66px;flex:none;text-align:right">{{ c.fr }}</span>
+                </div>
               </sc-for>
               <div style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;padding-top:14px">{{ avisoFase }}</div>
             </div>
@@ -1109,121 +814,247 @@ input,textarea,button{font:inherit;color:inherit}
     </div>
     </sc-if>
 
-    <!-- ─── CONFIGURAÇÕES ───
-         Seis seções numa coluna de 250px, e "Sair da conta" empurrado para o
-         rodapé em #8a5050. Sair mora longe do resto de propósito: é a única
-         ação da tela que descarta trabalho, e ela não deve ficar a um pixel de
-         distância de "trilha de auditoria".
-
-         Toda linha tem a mesma anatomia — título e descrição à esquerda,
-         controle à direita — e toda seção fecha com uma nota em cinza que diz
-         a consequência de mexer ali. Switch sem consequência declarada é
-         switch que ninguém sabe se deve ligar. -->
+    <!-- ─── CONFIGURAÇÕES ─── -->
     <sc-if value="{{ isConfig }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1;min-height:0;display:flex;animation:tgUp .35s ease both">
-      <div style="width:250px;flex:none;border-right:1px solid rgba(18,20,30,.055);padding:20px 14px 16px;display:flex;flex-direction:column">
-        <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#9297a2;padding:0 10px 10px">Configurações</div>
+      <div style="width:250px;flex:none;border-right:1px solid rgba(18,20,30,.055);padding:22px 14px;overflow:auto">
+        <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#9297a2;padding:0 10px 10px">Ajustes</div>
         <div style="display:flex;flex-direction:column;gap:2px">
           <sc-for list="{{ secoes }}" as="s" hint-placeholder-count="6">
-            <sc-if value="{{ s.ativa }}" hint-placeholder-val="{{ true }}">
-              <div class="tgb" onClick="{{ s.go }}" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.07)">
-                <span style="width:16px;height:16px;flex:none;border-radius:5px;background:{{ s.ico }}"></span>
-                <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#16181d">{{ s.t }}</span>
-              </div>
-            </sc-if>
-            <sc-if value="{{ s.inativa }}" hint-placeholder-val="{{ false }}">
-              <div class="tgb" onClick="{{ s.go }}" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px" style-hover="background:#eef0f4">
-                <span style="width:16px;height:16px;flex:none;border-radius:5px;background:{{ s.ico }}"></span>
-                <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#4c515c">{{ s.t }}</span>
-              </div>
-            </sc-if>
+            <div class="tgb" onClick="{{ s.go }}" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;background:{{ s.bg }};box-shadow:{{ s.sh }}" style-hover="background:#eef0f4">
+              <span style="width:18px;height:18px;flex:none;border-radius:6px;background:{{ s.ico }}"></span>
+              <span style="font:500 12.5px 'Inter Tight',sans-serif;color:{{ s.fg }}">{{ s.t }}</span>
+            </div>
           </sc-for>
         </div>
-
-        <span style="flex:1"></span>
-
-        <div class="tgb" onClick="{{ sair }}" style="display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px" style-hover="background:#fdf1f1">
-          <span style="width:16px;height:16px;flex:none;border-radius:5px;background:#f2dede"></span>
-          <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#8a5050">Sair da conta</span>
+        <div class="tgb" onClick="{{ sair }}" style="margin-top:18px;display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:11px;font:500 12.5px 'Inter Tight',sans-serif;color:#8a5050" style-hover="background:#fdf1f1">
+          <span style="width:18px;height:18px;flex:none;border-radius:6px;background:#f6dede"></span>Sair da conta
         </div>
       </div>
 
-      <div style="flex:1;min-width:0;overflow:auto;padding:24px 28px 32px">
+      <div style="flex:1;min-width:0;overflow:auto;padding:26px 30px 34px">
         <div style="max-width:720px">
-          <div style="font:400 24px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">{{ secaoTitulo }}</div>
-          <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin:6px 0 20px">{{ secaoSub }}</div>
+          <div style="font:400 26px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">{{ configTitulo }}</div>
+          <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin:7px 0 22px">{{ configSub }}</div>
 
           <sc-if value="{{ ehPerfil }}" hint-placeholder-val="{{ true }}">
-            <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);padding:20px">
-              <div style="display:flex;align-items:center;gap:16px">
-                <div style="width:62px;height:62px;flex:none;border-radius:20px;background:linear-gradient(160deg,#6d6a9c,#43426b);color:#fff;display:flex;align-items:center;justify-content:center;font:600 22px 'Inter Tight',sans-serif;box-shadow:0 8px 20px -8px rgba(67,66,107,.7)">MR</div>
+          <div style="display:flex;flex-direction:column;gap:14px;animation:tgUp .3s ease both">
+            <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);padding:22px">
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px">
+                <div style="width:62px;height:62px;flex:none;border-radius:22px;background:linear-gradient(160deg,#6d6a9c,#43426b);color:#fff;display:flex;align-items:center;justify-content:center;font:400 24px 'Source Serif 4',serif;box-shadow:0 8px 20px -10px rgba(67,66,107,.9)">MR</div>
                 <div style="flex:1;min-width:0">
-                  <div style="font:500 16px 'Inter Tight',sans-serif;color:#16181d">Marina Ribeiro</div>
-                  <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:3px">OAB/SP 214.887 · Direito Penal</div>
+                  <div style="font:500 16px 'Inter Tight',sans-serif">Marina Ribeiro</div>
+                  <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:3px">OAB/SP 412.883 · sócia · criminal e execução penal</div>
                 </div>
-                <span class="tgb" style="font:500 12px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:999px;padding:8px 14px;flex:none" style-hover="background:#e9ebf0">Trocar foto</span>
+                <span class="tgb" style="font:500 12px 'Inter Tight',sans-serif;color:#4c515c;background:#f2f3f7;border-radius:999px;padding:8px 14px" style-hover="background:#e9ebf0">Trocar foto</span>
               </div>
-
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
                 <sc-for list="{{ camposPerfil }}" as="c" hint-placeholder-count="4">
                   <div>
-                    <div style="font:500 11px 'Inter Tight',sans-serif;color:#8b8f9a;margin-bottom:6px">{{ c.rot }}</div>
-                    <input value="{{ c.v }}" onChange="{{ c.on }}" style="width:100%;background:#f2f3f7;border:none;border-radius:12px;padding:11px 13px;font:400 13.5px 'Inter Tight',sans-serif;color:#16181d;outline:none" />
+                    <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-bottom:7px">{{ c.rot }}</div>
+                    <input value="{{ c.val }}" onChange="{{ c.set }}" style="width:100%;border:none;outline:none;background:#f2f3f7;border-radius:12px;padding:11px 13px;font:400 13.5px 'Inter Tight',sans-serif;color:#16181d" />
                   </div>
                 </sc-for>
               </div>
-
-              <div style="font:500 11px 'Inter Tight',sans-serif;color:#8b8f9a;margin:20px 0 9px">Áreas de atuação</div>
+            </div>
+            <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);padding:20px 22px">
+              <div style="font:500 14px 'Inter Tight',sans-serif;margin-bottom:6px">Áreas de atuação</div>
+              <div style="font:400 12.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-bottom:14px">O Toga prioriza fontes e súmulas dessas áreas nas respostas.</div>
               <div style="display:flex;flex-wrap:wrap;gap:7px">
-                <sc-for list="{{ chipsAreas }}" as="a" hint-placeholder-count="7">
-                  <sc-if value="{{ a.on }}" hint-placeholder-val="{{ false }}">
-                    <span class="tgb" onClick="{{ a.go }}" style="font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:7px 13px">{{ a.t }} ✓</span>
-                  </sc-if>
-                  <sc-if value="{{ a.off }}" hint-placeholder-val="{{ true }}">
-                    <span class="tgb" onClick="{{ a.go }}" style="font:400 12px 'Inter Tight',sans-serif;color:#6b7079;background:#f2f3f7;border-radius:999px;padding:7px 13px" style-hover="background:#e9ebf0">{{ a.t }}</span>
-                  </sc-if>
+                <sc-for list="{{ areas }}" as="a" hint-placeholder-count="8">
+                  <span class="tgb" onClick="{{ a.go }}" style="font:500 12px 'Inter Tight',sans-serif;border-radius:999px;padding:7px 13px;background:{{ a.bg }};color:{{ a.fg }}">{{ a.t }}</span>
                 </sc-for>
               </div>
             </div>
+          </div>
           </sc-if>
 
-          <sc-if value="{{ temLinhas }}" hint-placeholder-val="{{ false }}">
-            <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden">
-              <sc-for list="{{ linhasConfig }}" as="o" hint-placeholder-count="5">
-                <div style="display:flex;align-items:center;gap:16px;padding:15px 20px;border-bottom:1px solid rgba(18,20,30,.04)">
-                  <div style="flex:1;min-width:0">
-                    <div style="font:500 13px 'Inter Tight',sans-serif;color:#22252c">{{ o.nome }}</div>
-                    <div style="font:400 11.5px/1.5 'Inter Tight',sans-serif;color:#9297a2;margin-top:2px">{{ o.desc }}</div>
-                  </div>
-                  <sc-if value="{{ o.ligado }}" hint-placeholder-val="{{ true }}">
-                    <span class="tgb" onClick="{{ o.go }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#3a3960;position:relative">
-                      <span style="position:absolute;top:2px;left:19px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
-                    </span>
-                  </sc-if>
-                  <sc-if value="{{ o.desligado }}" hint-placeholder-val="{{ false }}">
-                    <span class="tgb" onClick="{{ o.go }}" style="width:38px;height:22px;flex:none;border-radius:999px;background:#e4e6ec;position:relative">
-                      <span style="position:absolute;top:2px;left:2px;width:17px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
-                    </span>
-                  </sc-if>
-                  <sc-if value="{{ o.ehValor }}" hint-placeholder-val="{{ false }}">
-                    <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#4b4a7a;flex:none;white-space:nowrap">{{ o.valor }}</span>
-                  </sc-if>
+          <sc-if value="{{ ehLista }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(18,20,30,.05);overflow:hidden;animation:tgUp .3s ease both">
+            <sc-for list="{{ opcoes }}" as="o" hint-placeholder-count="5">
+              <div class="tgb" onClick="{{ o.go }}" style="display:flex;align-items:center;gap:18px;padding:18px 22px;border-bottom:1px solid rgba(18,20,30,.045)" style-hover="background:#f9fafb">
+                <div style="flex:1;min-width:0">
+                  <div style="font:500 13.5px 'Inter Tight',sans-serif;color:#16181d">{{ o.t }}</div>
+                  <div style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:4px">{{ o.desc }}</div>
                 </div>
-              </sc-for>
-            </div>
+                <sc-if value="{{ o.ligado }}" hint-placeholder-val="{{ true }}">
+                  <span style="width:40px;height:23px;flex:none;border-radius:999px;background:#3a3960;position:relative">
+                    <span style="position:absolute;top:2px;left:19px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3)"></span>
+                  </span>
+                </sc-if>
+                <sc-if value="{{ o.desligado }}" hint-placeholder-val="{{ false }}">
+                  <span style="width:40px;height:23px;flex:none;border-radius:999px;background:#e4e6ec;position:relative">
+                    <span style="position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.28)"></span>
+                  </span>
+                </sc-if>
+                <sc-if value="{{ o.ehValor }}" hint-placeholder-val="{{ false }}">
+                  <span style="font:500 12.5px 'Inter Tight',sans-serif;color:#4b4a7a;background:#ecebf6;border-radius:999px;padding:7px 13px;flex:none;white-space:nowrap">{{ o.valor }}</span>
+                </sc-if>
+              </div>
+            </sc-for>
+            <div style="padding:16px 22px;font:400 12px/1.5 'Inter Tight',sans-serif;color:#9297a2">{{ notaSecao }}</div>
+          </div>
           </sc-if>
-
-          <div style="font:400 11.5px/1.55 'Inter Tight',sans-serif;color:#9297a2;margin-top:12px;padding:0 4px">{{ notaSecao }}</div>
         </div>
       </div>
     </div>
     </sc-if>
 
   </div>
-</div>
-</sc-if>
+  </div>
+  </sc-if>
 
-<p style="max-width:1440px;margin:20px 4px 0;font:400 12.5px/1.7 'Inter Tight',sans-serif;color:#7c818c">Interações vivas: login com spinner e cadastro em três passos com barra contínua · envio com streaming em blocos e etapas de consulta · painel da fonte deslizando · filtros com carregamento em esqueleto · dosimetria recalculando de verdade, e o cartão dentro do chat acompanhando · configurações com switches que repintam · sincronização com barra de progresso.</p>
+  <!-- ═══ LOGIN / CADASTRO ═══ -->
+  <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;display:flex;animation:tgUp .4s ease both">
+    <div style="width:520px;flex:none;background:linear-gradient(165deg,#43426b,#24233c);color:#fff;padding:44px 46px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font:400 17px 'Source Serif 4',serif">T</div>
+        <div style="font:500 17px 'Inter Tight',sans-serif;letter-spacing:-.01em">Toga</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 0">
+        <div style="font:400 34px/1.28 'Source Serif 4',serif;letter-spacing:-.015em">A pesquisa jurídica que mostra de onde veio cada palavra.</div>
+        <div style="font:400 14px/1.7 'Inter Tight',sans-serif;color:rgba(255,255,255,.62);margin-top:18px;max-width:380px">Leis consolidadas do Planalto, súmulas do STF e do STJ, acórdãos do DataJud e o Diário Oficial do dia — tudo com vigência conferida.</div>
+        <div style="display:flex;gap:26px;margin-top:36px">
+          <sc-for list="{{ authStats }}" as="s" hint-placeholder-count="3">
+            <div>
+              <div style="font:400 24px 'Source Serif 4',serif">{{ s.n }}</div>
+              <div style="font:400 11.5px 'Inter Tight',sans-serif;color:rgba(255,255,255,.55);margin-top:3px">{{ s.t }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="font:400 11.5px/1.6 'Inter Tight',sans-serif;color:rgba(255,255,255,.42)">As respostas do Toga são apoio à pesquisa e não substituem parecer nem juízo profissional.</div>
+    </div>
+
+    <div style="flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:40px">
+      <div style="width:396px">
+
+        <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+        <div style="animation:tgUp .35s ease both">
+          <div style="font:400 27px/1.2 'Source Serif 4',serif;letter-spacing:-.01em">Entrar</div>
+          <div style="font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a;margin:8px 0 24px">Use o e-mail do escritório ou seu certificado digital.</div>
+
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+              <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-bottom:7px">E-mail</div>
+              <input value="{{ email }}" onChange="{{ setEmail }}" placeholder="marina@ribeiroadv.com.br" style="width:100%;border:none;outline:none;background:#fff;border-radius:14px;padding:13px 15px;font:400 14px 'Inter Tight',sans-serif;box-shadow:0 1px 2px rgba(18,20,30,.06)" />
+            </div>
+            <div>
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px">
+                <span style="font:500 11.5px 'Inter Tight',sans-serif;color:#8b8f9a">Senha</span>
+                <span style="flex:1"></span>
+                <span class="tgb" onClick="{{ toggleSenha }}" style="font:500 11.5px 'Inter Tight',sans-serif;color:#4b4a7a">{{ verSenhaTxt }}</span>
+              </div>
+              <input value="{{ senhaVis }}" onChange="{{ setSenha }}" onKeyDown="{{ onAuthKey }}" placeholder="••••••••" style="width:100%;border:none;outline:none;background:#fff;border-radius:14px;padding:13px 15px;font:400 14px 'Inter Tight',sans-serif;box-shadow:0 1px 2px rgba(18,20,30,.06)" />
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;margin:16px 0 20px">
+            <span class="tgb" onClick="{{ toggleLembrar }}" style="width:40px;height:23px;flex:none;border-radius:999px;background:{{ lembrarBg }};position:relative">
+              <span style="position:absolute;top:2px;left:{{ lembrarKnob }};width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(18,20,30,.3);transition:left .2s cubic-bezier(.2,.8,.2,1)"></span>
+            </span>
+            <span style="font:400 12.5px 'Inter Tight',sans-serif;color:#6b7079">Manter conectada neste computador</span>
+            <span style="flex:1"></span>
+            <span class="tgb" style="font:500 12px 'Inter Tight',sans-serif;color:#4b4a7a">Esqueci a senha</span>
+          </div>
+
+          <div class="tgb" onClick="{{ entrar }}" style="display:flex;align-items:center;justify-content:center;gap:9px;background:#3a3960;color:#fff;border-radius:16px;padding:14px;font:500 13.5px 'Inter Tight',sans-serif;box-shadow:0 10px 24px -12px rgba(58,57,96,.95)">
+            <sc-if value="{{ entrando }}" hint-placeholder-val="{{ false }}"><span style="width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:tgSpin .7s linear infinite"></span></sc-if>
+            {{ btnEntrarTxt }}
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;margin:20px 0">
+            <span style="flex:1;height:1px;background:rgba(18,20,30,.09)"></span>
+            <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#a8adb8">ou</span>
+            <span style="flex:1;height:1px;background:rgba(18,20,30,.09)"></span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <div class="tgb" onClick="{{ entrar }}" style="display:flex;align-items:center;gap:11px;background:#fff;border-radius:14px;padding:13px 15px;box-shadow:0 1px 2px rgba(18,20,30,.06)" style-hover="box-shadow:0 6px 18px -8px rgba(18,20,30,.3)">
+              <span style="width:22px;height:22px;flex:none;border-radius:7px;background:#e6e5f2"></span>
+              <span style="font:500 13px 'Inter Tight',sans-serif;color:#22252c">Certificado digital A1 ou A3</span>
+              <span style="flex:1"></span>
+              <span style="font:400 11.5px 'Inter Tight',sans-serif;color:#9297a2">ICP-Brasil</span>
+            </div>
+            <div class="tgb" onClick="{{ entrar }}" style="display:flex;align-items:center;gap:11px;background:#fff;border-radius:14px;padding:13px 15px;box-shadow:0 1px 2px rgba(18,20,30,.06)" style-hover="box-shadow:0 6px 18px -8px rgba(18,20,30,.3)">
+              <span style="width:22px;height:22px;flex:none;border-radius:7px;background:#dfe6ee"></span>
+              <span style="font:500 13px 'Inter Tight',sans-serif;color:#22252c">Entrar com o número da OAB</span>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:6px;margin-top:24px;font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a">
+            Ainda não tem conta?
+            <span class="tgb" onClick="{{ irCadastro }}" style="font:500 13px 'Inter Tight',sans-serif;color:#4b4a7a">Criar conta</span>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isCadastro }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:tgUp .35s ease both">
+          <div style="height:4px;border-radius:999px;background:#e4e6ec;margin-bottom:18px;overflow:hidden">
+            <div style="height:100%;width:{{ progresso }};border-radius:999px;background:#3a3960;transition:width .32s cubic-bezier(.2,.8,.2,1)"></div>
+          </div>
+          <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#8a86b8;margin-bottom:7px">{{ passoRot }}</div>
+          <div style="font:400 26px/1.22 'Source Serif 4',serif;letter-spacing:-.01em">{{ cadTitulo }}</div>
+          <div style="font:400 13px/1.6 'Inter Tight',sans-serif;color:#8b8f9a;margin:8px 0 22px">{{ cadSub }}</div>
+
+          <sc-if value="{{ cadCampos }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+            <sc-for list="{{ camposCad }}" as="c" hint-placeholder-count="3">
+              <div>
+                <div style="font:500 11.5px 'Inter Tight',sans-serif;color:#8b8f9a;margin-bottom:7px">{{ c.rot }}</div>
+                <input value="{{ c.val }}" onChange="{{ c.set }}" placeholder="{{ c.ph }}" style="width:100%;border:none;outline:none;background:#fff;border-radius:14px;padding:13px 15px;font:400 14px 'Inter Tight',sans-serif;box-shadow:0 1px 2px rgba(18,20,30,.06)" />
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ cadPlanos }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+            <sc-for list="{{ planos }}" as="p" hint-placeholder-count="3">
+              <div class="tgb" onClick="{{ p.go }}" style="border-radius:16px;background:#fff;padding:15px 17px;box-shadow:{{ p.sh }};display:flex;align-items:center;gap:13px">
+                <span style="width:19px;height:19px;flex:none;border-radius:50%;border:1.6px solid {{ p.ring }};display:flex;align-items:center;justify-content:center">
+                  <sc-if value="{{ p.on }}" hint-placeholder-val="{{ false }}"><span style="width:9px;height:9px;border-radius:50%;background:#3a3960"></span></sc-if>
+                </span>
+                <div style="flex:1;min-width:0">
+                  <div style="font:500 13.5px 'Inter Tight',sans-serif;color:#16181d">{{ p.nome }}</div>
+                  <div style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#8b8f9a;margin-top:3px">{{ p.desc }}</div>
+                </div>
+                <div style="text-align:right;flex:none">
+                  <div style="font:500 13.5px 'Inter Tight',sans-serif;color:#4b4a7a">{{ p.preco }}</div>
+                  <div style="font:400 11px 'Inter Tight',sans-serif;color:#a8adb8;margin-top:2px">{{ p.unidade }}</div>
+                </div>
+              </div>
+            </sc-for>
+            <div class="tgb" onClick="{{ toggleAceite }}" style="display:flex;align-items:flex-start;gap:10px;padding:4px 2px;margin-top:4px">
+              <span style="width:17px;height:17px;flex:none;border-radius:6px;background:{{ aceiteBg }};display:flex;align-items:center;justify-content:center;margin-top:1px">
+                <sc-if value="{{ aceite }}" hint-placeholder-val="{{ false }}"><span style="width:5px;height:2.5px;border-left:1.8px solid #fff;border-bottom:1.8px solid #fff;transform:rotate(-45deg) translate(0,-1px)"></span></sc-if>
+              </span>
+              <span style="font:400 12px/1.5 'Inter Tight',sans-serif;color:#6b7079">Aceito os termos de uso e a política de privacidade, e confirmo que as respostas da IA serão conferidas antes do uso em peça.</span>
+            </div>
+          </div>
+          </sc-if>
+
+          <div style="display:flex;gap:9px">
+            <span class="tgb" onClick="{{ voltarPasso }}" style="font:500 13px 'Inter Tight',sans-serif;color:#4c515c;background:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 1px 2px rgba(18,20,30,.06)">{{ voltarTxt }}</span>
+            <span class="tgb" onClick="{{ avancarPasso }}" style="flex:1;text-align:center;font:500 13.5px 'Inter Tight',sans-serif;color:#fff;background:{{ avancarBg }};border-radius:16px;padding:14px;box-shadow:0 10px 24px -12px rgba(58,57,96,.95)">{{ avancarTxt }}</span>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:6px;margin-top:22px;font:400 13px 'Inter Tight',sans-serif;color:#8b8f9a">
+            Já tem conta?
+            <span class="tgb" onClick="{{ irLogin }}" style="font:500 13px 'Inter Tight',sans-serif;color:#4b4a7a">Entrar</span>
+          </div>
+        </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+  </sc-if>
+</div>
+
+<p style="max-width:1440px;margin:20px 4px 0;font:400 12.5px/1.7 'Inter Tight',sans-serif;color:#7c818c">Interações vivas: envio com streaming de resposta e etapas de consulta · painel da fonte deslizando · filtros com carregamento em esqueleto · dosimetria recalculando de verdade · sincronização com barra de progresso.</p>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1512,&quot;height&quot;:1080}}">
@@ -1247,7 +1078,9 @@ const RESPOSTAS = {
       { n: '2', titulo: 'STJ · recursos repetitivos', sub: 'abolitio criminis parcial entre 2018 e 2019', selo: 'Vigente', alvo: 'tema' },
       { n: '3', titulo: 'Súmula 443 · STJ', sub: 'aumento acima do mínimo exige motivação concreta', selo: 'Vigente', alvo: 'sumula' }
     ],
-    sugestoes: ['Redigir tese de retroatividade', 'Casos análogos no TJSP', 'Efeitos na progressão de regime']
+    sugestoes: ['Redigir tese de retroatividade', 'Casos análogos no TJSP', 'Efeitos na progressão de regime'],
+    dosimetria: true,
+    extraidos: ['Roubo · art. 157', 'Arma branca · +1/3', 'Réu primário', '24 anos · menoridade relativa', 'Fato em 2025']
   },
   prescricao: {
     paras: [
@@ -1344,13 +1177,6 @@ const LEITOR = {
 
 class Component extends DCLogic {
   state = {
-    // sessao: 'login' | 'cadastro' | 'app' — o protótipo abre pela porta da
-    // frente, que é onde o produto abre.
-    sessao: 'login', entrando: false,
-    email: 'marina@ribeiroadv.com.br', senha: 'contrassenha', senhaVisivel: false, manter: true,
-    passo: 1, cadNome: '', cadEmail: '', cadEscritorio: '',
-    cadInscricao: '', cadSeccional: '', cadArea: '', plano: 'pro', aceite: false,
-
     tela: 'chat', trib: 'STF', tema: 'Dosimetria da pena', fase: 1,
     msgs: [], draft: '', ocupado: false,
     painel: null, abaFonte: 'cp',
@@ -1361,44 +1187,23 @@ class Component extends DCLogic {
     circ3: { arma: true, concurso: false, tentativa: false },
     memorial: 0, ramo: 'civil', soAlterados: false,
     sincronizando: false, syncPct: 0, feedExtra: 0,
-
+    email: '', senha: '', verSenha: false, lembrar: true, entrando: false,
+    passo: 1, cad: { nome: '', mail: '', escritorio: '', oab: '', uf: '', area: '' }, plano: 'pro', aceite: false,
     secao: 'perfil',
-    perfil: { nome: 'Marina Ribeiro', inscricao: 'OAB/SP 214.887', email: 'marina@ribeiroadv.com.br', telefone: '(11) 9 8123-4477' },
-    areas: { 'Penal': true, 'Processo Penal': true, 'Execução Penal': true, 'Tributário': false, 'Trabalhista': false, 'Civil': false, 'Consumidor': false },
-    opcoes: {
-      citacao: true, vigencia: true, avisoIA: true, doutrina: false, minuta: true,
-      syncAuto: true, ocr: true, senadoBeta: false,
-      alertaDOU: true, alertaTeses: true, resumoSemanal: false, notifNavegador: false,
-      doisFatores: true, encerrarInativas: true, auditoria: true
+    perfil: { nome: 'Marina Ribeiro', oab: 'OAB/SP 412.883', mail: 'marina@ribeiroadv.com.br', tel: '(11) 98xxx-4412' },
+    areasSel: { 'Penal': true, 'Execução penal': true, 'Processo penal': true },
+    prefs: {
+      citacao: true, vigencia: true, avisoIa: true, doutrina: false, modelos: true,
+      alertaDou: true, alertaTeses: true, resumoSemanal: false, push: false,
+      dois: true, sessoes: false, logAuditoria: true,
+      autoSync: true, ocr: true, senadoBeta: false
     }
   };
 
-  componentWillUnmount() { [this.demo, this.stepT, this.typeT, this.jurisT, this.syncT, this.memT, this.loginT].forEach(clearTimeout); clearInterval(this.stepT); clearInterval(this.typeT); clearInterval(this.syncT); }
-
-  /**
-   * Entrar. O spinner de ~1,5 s não é teatro: é o tempo que uma validação de
-   * credencial mais carga de sessão leva de verdade, e o botão precisa mostrar
-   * que está ocupado, senão a pessoa clica duas vezes.
-   *
-   * A conversa de demonstração começa aqui, e não na montagem, para que quem
-   * entra veja a resposta sendo escrita em vez de encontrá-la pronta.
-   */
-  entrar() {
-    if (this.state.entrando) return;
-    this.setState({ entrando: true });
-    clearTimeout(this.loginT);
-    this.loginT = setTimeout(() => {
-      this.setState({ entrando: false, sessao: 'app', tela: 'chat' });
-      if (this.state.msgs.length === 0) {
-        this.demo = setTimeout(() => this.enviarTexto('Cliente respondeu por roubo com emprego de faca. O aumento pelo uso de arma branca ainda se aplica depois do Pacote Anticrime?'), 500);
-      }
-    }, 1500);
+  componentDidMount() {
+    this.demo = setTimeout(() => this.enviarTexto('Cliente respondeu por roubo com emprego de faca. O aumento pelo uso de arma branca ainda se aplica depois do Pacote Anticrime?'), 900);
   }
-
-  sair() {
-    clearInterval(this.stepT); clearInterval(this.typeT); clearTimeout(this.demo);
-    this.setState({ sessao: 'login', tela: 'chat', secao: 'perfil', msgs: [], ocupado: false, painel: null, draft: '' });
-  }
+  componentWillUnmount() { [this.demo, this.stepT, this.typeT, this.jurisT, this.syncT, this.memT].forEach(clearTimeout); clearInterval(this.stepT); clearInterval(this.typeT); clearInterval(this.syncT); }
 
   resposta(q) {
     const s = (q || '').toLowerCase();
@@ -1407,26 +1212,13 @@ class Component extends DCLogic {
     return RESPOSTAS.generico;
   }
 
-  /**
-   * A pergunta tem elemento de cálculo penal?
-   *
-   * Deliberadamente generoso: o cartão é uma estimativa rotulada como tal, e o
-   * custo de mostrá-lo a mais é um cartão ignorado. O custo de não mostrar é a
-   * pessoa refazer a conta à mão numa aba separada.
-   */
-  temCalculo(q) {
-    const s = (q || '').toLowerCase();
-    return ['pena', 'dosimetria', 'majorante', 'agravante', 'atenuante', 'regime', 'arma', 'roubo', 'faca', 'primário', 'primario', 'reincid']
-      .some(k => s.includes(k));
-  }
-
   enviarTexto(texto) {
     if (!texto || this.state.ocupado) return;
     const r = this.resposta(texto);
     const total = r.paras.reduce((a, p) => a + p.t.length, 0);
     this.setState(s => ({
       draft: '', ocupado: true,
-      msgs: s.msgs.concat([{ role: 'user', text: texto }, { role: 'ai', r, step: 0, typed: 0, total, done: false, dos: this.temCalculo(texto) }])
+      msgs: s.msgs.concat([{ role: 'user', text: texto }, { role: 'ai', r, step: 0, typed: 0, total, done: false }])
     }));
     clearInterval(this.stepT); clearInterval(this.typeT);
     this.stepT = setInterval(() => {
@@ -1446,16 +1238,6 @@ class Component extends DCLogic {
     });
   }
 
-  /**
-   * Streaming da resposta.
-   *
-   * Blocos de 48 caracteres a cada 90 ms, e não 7 a cada 16 ms. A velocidade
-   * aparente é praticamente a mesma (~530 contra ~440 caracteres por segundo),
-   * mas o número de renderizações cai de 62 para 11 por segundo — e cada
-   * renderização aqui refaz a árvore inteira do frame, com as fontes, o cartão
-   * de dosimetria e a lateral junto. Caractere a caractere a tela engasgava
-   * justamente nas respostas longas, que são as que mais importam.
-   */
   digitar() {
     clearInterval(this.typeT);
     this.typeT = setInterval(() => {
@@ -1502,7 +1284,8 @@ class Component extends DCLogic {
       dosimetria: ['Dosimetria', 'cálculo trifásico ao vivo'],
       vade: ['Vade Mecum', 'consolidação por ramo'],
       fontes: ['Fontes', 'cinco coletores em Python'],
-      config: ['Configurações', 'conta, IA, fontes e cobrança']
+      config: ['Configurações', 'conta, escritório e fontes'],
+      login: ['Entrar', ''], cadastro: ['Criar conta', '']
     };
     const pill = on => ({ bg: on ? ACC : '#fff', fg: on ? '#fff' : '#4c515c', sh: '0 1px 2px rgba(18,20,30,.06)' });
 
@@ -1513,28 +1296,51 @@ class Component extends DCLogic {
       { k: 'dosimetria', label: 'Dosimetria', ico: '#dde9e3' },
       { k: 'vade', label: 'Vade Mecum', ico: '#e7dfe2' },
       { k: 'fontes', label: 'Fontes e atualizações', ico: '#dfe1ea', badge: true, badgeTxt: '4' },
-      { k: 'config', label: 'Configurações', ico: '#e7e0ea' }
+      { k: 'config', label: 'Configurações', ico: '#e4e6ec' }
     ];
 
-    // ─── cartão de dosimetria dentro da resposta ───
-    // Lê o mesmo `c` que a tela de Dosimetria acabou de produzir. Não existe
-    // segunda fórmula: mexer num vetor do art. 59 muda os dois lugares na mesma
-    // renderização, e é por isso que o cartão pode se chamar "cálculo ao vivo"
-    // sem mentir. Os chips também são derivados — quem desliga a arma branca
-    // na ferramenta vê o chip sumir aqui.
-    const regimeDe = p => p > 96 ? 'Fechado' : p > 48 ? 'Semiaberto' : 'Aberto';
-    const dosChips = [{ t: 'Roubo · art. 157' }]
-      .concat(S.circ3.arma ? [{ t: 'Arma branca · +1/3' }] : [])
-      .concat(S.circ3.concurso ? [{ t: 'Concurso de pessoas · +1/3' }] : [])
-      .concat(S.circ3.tentativa ? [{ t: 'Tentativa · −1/3' }] : [])
-      .concat(S.circ2.reincidencia ? [{ t: 'Reincidente' }] : [{ t: 'Réu primário' }])
-      .concat(S.circ2.menoridade ? [{ t: '24 anos · menoridade relativa' }] : [])
-      .concat([{ t: 'Fato em 2025' }]);
-    const dosFases = [
-      { k: '1ª fase · pena-base', v: this.fmt(c.base), d: c.neg + ' vetor(es) do art. 59 · fração de 1/8' },
-      { k: '2ª fase · provisória', v: this.fmt(c.prov), d: S.circ2.menoridade || S.circ2.confissao ? 'atenuante −1/6 · Súmula 231 respeitada' : 'nenhuma atenuante marcada' },
-      { k: '3ª fase · definitiva', v: this.fmt(c.def), d: S.circ3.arma ? 'arma branca +1/3 · mínimo da Súmula 443' : 'nenhuma majorante aplicada' }
+    const SECOES = [
+      { k: 'perfil', t: 'Perfil e OAB', ico: '#dcdbee', titulo: 'Perfil e OAB', sub: 'Como você aparece nas peças e nos memoriais gerados.' },
+      { k: 'ia', t: 'IA e citações', ico: '#dde9e3', titulo: 'IA e citações', sub: 'Como o Toga responde, cita e adverte.', nota: 'Citação obrigatória e selo de vigência não podem ser desligados no plano do escritório — exigência de compliance interno.' },
+      { k: 'fontes', t: 'Fontes e sincronização', ico: '#dfe6ee', titulo: 'Fontes e sincronização', sub: 'Coletores em Python, APIs de dados abertos e Diário Oficial.', nota: 'Última sincronização completa às 06:12 de hoje. Rate limit da Câmara em 42% da cota diária.' },
+      { k: 'alertas', t: 'Alertas', ico: '#e6e2da', titulo: 'Alertas', sub: 'Quando o Toga deve avisar sobre mudanças na lei.', nota: 'Os alertas cruzam as alterações captadas com as teses salvas nos seus casos.' },
+      { k: 'seguranca', t: 'Segurança', ico: '#e7dfe2', titulo: 'Segurança', sub: 'Acesso, sessões e trilha de auditoria do escritório.', nota: 'Trilha de auditoria retida por 5 anos, conforme a política do escritório.' },
+      { k: 'equipe', t: 'Escritório e cobrança', ico: '#e2e7df', titulo: 'Escritório e cobrança', sub: 'Assinatura, membros e limites de uso.', nota: 'Plano Escritório · 8 assentos de 12 usados · renovação em 03/09/2026.' }
     ];
+    const OPCOES = {
+      ia: [
+        { k: 'citacao', t: 'Citação obrigatória', desc: 'Toda afirmação vem com link para o texto oficial.' },
+        { k: 'vigencia', t: 'Selo de vigência', desc: 'Marca dispositivos revogados, alterados ou em vigor.' },
+        { k: 'avisoIa', t: 'Aviso de conteúdo gerado por IA', desc: 'Exibe a ressalva ao final de cada resposta.' },
+        { k: 'doutrina', t: 'Incluir doutrina do acervo', desc: 'Consulta as obras indexadas do escritório junto à lei.' },
+        { k: 'modelos', t: 'Sugerir minuta de peça', desc: 'Oferece exportação em .docx com as citações rastreáveis.' }
+      ],
+      fontes: [
+        { k: 'autoSync', t: 'Sincronização automática', desc: 'Roda os coletores a cada 30 minutos.' },
+        { k: 'ocr', t: 'OCR em acórdãos sem texto', desc: 'Aplica reconhecimento nos 4% pendentes do DataJud.' },
+        { k: 'senadoBeta', t: 'API do Senado em versão beta', desc: 'Matérias legislativas com relatorias em tempo quase real.' },
+        { valor: 'A cada 30 min', t: 'Frequência do coletor do DOU', desc: 'Extração de texto das seções 1 e 2.' },
+        { valor: 'Planalto + DataJud', t: 'Fonte preferida de texto legal', desc: 'Usada quando duas fontes divergem na redação.' }
+      ],
+      alertas: [
+        { k: 'alertaDou', t: 'Publicação no Diário Oficial', desc: 'Avisa quando uma lei das suas áreas é alterada.' },
+        { k: 'alertaTeses', t: 'Impacto nas minhas teses', desc: 'Cruza alterações com os argumentos salvos nos casos.' },
+        { k: 'resumoSemanal', t: 'Resumo semanal por e-mail', desc: 'Segunda-feira, 8h, com o que mudou na semana.' },
+        { k: 'push', t: 'Notificação no navegador', desc: 'Somente para alterações de impacto alto.' }
+      ],
+      seguranca: [
+        { k: 'dois', t: 'Autenticação em duas etapas', desc: 'Código do aplicativo autenticador a cada novo acesso.' },
+        { k: 'sessoes', t: 'Encerrar sessões inativas', desc: 'Desconecta após 30 minutos sem uso.' },
+        { k: 'logAuditoria', t: 'Trilha de auditoria', desc: 'Registra consultas e exportações por usuário.' },
+        { valor: '3 dispositivos', t: 'Dispositivos conectados', desc: 'MacBook Pro, iPhone e desktop do escritório.' }
+      ],
+      equipe: [
+        { valor: 'Escritório', t: 'Plano atual', desc: 'Consultas ilimitadas, dosimetria e exportação em .docx.' },
+        { valor: '8 de 12', t: 'Assentos em uso', desc: 'Sócios, associados e estagiários com perfis distintos.' },
+        { valor: 'R$ 2.390/mês', t: 'Cobrança', desc: 'Fatura no cartão corporativo, com nota fiscal automática.' },
+        { valor: '03/09/2026', t: 'Próxima renovação', desc: 'Cancelamento sem multa até 7 dias antes.' }
+      ]
+    };
 
     const msgs = S.msgs.map((m, i) => {
       if (m.role === 'user') return { isUser: true, isAi: false, text: m.text };
@@ -1561,10 +1367,17 @@ class Component extends DCLogic {
         steps: stepsFeitos,
         mostrarTexto: paras.length > 0, paras,
         done: m.done,
+        temDosimetria: !!m.r.dosimetria,
+        extraidos: (m.r.extraidos || []).map(x => ({ t: x })),
+        dosFases: [
+          { k: '1ª fase', v: this.fmt(c.base), d: c.neg + ' vetor(es) do art. 59' },
+          { k: '2ª fase', v: this.fmt(c.prov), d: S.circ2.menoridade ? 'menoridade −1/6' : 'sem atenuantes' },
+          { k: '3ª fase', v: this.fmt(c.def), d: S.circ3.arma ? 'arma branca +1/3' : 'sem majorantes' }
+        ],
+        dosPena: this.fmt(c.def),
+        dosRegime: c.def > 96 ? 'Fechado' : c.def > 48 ? 'Semiaberto' : 'Aberto',
+        dosNota: 'Estimativa com base nos elementos identificados na conversa. Abra a ferramenta para ajustar os oito vetores, agravantes e causas de aumento — o resultado aqui acompanha as alterações.',
         fontes: m.r.fontes.map(f => Object.assign({}, f, { open: () => this.setState({ painel: f.alvo, abaFonte: f.alvo }) })),
-        temDosimetria: !!m.dos,
-        dosChips: dosChips, dosFases: dosFases,
-        dosPena: this.fmt(c.def), dosRegime: regimeDe(c.def),
         sugestoes: m.r.sugestoes.map(s => ({ t: s, go: () => this.enviarTexto(s) }))
       };
     });
@@ -1650,169 +1463,99 @@ class Component extends DCLogic {
     }));
     const bars = seed => Array.from({ length: 12 }, (_, i) => ({ h: (28 + ((i * 7 + seed * 13) % 68)) + '%', bg: i > 9 ? '#8a86b8' : '#dcdbee' }));
 
-    // ─── cadastro ───
-    const camposDef = S.passo === 1
-      ? [['cadNome', 'Nome completo', 'Marina Ribeiro'],
-         ['cadEmail', 'E-mail profissional', 'marina@ribeiroadv.com.br'],
-         ['cadEscritorio', 'Escritório', 'Ribeiro Advocacia Criminal']]
-      : [['cadInscricao', 'Número de inscrição', 'OAB/SP 214.887'],
-         ['cadSeccional', 'Seccional', 'São Paulo'],
-         ['cadArea', 'Área principal', 'Direito Penal']];
-
-    const planosDef = [
-      { k: 'auto', nome: 'Autônomo', preco: 'R$ 179', ciclo: '/mês', desc: '200 consultas por mês, busca em legislação e jurisprudência, exportação em PDF.' },
-      { k: 'pro', nome: 'Profissional', preco: 'R$ 349', ciclo: '/mês', desc: 'Consultas ilimitadas, dosimetria trifásica e exportação em .docx.' },
-      { k: 'esc', nome: 'Escritório', preco: 'R$ 2.390', ciclo: '/mês', desc: '12 assentos, alertas de impacto nas teses e trilha de auditoria.' }
-    ];
-
-    // ─── configurações ───
-    // Cada linha é `sw` (switch) ou `val` (leitura), e as duas expõem `ligado`
-    // e `desligado` como booleanos mutuamente exclusivos — a linha de leitura
-    // deixa os dois em false. É isso que permite ao markup escolher o ramo por
-    // sc-if, com cor literal, em vez de pintar o track por hole de `style`.
-    // Hole de `style` dentro de sc-for não repinta, e o switch congelava.
-    const alternarOpcao = k => () => this.setState(s => ({ opcoes: Object.assign({}, s.opcoes, { [k]: !s.opcoes[k] }) }));
-    const sw = (k, nome, desc) => ({ nome, desc, ehValor: false, ligado: !!S.opcoes[k], desligado: !S.opcoes[k], go: alternarOpcao(k) });
-    const val = (nome, desc, valor) => ({ nome, desc, ehValor: true, ligado: false, desligado: false, valor, go: () => {} });
-
-    const SECOES = {
-      perfil: {
-        t: 'Perfil e OAB', ico: '#dcdbee',
-        sub: 'Como você aparece nas peças exportadas e nos alertas do escritório.',
-        linhas: [],
-        nota: 'O número de inscrição vai no rodapé de toda minuta gerada. Alterá-lo aqui não revalida a inscrição junto ao Conselho Federal.'
-      },
-      ia: {
-        t: 'IA e citações', ico: '#dde9e3',
-        sub: 'O que a assistente pode afirmar e o que ela é obrigada a mostrar.',
-        linhas: [
-          sw('citacao', 'Citação obrigatória', 'Toda afirmação da resposta precisa apontar para um dispositivo, acórdão ou súmula.'),
-          sw('vigencia', 'Selo de vigência', 'Mostrar a data da última conferência ao lado de cada fonte citada.'),
-          sw('avisoIA', 'Aviso de conteúdo por IA', 'Rodapé em toda resposta e em todo texto exportado.'),
-          sw('doutrina', 'Incluir doutrina do acervo', 'Somente as obras licenciadas para o escritório.'),
-          sw('minuta', 'Sugerir minuta de peça', 'Oferecer rascunho quando a conversa fechar uma tese.')
-        ],
-        nota: 'Desligar a citação obrigatória libera respostas sem fonte rastreável — e a exportação passa a sair com marca d’água de rascunho.'
-      },
-      fontes: {
-        t: 'Fontes e sincronização', ico: '#dfe1ea',
-        sub: 'De onde a base vem e com que frequência ela é conferida.',
-        linhas: [
-          sw('syncAuto', 'Sincronização automática', 'Os coletores rodam sozinhos e atualizam a base sem pedir confirmação.'),
-          sw('ocr', 'OCR em acórdãos sem texto', 'Reconhecimento óptico quando o tribunal publica só a imagem digitalizada.'),
-          sw('senadoBeta', 'API do Senado em beta', 'Matérias legislativas e relatorias. Ainda instável: pode faltar item.'),
-          val('Frequência do coletor do DOU', 'Quantas vezes por dia a edição é baixada e comparada.', 'A cada 3 horas'),
-          val('Fonte preferida em conflito', 'Quando Planalto e DOU divergem sobre a mesma redação.', 'Planalto consolidado')
-        ],
-        nota: 'Com a sincronização desligada, a base congela na última varredura e o selo de vigência passa a mostrar a data antiga — não some.'
-      },
-      alertas: {
-        t: 'Alertas', ico: '#e6e2da',
-        sub: 'O que interrompe o seu dia e o que espera o resumo.',
-        linhas: [
-          sw('alertaDOU', 'Publicação no DOU', 'Norma nova ou alterada nas áreas que você marcou no perfil.'),
-          sw('alertaTeses', 'Impacto nas minhas teses', 'Quando uma alteração atinge tese usada em peça sua.'),
-          sw('resumoSemanal', 'Resumo semanal', 'Segunda de manhã, com o que mudou na semana.'),
-          sw('notifNavegador', 'Notificação no navegador', 'Exige permissão do navegador na primeira vez.')
-        ],
-        nota: 'O alerta de impacto nas teses é o único que dispara fora do horário comercial. Os demais respeitam a janela de 8h às 20h.'
-      },
-      seguranca: {
-        t: 'Segurança', ico: '#e7dfe2',
-        sub: 'Acesso à conta e rastro do que foi feito nela.',
-        linhas: [
-          sw('doisFatores', 'Autenticação em dois fatores', 'Código do aplicativo autenticador a cada novo dispositivo.'),
-          sw('encerrarInativas', 'Encerrar sessões inativas', 'Depois de 30 dias sem uso, a sessão cai sozinha.'),
-          sw('auditoria', 'Trilha de auditoria', 'Registrar consulta, exportação e alteração de configuração.'),
-          val('Dispositivos conectados', 'Sessões abertas nesta conta agora.', '3 aparelhos')
-        ],
-        nota: 'A trilha de auditoria é exigida no plano Escritório e não pode ser desligada enquanto houver assento compartilhado ativo.'
-      },
-      escritorio: {
-        t: 'Escritório e cobrança', ico: '#dfe6ee',
-        sub: 'Assinatura, assentos e a próxima fatura.',
-        linhas: [
-          val('Plano', 'Assinatura vigente do escritório.', 'Escritório'),
-          val('Assentos em uso', 'Do total contratado.', '9 de 12'),
-          val('Valor', 'Com os assentos atuais.', 'R$ 2.390,00/mês'),
-          val('Próxima renovação', 'Cobrança automática no cartão final 4417.', '11/09/2026')
-        ],
-        nota: 'Assento liberado só deixa de ser cobrado no ciclo seguinte. O histórico de consultas do assento permanece na trilha de auditoria.'
-      }
-    };
-    const secaoAtual = SECOES[S.secao] || SECOES.perfil;
-    const perfilDef = [['nome', 'Nome'], ['inscricao', 'Inscrição'], ['email', 'E-mail'], ['telefone', 'Telefone']];
-
     return {
-      // ─── sessão ───
-      isLogin: S.sessao === 'login', isCadastro: S.sessao === 'cadastro', isApp: S.sessao === 'app',
-      entrando: S.entrando,
-      email: S.email, onEmail: e => this.setState({ email: e.target.value }),
-      senha: S.senha, onSenha: e => this.setState({ senha: e.target.value }),
-      senhaOculta: !S.senhaVisivel, senhaAberta: S.senhaVisivel,
-      senhaTxt: S.senhaVisivel ? 'Ocultar' : 'Mostrar',
-      alternarSenha: () => this.setState(s => ({ senhaVisivel: !s.senhaVisivel })),
-      manterOn: S.manter, manterOff: !S.manter,
-      alternarManter: () => this.setState(s => ({ manter: !s.manter })),
-      entrarTxt: S.entrando ? 'Entrando…' : 'Entrar',
-      entrar: () => this.entrar(),
-      irCadastro: () => this.setState({ sessao: 'cadastro', passo: 1 }),
-      sair: () => this.sair(),
-      numerosLogin: [
-        { v: '214', t: 'diplomas consolidados' },
-        { v: '1,2 M', t: 'acórdãos indexados' },
-        { v: '06:12', t: 'última varredura do DOU' }
-      ],
-      alternativas: [
-        { t: 'Certificado digital A1 ou A3', sub: 'token, cartão ou arquivo instalado', ico: '#dcdbee', selo: true, go: () => this.entrar() },
-        { t: 'Entrar com o número da OAB', sub: 'validação na base do Conselho Federal', ico: '#dfe6ee', selo: false, go: () => this.entrar() }
-      ],
-
-      // ─── cadastro ───
-      passo: S.passo, passoPct: Math.round(S.passo / 3 * 100) + '%',
-      passoSub: ['Quem é você e onde trabalha.', 'Sua inscrição na Ordem.', 'Escolha o plano e aceite os termos.'][S.passo - 1],
-      ehPasso12: S.passo !== 3, ehPasso3: S.passo === 3,
-      camposPasso: camposDef.map(([k, rot, ph]) => ({
-        rot, ph, v: S[k],
-        on: e => { const v = e.target.value; this.setState({ [k]: v }); }
-      })),
-      planos: planosDef.map(p => Object.assign({}, p, {
-        escolhido: S.plano === p.k, naoEscolhido: S.plano !== p.k,
-        go: () => this.setState({ plano: p.k })
-      })),
-      aceiteOn: S.aceite, aceiteOff: !S.aceite,
-      alternarAceite: () => this.setState(s => ({ aceite: !s.aceite })),
-      podeContinuar: S.passo < 3 || S.aceite,
-      travadoNoAceite: S.passo === 3 && !S.aceite,
-      continuarTxt: S.passo === 3 ? 'Criar conta e entrar' : 'Continuar',
-      continuar: () => { if (S.passo < 3) this.setState({ passo: S.passo + 1 }); else this.entrar(); },
-      // No passo 1 não há passo anterior: Voltar sai do cadastro e devolve ao
-      // login, que é de onde a pessoa veio.
-      voltarPasso: () => { if (S.passo > 1) this.setState({ passo: S.passo - 1 }); else this.setState({ sessao: 'login' }); },
-
-      // ─── configurações ───
-      isConfig: t === 'config', goConfig: go('config'),
-      secoes: Object.keys(SECOES).map(k => ({
-        t: SECOES[k].t, ico: SECOES[k].ico,
-        ativa: S.secao === k, inativa: S.secao !== k,
-        go: () => this.setState({ secao: k, tela: 'config' })
-      })),
-      secaoTitulo: secaoAtual.t, secaoSub: secaoAtual.sub, notaSecao: secaoAtual.nota,
-      ehPerfil: S.secao === 'perfil', temLinhas: secaoAtual.linhas.length > 0,
-      linhasConfig: secaoAtual.linhas,
-      camposPerfil: perfilDef.map(([k, rot]) => ({
-        rot, v: S.perfil[k],
-        on: e => { const v = e.target.value; this.setState(s => ({ perfil: Object.assign({}, s.perfil, { [k]: v }) })); }
-      })),
-      chipsAreas: Object.keys(S.areas).map(a => ({
-        t: a, on: !!S.areas[a], off: !S.areas[a],
-        go: () => this.setState(s => ({ areas: Object.assign({}, s.areas, { [a]: !s.areas[a] }) }))
-      })),
-
       titulo: titulos[t][0], subtitulo: titulos[t][1],
       isChat: t === 'chat', isJuris: t === 'juris', isSumulas: t === 'sumulas',
       isDosimetria: t === 'dosimetria', isVade: t === 'vade', isFontes: t === 'fontes',
-      goChat: go('chat'), goJuris: go('juris'), goDosimetria: go('dosimetria'), goFontes: go('fontes'),
+      isConfig: t === 'config',
+      isApp: t !== 'login' && t !== 'cadastro', isAuth: t === 'login' || t === 'cadastro',
+      isLogin: t === 'login', isCadastro: t === 'cadastro',
+
+      email: S.email, setEmail: e => this.setState({ email: e.target.value }),
+      senhaVis: S.verSenha ? S.senha : S.senha.replace(/./g, '•'),
+      setSenha: e => {
+        const v = e.target.value;
+        this.setState(st => ({ senha: S.verSenha ? v : (v.length < st.senha.length ? st.senha.slice(0, v.length) : st.senha + v.slice(st.senha.length)) }));
+      },
+      toggleSenha: () => this.setState(s => ({ verSenha: !s.verSenha })),
+      verSenhaTxt: S.verSenha ? 'Ocultar' : 'Mostrar',
+      lembrarBg: S.lembrar ? ACC : '#e4e6ec', lembrarKnob: S.lembrar ? '19px' : '2px',
+      toggleLembrar: () => this.setState(s => ({ lembrar: !s.lembrar })),
+      entrando: S.entrando, btnEntrarTxt: S.entrando ? 'Verificando credenciais…' : 'Entrar no Toga',
+      entrar: () => {
+        if (S.entrando) return;
+        this.setState({ entrando: true });
+        clearTimeout(this.authT);
+        this.authT = setTimeout(() => this.setState({ entrando: false, tela: 'chat' }), 1500);
+      },
+      onAuthKey: e => { if (e.key === 'Enter') { e.preventDefault(); if (!S.entrando) { this.setState({ entrando: true }); clearTimeout(this.authT); this.authT = setTimeout(() => this.setState({ entrando: false, tela: 'chat' }), 1500); } } },
+      irCadastro: () => this.setState({ tela: 'cadastro', passo: 1 }),
+      irLogin: () => this.setState({ tela: 'login' }),
+      sair: () => { clearInterval(this.stepT); clearInterval(this.typeT); this.setState({ tela: 'login', msgs: [], senha: '', entrando: false, painel: null }); },
+      authStats: [{ n: '214', t: 'diplomas consolidados' }, { n: '1,2 M', t: 'acórdãos indexados' }, { n: '06:12', t: 'última varredura do DOU' }],
+
+      progresso: Math.round(S.passo / 3 * 100) + '%',
+      passoRot: 'Passo ' + S.passo + ' de 3',
+      cadTitulo: ['Criar sua conta', 'Sua inscrição na OAB', 'Escolha o plano'][S.passo - 1],
+      cadSub: [
+        'Comece com os dados de acesso. Você poderá convidar a equipe depois.',
+        'Validamos a inscrição junto ao cadastro público para liberar as ferramentas de peticionamento.',
+        'Sete dias de teste em qualquer plano, sem cobrança agora.'
+      ][S.passo - 1],
+      cadCampos: S.passo !== 3, cadPlanos: S.passo === 3,
+      camposCad: (S.passo === 1
+        ? [['nome', 'Nome completo', 'Marina Ribeiro'], ['mail', 'E-mail profissional', 'marina@ribeiroadv.com.br'], ['escritorio', 'Escritório', 'Ribeiro Advocacia']]
+        : [['oab', 'Número de inscrição', '412.883'], ['uf', 'Seccional', 'SP'], ['area', 'Área principal', 'Direito Penal']]
+      ).map(([k, rot, ph]) => ({
+        rot, ph, val: S.cad[k],
+        set: e => { const v = e.target.value; this.setState(st => ({ cad: Object.assign({}, st.cad, { [k]: v }) })); }
+      })),
+      planos: [
+        { k: 'solo', nome: 'Autônomo', desc: 'Chat, Vade Mecum e súmulas. 200 consultas por mês.', preco: 'R$ 179', unidade: 'por mês' },
+        { k: 'pro', nome: 'Profissional', desc: 'Consultas ilimitadas, dosimetria e exportação em .docx.', preco: 'R$ 349', unidade: 'por mês' },
+        { k: 'escritorio', nome: 'Escritório', desc: 'Até 12 assentos, alertas de teses e trilha de auditoria.', preco: 'R$ 2.390', unidade: 'por mês' }
+      ].map(p => ({
+        nome: p.nome, desc: p.desc, preco: p.preco, unidade: p.unidade, on: S.plano === p.k,
+        ring: S.plano === p.k ? ACC : '#d5d7de',
+        sh: S.plano === p.k ? '0 1px 2px rgba(18,20,30,.06),0 12px 28px -18px rgba(58,57,96,.85)' : '0 1px 2px rgba(18,20,30,.05)',
+        go: () => this.setState({ plano: p.k })
+      })),
+      aceite: S.aceite, aceiteBg: S.aceite ? ACC : '#e4e6ec',
+      toggleAceite: () => this.setState(s => ({ aceite: !s.aceite })),
+      voltarTxt: S.passo === 1 ? 'Entrar' : 'Voltar',
+      voltarPasso: () => S.passo === 1 ? this.setState({ tela: 'login' }) : this.setState({ passo: S.passo - 1 }),
+      avancarTxt: S.passo < 3 ? 'Continuar' : (S.aceite ? 'Criar conta e começar' : 'Aceite os termos para continuar'),
+      avancarBg: S.passo < 3 || S.aceite ? ACC : '#a9a7bd',
+      avancarPasso: () => {
+        if (S.passo < 3) return this.setState({ passo: S.passo + 1 });
+        if (S.aceite) this.setState({ tela: 'chat', msgs: [] });
+      },
+
+      secoes: SECOES.map(s => ({
+        t: s.t, ico: s.ico, go: () => this.setState({ secao: s.k }),
+        bg: S.secao === s.k ? '#fff' : 'transparent',
+        sh: S.secao === s.k ? '0 1px 2px rgba(18,20,30,.07)' : 'none',
+        fg: S.secao === s.k ? '#16181d' : '#4c515c'
+      })),
+      configTitulo: (SECOES.find(s => s.k === S.secao) || SECOES[0]).titulo,
+      configSub: (SECOES.find(s => s.k === S.secao) || SECOES[0]).sub,
+      notaSecao: (SECOES.find(s => s.k === S.secao) || SECOES[0]).nota,
+      ehPerfil: S.secao === 'perfil', ehLista: S.secao !== 'perfil',
+      camposPerfil: [['nome', 'Nome'], ['oab', 'Inscrição na OAB'], ['mail', 'E-mail'], ['tel', 'Telefone']].map(([k, rot]) => ({
+        rot, val: S.perfil[k],
+        set: e => { const v = e.target.value; this.setState(st => ({ perfil: Object.assign({}, st.perfil, { [k]: v }) })); }
+      })),
+      areas: ['Penal', 'Processo penal', 'Execução penal', 'Civil', 'Consumidor', 'Trabalho', 'Tributário', 'Administrativo'].map(a => ({
+        t: a, bg: S.areasSel[a] ? ACC_SOFT : '#f2f3f7', fg: S.areasSel[a] ? ACC_TXT : '#6b7079',
+        go: () => this.setState(st => ({ areasSel: Object.assign({}, st.areasSel, { [a]: !st.areasSel[a] }) }))
+      })),
+      opcoes: (OPCOES[S.secao] || []).map(o => ({
+        t: o.t, desc: o.desc,
+        ehValor: !o.k, valor: o.valor,
+        ligado: !!o.k && !!S.prefs[o.k], desligado: !!o.k && !S.prefs[o.k],
+        go: o.k ? () => this.setState(st => ({ prefs: Object.assign({}, st.prefs, { [o.k]: !st.prefs[o.k] }) })) : () => {}
+      })),
+      goChat: go('chat'), goJuris: go('juris'), goDosimetria: go('dosimetria'), goFontes: go('fontes'), goConfig: go('config'),
       nav: navDef.map(n => ({ label: n.label, ico: n.ico, on: t === n.k, txtColor: t === n.k ? '#16181d' : '#4c515c', badge: !!n.badge, badgeTxt: n.badgeTxt, go: go(n.k) })),
       recentes: [
         'Prescrição em crime continuado', 'Usucapião extrajudicial', 'Acordo de não persecução penal',
@@ -1887,18 +1630,22 @@ class Component extends DCLogic {
         { k: '3ª fase', nome: 'Pena definitiva', res: this.fmt(c.def) }
       ].map((f, i) => ({
         k: f.k, nome: f.nome, res: f.res, go: () => this.setState({ fase: i + 1 }),
-        ativa: S.fase === i + 1, inativa: S.fase !== i + 1
+        bg: S.fase === i + 1 ? '#fff' : '#f2f3f7',
+        sh: S.fase === i + 1 ? '0 1px 2px rgba(18,20,30,.06),0 10px 24px -16px rgba(18,20,30,.4)' : 'none',
+        kfg: S.fase === i + 1 ? '#8a86b8' : '#a8adb8', fg: S.fase === i + 1 ? '#16181d' : '#5b6068', rfg: S.fase === i + 1 ? '#4b4a7a' : '#9297a2'
       })),
       isFase1: S.fase === 1, isFase23: S.fase !== 1,
       negLabel: c.neg === 0 ? 'nenhum vetor negativo · pena no mínimo' : c.neg + (c.neg > 1 ? ' vetores negativos' : ' vetor negativo'),
       resetVetores: () => this.setState({ vetores: ['neutra', 'neutra', 'neutra', 'neutra', 'neutra', 'neutra', 'neutra', 'neutra'] }),
       vetores: nomesVet.map(([nome, hint], i) => ({
         nome, hint,
-        delta: '+ 9 meses',
-        negativo: S.vetores[i] === 'desf', semPeso: S.vetores[i] !== 'desf',
+        delta: S.vetores[i] === 'desf' ? '+ 9 meses' : '—',
+        dfg: S.vetores[i] === 'desf' ? '#4b4a7a' : '#adb2bc',
         opts: [['fav', 'Favorável'], ['neutra', 'Neutra'], ['desf', 'Desfavorável']].map(([v, label]) => ({
           t: label, go: setVet(i, v),
-          ativa: S.vetores[i] === v, inativa: S.vetores[i] !== v
+          bg: S.vetores[i] === v ? '#fff' : 'transparent',
+          fg: S.vetores[i] === v ? '#16181d' : '#8b8f9a',
+          sh: S.vetores[i] === v ? '0 1px 3px rgba(18,20,30,.16)' : 'none'
         }))
       })),
       tituloFase: S.fase === 2 ? 'Agravantes e atenuantes · arts. 61 a 66' : 'Causas de aumento e de diminuição',
@@ -1908,6 +1655,7 @@ class Component extends DCLogic {
         : 'Súmula 443/STJ: com majorante única, o acréscimo fica em 1/3 salvo fundamentação concreta.',
       circunstancias: defs.map(d => ({
         nome: d.nome, base: d.base, nota: d.nota, fr: d.fr,
+        frFg: S[grupo][d.k] ? '#4b4a7a' : '#adb2bc',
         ligado: !!S[grupo][d.k], desligado: !S[grupo][d.k],
         go: () => this.setState(s => ({ [grupo]: Object.assign({}, s[grupo], { [d.k]: !s[grupo][d.k] }) }))
       })),
