@@ -36,6 +36,35 @@ from coletores.filtro import (
 RAIZ = Path(__file__).resolve().parent.parent.parent
 CFG = carrega()
 
+# --- o corpus normalizado pode não estar aqui, e isso é decisão do projeto ---
+#
+# `data/normalizado/*` é ignorado pelo git, com motivo escrito no `.gitignore`:
+# são 5,2 MB de saída determinística do `npm run normalize`, e o que se versiona
+# é a entrada e as regras, não o resultado. Nem dá para regenerar no runner — o
+# PDF do Vade Mecum também é ignorado (`*.pdf`).
+#
+# A consequência só apareceu quando este pacote ganhou CI: as duas asserções que
+# conferem id contra o corpus quebravam no GitHub Actions com `FileNotFoundError`
+# e derrubavam a coleta inteira antes de ela começar. **Uma coleta que não roda
+# porque um arquivo de teste não existe é o pior tipo de falha**: a tela fica
+# dizendo que o corpus está em dia por um motivo que não tem nada a ver com o
+# corpus.
+#
+# Pular é o certo, e pular ALTO é o que impede o silêncio: o pytest imprime o
+# motivo, e as outras 33 asserções — que são as do filtro, o que de fato pode
+# errar em silêncio — continuam rodando em toda execução. A conferência de id
+# contra o corpus continua valendo na máquina de quem tem o corpus, que é onde
+# `npm run verificar` roda antes de commitar.
+CORPUS = RAIZ / "data" / "normalizado"
+
+exige_corpus = pytest.mark.skipif(
+    not (CORPUS / "lei_11343_2006.json").exists(),
+    reason=(
+        "data/normalizado/ não está neste clone (é saída do `npm run normalize`, "
+        "ignorada pelo git). Rode `npm run normalize` para ativar estas asserções."
+    ),
+)
+
 
 def ids(ementa: str) -> list[str]:
     return [a.lei_id for a in toca_o_corpus(ementa, CFG)]
@@ -145,6 +174,7 @@ class TestArtigos:
         e = "Altera o § 4º do art. 33 da Lei nº 11.343, de 23 de agosto de 2006."
         assert artigos_de(e, toca_o_corpus(e, CFG)) == ["lei_11343_2006_art33"]
 
+    @exige_corpus
     def test_id_gerado_existe_no_corpus(self):
         # Mesma trava de `tests/citacao.test.ts`: id que não abre nada é pior
         # que nenhum id. Confere contra `data/normalizado/`, que é o que o seed
@@ -185,6 +215,7 @@ class TestApoio:
         assert so_artigo("dl_2848_1940_art359-a_caput") == "dl_2848_1940_art359-a"
         assert so_artigo("dl_2848_1940_art59") == "dl_2848_1940_art59"
 
+    @exige_corpus
     def test_todo_fundamento_da_curadoria_reduz_a_artigo_existente(self):
         import re
 
