@@ -1069,7 +1069,22 @@ buildar sem rede.
 
 As oito suítes (125 asserções) rodam **offline**, sem segredo: `citacao`, `peca` e
 `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco, e
-`dosimetria`, `historico`, `clientes` e `consulta` testam função pura. `consulta`
+`dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
+
+> **"Offline" não é o mesmo que "em qualquer clone".** `data/normalizado/*` é
+> ignorado pelo git — são 5,2 MB de saída determinística do `npm run normalize`,
+> e a regra do `.gitignore` é versionar a entrada e as regras, não o resultado.
+> O PDF do Vade Mecum também é ignorado (`*.pdf`), então nem dá para regenerar
+> sem ele. Num clone novo, as asserções que conferem id contra o corpus não
+> encontram o arquivo.
+>
+> Isso ficou invisível por meses porque não havia CI: a primeira execução do
+> workflow da vigília quebrou com `FileNotFoundError` e derrubou a coleta antes
+> de ela começar. O lado Python passou a **pular** essas asserções com o motivo
+> impresso (`exige_corpus`, em `coletores/tests/test_filtro.py`); as do filtro,
+> que são as que podem errar em silêncio, continuam rodando sempre. O lado
+> vitest ainda quebraria num clone sem corpus — hoje não há CI que o rode, e
+> quando houver, é o mesmo conserto. `consulta`
 é a que tranca o contrato da geração ao vivo — validação e leitura incremental —
 sem chamar modelo nenhum. O que fala com o Supabase é verificado contra o banco
 de verdade, não em teste offline.

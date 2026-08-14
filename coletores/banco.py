@@ -37,13 +37,36 @@ class SemCredencial(Exception):
 
 
 def _credenciais() -> tuple[str, str]:
-    url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "").rstrip("/")
-    chave = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+    """Lê e SANEIA as duas credenciais.
+
+    O `.strip()` não é zelo cosmético — é o defeito mais provável de uma coleta
+    que roda na máquina e falha no CI. O campo de secret do GitHub é uma
+    `textarea`: colar a chave e apertar Enter sem querer deixa um `\\n` no fim
+    do valor, e o painel não mostra isso de jeito nenhum. Com a quebra de linha:
+
+      - na chave, o `requests` recusa o cabeçalho (`Authorization` com `\\n` é
+        header splitting) e levanta antes de qualquer requisição sair;
+      - na URL, a montagem vira `https://x.supabase.co\\n/rest/v1/...` e o erro
+        que aparece é de URL inválida, que não aponta para o secret nenhum.
+
+    Nos dois casos o traceback fala de HTTP e não de configuração, e quem lê o
+    log procura no lugar errado. Sanear na entrada custa uma linha.
+    """
+    url = os.environ.get("NEXT_PUBLIC_SUPABASE_URL", "").strip().strip("\"'").rstrip("/")
+    chave = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip().strip("\"'")
+
     if not url or not chave:
         raise SemCredencial(
             "NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY são exigidas para gravar.\n"
             "Rode com --para-disco para conferir a coleta sem escrever no banco."
         )
+
+    if not url.startswith("https://"):
+        raise SemCredencial(
+            f"NEXT_PUBLIC_SUPABASE_URL não parece uma URL: {url[:40]!r}.\n"
+            "Esperado algo como https://SEU-PROJETO.supabase.co"
+        )
+
     return url, chave
 
 

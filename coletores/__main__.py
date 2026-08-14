@@ -305,7 +305,31 @@ def _grava(colheitas: list[Colheita]) -> int:
             registra(c, novos)
             print(f"· {c.fonte}: {len(c.achados)} gravados, {novos} inéditos")
     except SemCredencial as e:
+        # `flush` antes de escrever em stderr: os dois fluxos têm buffers
+        # separados, e no log do GitHub Actions isso fazia a mensagem de erro
+        # aparecer ANTES do relatório da coleta — dando a impressão de que nada
+        # tinha rodado, quando na verdade as cinco fontes responderam e só a
+        # gravação faltou.
+        sys.stdout.flush()
         print(f"\n· {e}", file=sys.stderr)
+        return 1
+    except Exception as e:  # noqa: BLE001 — ver o porquê abaixo
+        # Captura larga de propósito, e só aqui. Este ponto é o fim da linha de
+        # uma execução não interativa: o que sair daqui é a última coisa que
+        # alguém lê no log do GitHub Actions. Um traceback de `requests` no meio
+        # de mil linhas de coleta diz onde estourou, não o que fazer.
+        #
+        # A coleta já terminou quando se chega aqui, e o que falhou foi a
+        # escrita — então nomear a fonte e repetir o recado do PostgREST é o que
+        # transforma "exit code 1" em algo acionável.
+        sys.stdout.flush()
+        print(f"\n· falha ao gravar: {e}", file=sys.stderr)
+        print(
+            "  A coleta em si funcionou — os números por fonte estão acima.\n"
+            "  Confira SUPABASE_SERVICE_ROLE_KEY e se as migrations 0012 e 0013\n"
+            "  foram aplicadas neste projeto do Supabase.",
+            file=sys.stderr,
+        )
         return 1
 
     normas = sum(1 for c in colheitas for a in c.achados if a.virou_norma)

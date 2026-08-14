@@ -75,6 +75,13 @@ jobs:
 
       - name: coletar
         env:
+          # Sem isto o log fica MUDO até o processo terminar: o Python só
+          # escreve stdout em blocos quando a saída não é um terminal, e no
+          # Actions ela é um pipe. Numa coleta que leva minutos, isso significa
+          # olhar para uma tela vazia sem saber em qual das cinco fontes ela
+          # está — e, se estourar o timeout do job, o log morre sem nunca ter
+          # sido escrito. O relatório por fonte só serve se sair na hora.
+          PYTHONUNBUFFERED: '1'
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           # Opcionais: sem eles a confirmação no Diário cai para a busca
