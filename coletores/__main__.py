@@ -18,6 +18,10 @@ import sys
 import time
 from datetime import date, timedelta
 
+import os
+import pathlib
+import re
+
 from coletores import camara, datajud, dou, inlabs, planalto, senado
 from coletores.banco import SemCredencial, grava_achados, grava_metricas, ids_conhecidos
 from coletores.banco import para_disco, registra
@@ -47,7 +51,43 @@ TETO_DOU = 12
 JANELA_DIAS = 60
 
 
+def _carrega_env_local() -> None:
+    """Lê ``.env.local`` quando ele existe, para a CLI rodar na máquina de quem
+    clonou o repositório.
+
+    Este pacote foi escrito para o GitHub Actions, onde os segredos já chegam
+    como variável de ambiente — e por isso a primeira versão não lia arquivo
+    nenhum. O efeito local era ruim de diagnosticar: ``python -m coletores``
+    respondia "SUPABASE_SERVICE_ROLE_KEY é exigida" com a chave ali, preenchida,
+    no `.env.local` ao lado. Os scripts em ``scripts/`` já carregam o arquivo
+    com dotenv; não havia motivo para o lado Python ser diferente.
+
+    **Variável já definida no ambiente vence o arquivo** (`setdefault`), que é o
+    que mantém o Actions intocado: lá o `.env.local` não existe, e se existisse
+    não deveria mandar nos segredos do repositório.
+
+    Sem dependência nova de propósito — `python-dotenv` para ler oito linhas de
+    `CHAVE=valor` seria pacote a mais no `requirements.txt` de quem só quer
+    rodar a vigília.
+    """
+    arq = pathlib.Path(__file__).resolve().parent.parent / ".env.local"
+    if not arq.exists():
+        return
+
+    for linha in arq.read_text(encoding="utf-8").splitlines():
+        if linha.lstrip().startswith("#"):
+            continue
+        m = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$", linha)
+        if not m:
+            continue
+        # A aspa é do arquivo, não do valor: uma DATABASE_URL entre aspas é
+        # comum, e passá-la adiante com elas quebra a conexão sem dizer por quê.
+        os.environ.setdefault(m.group(1), m.group(2).strip().strip("\"'"))
+
+
 def principal(argv: list[str] | None = None) -> int:
+    _carrega_env_local()
+
     # O console do Windows nasce em cp1252 e transforma "·" e "ª" em lixo. O
     # relatório desta CLI é o único lugar em que a coleta se explica, e um
     # relatório ilegível é um relatório que ninguém lê.

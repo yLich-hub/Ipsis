@@ -23,9 +23,14 @@ import { clienteDeEscrita } from '@/lib/vigilia/escrita'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-// A coleta pagina a Câmara e baixa a janela do Senado; os 10s do padrão não
-// chegam perto. 300s é o teto do plano Pro; no Hobby a plataforma corta antes,
-// e o que já foi gravado até ali permanece — a coleta grava fonte a fonte.
+// A coleta pagina a Câmara e baixa a janela do Senado; medida localmente, ela
+// leva ~30 s. 300s é o teto do plano Hobby, que também é o padrão dele — não há
+// o que economizar declarando menos, e a folga cobre o dia em que uma das duas
+// APIs responder devagar.
+//
+// Mesmo assim, estourar não perde tudo: a coleta grava fonte a fonte, e o que
+// entrou até o corte permanece. É por isso que `coleta()` chama `grava()` dentro
+// do laço em vez de acumular e gravar no fim.
 export const maxDuration = 300
 
 export async function GET(req: Request) {

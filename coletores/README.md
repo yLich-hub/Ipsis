@@ -40,9 +40,13 @@ python -m venv .venv
 `--seco` roda rede, extração, filtro e contagem sem escrever em lugar nenhum. É
 como se confere o que o filtro está pegando antes de encher uma tabela.
 
-Gravar exige `NEXT_PUBLIC_SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` no
-ambiente — a tabela tem RLS fechada para `anon` e `authenticated` (migration
-0012) e a coleta não tem sessão para ancorar policy.
+Gravar exige `NEXT_PUBLIC_SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` — a tabela
+tem RLS fechada para `anon` e `authenticated` (migration 0012) e a coleta não tem
+sessão para ancorar policy.
+
+**Na sua máquina, as duas saem do `.env.local`**, que a CLI lê sozinha; não
+precisa exportar nada. No GitHub Actions elas vêm dos secrets do repositório, e
+variável já definida no ambiente sempre vence o arquivo.
 
 ## As cinco fontes
 
