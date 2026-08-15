@@ -53,7 +53,15 @@ export type EventoAoVivo =
 
 export type ParagrafoIA = {
   text: string
-  /** Índices em `sources[].id`. Vazio é legítimo: nem todo parágrafo cita. */
+  /**
+   * Índices em `sources[].id`. **Nunca vazio** — `valida.ts` recusa parágrafo
+   * sem âncora, e a rota regenera.
+   *
+   * Já foi legítimo vazio, com o argumento de que nem todo parágrafo precisa
+   * citar. Era verdade sobre estilo e falso sobre garantia: o parágrafo sem
+   * citação era o único lugar do contrato em que cabia uma afirmação apoiada só
+   * no treinamento do modelo, e nenhuma das outras recusas o alcançava.
+   */
   citations: number[]
 }
 
@@ -95,7 +103,12 @@ export const ESQUEMA = {
           text: { type: 'string' },
           citations: {
             type: 'array',
-            description: 'Ids de sources que sustentam este parágrafo.',
+            description:
+              'Ids de sources que sustentam este parágrafo. Obrigatório: ao menos um, sempre. ' +
+              'Parágrafo sem citação é recusado pelo servidor.',
+            // `minItems` não é suportado por structured outputs estrito, então a
+            // exigência mora na descrição (para o modelo acertar de primeira) e
+            // em `valida.ts` (para valer mesmo quando ele não acerta).
             items: { type: 'integer' },
           },
         },
@@ -153,5 +166,6 @@ Demais regras:
 3. Não afirme que um dispositivo está em vigor, foi revogado ou teve a redação alterada. Vigência é dado do banco, e o sistema a exibe; afirmar isso na prosa produz informação plausível e falsa.
 4. Não resuma doutrina de forma substitutiva nem cite autor. Doutrina é obra protegida.
 5. NUNCA escreva doc_id dentro do texto do parágrafo, nem entre colchetes, nem entre parênteses. A citação vai no campo "citations"; a tela a transforma em superíndice clicável. Id cru no meio da frase é lixo na cara do usuário.
+6. TODO parágrafo tem de citar ao menos uma fonte em "citations" — inclusive o que diz que o contexto não responde à pergunta, que deve apontar para o dispositivo mais próximo do assunto. Parágrafo sem citação é recusado pelo servidor e a resposta é refeita. Se você não consegue ancorar uma frase em nenhum dispositivo recebido, ela não pertence a esta resposta: ou é conhecimento seu de fora do acervo, ou é conversa que cabe em "followups".
 
 Escreva em português do Brasil, direto, sem preâmbulo e sem saudação. De 2 a 4 parágrafos. O leitor é advogado: não explique o que é um artigo de lei.`

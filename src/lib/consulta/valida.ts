@@ -23,6 +23,26 @@
 //    longo o bastante para não pegar o nome de um instituto ("associação para o
 //    tráfico") nem uma expressão consagrada, e curto o bastante para pegar a
 //    cópia de um caput.
+// 5. **Parágrafo sem âncora.** Todo parágrafo tem de citar ao menos uma fonte.
+//
+// A quinta entrou depois, e fecha a última fresta do RAG. As quatro primeiras
+// garantem que o que o modelo CITA veio da busca; nenhuma delas obrigava a
+// citar. Um parágrafo com `citations: []` passava por todas — e é exatamente
+// nele que caberia uma afirmação inteira apoiada em treinamento, do tipo "o
+// porte ilegal é punido com reclusão de 2 a 4 anos": curta, correta no mundo,
+// impossível de conferir nesta tela, e invisível para as outras quatro recusas.
+//
+// O esquema dizia "vazio é legítimo: nem todo parágrafo cita". Era verdade como
+// descrição de estilo e falso como garantia: transformava a ancoragem em algo
+// que só o prompt segurava. O resto deste arquivo existe porque prompt não é
+// garantia — não fazia sentido abrir exceção justo aqui.
+//
+// **O custo é real e foi aceito.** Um parágrafo de fecho ("se quiser, detalho a
+// dosimetria") passa a precisar de citação, e citar ali é ligeiramente
+// artificial. Mas o campo `followups` já existe para o que é navegação, e a
+// prosa é para argumentação jurídica — que, por definição, se apoia em
+// dispositivo. Medido contra perguntas reais antes de entrar: nenhuma resposta
+// legítima foi recusada.
 //
 // A rota trata a recusa como o contrato pede: regenera uma vez com a violação
 // nomeada e, se falhar de novo, cai para a resposta composta — que não depende
@@ -35,7 +55,13 @@ import type { RespostaIA } from '@/lib/consulta/contrato'
 export type Recuperado = { docId: string; texto: string }
 
 export type Violacao = {
-  codigo: 'forma' | 'doc_id_fora_do_contexto' | 'citacao_orfa' | 'transcreveu_lei' | 'vazia'
+  codigo:
+    | 'forma'
+    | 'doc_id_fora_do_contexto'
+    | 'citacao_orfa'
+    | 'transcreveu_lei'
+    | 'paragrafo_sem_ancora'
+    | 'vazia'
   detalhe: string
 }
 
@@ -163,6 +189,22 @@ export function valida(bruto: unknown, contexto: Recuperado[]): Veredito {
       })
     }
   }
+
+  // --- 5. todo parágrafo tem âncora ------------------------------------------
+  //
+  // Confere sobre `comTexto`, e não sobre `r.paragraphs`: parágrafo vazio já é
+  // recusado pela regra da resposta vazia, e acusá-lo duas vezes só encheria a
+  // mensagem de correção com ruído que atrapalha a segunda tentativa.
+  comTexto.forEach((p, i) => {
+    if (p.citations.length === 0) {
+      violacoes.push({
+        codigo: 'paragrafo_sem_ancora',
+        detalhe:
+          `o parágrafo ${i + 1} não cita fonte nenhuma; todo parágrafo tem de apontar para ` +
+          `ao menos um dispositivo do contexto`,
+      })
+    }
+  })
 
   return violacoes.length === 0 ? { ok: true, dados: r } : { ok: false, violacoes }
 }

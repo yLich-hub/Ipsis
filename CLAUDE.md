@@ -459,9 +459,9 @@ output), e o servidor valida antes de a tela ver. Quatro arquivos em
 `lib/consulta/`, um trabalho cada:
 
 - `contrato.ts` — tipos, o esquema JSON e a instrução do sistema.
-- `valida.ts` — as quatro recusas. Puro, offline.
+- `valida.ts` — as cinco recusas. Puro, offline.
 - `enriquece.ts` — o banco sobrescreve tudo que não é argumentação. Puro.
-- `aovivo.ts` — a chamada ao `claude-opus-5`, o streaming e a regeneração.
+- `aovivo.ts` — a chamada ao modelo, o streaming e a regeneração.
 
 **O esquema é curto de propósito.** O modelo devolve `paragraphs[]` (texto +
 índices de citação), `sources[]` (só `id` e `doc_id`), `confidence` e
@@ -480,7 +480,7 @@ mentira que este produto pode contar.
 `leDaConversa()`, por regra, em TS, com 16 asserções travando a conta — pedir a
 mesma extração ao modelo criaria um segundo extrator para divergir do primeiro.
 
-**As quatro recusas de `valida()`**, todas no servidor, todas testadas offline:
+**As cinco recusas de `valida()`**, todas no servidor, todas testadas offline:
 
 | Recusa | Por quê |
 |---|---|
@@ -488,6 +488,23 @@ mesma extração ao modelo criaria um segundo extrator para divergir do primeiro
 | citação para `sources[].id` inexistente | marcador que não abre nada é pior que nenhum |
 | forma diferente do esquema | segunda camada, para o dia em que o esquema mudar |
 | **transcrição de lei** | doze palavras seguidas iguais às de um dispositivo do contexto e a resposta cai: a decisão nº 1 diz que texto legal nunca é gerado, e "gerar" inclui copiar do contexto para a prosa |
+| **parágrafo sem âncora** | todo parágrafo tem de citar ao menos uma fonte — ver abaixo |
+
+**A quinta entrou por último, e fecha a fresta que as outras quatro deixavam.**
+Elas garantem que o que o modelo CITA veio da busca; nenhuma obrigava a citar.
+Um parágrafo com `citations: []` passava por todas — e é exatamente nele que
+cabia uma afirmação inteira apoiada em treinamento, do tipo "o porte ilegal é
+punido com reclusão de 2 a 4 anos": curta, correta no mundo, impossível de
+conferir nesta tela, e invisível para as outras quatro.
+
+O esquema dizia "vazio é legítimo: nem todo parágrafo cita". Era verdade como
+descrição de estilo e falso como garantia: deixava a ancoragem por conta do
+prompt, num arquivo que existe porque prompt não é garantia.
+
+O custo foi medido antes de entrar, contra perguntas reais dentro e fora do
+recorte: **12 parágrafos, 12 ancorados, nenhuma queda para a resposta
+composta**. Parágrafo sem texto não é cobrado — sozinho ele já cai na recusa de
+resposta vazia, e ao lado de parágrafos válidos é só sujeira de formatação.
 
 Recusado, o servidor **regenera uma vez** com a violação nomeada. Recusado de
 novo, cai para a resposta composta. Não há terceira tentativa: ela custa o dobro
