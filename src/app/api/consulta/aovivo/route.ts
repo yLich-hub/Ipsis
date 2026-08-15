@@ -135,11 +135,18 @@ export async function POST(req: Request) {
         // mesma função que o caminho composto usa — se divergissem, a animação
         // do ao vivo contaria uma história diferente da do padrão.
         for (const p of passosDa(busca).slice(1)) manda({ tipo: 'passo', ...p })
-        manda({ tipo: 'passo', t: 'Redigindo com o contexto recuperado', meta: 'claude-opus-5' })
+        // O nome do modelo NÃO é escrito aqui: ele vem no evento `fim`, do
+        // servidor. Este passo já anunciou 'claude-opus-5' muito depois da troca
+        // de provedor — o mesmo defeito que o CLAUDE.md descreve para o nome
+        // fixo no JSX, repetido num lugar em que ninguém foi procurar.
+        manda({ tipo: 'passo', t: 'Redigindo com o contexto recuperado', meta: 'modelo do servidor' })
 
         for await (const evento of gerarAoVivo({
           pergunta: q,
           achados: busca.itens,
+          // Endereço explícito não passou pela fusão e tem score 0 — o piso de
+          // contexto tem de saber disso, ou zeraria a consulta mais literal.
+          direta: busca.direta,
           passos: passosDa(busca),
         })) {
           manda(evento)

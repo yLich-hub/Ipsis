@@ -181,6 +181,76 @@ export function montarContexto(achados: Achado[]): string {
 const recuperadosDe = (achados: Achado[]): Recuperado[] =>
   achados.map((a) => ({ docId: a.dispositivo_id, texto: a.texto }))
 
+// --- piso de fusão -----------------------------------------------------------
+
+/**
+ * Os mesmos parâmetros de `busca_hibrida` (migration 0003). Repetidos aqui
+ * porque o piso é derivado deles, e um número solto seria chute com cara de
+ * cálculo. Se a RPC mudar `p_k` ou os pesos, isto tem de mudar junto.
+ */
+const K_RRF = 60
+const PESO_MENOR = 1.0
+
+/**
+ * Score máximo que UMA perna sozinha alcança: `peso / (k + 1)`, com a perna na
+ * melhor posição possível. Hoje, `1 / 61 = 0,016393`.
+ *
+ * Acima disso, ou duas pernas concordaram sobre o mesmo dispositivo, ou a
+ * rubrica entrou (peso 3×). Os dois são sinal de relevância; abaixo, o
+ * dispositivo foi visto por uma perna só e nem sempre no topo dela.
+ */
+export const PISO_DE_FUSAO = PESO_MENOR / (K_RRF + 1)
+
+/**
+ * Nunca se manda menos que isto ao modelo, mesmo quando nada passa do piso.
+ *
+ * Zerar o contexto faria `gerarAoVivo` recusar e a Consulta cair para a
+ * resposta composta — e a resposta gerada para uma pergunta fora do corpus é
+ * BOA: ela diz que o acervo não cobre o assunto e nomeia o que ele cobre.
+ * Perder isso para ganhar silêncio seria trocar uma resposta útil por uma
+ * explicação do pipeline.
+ */
+const MINIMO = 3
+
+export type Contexto = { itens: Achado[]; fraco: boolean }
+
+/**
+ * Corta o rabo da recuperação antes de o modelo ver.
+ *
+ * **O problema que isto resolve, medido:** numa pergunta sobre porte de arma —
+ * assunto que o corpus não tem — a busca devolvia oito dispositivos, entre eles
+ * o art. 146 do CP (constrangimento *ilegal*), recuperado por coincidência
+ * léxica com a palavra "ilegal". O modelo então construía um parágrafo em cima
+ * dele. A busca errou e a prosa deu verniz ao erro.
+ *
+ * **Por que um piso absoluto e não relativo.** Medido em 14/08/2026, sobre dez
+ * consultas: dentro do recorte o topo fica entre 0,021 e 0,028; fora, as quatro
+ * consultas deram o MESMO topo, 0,0164 — que é exatamente `1/61`, a assinatura
+ * de uma perna sozinha sem ninguém concordando. Já a razão entre o último e o
+ * primeiro é 0,90 fora do corpus e 0,53–0,73 dentro: um piso relativo cortaria
+ * justamente as consultas boas e deixaria as ruins passar inteiras. Seria o
+ * critério ao contrário.
+ *
+ * **`direta` desliga o piso, e essa é a parte que quase quebrou tudo.**
+ * `resolveDireto` responde "art. 33 da Lei de Drogas" lendo o artigo pelo id,
+ * sem passar pela fusão — e grava `score: 0` em todos os itens. Aplicar o piso
+ * ali zeraria a consulta mais literal e mais correta do produto. Só foi
+ * percebido porque a medição incluiu um endereço explícito.
+ *
+ * A tela continua mostrando tudo: o painel de fonte é alimentado pelo evento
+ * `busca`, com a resposta crua. O que encolhe é o que o modelo pode citar.
+ */
+export function filtraContexto(achados: Achado[], direta = false): Contexto {
+  if (direta || achados.length <= MINIMO) return { itens: achados, fraco: false }
+
+  const acima = achados.filter((a) => a.score > PISO_DE_FUSAO)
+  if (acima.length >= MINIMO) return { itens: acima, fraco: false }
+
+  // Nada (ou quase nada) passou: a recuperação é fraca e o modelo precisa
+  // saber disso. Manda-se o mínimo, marcado — ver o aviso em `gerarAoVivo`.
+  return { itens: achados.slice(0, MINIMO), fraco: true }
+}
+
 // --- geração -----------------------------------------------------------------
 
 export const temChave = () => !!process.env.OPENAI_API_KEY
@@ -283,10 +353,13 @@ async function umaPassada(
 export async function* gerarAoVivo({
   pergunta,
   achados,
+  direta = false,
   passos,
 }: {
   pergunta: string
   achados: Achado[]
+  /** Veio de `resolveDireto`? Então não houve fusão, e o piso não se aplica. */
+  direta?: boolean
   passos: Passo[]
 }): AsyncGenerator<EventoAoVivo> {
   if (achados.length === 0) {
@@ -294,14 +367,32 @@ export async function* gerarAoVivo({
     return
   }
 
-  const contexto = montarContexto(achados)
-  const recuperados = recuperadosDe(achados)
+  // O modelo argumenta sobre o que sobreviveu ao piso; a tela continua
+  // mostrando a busca inteira, pelo evento `busca`.
+  const { itens, fraco } = filtraContexto(achados, direta)
+  const contexto = montarContexto(itens)
+  const recuperados = recuperadosDe(itens)
+
+  /**
+   * Dito ao modelo só quando a recuperação é fraca de fato.
+   *
+   * Sem isto, a âncora obrigatória empurra na direção errada: o modelo PRECISA
+   * citar, então agarra o dispositivo menos ruim e constrói argumento em cima
+   * dele. Nomear a fraqueza é o que transforma "cite o que der" em "diga que
+   * não tem".
+   */
+  const aviso = fraco
+    ? '\n\nATENÇÃO: nenhum dispositivo recuperado teve concordância entre as pernas da busca — ' +
+      'é sinal forte de que o acervo não cobre esta pergunta. Diga isso na primeira frase, ' +
+      'use confidence "baixa" e não construa tese sobre os dispositivos abaixo; eles servem ' +
+      'apenas para mostrar o que o acervo de fato alcança.'
+    : ''
 
   const mensagens: Mensagem[] = [
     { role: 'system', content: INSTRUCOES },
     {
       role: 'user',
-      content: `Contexto recuperado do corpus curado (única fonte citável):\n\n${contexto}\n\nPergunta do advogado: ${pergunta}`,
+      content: `Contexto recuperado do corpus curado (única fonte citável):\n\n${contexto}${aviso}\n\nPergunta do advogado: ${pergunta}`,
     },
   ]
 

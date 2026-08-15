@@ -20,7 +20,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { LeitorDeTexto } from '@/lib/consulta/aovivo'
+import { LeitorDeTexto, PISO_DE_FUSAO, filtraContexto } from '@/lib/consulta/aovivo'
 import { recado, transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
 
 const CONTEXTO: Recuperado[] = [
@@ -151,6 +151,53 @@ describe('validação da resposta ao vivo', () => {
     const v = valida(r, CONTEXTO)
     expect(v.ok).toBe(false)
     if (!v.ok) expect(v.violacoes.some((x) => x.codigo === 'vazia')).toBe(true)
+  })
+})
+
+describe('piso de fusão — o que o modelo pode citar', () => {
+  /** Um achado mínimo; só `score` importa aqui. */
+  const ach = (id: string, score: number) =>
+    ({ dispositivo_id: id, score, texto: 'x', citacao: 'x' }) as never
+
+  const oito = (scores: number[]) => scores.map((s, i) => ach(`d${i}`, s))
+
+  it('corta o rabo quando a fusão concordou em alguns itens', () => {
+    // Perfil real de consulta dentro do recorte, medido em 14/08/2026: topo em
+    // 0,025 e cauda abaixo do piso.
+    const r = filtraContexto(oito([0.025, 0.022, 0.019, 0.017, 0.0159, 0.0155, 0.0152, 0.0149]))
+    expect(r.itens).toHaveLength(4)
+    expect(r.fraco).toBe(false)
+  })
+
+  it('marca como fraca a recuperação em que nenhuma perna concordou', () => {
+    // Perfil real de consulta FORA do corpus: todas as quatro medidas deram o
+    // mesmo topo, 1/61 — a assinatura de uma perna sozinha.
+    const r = filtraContexto(oito([0.0164, 0.0161, 0.0159, 0.0156, 0.0154, 0.0152, 0.0149, 0.0147]))
+    expect(r.fraco).toBe(true)
+    // Não zera: a resposta gerada para pergunta fora do corpus é boa, e ela
+    // precisa de algo para apontar ao dizer o que o acervo cobre.
+    expect(r.itens).toHaveLength(3)
+  })
+
+  it('NÃO aplica o piso a endereço direto', () => {
+    // `resolveDireto` responde "art. 33 da Lei de Drogas" lendo o artigo pelo
+    // id, sem fusão, e grava score 0 em tudo. Se este teste cair, a consulta
+    // mais literal do produto volta a chegar vazia ao modelo.
+    const r = filtraContexto(oito([0, 0, 0, 0, 0, 0, 0, 0]), true)
+    expect(r.itens).toHaveLength(8)
+    expect(r.fraco).toBe(false)
+  })
+
+  it('o piso é derivado dos parâmetros da RPC, não escolhido a olho', () => {
+    // `p_k = 60`, menor peso 1.0 → 1/61. Se a migration mudar, isto tem de
+    // mudar junto, e é por isso que o número não mora solto no código.
+    expect(PISO_DE_FUSAO).toBeCloseTo(1 / 61, 10)
+  })
+
+  it('não mexe em recuperação já curta', () => {
+    const r = filtraContexto(oito([0.0164, 0.0159, 0.0154]))
+    expect(r.itens).toHaveLength(3)
+    expect(r.fraco).toBe(false)
   })
 })
 
