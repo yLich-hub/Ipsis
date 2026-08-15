@@ -26,6 +26,7 @@
 // =============================================================================
 
 import type { Achado } from '@/lib/busca/consultar'
+import type { Citavel } from '@/lib/vigilia/precedentes'
 import { ESQUEMA, INSTRUCOES, type EventoAoVivo, type RespostaIA } from '@/lib/consulta/contrato'
 import { enriquece } from '@/lib/consulta/enriquece'
 import { recado, valida, type Recuperado } from '@/lib/consulta/valida'
@@ -176,6 +177,37 @@ export function montarContexto(achados: Achado[]): string {
         .join('\n'),
     )
     .join('\n\n')
+}
+
+/**
+ * Os precedentes, como o modelo os vê.
+ *
+ * Tag própria — `<precedente>`, não `<dispositivo>` — e é a parte que não se
+ * negocia. São duas autoridades diferentes: o dispositivo diz o que a lei
+ * escreve, o precedente diz como o STJ a lê. Sem a distinção na marcação, o
+ * modelo escreveria sobre a tese com o mesmo peso do texto legal, e a resposta
+ * passaria a afirmar como lei algo que é interpretação.
+ *
+ * A situação vai no atributo e hoje é sempre "Trânsito em Julgado" — nada mais
+ * entra no contexto, ver `CITAVEL` em `lib/vigilia/precedentes.ts`. Ela aparece
+ * assim mesmo para o modelo poder dizê-la, e para o dia em que a regra afrouxar
+ * não haver um lugar em que a situação simplesmente não existia.
+ */
+export function montarPrecedentes(ps: Citavel[]): string {
+  if (ps.length === 0) return ''
+
+  const blocos = ps
+    .map((p) =>
+      [
+        `<precedente doc_id="${p.docId}" situacao="${p.situacao}">`,
+        `identificação: ${p.rotulo} do STJ`,
+        `tese firmada: ${p.tese}`,
+        '</precedente>',
+      ].join('\n'),
+    )
+    .join('\n\n')
+
+  return `\n\nPrecedentes qualificados do STJ que tocam os mesmos artigos (jurisprudência, NÃO texto de lei):\n\n${blocos}`
 }
 
 const recuperadosDe = (achados: Achado[]): Recuperado[] =>
@@ -354,12 +386,18 @@ export async function* gerarAoVivo({
   pergunta,
   achados,
   direta = false,
+  precedentes = [],
   passos,
 }: {
   pergunta: string
   achados: Achado[]
   /** Veio de `resolveDireto`? Então não houve fusão, e o piso não se aplica. */
   direta?: boolean
+  /**
+   * Precedentes do STJ alcançados pelos artigos do contexto. Sempre em trânsito
+   * em julgado — ver `lib/vigilia/precedentes.ts`. Vazio é o normal.
+   */
+  precedentes?: Citavel[]
   passos: Passo[]
 }): AsyncGenerator<EventoAoVivo> {
   if (achados.length === 0) {
@@ -370,8 +408,16 @@ export async function* gerarAoVivo({
   // O modelo argumenta sobre o que sobreviveu ao piso; a tela continua
   // mostrando a busca inteira, pelo evento `busca`.
   const { itens, fraco } = filtraContexto(achados, direta)
-  const contexto = montarContexto(itens)
-  const recuperados = recuperadosDe(itens)
+  const contexto = montarContexto(itens) + montarPrecedentes(precedentes)
+
+  // O universo do que pode ser citado. Precedente entra aqui para `valida()`
+  // aceitar o `doc_id` dele — e entra COM o texto da tese, o que faz a recusa
+  // de transcrição valer para ele também: o modelo argumenta sobre a tese, não
+  // a copia. A tela mostra o texto no cartão, como faz com o dispositivo.
+  const recuperados = [
+    ...recuperadosDe(itens),
+    ...precedentes.map((p) => ({ docId: p.docId, texto: p.tese })),
+  ]
 
   /**
    * Dito ao modelo só quando a recuperação é fraca de fato.
@@ -444,7 +490,11 @@ export async function* gerarAoVivo({
     const veredito = valida(bruto, recuperados)
 
     if (veredito.ok) {
-      yield { tipo: 'fim', comp: enriquece(veredito.dados, achados, passos), modelo: MODELO }
+      yield {
+        tipo: 'fim',
+        comp: enriquece(veredito.dados, achados, passos, precedentes),
+        modelo: MODELO,
+      }
       return
     }
 

@@ -70,6 +70,92 @@ export async function precedentes(): Promise<Resultado<Precedente[]>> {
 }
 
 /**
+ * A situação que um precedente precisa ter para entrar no contexto do chat.
+ *
+ * **Só o que transitou em julgado.** Tema afetado, sobrestado, em julgamento ou
+ * revisado continua na TELA — com selo âmbar, onde o advogado o encontra
+ * conscientemente — e fica fora da prosa gerada. A diferença importa: na tela
+ * ele é informação sob ressalva; na resposta do modelo ele viraria afirmação.
+ *
+ * O caso que decidiu a regra é o Tema 600 — *o tráfico privilegiado não é
+ * equiparado a hediondo*. É a resposta mais procurada do recorte e está
+ * `Revisado`. Deixá-lo entrar faria o chat afirmar um entendimento revisto sem
+ * dizer que foi; e uma ressalva escrita pelo modelo não é garantia, é promessa.
+ */
+const CITAVEL = 'Trânsito em Julgado'
+
+/**
+ * Quantos precedentes entram no contexto, no máximo.
+ *
+ * O alcance é por grafo de artigo — o precedente entra quando compartilha
+ * artigo com um dispositivo recuperado —, e isso traz cauda: numa pergunta
+ * sobre hediondez, o tema do critério trifásico aparece só porque os dois
+ * tocam o art. 33. Três é o bastante para responder e pouco para afogar.
+ */
+const MAX = 3
+
+export type Citavel = {
+  docId: string
+  rotulo: string
+  situacao: string
+  tese: string
+  artigos: string[]
+}
+
+/**
+ * Os precedentes que respondem à pergunta, alcançados pelos artigos que a busca
+ * já recuperou.
+ *
+ * **Sem embedding e sem quarta perna na fusão**, e isso é a economia central do
+ * desenho: os precedentes já estão pendurados no mesmo grafo de citação da
+ * decisão nº 1, então basta cruzar os artigos. Medido em 14/08/2026, o grafo
+ * traz o Tema 1139 para "posso usar inquéritos para afastar o § 4º" e o Tema
+ * 1194 para "a confissão compensa a reincidência" — as duas respostas exatas,
+ * sem tocar em `busca_hibrida`.
+ *
+ * `achados` deve ser o contexto JÁ FILTRADO pelo piso de fusão. Passar os oito
+ * brutos faria um dispositivo de cauda arrastar um precedente para a resposta.
+ */
+export async function precedentesPara(artigos: string[]): Promise<Citavel[]> {
+  if (artigos.length === 0) return []
+
+  try {
+    const { data, error } = await supabase
+      .from('precedentes_stj')
+      .select('id,tipo,numero,situacao,tese_firmada,artigos_tocados')
+      .eq('situacao', CITAVEL)
+      .not('tese_firmada', 'is', null)
+      .overlaps('artigos_tocados', artigos)
+
+    if (error) return []
+
+    return (data ?? [])
+      .map((l) => {
+        const p = l as Record<string, unknown>
+        const seus = (p.artigos_tocados as string[]) ?? []
+        return {
+          docId: p.id as string,
+          rotulo: `${p.tipo as string} ${p.numero as string}`.trim(),
+          situacao: p.situacao as string,
+          tese: p.tese_firmada as string,
+          artigos: seus,
+          // Quantos artigos em comum: o precedente que casa em dois artigos da
+          // pergunta é mais provável de respondê-la que o que casa num só.
+          peso: seus.filter((a) => artigos.includes(a)).length,
+        }
+      })
+      .sort((a, b) => b.peso - a.peso)
+      .slice(0, MAX)
+      .map(({ peso: _peso, ...c }) => c)
+  } catch {
+    // Falha de leitura vira lista vazia: o chat continua respondendo com o
+    // corpus, que é o que ele sempre fez. Precedente é acréscimo, não
+    // dependência.
+    return []
+  }
+}
+
+/**
  * Qual tese da peça cada precedente sustenta.
  *
  * Reusa `soArtigo` — o mesmo corte que a vigília faz para cruzar achado com
