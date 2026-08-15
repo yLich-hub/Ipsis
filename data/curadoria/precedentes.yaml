@@ -1,0 +1,99 @@
+# =============================================================================
+# Precedentes qualificados do STJ — o que entra e por quê
+#
+# Fonte: Portal de Dados Abertos do STJ, dataset `precedentes-qualificados`,
+# licença Creative Commons Atribuição. São temas repetitivos, IACs,
+# controvérsias e afins — o que o STJ trata como precedente de observância
+# qualificada, com situação controlada.
+#
+# **Por que este arquivo é separado de `vigilia.yaml`.** A vigília pergunta
+# "alguém ALTEROU a lei?"; aqui a pergunta é "como o STJ INTERPRETA a lei?".
+# São dois filtros com estruturas diferentes: o da vigília exige verbo de
+# alteração, e este não pode exigir — um tema não altera nada, ele fixa
+# entendimento. Unir os dois num arquivo só faria um dos dois carregar regra que
+# não usa.
+#
+# **Por que precedente qualificado e não ementa.** As ementas do STJ também são
+# abertas e há muito mais delas (718 sobre a Lei 11.343 num mês, numa turma só),
+# mas o dump de ementas NÃO tem campo de vigência: medido em 14/08/2026, `tema`
+# e `termosAuxiliares` vêm vazios em 3.326 de 3.326 registros. Não dá para saber
+# se o entendimento foi superado.
+#
+# O dataset de temas tem `situacao`, `entendimentoAnterior` e o histórico de
+# mudança em `informacoesComplementares` — é o equivalente honesto de
+# `leis.vigencia_ate` para jurisprudência. Sem isso, o projeto estaria fazendo
+# exatamente o que a decisão nº 3 existe para impedir, só que com acórdão.
+#
+# Curadoria manual, versionada, revisável em diff.
+# =============================================================================
+
+# O endereço do dataset no CKAN do STJ. O recurso é achado pelo nome, não por
+# id fixo: o STJ republica o arquivo e o id muda a cada versão.
+fonte:
+  ckan: https://dadosabertos.web.stj.jus.br/api/3/action/package_show
+  dataset: precedentes-qualificados
+  recurso: Temas.csv
+
+# --- o que entra -------------------------------------------------------------
+
+# 1. Tudo que fala do recorte. Sem exigir verbo: um tema sobre tráfico interessa
+#    quer ele use a palavra "altera" ou não.
+drogas: '11\.?343|lei de drogas|tr[áa]fico de drogas|lei antidrogas'
+
+# 2. Parte geral do Código Penal.
+#
+# Estes artigos valem para QUALQUER crime, inclusive tráfico — dosimetria,
+# atenuantes, agravantes, concurso, prescrição, progressão. Um tema sobre a
+# compensação da confissão com a reincidência (Tema 585) é tão útil numa defesa
+# de tráfico quanto num roubo.
+#
+# **A lista é fechada de propósito.** Aceitar "qualquer artigo do CP" traria 53
+# temas a mais sobre homicídio, roubo e estelionato — crimes fora do recorte,
+# que encheriam a tela sem servir a nenhuma tese. Medido em 14/08/2026: com a
+# lista, 27 temas de parte geral; sem ela, 80.
+#
+# Artigo novo aqui é decisão de produto, não ajuste técnico.
+parte_geral_cp:
+  - 33    # regimes de cumprimento
+  - 42    # detração
+  - 44    # penas restritivas de direitos
+  - 59    # circunstâncias judiciais — a primeira fase
+  - 61    # agravantes
+  - 62    # agravantes no concurso de pessoas
+  - 63    # reincidência
+  - 64    # prazo da reincidência
+  - 65    # atenuantes — inclui a confissão espontânea
+  - 66    # atenuante inominada
+  - 67    # concurso de circunstâncias
+  - 68    # o critério trifásico
+  - 69    # concurso material
+  - 70    # concurso formal
+  - 71    # crime continuado
+  - 107   # extinção da punibilidade
+  - 109   # prescrição pela pena máxima
+  - 110   # prescrição pela pena aplicada
+  - 112   # termo inicial da prescrição da pretensão executória
+  - 115   # redução do prazo por idade
+  - 117   # interrupção da prescrição
+
+# Reconhece a menção ao Código Penal, para os artigos acima não casarem quando
+# a frase fala de artigo de outra lei. `(?!\s+militar)` pelo mesmo motivo da
+# vigília: o CPM é o Decreto-Lei 1.001/1969, que o banco não tem.
+codigo_penal: 'c[óo]digo penal(?!\s+militar)|2\.?848'
+
+# --- situações que pedem destaque na tela ------------------------------------
+#
+# O STJ usa vocabulário próprio. Estas são as que significam "não use sem
+# conferir": o entendimento não está firme, ou deixou de valer.
+#
+# Tema cancelado continua no banco de propósito. Sumir com ele faria a tela
+# esquecer o que já foi verdade — e é justamente isso que um advogado precisa
+# saber ao encontrar a tese num texto antigo.
+situacoes_de_alerta:
+  - Cancelada
+  - Cancelado
+  - Sobrestado
+  - Suspenso
+  - Revisado
+  - Em Julgamento
+  - Afetado

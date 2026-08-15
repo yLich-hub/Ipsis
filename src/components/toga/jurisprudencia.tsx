@@ -38,7 +38,34 @@ export type Linha = {
   /** Nome da tese da peça que este entendimento sustenta. */
   origem: string
   origemId: string
+
+  /**
+   * Situação do precedente qualificado, no vocabulário do STJ: 'Trânsito em
+   * Julgado', 'Cancelada', 'Sobrestado', 'Revisado'…
+   *
+   * Só as linhas vindas de `precedentes_stj` a têm — a curadoria manual não
+   * tem como acompanhar situação, e por isso ela não a exibe em vez de exibir
+   * um "vigente" que ninguém conferiu.
+   *
+   * **É o campo mais importante desta tela.** Dos 61 temas coletados, 14 estão
+   * cancelados ou sobrestados, entre eles o Tema 600 — *o tráfico privilegiado
+   * não é equiparado a hediondo* —, que está `Revisado`. Mostrar a tese sem a
+   * situação seria entregar ao advogado um entendimento morto com cara de vivo,
+   * que é a versão jurisprudencial do que a decisão nº 3 existe para impedir.
+   */
+  situacao?: string
 }
+
+/**
+ * A situação exige conferência antes do uso?
+ *
+ * Espelha `situacoes_de_alerta` de `data/curadoria/precedentes.yaml`. O prefixo
+ * cobre as variações de gênero que o STJ usa no mesmo arquivo — 'Cancelada' e
+ * 'Cancelado' aparecem os dois, conforme a natureza do precedente.
+ */
+export const pedeCuidado = (situacao?: string): boolean =>
+  !!situacao &&
+  /^(cancelad|sobrestad|suspens|revisad|em julgamento|afetad)/i.test(situacao.trim())
 
 type Ordem = 'tese' | 'tribunal'
 
@@ -66,6 +93,9 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
     return [
       { nome: 'Tribunal', itens: conta((l) => l.tribunal, 'tribunal') },
       { nome: 'Classe', itens: conta((l) => l.classe, 'classe') },
+      // Filtro novo, e o mais útil dos quatro: é por ele que se isola o que o
+      // STJ já cancelou ou está revendo.
+      { nome: 'Situação', itens: conta((l) => l.situacao, 'situacao') },
       { nome: 'Tese sustentada', itens: conta((l) => l.origem, 'origem') },
     ].filter((g) => g.itens.length > 0)
   }, [linhas])
@@ -83,11 +113,17 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
         const marcados = g.itens.filter((i) => ligados[i.chave])
         if (marcados.length === 0) continue
         const valor =
-          g.nome === 'Tribunal' ? l.tribunal : g.nome === 'Classe' ? l.classe : l.origem
+          g.nome === 'Tribunal'
+            ? l.tribunal
+            : g.nome === 'Classe'
+              ? l.classe
+              : g.nome === 'Situação'
+                ? l.situacao
+                : l.origem
         if (!marcados.some((m) => m.t === valor)) return false
       }
       if (!alvo) return true
-      return [l.tese, l.numero, l.classe, l.tribunal, l.origem]
+      return [l.tese, l.numero, l.classe, l.tribunal, l.origem, l.situacao]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
@@ -247,7 +283,22 @@ function Cartao({ l }: { l: Linha }) {
         )}
         <span className="truncate text-[12px] text-tg-fraco-3">sustenta “{l.origem}”</span>
         <span className="flex-1" />
-        <Selo tom="verde">Sustenta tese</Selo>
+        {/* A situação vem antes do "sustenta tese" de propósito: um tema
+            cancelado continua ligado à tese, e é justamente aí que o selo verde
+            sozinho enganaria. */}
+        {l.situacao && (
+          <Selo
+            tom={pedeCuidado(l.situacao) ? 'ambar' : 'verde'}
+            title={
+              pedeCuidado(l.situacao)
+                ? 'Situação registrada pelo STJ — confira antes de usar'
+                : 'Situação registrada pelo STJ'
+            }
+          >
+            {l.situacao}
+          </Selo>
+        )}
+        {!l.situacao && <Selo tom="verde">Sustenta tese</Selo>}
       </div>
 
       {l.tese && (

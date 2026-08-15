@@ -26,7 +26,7 @@ from typing import Iterable
 
 import requests
 
-from coletores.tipos import Achado, Colheita, Metrica
+from coletores.tipos import Achado, Colheita, Metrica, Precedente
 
 RAIZ = Path(__file__).resolve().parent.parent
 SAIDA = RAIZ / "data" / "vigilia"
@@ -159,6 +159,29 @@ def grava_metricas(metricas: Iterable[Metrica]) -> int:
     return len(linhas)
 
 
+def grava_precedentes(precedentes: Iterable[Precedente]) -> int:
+    """Upsert por id estável (`stj:<sequencial>`).
+
+    Tema cancelado é gravado como qualquer outro, e isso é decisão: sumir com
+    ele faria a tela esquecer o que já foi verdade, e é justamente ao topar com
+    a tese num texto antigo que o advogado precisa descobrir que ela caiu.
+    """
+    linhas = [p.linha() | {"coletado_em": _agora()} for p in precedentes]
+    if not linhas:
+        return 0
+
+    url, chave = _credenciais()
+    r = requests.post(
+        f"{url}/rest/v1/precedentes_stj?on_conflict=id",
+        headers=_cabecalhos(chave, "resolution=merge-duplicates"),
+        data=json.dumps(linhas),
+        timeout=90,
+    )
+    if r.status_code >= 400:
+        raise RuntimeError(f"falha ao gravar precedentes ({r.status_code}): {r.text[:300]}")
+    return len(linhas)
+
+
 def registra(colheita: Colheita, novos: int) -> None:
     """Uma linha no diário de bordo. Falha aqui não derruba nada: o dado já foi
     gravado, e um relato perdido custa a data do card, não o achado."""
@@ -176,7 +199,9 @@ def registra(colheita: Colheita, novos: int) -> None:
                 "ok": colheita.ok,
                 "erro": colheita.erro,
                 "vistos": colheita.vistos,
-                "candidatos": len(colheita.achados) + len(colheita.metricas),
+                "candidatos": (
+                    len(colheita.achados) + len(colheita.metricas) + len(colheita.precedentes)
+                ),
                 "novos": novos,
                 "ms": colheita.ms,
             }
@@ -203,6 +228,7 @@ def para_disco(colheita: Colheita) -> Path:
                 "vistos": colheita.vistos,
                 "achados": [a.linha() for a in colheita.achados],
                 "metricas": [m.linha() for m in colheita.metricas],
+                "precedentes": [p.linha() for p in colheita.precedentes],
             },
             ensure_ascii=False,
             indent=2,

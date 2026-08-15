@@ -1,0 +1,174 @@
+"""O recorte dos precedentes qualificados do STJ.
+
+Offline: as linhas de exemplo reproduzem o `Temas.csv` real, com as
+particularidades que ele de fato tem — quebra de linha dentro da tese firmada,
+`situacao` em vocabulário próprio do STJ, e campos vazios em quase todo lugar.
+
+O que estes testes trancam é o **recorte**, que é a peça que pode errar em
+silêncio: um filtro largo demais enche a tela de temas sobre homicídio e roubo;
+um estreito demais perde a compensação da confissão com a reincidência, que é
+dosimetria e vale para qualquer defesa, inclusive a de tráfico.
+
+    .venv/Scripts/python -m pytest coletores -q
+"""
+
+from __future__ import annotations
+
+import csv
+import io
+
+from coletores import stj
+
+CFG = stj.curadoria()
+
+
+def tema(**campos: str) -> dict[str, str]:
+    """Uma linha do CSV, com os campos que o filtro lê."""
+    base = {
+        "sequencialPrecedente": "1",
+        "tipoPrecedente": "Tema Repetitivo",
+        "numeroPrecedente": "1",
+        "situacao": "Trânsito em Julgado",
+        "teseFirmada": "",
+        "questaoSubmetidaAJulgamento": "",
+        "referenciaLegislativa": "",
+        "anotacoesNUGEPNAC": "",
+        "delimitacaoJulgado": "",
+        "entendimentoAnterior": "",
+        "informacoesComplementares": "",
+        "referenciaSumular": "",
+        "sumulaOriginada": "",
+        "dataJulgamento": "",
+        "dataPublicacaoAcordao": "",
+        "dataPrimeiraAfetacao": "",
+    }
+    return base | campos
+
+
+def recorta(linhas: list[dict[str, str]]):
+    """Roda só o filtro, sem rede: injeta as linhas no lugar do download."""
+    original = stj.baixa_temas
+    stj.baixa_temas = lambda _s, _c: linhas  # type: ignore[assignment]
+    try:
+        return stj.colhe(None, CFG)  # type: ignore[arg-type]
+    finally:
+        stj.baixa_temas = original  # type: ignore[assignment]
+
+
+class TestOQueEntra:
+    def test_tema_sobre_a_lei_de_drogas(self):
+        c = recorta([tema(teseFirmada="É cabível a aplicação retroativa da Lei n. 11.343/2006.")])
+        assert len(c.precedentes) == 1
+        assert c.precedentes[0].escopo == "drogas"
+
+    def test_parte_geral_do_cp_entra_porque_vale_para_o_tráfico(self):
+        # Tema 585 real: compensação da confissão com a reincidência. É segunda
+        # fase da dosimetria e serve a qualquer defesa — inclusive a de tráfico.
+        c = recorta(
+            [
+                tema(
+                    teseFirmada=(
+                        "É possível, na segunda fase da dosimetria, a compensação integral da "
+                        "atenuante da confissão espontânea, do art. 65 do Código Penal, com a "
+                        "agravante da reincidência."
+                    )
+                )
+            ]
+        )
+        assert len(c.precedentes) == 1
+        assert c.precedentes[0].escopo == "parte_geral"
+
+    def test_apelido_da_lei_sem_numero(self):
+        c = recorta([tema(questaoSubmetidaAJulgamento="Discute-se o alcance da Lei de Drogas.")])
+        assert len(c.precedentes) == 1
+
+    def test_le_a_situacao_como_o_stj_a_escreve(self):
+        # É o campo que justifica esta fonte existir. Se ele se perder, a tela
+        # passa a mostrar entendimento morto como se valesse.
+        c = recorta([tema(situacao="Cancelada", teseFirmada="Tese sobre tráfico de drogas.")])
+        assert c.precedentes[0].situacao == "Cancelada"
+
+
+class TestOQueFicaDeFora:
+    def test_crime_fora_do_recorte_nao_entra(self):
+        # Homicídio e roubo são Código Penal, mas parte especial: nenhuma tese
+        # deste projeto os alcança, e eles encheriam a tela.
+        c = recorta(
+            [
+                tema(teseFirmada="Qualificadora do art. 121, § 2º, I, do Código Penal, na pronúncia."),
+                tema(teseFirmada="Perícia da arma para a majorante do art. 157, § 2º, do Código Penal."),
+            ]
+        )
+        assert c.precedentes == []
+
+    def test_artigo_da_parte_geral_sem_mencionar_o_codigo_penal(self):
+        # "art. 65" sozinho pode ser de qualquer lei. Sem a menção ao Código
+        # Penal, não se atribui — mesma cautela do filtro da vigília.
+        c = recorta([tema(teseFirmada="O art. 65 da Lei n. 9.099/1995 admite transação.")])
+        assert c.precedentes == []
+
+    def test_codigo_penal_militar_nao_conta(self):
+        # DL 1.001/1969, fora do banco — a mesma exclusão da vigília.
+        c = recorta([tema(teseFirmada="O art. 59 do Código Penal Militar aplica-se ao caso.")])
+        assert c.precedentes == []
+
+    def test_tema_de_outro_ramo(self):
+        c = recorta([tema(teseFirmada="Os juros de mora nas condenações impostas à Fazenda Pública.")])
+        assert c.precedentes == []
+
+
+class TestFormato:
+    def test_id_estavel_pelo_sequencial(self):
+        # Tipo e número mudam quando o tema muda de natureza jurídica; o
+        # sequencial é a chave do banco do STJ e sobrevive. Se o id passar a
+        # sair de tipo+número, o upsert duplica a cada reclassificação.
+        c = recorta([tema(sequencialPrecedente="4062", teseFirmada="Tráfico de drogas.")])
+        assert c.precedentes[0].id == "stj:4062"
+
+    def test_data_brasileira_vira_iso(self):
+        c = recorta([tema(teseFirmada="Tráfico de drogas.", dataJulgamento="18/8/2021")])
+        assert c.precedentes[0].julgado_em == "2021-08-18"
+
+    def test_data_ilegivel_vira_ausencia_e_nao_palpite(self):
+        c = recorta([tema(teseFirmada="Tráfico de drogas.", dataJulgamento="sem data")])
+        assert c.precedentes[0].julgado_em is None
+
+    def test_colapsa_o_espaco_do_csv(self):
+        # A tese firmada vem com quebra de linha e espaço duplo no arquivo real.
+        c = recorta([tema(teseFirmada="Tráfico de drogas\n\n   e condutas    afins.")])
+        assert c.precedentes[0].tese_firmada == "Tráfico de drogas e condutas afins."
+
+    def test_vincula_ao_artigo_do_corpus_quando_da(self):
+        c = recorta(
+            [tema(teseFirmada="Vedado usar inquéritos para afastar o art. 33 da Lei n. 11.343/2006.")]
+        )
+        assert "lei_11343_2006_art33" in c.precedentes[0].artigos_tocados
+
+    def test_o_bom_do_csv_com_bom_e_quebra_de_linha_na_celula(self):
+        # `utf-8-sig` come o BOM; sem isso a primeira coluna nasce com `﻿`
+        # grudado e o DictReader nunca a encontra. E a tese firmada do STJ tem
+        # quebra de linha dentro da célula, que o csv precisa respeitar.
+        bruto = (
+            "﻿sequencialPrecedente,tipoPrecedente,situacao,teseFirmada\r\n"
+            '9,"Tema Repetitivo","Cancelada","Linha um\nlinha dois"\r\n'
+        ).encode("utf-8")
+        linhas = list(csv.DictReader(io.StringIO(bruto.decode("utf-8-sig"))))
+        assert linhas[0]["sequencialPrecedente"] == "9"
+        assert "\n" in linhas[0]["teseFirmada"]
+
+
+class TestCuradoria:
+    def test_a_lista_da_parte_geral_e_fechada(self):
+        # Aceitar qualquer artigo do CP traria 53 temas a mais sobre crimes
+        # fora do recorte. A lista é decisão de produto, e mexer nela tem de ser
+        # deliberado.
+        geral = set(CFG["parte_geral_cp"])
+        assert 68 in geral, "o critério trifásico é o coração da dosimetria"
+        assert 65 in geral, "a confissão espontânea aparece em quase toda defesa"
+        assert 121 not in geral, "homicídio é parte especial e está fora do recorte"
+        assert 157 not in geral, "roubo é parte especial e está fora do recorte"
+
+    def test_situacoes_de_alerta_cobrem_o_que_nao_vale(self):
+        alerta = {s.lower() for s in CFG["situacoes_de_alerta"]}
+        assert "cancelada" in alerta
+        assert "sobrestado" in alerta
