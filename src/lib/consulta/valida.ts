@@ -61,9 +61,23 @@ export type Violacao = {
     | 'citacao_orfa'
     | 'transcreveu_lei'
     | 'paragrafo_sem_ancora'
+    | 'fora_do_alfabeto'
     | 'vazia'
   detalhe: string
 }
+
+/**
+ * Letra que não é do alfabeto latino.
+ *
+ * **Allowlist por escrita, não blacklist.** Listar devanágari, cirílico, han e
+ * companhia seria uma corrida sem fim; exigir que toda LETRA seja latina cobre
+ * tudo de uma vez e não precisa de manutenção.
+ *
+ * Só letras entram no teste, e isso é o ponto: pontuação, dígito, `§`, `—`, `%`
+ * e aspas tipográficas não são `\p{L}` e passam intactos. `ã`, `ç` e `é` são
+ * escrita latina e passam. `º` também — é `Lo` de escrita latina, não símbolo.
+ */
+const FORA_DO_ALFABETO = /(?!\p{Script=Latin})\p{L}/u
 
 export type Veredito =
   | { ok: true; dados: RespostaIA }
@@ -186,6 +200,29 @@ export function valida(bruto: unknown, contexto: Recuperado[]): Veredito {
       violacoes.push({
         codigo: 'transcreveu_lei',
         detalhe: `um parágrafo repete o texto de ${copiado}; o texto legal é transcrito pelo sistema, não por você`,
+      })
+    }
+  }
+
+  // --- 6. o texto é escrito em alfabeto latino -------------------------------
+  //
+  // Observado numa geração real: "não é um अपराधo autônomo" — devanágari no
+  // lugar de "crime", no meio de uma frase correta. É falha do modelo, não do
+  // contexto, e nenhuma das outras recusas a alcança: o parágrafo cita, não
+  // transcreve, e tem a forma certa.
+  //
+  // Uma resposta assim não é só feia — ela mina a única coisa que o produto
+  // vende, que é confiabilidade. Advogado que vê caractere corrompido numa
+  // frase sobre tipo penal deixa de confiar na próxima, que pode estar certa.
+  // Regenerar custa uma passada; o estrago não se desfaz.
+  for (const p of comTexto) {
+    const achado = p.text.match(FORA_DO_ALFABETO)
+    if (achado) {
+      violacoes.push({
+        codigo: 'fora_do_alfabeto',
+        detalhe:
+          `um parágrafo tem o caractere "${achado[0]}", que não é do alfabeto latino; ` +
+          `escreva em português do Brasil`,
       })
     }
   }
