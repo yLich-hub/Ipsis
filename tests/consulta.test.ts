@@ -21,7 +21,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { LeitorDeTexto } from '@/lib/consulta/aovivo'
-import { transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
+import { recado, transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
 
 const CONTEXTO: Recuperado[] = [
   {
@@ -54,6 +54,48 @@ describe('validação da resposta ao vivo', () => {
   it('aceita a resposta que respeita o contrato', () => {
     const v = valida(boa(), CONTEXTO)
     expect(v.ok).toBe(true)
+  })
+
+  it('recusa parágrafo sem nenhuma citação', () => {
+    // A fresta que as outras quatro recusas não alcançavam: um parágrafo sem
+    // citação passava por todas, e é exatamente nele que caberia uma afirmação
+    // inteira apoiada no treinamento do modelo — "o porte ilegal é punido com
+    // reclusão de 2 a 4 anos". Curta, correta no mundo, e impossível de conferir
+    // nesta tela, que é o que este projeto existe para não produzir.
+    const r = boa()
+    r.paragraphs.push({
+      text: 'O porte ilegal de arma de fogo é punido com reclusão de dois a quatro anos e multa.',
+      citations: [],
+    })
+
+    const v = valida(r, CONTEXTO)
+    expect(v.ok).toBe(false)
+    if (v.ok) return
+    expect(v.violacoes.some((x) => x.codigo === 'paragrafo_sem_ancora')).toBe(true)
+  })
+
+  it('não cobra âncora de parágrafo sem texto', () => {
+    // A regra nova confere sobre os parágrafos COM texto. Um parágrafo em
+    // branco não afirma nada, então não há o que ancorar — e acusá-lo encheria
+    // a mensagem de correção com ruído que atrapalha a segunda tentativa.
+    // Sozinho ele seria pego pela regra da resposta vazia; ao lado de
+    // parágrafos válidos, é só sujeira de formatação e não derruba a resposta.
+    const r = boa()
+    r.paragraphs.push({ text: '   ', citations: [] })
+
+    expect(valida(r, CONTEXTO).ok).toBe(true)
+  })
+
+  it('a recusa por falta de âncora vira instrução de correção nomeando o parágrafo', () => {
+    // A regeneração só ajuda se o recado disser o que consertar. Se este teste
+    // cair, a segunda tentativa vira um tiro no escuro que custa o dobro do
+    // tempo para chegar ao mesmo lugar.
+    const r = boa()
+    r.paragraphs.push({ text: 'Uma afirmação solta, sem fonte nenhuma para sustentá-la.', citations: [] })
+
+    const v = valida(r, CONTEXTO)
+    if (v.ok) throw new Error('deveria ter sido recusada')
+    expect(recado(v.violacoes)).toMatch(/parágrafo 3/)
   })
 
   it('recusa doc_id que não veio da busca — mesmo que exista no banco', () => {
