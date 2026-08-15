@@ -20,7 +20,8 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { LeitorDeTexto } from '@/lib/consulta/aovivo'
+import { LeitorDeTexto, PISO_DE_FUSAO, filtraContexto } from '@/lib/consulta/aovivo'
+import { enriquece } from '@/lib/consulta/enriquece'
 import { recado, transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
 
 const CONTEXTO: Recuperado[] = [
@@ -151,6 +152,197 @@ describe('validação da resposta ao vivo', () => {
     const v = valida(r, CONTEXTO)
     expect(v.ok).toBe(false)
     if (!v.ok) expect(v.violacoes.some((x) => x.codigo === 'vazia')).toBe(true)
+  })
+})
+
+describe('alfabeto', () => {
+  it('recusa letra fora do alfabeto latino', () => {
+    // Observado numa geração real: devanágari no lugar de "crime", no meio de
+    // uma frase correta. Nenhuma das outras recusas alcança isso — o parágrafo
+    // cita, não transcreve e tem a forma certa.
+    const r = boa()
+    r.paragraphs[0]!.text = 'O tráfico privilegiado não é um अपराधo autônomo.'
+    const v = valida(r, CONTEXTO)
+    expect(v.ok).toBe(false)
+    if (!v.ok) expect(v.violacoes.some((x) => x.codigo === 'fora_do_alfabeto')).toBe(true)
+  })
+
+  it('não confunde português com alfabeto estranho', () => {
+    // A regra é allowlist por ESCRITA, e só sobre letras: acento, cedilha e
+    // ordinal são latinos; pontuação e símbolo nem sequer são letra. Se este
+    // teste cair, a recusa passa a derrubar resposta legítima — que é pior que
+    // o defeito que ela conserta.
+    const r = boa()
+    r.paragraphs[0]!.text =
+      'A ação penal exige atenção: o § 4º do art. 33 reduz a pena em até ⅔ — mas não é automática, e a majorante de 1/6 incide sobre 100% da base.'
+    expect(valida(r, CONTEXTO).ok).toBe(true)
+  })
+})
+
+describe('corte dos cartões de fonte', () => {
+  it('a fonte citada sobrevive ao corte, mesmo além do quarto lugar', () => {
+    // O corte em quatro cartões continua certo; cortar pelo FIM é que estava
+    // errado. Um parágrafo que citava a quinta fonte perdia o superíndice, e a
+    // resposta ficava ancorada nos dados e órfã na tela — justamente depois de
+    // a âncora virar obrigatória.
+    const contexto: Recuperado[] = Array.from({ length: 6 }, (_, i) => ({
+      docId: `d${i + 1}`,
+      texto: `texto ${i + 1}`,
+    }))
+    const achados = contexto.map((c, i) => ({
+      dispositivo_id: c.docId,
+      citacao: `art. ${i + 1}`,
+      texto: c.texto,
+      revogado: false,
+      cobertura: 'integral',
+      vigencia_ate: '2025-02-28',
+      lei_apelido: 'Lei',
+      artigo_rubrica: null,
+      rubrica_termo: null,
+      papel: null,
+    })) as never[]
+
+    const dados = {
+      // o único parágrafo cita a SEXTA fonte
+      paragraphs: [{ text: 'Um parágrafo ancorado na última fonte da lista.', citations: [6] }],
+      sources: contexto.map((c, i) => ({ id: i + 1, doc_id: c.docId })),
+      confidence: 'alta' as const,
+      followups: [],
+    }
+
+    const comp = enriquece(dados, achados, [])
+    expect(comp.fontes).toHaveLength(4)
+    // sobreviveu ao corte…
+    expect(comp.fontes.some((f) => f.id === 'd6')).toBe(true)
+    // …e o parágrafo tem marcador
+    expect(comp.paras[0]!.cite).not.toBeNull()
+  })
+
+  it('salva a primeira citação de CADA parágrafo, mesmo com tudo citado', () => {
+    // O caso real que derrubou a primeira tentativa de conserto: o modelo
+    // devolveu oito fontes e citou `[[1], [2,3,4,5,6], [7,8]]`. Como TODAS
+    // estavam citadas, priorizar "as citadas" não decidia nada e o corte
+    // continuava caindo nas quatro primeiras — deixando o terceiro parágrafo,
+    // que aponta para a sétima, sem superíndice.
+    const contexto: Recuperado[] = Array.from({ length: 8 }, (_, i) => ({
+      docId: `d${i + 1}`,
+      texto: `texto ${i + 1}`,
+    }))
+    const achados = contexto.map((c, i) => ({
+      dispositivo_id: c.docId,
+      citacao: `art. ${i + 1}`,
+      texto: c.texto,
+      revogado: false,
+      cobertura: 'integral',
+      vigencia_ate: '2025-02-28',
+      lei_apelido: 'Lei',
+      artigo_rubrica: null,
+      rubrica_termo: null,
+      papel: null,
+    })) as never[]
+
+    const comp = enriquece(
+      {
+        paragraphs: [
+          { text: 'Primeiro.', citations: [1] },
+          { text: 'Segundo.', citations: [2, 3, 4, 5, 6] },
+          { text: 'Terceiro.', citations: [7, 8] },
+        ],
+        sources: contexto.map((c, i) => ({ id: i + 1, doc_id: c.docId })),
+        confidence: 'alta' as const,
+        followups: [],
+      },
+      achados,
+      [],
+    )
+
+    // Nenhum parágrafo fica sem marcador…
+    expect(comp.paras.map((p) => p.cite).filter((c) => c === null)).toHaveLength(0)
+    // …e a fonte 7, que só aparece como primeira citação do 3º parágrafo,
+    // entrou no lugar da 4ª, que não é primeira de ninguém.
+    expect(comp.fontes.map((f) => f.id)).toEqual(['d1', 'd2', 'd3', 'd7'])
+  })
+
+  it('mantém a ordem que o modelo escolheu entre os sobreviventes', () => {
+    // A ordem das fontes é a única decisão do modelo sobre a lista. Salvar a
+    // citada não pode virar reordenar tudo.
+    const contexto: Recuperado[] = Array.from({ length: 5 }, (_, i) => ({
+      docId: `d${i + 1}`,
+      texto: `texto ${i + 1}`,
+    }))
+    const achados = contexto.map((c, i) => ({
+      dispositivo_id: c.docId,
+      citacao: `art. ${i + 1}`,
+      texto: c.texto,
+      revogado: false,
+      cobertura: 'integral',
+      vigencia_ate: '2025-02-28',
+      lei_apelido: 'Lei',
+      artigo_rubrica: null,
+      rubrica_termo: null,
+      papel: null,
+    })) as never[]
+
+    const comp = enriquece(
+      {
+        paragraphs: [{ text: 'Cita a quinta.', citations: [5] }],
+        sources: contexto.map((c, i) => ({ id: i + 1, doc_id: c.docId })),
+        confidence: 'alta' as const,
+        followups: [],
+      },
+      achados,
+      [],
+    )
+
+    // d5 entrou no lugar de d4, mas d1..d3 continuam na frente e na ordem.
+    expect(comp.fontes.map((f) => f.id)).toEqual(['d1', 'd2', 'd3', 'd5'])
+  })
+})
+
+describe('piso de fusão — o que o modelo pode citar', () => {
+  /** Um achado mínimo; só `score` importa aqui. */
+  const ach = (id: string, score: number) =>
+    ({ dispositivo_id: id, score, texto: 'x', citacao: 'x' }) as never
+
+  const oito = (scores: number[]) => scores.map((s, i) => ach(`d${i}`, s))
+
+  it('corta o rabo quando a fusão concordou em alguns itens', () => {
+    // Perfil real de consulta dentro do recorte, medido em 14/08/2026: topo em
+    // 0,025 e cauda abaixo do piso.
+    const r = filtraContexto(oito([0.025, 0.022, 0.019, 0.017, 0.0159, 0.0155, 0.0152, 0.0149]))
+    expect(r.itens).toHaveLength(4)
+    expect(r.fraco).toBe(false)
+  })
+
+  it('marca como fraca a recuperação em que nenhuma perna concordou', () => {
+    // Perfil real de consulta FORA do corpus: todas as quatro medidas deram o
+    // mesmo topo, 1/61 — a assinatura de uma perna sozinha.
+    const r = filtraContexto(oito([0.0164, 0.0161, 0.0159, 0.0156, 0.0154, 0.0152, 0.0149, 0.0147]))
+    expect(r.fraco).toBe(true)
+    // Não zera: a resposta gerada para pergunta fora do corpus é boa, e ela
+    // precisa de algo para apontar ao dizer o que o acervo cobre.
+    expect(r.itens).toHaveLength(3)
+  })
+
+  it('NÃO aplica o piso a endereço direto', () => {
+    // `resolveDireto` responde "art. 33 da Lei de Drogas" lendo o artigo pelo
+    // id, sem fusão, e grava score 0 em tudo. Se este teste cair, a consulta
+    // mais literal do produto volta a chegar vazia ao modelo.
+    const r = filtraContexto(oito([0, 0, 0, 0, 0, 0, 0, 0]), true)
+    expect(r.itens).toHaveLength(8)
+    expect(r.fraco).toBe(false)
+  })
+
+  it('o piso é derivado dos parâmetros da RPC, não escolhido a olho', () => {
+    // `p_k = 60`, menor peso 1.0 → 1/61. Se a migration mudar, isto tem de
+    // mudar junto, e é por isso que o número não mora solto no código.
+    expect(PISO_DE_FUSAO).toBeCloseTo(1 / 61, 10)
+  })
+
+  it('não mexe em recuperação já curta', () => {
+    const r = filtraContexto(oito([0.0164, 0.0159, 0.0154]))
+    expect(r.itens).toHaveLength(3)
+    expect(r.fraco).toBe(false)
   })
 })
 

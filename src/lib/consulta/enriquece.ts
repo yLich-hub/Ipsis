@@ -61,10 +61,45 @@ export function enriquece(
   // Só as fontes que resolvem para um achado — a validação já garante que todas
   // resolvem, e este filtro é a segunda linha, para o caso de alguém chamar
   // `enriquece` sem validar antes.
-  const usadas = dados.sources
-    .map((f) => ({ f, a: porId.get(f.doc_id) }))
-    .filter((x): x is { f: (typeof dados.sources)[number]; a: Achado } => !!x.a)
+  const resolvidas = dados.sources
+    .map((f, i) => ({ f, a: porId.get(f.doc_id), i }))
+    .filter((x): x is { f: (typeof dados.sources)[number]; a: Achado; i: number } => !!x.a)
+
+  /**
+   * A PRIMEIRA citação de cada parágrafo — e só ela.
+   *
+   * O corte em quatro cartões é antigo e continua certo: lista maior deixa de
+   * ser lida. O que estava errado era cortar pelo fim. O modelo lista as fontes
+   * por importância, mas nada o obriga a citar as quatro primeiras — numa
+   * consulta real por "art. 33 da Lei de Drogas" ele devolveu oito fontes e
+   * citou `[[1], [2,3,4,5,6], [7,8]]`. O terceiro parágrafo apontava para a
+   * sétima, que o corte descartava, e ficava sem superíndice: ancorado nos
+   * dados e órfão na tela, justamente depois de a âncora virar obrigatória.
+   *
+   * **Priorizar "toda fonte citada" não resolve**, e essa foi a primeira
+   * tentativa: naquele caso as oito estavam citadas, então o critério não
+   * decidia nada e o corte continuava caindo nas quatro primeiras.
+   *
+   * O conjunto certo é o das primeiras citações, porque é exatamente o que
+   * `numeroDe` consulta logo abaixo. E ele cabe por construção: o esquema pede
+   * de 2 a 4 parágrafos, então são no máximo 4 — o mesmo `MAX_FONTES`.
+   */
+  const principais = new Set(
+    dados.paragraphs
+      .filter((p) => p.text.trim().length > 0)
+      .map((p) => p.citations[0])
+      .filter((c): c is number => c !== undefined),
+  )
+
+  // Ordena por "é primeira citação de algum parágrafo?" para escolher quem
+  // sobrevive ao corte, e depois devolve os sobreviventes à ordem original.
+  // Assim a lista continua sendo a que o modelo escolheu — a única decisão que
+  // ele toma sobre ela — e nenhum parágrafo perde o marcador por posição.
+  const usadas = resolvidas
+    .slice()
+    .sort((x, y) => Number(principais.has(y.f.id)) - Number(principais.has(x.f.id)) || x.i - y.i)
     .slice(0, MAX_FONTES)
+    .sort((x, y) => x.i - y.i)
 
   /** Do id que o modelo usou para o número que a tela mostra. */
   const numeroDe = new Map(usadas.map((x, i) => [x.f.id, String(i + 1)]))
