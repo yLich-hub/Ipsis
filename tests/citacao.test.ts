@@ -22,15 +22,21 @@ import { resolve } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { describe, expect, it } from 'vitest'
 
-const RAIZ = resolve(import.meta.dirname, '..')
-const NORMALIZADO = resolve(RAIZ, 'data/normalizado')
-const CURADORIA = resolve(RAIZ, 'data/curadoria')
+import { CURADORIA, NORMALIZADO, seComCorpus, temCorpus } from './corpus.ts'
 
 // --- fontes ------------------------------------------------------------------
 
-/** Ids de dispositivo que realmente existem, lidos da saída do normalize. */
+/**
+ * Ids de dispositivo que realmente existem, lidos da saída do normalize.
+ *
+ * Devolve conjunto vazio quando `data/normalizado/` não está no clone — sem
+ * isso, `readdirSync` levanta ENOENT durante a COLETA do vitest e o arquivo
+ * inteiro fica vermelho antes de qualquer asserção rodar. Quem depende do
+ * corpus é pulado por `seComCorpus`; quem não depende continua valendo.
+ */
 function idsDoCorpus(): Set<string> {
   const ids = new Set<string>()
+  if (!temCorpus) return ids
   for (const arq of readdirSync(NORMALIZADO)) {
     if (!arq.endsWith('.json') || arq === 'relatorio.json') continue
     const doc = JSON.parse(readFileSync(resolve(NORMALIZADO, arq), 'utf8')) as {
@@ -92,7 +98,7 @@ const citacoesDe = (md: string) => [...md.matchAll(CITE)].map((m) => m[1]!)
 // --- o corpus existe ---------------------------------------------------------
 
 describe('corpus', () => {
-  it('data/normalizado/ tem dispositivos', () => {
+  seComCorpus('data/normalizado/ tem dispositivos', () => {
     expect(CORPUS.size).toBeGreaterThan(0)
   })
 })
@@ -104,7 +110,7 @@ describe('teses.yaml', () => {
     expect(TESES, 'data/curadoria/teses.yaml não encontrado').not.toBeNull()
   })
 
-  it('todo {{cite:}} resolve para um dispositivo do corpus', () => {
+  seComCorpus('todo {{cite:}} resolve para um dispositivo do corpus', () => {
     const quebradas: string[] = []
     for (const t of TESES ?? []) {
       for (const id of citacoesDe(t.template_md)) {
@@ -114,7 +120,7 @@ describe('teses.yaml', () => {
     expect(quebradas, `citações órfãs:\n  ${quebradas.join('\n  ')}`).toEqual([])
   })
 
-  it('todo fundamento resolve para um dispositivo do corpus', () => {
+  seComCorpus('todo fundamento resolve para um dispositivo do corpus', () => {
     const quebrados: string[] = []
     for (const t of TESES ?? []) {
       for (const id of t.fundamentos ?? []) {
@@ -174,7 +180,7 @@ describe('casos.yaml', () => {
     expect(CASOS, 'data/curadoria/casos.yaml não encontrado').not.toBeNull()
   })
 
-  it('toda imputação resolve para um dispositivo do corpus', () => {
+  seComCorpus('toda imputação resolve para um dispositivo do corpus', () => {
     const quebradas: string[] = []
     for (const c of CASOS ?? []) {
       for (const id of c.imputacao ?? []) {
@@ -236,7 +242,7 @@ describe('gatilho × fatos', () => {
 // --- rubricas curadas --------------------------------------------------------
 
 describe('rubricas.yaml', () => {
-  it('todo dispositivo de rubrica curada existe no corpus', () => {
+  seComCorpus('todo dispositivo de rubrica curada existe no corpus', () => {
     const quebrados: string[] = []
     for (const r of RUBRICAS ?? []) {
       for (const d of r.dispositivos ?? []) {

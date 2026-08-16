@@ -23,9 +23,7 @@ import { resolve } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { describe, expect, it } from 'vitest'
 
-const RAIZ = resolve(import.meta.dirname, '..')
-const NORMALIZADO = resolve(RAIZ, 'data/normalizado')
-const CURADORIA = resolve(RAIZ, 'data/curadoria')
+import { CURADORIA, NORMALIZADO, seComCorpus, temCorpus } from './corpus.ts'
 
 type Dispositivo = {
   id: string
@@ -70,9 +68,22 @@ type Redacao = {
   paragrafos?: { rotulo: string; texto: string }[]
 }
 
+/**
+ * Devolve mapas vazios quando `data/normalizado/` não está no clone.
+ *
+ * O guard `seComCorpus` daqui já existia, mas cobria só as asserções — esta
+ * leitura roda no escopo do módulo, antes de qualquer `it`, e `readdirSync`
+ * levantava ENOENT na COLETA. O efeito era o oposto do pretendido: a suíte que
+ * anunciava tratar o clone novo era a única que morria nele. Conferido movendo
+ * a pasta e rodando a suíte inteira.
+ *
+ * Diretório ausente e diretório vazio precisam do mesmo tratamento, e só o
+ * segundo era coberto pelo `dispositivos.size > 0`.
+ */
 function corpus() {
   const dispositivos = new Map<string, Dispositivo>()
   const artigos = new Map<string, Artigo>()
+  if (!temCorpus) return { dispositivos, artigos }
   for (const arq of readdirSync(NORMALIZADO)) {
     if (!arq.endsWith('.json') || arq === 'relatorio.json') continue
     const doc = JSON.parse(readFileSync(resolve(NORMALIZADO, arq), 'utf8')) as {
@@ -91,13 +102,6 @@ const REDACOES: Redacao[] = existsSync(arquivo)
   : []
 
 const { dispositivos, artigos } = corpus()
-const temCorpus = dispositivos.size > 0
-
-// `data/normalizado/` é ignorado pelo git — num clone novo ele não existe até
-// alguém rodar `npm run normalize`, e o PDF de origem também não está no
-// repositório. Pular com o motivo impresso é o que o lado Python já faz em
-// `exige_corpus`; falhar aqui puniria quem clonou, não quem quebrou.
-const seComCorpus = temCorpus ? it : it.skip
 
 describe('redações posteriores à data de corte', () => {
   it('a curadoria existe e não está vazia', () => {

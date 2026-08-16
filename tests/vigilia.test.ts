@@ -32,16 +32,31 @@ import {
   virouNorma,
 } from '@/lib/vigilia/alvos'
 import { FONTES, fonte } from '@/lib/vigilia/fontes'
+import { NORMALIZADO, seComCorpus, temCorpus } from './corpus.ts'
 
 
-/** Os ids de artigo do corpus, lidos da mesma fonte que o seed escreve. */
+/**
+ * Os ids de artigo do corpus, lidos da mesma fonte que o seed escreve.
+ *
+ * Conjunto vazio quando `data/normalizado/` não está no clone — antes, o
+ * `readFileSync` aqui no topo do módulo levantava ENOENT na COLETA e derrubava
+ * as 35 asserções de uma vez, inclusive as 31 que testam o filtro e não tocam o
+ * corpus. Eram justamente as que mais importam: **o filtro é a peça que pode
+ * errar em silêncio**, e perdê-las por causa de um arquivo ausente é o pior
+ * troco possível.
+ *
+ * Só as duas que conferem "o id gerado existe mesmo?" dependem do corpus, e são
+ * essas que `seComCorpus` pula.
+ */
 const idsDoCorpus = new Set<string>(
-  ALVOS.flatMap((a) => {
-    const j = JSON.parse(
-      readFileSync(join(process.cwd(), 'data', 'normalizado', `${a.leiId}.json`), 'utf8'),
-    ) as { artigos: { id: string }[] }
-    return j.artigos.map((art) => art.id)
-  }),
+  !temCorpus
+    ? []
+    : ALVOS.flatMap((a) => {
+        const j = JSON.parse(
+          readFileSync(join(NORMALIZADO, `${a.leiId}.json`), 'utf8'),
+        ) as { artigos: { id: string }[] }
+        return j.artigos.map((art) => art.id)
+      }),
 )
 
 /** Ementas reais. A origem de cada uma está no comentário. */
@@ -221,7 +236,7 @@ describe('artigosDe — o vínculo com as teses', () => {
     expect(artigosDe(e, tocaOCorpus(e))).toEqual(['lei_11343_2006_art33'])
   })
 
-  it('todo id gerado existe de verdade no corpus', () => {
+  seComCorpus('todo id gerado existe de verdade no corpus', () => {
     // A mesma trava de `citacao.test.ts`, pelo mesmo motivo: id que não abre
     // nada é pior que nenhum id. Confere contra `data/normalizado/`, que é o que
     // o seed escreve, para rodar no CI sem rede e sem segredo.
@@ -272,7 +287,7 @@ describe('soArtigo — o encontro entre a vigília e as teses', () => {
     expect(soArtigo('dl_2848_1940_art59')).toBe('dl_2848_1940_art59')
   })
 
-  it('todo fundamento da curadoria reduz a um artigo que existe no corpus', () => {
+  seComCorpus('todo fundamento da curadoria reduz a um artigo que existe no corpus', () => {
     // Este é o teste que faz o vínculo valer alguma coisa. Se um sufixo novo
     // entrar na curadoria e `soArtigo` não o reconhecer, o id reduzido não casa
     // com nada e o "Impacto nas teses" silenciosamente vira zero — que é

@@ -17,8 +17,9 @@ import { inflateRawSync } from 'node:zlib'
 import { resolve } from 'node:path'
 
 import { parse as parseYaml } from 'yaml'
-import { describe, expect, it } from 'vitest'
+import { describe, expect } from 'vitest'
 
+import { CURADORIA, NORMALIZADO, seComCorpus, temCorpus } from './corpus.ts'
 import { pecaEmDocx } from '@/lib/peca/docx'
 import {
   type CasoResolvivel,
@@ -28,10 +29,6 @@ import {
   idsNecessarios,
   resolvePeca,
 } from '@/lib/peca/resolver'
-
-const RAIZ = resolve(import.meta.dirname, '..')
-const NORMALIZADO = resolve(RAIZ, 'data/normalizado')
-const CURADORIA = resolve(RAIZ, 'data/curadoria')
 
 // --- fonte ------------------------------------------------------------------
 
@@ -43,9 +40,16 @@ type LinhaNormalizada = {
   revogado?: boolean
 }
 
-/** O mesmo mapa que `carregaCitados` monta do banco, montado do disco. */
+/**
+ * O mesmo mapa que `carregaCitados` monta do banco, montado do disco.
+ *
+ * Vazio quando `data/normalizado/` não está no clone: `readdirSync` levantaria
+ * ENOENT na coleta do vitest, e o arquivo inteiro ficaria vermelho antes de
+ * qualquer asserção. Quem depende do corpus é pulado por `seComCorpus`.
+ */
 function mapaDoCorpus(): Map<string, Citado> {
   const mapa = new Map<string, Citado>()
+  if (!temCorpus) return mapa
   for (const arq of readdirSync(NORMALIZADO)) {
     if (!arq.endsWith('.json') || arq === 'relatorio.json') continue
     const doc = JSON.parse(readFileSync(resolve(NORMALIZADO, arq), 'utf8')) as {
@@ -118,18 +122,18 @@ const textoDoDocx = (buf: Buffer) => parteDoDocx(buf, 'word/document.xml')
 // --- montagem ---------------------------------------------------------------
 
 describe('montagem da minuta', () => {
-  it('há corpus, teses e casos para montar', () => {
+  seComCorpus('há corpus, teses e casos para montar', () => {
     expect(CORPUS.size).toBeGreaterThan(0)
     expect(TESES.length).toBeGreaterThan(0)
     expect(CASOS.length).toBeGreaterThan(0)
   })
 
-  it('todo id necessário existe no corpus', () => {
+  seComCorpus('todo id necessário existe no corpus', () => {
     const faltando = idsNecessarios(TESES).filter((id) => !CORPUS.has(id))
     expect(faltando, `ids sem dispositivo: ${faltando.join(', ')}`).toEqual([])
   })
 
-  it('cada caso monta sem citação órfã, e com citação de verdade', () => {
+  seComCorpus('cada caso monta sem citação órfã, e com citação de verdade', () => {
     for (const c of CASOS) {
       const aplicaveis = TESES.filter((t) => aplicaA(t, c))
       const peca = resolvePeca(c, aplicaveis, CORPUS)
@@ -150,7 +154,7 @@ describe('montagem da minuta', () => {
     }
   })
 
-  it('nenhum marcador cru sobrevive à montagem', () => {
+  seComCorpus('nenhum marcador cru sobrevive à montagem', () => {
     for (const c of CASOS) {
       const peca = resolvePeca(c, TESES.filter((t) => aplicaA(t, c)), CORPUS)
       const prosa = peca.teses
@@ -162,7 +166,7 @@ describe('montagem da minuta', () => {
     }
   })
 
-  it('citação órfã derruba a montagem — não gera minuta parcial', () => {
+  seComCorpus('citação órfã derruba a montagem — não gera minuta parcial', () => {
     const vitima = TESES[0]!
     const quebrada: TeseResolvivel = {
       ...vitima,
@@ -178,7 +182,7 @@ describe('montagem da minuta', () => {
     }
   })
 
-  it('fundamento órfão também derruba, mesmo sem marcador no template', () => {
+  seComCorpus('fundamento órfão também derruba, mesmo sem marcador no template', () => {
     const vitima = TESES[0]!
     const quebrada: TeseResolvivel = {
       ...vitima,
@@ -191,7 +195,7 @@ describe('montagem da minuta', () => {
 // --- o arquivo --------------------------------------------------------------
 
 describe('.docx gerado', () => {
-  it('é um zip válido, com o texto legal lido da fonte dentro', async () => {
+  seComCorpus('é um zip válido, com o texto legal lido da fonte dentro', async () => {
     const c = CASOS[0]!
     const aplicaveis = TESES.filter((t) => aplicaA(t, c))
     const peca = resolvePeca(c, aplicaveis, CORPUS)
@@ -218,7 +222,7 @@ describe('.docx gerado', () => {
     }
   })
 
-  it('imprime a data de corte no rodapé — a decisão nº 3 sobrevive ao download', async () => {
+  seComCorpus('imprime a data de corte no rodapé — a decisão nº 3 sobrevive ao download', async () => {
     const c = CASOS[0]!
     const peca = resolvePeca(c, TESES.filter((t) => aplicaA(t, c)), CORPUS)
     const rodape = parteDoDocx(await pecaEmDocx(peca), 'word/footer1.xml')
@@ -231,7 +235,7 @@ describe('.docx gerado', () => {
   // em redação posterior à fotografia — e a peça cita um: o art. 65 do Código
   // Penal, atenuantes, alterado pela Lei 15.160/2025. Carimbar 28/02/2025 sobre
   // esse texto seria a decisão nº 3 mentindo dentro do arquivo protocolado.
-  it('o rodapé diz quando a redação transcrita é posterior à data de corte', async () => {
+  seComCorpus('o rodapé diz quando a redação transcrita é posterior à data de corte', async () => {
     const comConferido = CASOS.map((c) => resolvePeca(c, TESES.filter((t) => aplicaA(t, c)), CORPUS))
       .find((p) => p.conferidos.length > 0)
 
@@ -251,7 +255,7 @@ describe('.docx gerado', () => {
     }
   })
 
-  it('caso sem tese aplicável gera peça que diz isso, em vez de peça vazia', async () => {
+  seComCorpus('caso sem tese aplicável gera peça que diz isso, em vez de peça vazia', async () => {
     const c = CASOS[0]!
     const peca = resolvePeca(c, [], CORPUS)
     const xml = textoDoDocx(await pecaEmDocx(peca))
