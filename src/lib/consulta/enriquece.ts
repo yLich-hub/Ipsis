@@ -15,6 +15,7 @@
 // =============================================================================
 
 import type { Achado } from '@/lib/busca/consultar'
+import type { Citavel } from '@/lib/vigilia/precedentes'
 import type { RespostaIA } from '@/lib/consulta/contrato'
 import type { Fonte, Paragrafo, Passo, RespostaComposta } from '@/lib/toga/resposta'
 import { dataBR } from '@/lib/formato'
@@ -55,15 +56,26 @@ export function enriquece(
   dados: RespostaIA,
   achados: Achado[],
   passos: Passo[],
+  precedentes: Citavel[] = [],
 ): RespostaComposta {
   const porId = new Map(achados.map((a) => [a.dispositivo_id, a]))
+  const porPrecedente = new Map(precedentes.map((p) => [p.docId, p]))
 
-  // Só as fontes que resolvem para um achado — a validação já garante que todas
-  // resolvem, e este filtro é a segunda linha, para o caso de alguém chamar
-  // `enriquece` sem validar antes.
+  // Um `source` resolve para um dispositivo OU para um precedente. A validação
+  // já garante que todos resolvem; este filtro é a segunda linha, para o caso
+  // de alguém chamar `enriquece` sem validar antes. Os dois são
+  // citáveis; o que muda é o cartão que a tela desenha — e o selo, que no
+  // dispositivo vem da vigência e no precedente vem da situação no STJ.
   const resolvidas = dados.sources
-    .map((f, i) => ({ f, a: porId.get(f.doc_id), i }))
-    .filter((x): x is { f: (typeof dados.sources)[number]; a: Achado; i: number } => !!x.a)
+    .map((f, i) => ({ f, a: porId.get(f.doc_id), p: porPrecedente.get(f.doc_id), i }))
+    .filter(
+      (x): x is {
+        f: (typeof dados.sources)[number]
+        a: Achado | undefined
+        p: Citavel | undefined
+        i: number
+      } => !!x.a || !!x.p,
+    )
 
   /**
    * A PRIMEIRA citação de cada parágrafo — e só ela.
@@ -104,23 +116,38 @@ export function enriquece(
   /** Do id que o modelo usou para o número que a tela mostra. */
   const numeroDe = new Map(usadas.map((x, i) => [x.f.id, String(i + 1)]))
 
-  const fontes: Fonte[] = usadas.map((x, i) => ({
-    n: String(i + 1),
-    titulo: CITACAO_CURTA(x.a),
-    sub:
-      x.a.rubrica_termo && x.a.papel
-        ? `rubrica “${x.a.rubrica_termo}” · ${x.a.papel}`
-        : (x.a.artigo_rubrica ?? x.a.lei_apelido),
-    // Selo e tom do banco, nunca do modelo. É a decisão nº 3 virando código no
-    // caminho ao vivo exatamente como vira no caminho composto.
-    selo: x.a.revogado
-      ? 'Revogado'
-      : x.a.cobertura === 'parcial'
-        ? 'Cobertura parcial'
-        : 'Em vigor',
-    tom: x.a.revogado || x.a.cobertura === 'parcial' ? 'ambar' : 'verde',
-    id: x.a.dispositivo_id,
-  }))
+  const fontes: Fonte[] = usadas.map((x, i) => {
+    // Precedente: o selo é a situação no STJ, que é o análogo da vigência.
+    if (x.p) {
+      return {
+        n: String(i + 1),
+        titulo: `${x.p.rotulo} do STJ`,
+        sub: 'precedente qualificado — jurisprudência, não texto de lei',
+        selo: x.p.situacao,
+        tom: 'verde' as const,
+        id: x.p.docId,
+      }
+    }
+
+    const a = x.a!
+    return {
+      n: String(i + 1),
+      titulo: CITACAO_CURTA(a),
+      sub:
+        a.rubrica_termo && a.papel
+          ? `rubrica “${a.rubrica_termo}” · ${a.papel}`
+          : (a.artigo_rubrica ?? a.lei_apelido),
+      // Selo e tom do banco, nunca do modelo. É a decisão nº 3 virando código no
+      // caminho ao vivo exatamente como vira no caminho composto.
+      selo: a.revogado
+        ? 'Revogado'
+        : a.cobertura === 'parcial'
+          ? 'Cobertura parcial'
+          : 'Em vigor',
+      tom: a.revogado || a.cobertura === 'parcial' ? ('ambar' as const) : ('verde' as const),
+      id: a.dispositivo_id,
+    }
+  })
 
   const paras: Paragrafo[] = dados.paragraphs
     .filter((p) => p.text.trim().length > 0)
@@ -132,7 +159,9 @@ export function enriquece(
       cite: numeroDe.get(p.citations[0] ?? -1) ?? null,
     }))
 
-  const primeiro = usadas[0]?.a
+  // A data de corte é do CORPUS. Precedente tem situação, não vigência — e
+  // pegar a dele aqui carimbaria a resposta com a data errada.
+  const primeiro = usadas.find((x) => x.a)?.a
 
   return {
     passos,
@@ -142,7 +171,7 @@ export function enriquece(
     // O medidor de confiança continua contando dispositivo em vigor, e não lendo
     // o `confidence` do modelo: o número que a tela mostra é verificável na
     // mesma tela, e a autoavaliação de um modelo não é.
-    primarias: usadas.filter((x) => !x.a.revogado).length,
+    primarias: usadas.filter((x) => (x.a && !x.a.revogado) || x.p).length,
     vigencia: primeiro ? dataBR(primeiro.vigencia_ate) : null,
     erro: null,
   }

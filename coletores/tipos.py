@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 # `planalto` e `dou` são fontes de norma JÁ PUBLICADA; `camara` e `senado`, de
 # proposição em tramitação. A distinção não é cosmética: só a primeira metade
 # fura a data de corte.
-FONTES = ("camara", "senado", "planalto", "dou", "datajud")
+FONTES = ("camara", "senado", "planalto", "dou", "datajud", "stj")
 
 
 @dataclass
@@ -83,6 +83,60 @@ class Metrica:
 
 
 @dataclass
+class Precedente:
+    """Um tema qualificado do STJ.
+
+    Separado de ``Achado`` de propósito: um achado é "alguém quer mudar a lei";
+    um precedente é "o STJ decidiu como a lei se lê". Misturá-los faria a tela
+    de alterações mostrar entendimento jurisprudencial como se fosse projeto de
+    lei — e é assim que um painel começa a mentir.
+    """
+
+    id: str
+    tipo: str
+    numero: str
+    situacao: str
+    """Vocabulário do STJ: 'Trânsito em Julgado', 'Cancelada', 'Sobrestado'…
+    É o campo que justifica esta fonte existir — ver ``coletores/stj.py``."""
+
+    escopo: str
+    """``drogas`` ou ``parte_geral``. Por que o tema entrou no recorte."""
+
+    tese_firmada: str | None = None
+    questao: str | None = None
+    entendimento_anterior: str | None = None
+    historico: str | None = None
+    ref_legislativa: str | None = None
+    ref_sumular: str | None = None
+    sumula_originada: str | None = None
+    julgado_em: str | None = None
+    publicado_em: str | None = None
+    afetado_em: str | None = None
+    artigos_tocados: list[str] = field(default_factory=list)
+
+    def linha(self) -> dict:
+        """A forma que ``public.precedentes_stj`` espera."""
+        return {
+            "id": self.id,
+            "tipo": self.tipo[:60],
+            "numero": self.numero,
+            "situacao": self.situacao,
+            "tese_firmada": self.tese_firmada,
+            "questao": self.questao,
+            "entendimento_anterior": self.entendimento_anterior,
+            "historico": self.historico,
+            "ref_legislativa": self.ref_legislativa,
+            "ref_sumular": self.ref_sumular,
+            "sumula_originada": self.sumula_originada,
+            "julgado_em": self.julgado_em,
+            "publicado_em": self.publicado_em,
+            "afetado_em": self.afetado_em,
+            "escopo": self.escopo,
+            "artigos_tocados": self.artigos_tocados,
+        }
+
+
+@dataclass
 class Colheita:
     """O que uma fonte devolve. Erro é valor, não exceção: uma fonte fora do ar
     não pode derrubar as outras quatro."""
@@ -90,6 +144,7 @@ class Colheita:
     fonte: str
     achados: list[Achado] = field(default_factory=list)
     metricas: list[Metrica] = field(default_factory=list)
+    precedentes: list[Precedente] = field(default_factory=list)
     vistos: int = 0
     erro: str | None = None
     ms: int = 0

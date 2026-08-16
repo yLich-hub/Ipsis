@@ -20,7 +20,12 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { LeitorDeTexto, PISO_DE_FUSAO, filtraContexto } from '@/lib/consulta/aovivo'
+import {
+  LeitorDeTexto,
+  PISO_DE_FUSAO,
+  filtraContexto,
+  montarPrecedentes,
+} from '@/lib/consulta/aovivo'
 import { enriquece } from '@/lib/consulta/enriquece'
 import { recado, transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
 
@@ -391,5 +396,92 @@ describe('leitura incremental do JSON', () => {
       .join('')
     expect(saida.trim()).toBe('café e pão')
     expect(new LeitorDeTexto().empurra(cru).trim()).toBe('café e pão')
+  })
+})
+
+describe('precedentes no contexto', () => {
+  const CITAVEL = [
+    {
+      docId: 'stj:4200',
+      rotulo: 'Tema 1139',
+      situacao: 'Trânsito em Julgado',
+      tese: 'É vedada a utilização de inquéritos e ações penais em curso para afastar o § 4º.',
+      artigos: ['lei_11343_2006_art33'],
+    },
+  ]
+
+  it('marca o precedente com tag própria, não como dispositivo', () => {
+    // São duas autoridades: o dispositivo diz o que a lei escreve, o precedente
+    // diz como o STJ a lê. Sem a distinção na marcação, o modelo escreve sobre
+    // a tese com o peso do texto legal — e a resposta afirma como lei o que é
+    // interpretação.
+    const b = montarPrecedentes(CITAVEL)
+    expect(b).toContain('<precedente doc_id="stj:4200"')
+    expect(b).not.toContain('<dispositivo')
+    expect(b).toContain('NÃO texto de lei')
+  })
+
+  it('leva a situação para o contexto', () => {
+    expect(montarPrecedentes(CITAVEL)).toContain('situacao="Trânsito em Julgado"')
+  })
+
+  it('sem precedente, não acrescenta nada ao contexto', () => {
+    expect(montarPrecedentes([])).toBe('')
+  })
+
+  it('o precedente vira cartão com a situação como selo', () => {
+    // O selo do dispositivo vem da vigência; o do precedente, da situação no
+    // STJ. São o mesmo papel: dizer se aquilo ainda vale.
+    const comp = enriquece(
+      {
+        paragraphs: [{ text: 'O STJ firmou entendimento sobre o ponto.', citations: [1] }],
+        sources: [{ id: 1, doc_id: 'stj:4200' }],
+        confidence: 'alta' as const,
+        followups: [],
+      },
+      [],
+      [],
+      CITAVEL,
+    )
+
+    expect(comp.fontes).toHaveLength(1)
+    expect(comp.fontes[0]!.selo).toBe('Trânsito em Julgado')
+    expect(comp.fontes[0]!.titulo).toContain('Tema 1139')
+    expect(comp.paras[0]!.cite).toBe('1')
+  })
+
+  it('a data de corte continua saindo do corpus, nunca do precedente', () => {
+    // Precedente tem situação, não vigência. Se a data do rodapé passasse a sair
+    // dele, a resposta seria carimbada com uma data que não é a do corpus.
+    const achado = {
+      dispositivo_id: 'lei_11343_2006_art33_p4',
+      citacao: 'art. 33, § 4º',
+      texto: 'x',
+      revogado: false,
+      cobertura: 'integral',
+      vigencia_ate: '2025-02-28',
+      lei_apelido: 'Lei 11.343',
+      artigo_rubrica: null,
+      rubrica_termo: null,
+      papel: null,
+    } as never
+
+    const comp = enriquece(
+      {
+        paragraphs: [{ text: 'Um parágrafo.', citations: [1] }],
+        // o precedente vem PRIMEIRO na lista, e mesmo assim não define a data
+        sources: [
+          { id: 1, doc_id: 'stj:4200' },
+          { id: 2, doc_id: 'lei_11343_2006_art33_p4' },
+        ],
+        confidence: 'alta' as const,
+        followups: [],
+      },
+      [achado],
+      [],
+      CITAVEL,
+    )
+
+    expect(comp.vigencia).toBe('28/02/2025')
   })
 })

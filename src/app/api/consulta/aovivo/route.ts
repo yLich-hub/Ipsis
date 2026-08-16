@@ -21,7 +21,9 @@
 import { NextResponse } from 'next/server'
 
 import { consultar } from '@/lib/busca/consultar'
-import { gerarAoVivo, temChave, type EventoAoVivo } from '@/lib/consulta/aovivo'
+import { filtraContexto, gerarAoVivo, temChave, type EventoAoVivo } from '@/lib/consulta/aovivo'
+import { precedentesPara } from '@/lib/vigilia/precedentes'
+import { soArtigo } from '@/lib/vigilia/alvos'
 import { supabase } from '@/lib/supabase'
 import { passosDa } from '@/lib/toga/resposta'
 
@@ -141,9 +143,19 @@ export async function POST(req: Request) {
         // fixo no JSX, repetido num lugar em que ninguém foi procurar.
         manda({ tipo: 'passo', t: 'Redigindo com o contexto recuperado', meta: 'modelo do servidor' })
 
+        // Os precedentes são alcançados pelos ARTIGOS dos dispositivos que
+        // sobreviveram ao piso de fusão — não pelos oito brutos. Passar a busca
+        // inteira faria um dispositivo de cauda arrastar um precedente para a
+        // resposta, que é o mesmo ruído que o piso existe para cortar.
+        const { itens } = filtraContexto(busca.itens, busca.direta)
+        const precedentes = await precedentesPara([
+          ...new Set(itens.map((i) => soArtigo(i.dispositivo_id))),
+        ])
+
         for await (const evento of gerarAoVivo({
           pergunta: q,
           achados: busca.itens,
+          precedentes,
           // Endereço explícito não passou pela fusão e tem score 0 — o piso de
           // contexto tem de saber disso, ou zeraria a consulta mais literal.
           direta: busca.direta,

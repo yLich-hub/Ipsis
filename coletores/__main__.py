@@ -22,14 +22,16 @@ import os
 import pathlib
 import re
 
-from coletores import camara, datajud, dou, inlabs, planalto, senado
-from coletores.banco import SemCredencial, grava_achados, grava_metricas, ids_conhecidos
+from coletores import camara, datajud, dou, inlabs, planalto, senado, stj
+from coletores.banco import SemCredencial, grava_achados, grava_metricas, grava_precedentes
+from coletores.banco import situacoes_atuais
+from coletores.banco import ids_conhecidos
 from coletores.banco import para_disco, registra
 from coletores.config import carrega
 from coletores.rede import Sessao
 from coletores.tipos import Colheita
 
-FONTES = ("planalto", "camara", "senado", "dou", "datajud")
+FONTES = ("planalto", "camara", "senado", "dou", "datajud", "stj")
 
 # Quantas normas confirmar no Diário por execução.
 #
@@ -137,6 +139,10 @@ def principal(argv: list[str] | None = None) -> int:
             c = camara.colhe(sessao, janela, cfg)
         elif nome == "senado":
             c = senado.colhe(sessao, janela, cfg)
+        elif nome == "stj":
+            # Precedente qualificado não tem janela: um tema de 2015 continua
+            # valendo (ou continua cancelado) hoje, e as duas coisas importam.
+            c = stj.colhe(sessao)
         else:
             c = datajud.colhe(sessao, cfg)
         c.ms = int((time.time() - t) * 1000)
@@ -256,11 +262,13 @@ def _confirma_no_dou(sessao, colheitas: list[Colheita], cfg) -> Colheita:
 
 
 def _relata(c: Colheita) -> None:
-    corpo = (
-        f"{len(c.metricas)} contagens"
-        if c.fonte == "datajud"
-        else f"{c.vistos} vistos · {len(c.achados)} tocam o corpus"
-    )
+    if c.fonte == "datajud":
+        corpo = f"{len(c.metricas)} contagens"
+    elif c.fonte == "stj":
+        alerta = sum(1 for p in c.precedentes if p.situacao.lower().startswith(("cancel", "sobrest")))
+        corpo = f"{c.vistos} temas · {len(c.precedentes)} no recorte · {alerta} cancelados/sobrestados"
+    else:
+        corpo = f"{c.vistos} vistos · {len(c.achados)} tocam o corpus"
     marca = "ok    " if c.ok else "FALHOU"
     print(f"· {c.fonte:<9} {marca} {corpo} · {c.ms} ms")
     if c.erro:
@@ -284,6 +292,17 @@ def _detalha(colheitas: list[Colheita]) -> None:
         print("\n· nenhuma norma publicada altera o corpus na janela consultada")
 
     for c in colheitas:
+        if c.precedentes:
+            alerta = [p for p in c.precedentes if p.situacao.lower().startswith(("cancel", "sobrest"))]
+            print(f"\n· stj — {len(c.precedentes)} precedentes no recorte:")
+            for p in [x for x in c.precedentes if x.tese_firmada][:8]:
+                print(f"  [{p.tipo} {p.numero}] {p.situacao} · {p.escopo}")
+                print(f"    {p.tese_firmada[:110]}")
+            if alerta:
+                print(f"\n  ATENÇÃO: {len(alerta)} cancelados ou sobrestados —")
+                for p in alerta[:6]:
+                    print(f"    [{p.tipo} {p.numero}] {p.situacao}")
+
         if c.metricas:
             print(f"\n· {c.fonte} — jurimetria (contagem, não fonte de texto):")
             for m in c.metricas:
@@ -293,6 +312,29 @@ def _detalha(colheitas: list[Colheita]) -> None:
 def _grava(colheitas: list[Colheita]) -> int:
     try:
         for c in colheitas:
+            if c.precedentes:
+                # O "antes" tem de ser lido ANTES do upsert: ele sobrescreve
+                # `situacao` em silêncio, e depois a informação já se perdeu.
+                antes = situacoes_atuais([p.id for p in c.precedentes])
+                novos = sum(1 for p in c.precedentes if p.id not in antes)
+                mudou = stj.mudancas(c.precedentes, antes)
+
+                grava_precedentes(c.precedentes)
+                # Mudança de situação vira achado da vigília: um tema que deixa
+                # de ser citável é o mesmo tipo de evento que uma lei alterada —
+                # algo que o usuário confiava e não vale mais.
+                if mudou:
+                    grava_achados(mudou)
+                registra(c, novos)
+
+                print(
+                    f"· {c.fonte}: {len(c.precedentes)} precedentes · {novos} inéditos"
+                    + (f" · {len(mudou)} MUDARAM de situação" if mudou else "")
+                )
+                for m in mudou:
+                    print(f"    {m.identificacao}: {m.ementa[:96]}")
+                continue
+
             if c.metricas:
                 grava_metricas(c.metricas)
                 registra(c, len(c.metricas))
