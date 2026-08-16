@@ -793,6 +793,38 @@ assim que uma tela fica com o nome antigo depois de uma troca de marca. Não é
 arquivo de configuração: não se lê de variável de ambiente e não há tela para
 editar, porque marca é decisão de produto, muda em commit e se revisa em diff.
 
+### O movimento
+
+O vocabulário vem do documento com os nomes dele (`tgUp`, `tgIn`, `tgPop`…) e as
+classes são `tg-sobe`, `tg-entra`, `tg-desliza`, `tg-pipoca`, mais `.tgb` e
+`.tgc` para o toque de botão e de cartão. Quatro peças foram acrescentadas onde a
+tela mudava sem avisar:
+
+| Classe | Onde | Por quê |
+|---|---|---|
+| `tg-tela` | `Casca`, com `key` no caminho | uma navegação trocava o conteúdo sem nenhum sinal de que trocou |
+| `tg-lista` | achados da vigília, cartões de jurisprudência, índice de artigos, dispositivos | o olho lê de cima para baixo em vez de topar com um bloco pronto |
+| `tg-abre` | cartão de dosimetria no chat | ele saltava de 48 px para 300 px num quadro e empurrava a conversa |
+| `tg-realce` | dispositivo em destaque | toda citação abre o artigo inteiro, e num artigo de trinta blocos o fundo estático não diz onde olhar |
+
+Três decisões dentro disso:
+
+- **`tg-lista` anima só os dez primeiros.** O índice do CPP tem 825 linhas, e 825
+  elementos com `transform` na mesma frame travam a rolagem. O sinal é para a
+  primeira tela; o resto já está lá quando se chega nele.
+- **`tg-abre` usa `grid-template-rows: 0fr → 1fr`**, que é o único jeito de animar
+  até "a altura que o conteúdo tiver" sem medir em JavaScript — e o conteúdo
+  fechado leva `inert`, senão trocar desmontagem por animação viraria um defeito
+  de acesso: o que está escondido continuaria no caminho do Tab.
+- **As regras de movimento reduzido passaram a zerar o *atraso* também.** Duração
+  0,01 ms com atraso intacto não é "sem movimento": é o conteúdo chegando 234 ms
+  depois e piscando. Valia para as duas portas — a media query e o
+  `data-movimento="reduzido"` das Configurações.
+
+Nada disso é movimento decorativo: cada um marca uma mudança que aconteceu de
+verdade. Continua valendo a regra da tela de Fontes — barra de progresso não
+chega a 100% antes do resultado, e esqueleto só onde a espera existe.
+
 ### As sete telas
 
 | Rota | Tela | De onde vêm os dados |

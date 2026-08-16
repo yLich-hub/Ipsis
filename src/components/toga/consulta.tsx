@@ -886,65 +886,78 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
         </span>
       </button>
 
-      {aberto && (
-        <div className="border-t border-tg-linha-fraca px-4 pb-4 pt-3">
-          {chips.length > 0 ? (
-            <div className="mb-3 flex flex-wrap gap-1.5">
-              {chips.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-md bg-tg-acento-fraco px-2 py-0.5 text-[11.5px] text-tg-acento-txt"
-                >
-                  {t}
-                </span>
+      {/*
+        Abre com a altura real, por `grid-template-rows: 0fr → 1fr`. Antes o
+        conteúdo era montado e desmontado, e o cartão saltava de 48px para 300px
+        num quadro só — o que empurra a conversa inteira para baixo sem que o
+        olho acompanhe. `max-height` chutado alto faria o fechamento parecer
+        lento; a grade mede sozinha.
+
+        `inert` quando fechado é o que impede o conteúdo escondido de continuar
+        no caminho do Tab e na leitura do leitor de tela. Sem ele, animar em vez
+        de desmontar seria trocar um salto visual por um defeito de acesso.
+      */}
+      <div className="tg-abre" data-aberto={aberto ? 'sim' : 'nao'}>
+        <div inert={!aberto}>
+          <div className="border-t border-tg-linha-fraca px-4 pb-4 pt-3">
+            {chips.length > 0 ? (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {chips.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-md bg-tg-acento-fraco px-2 py-0.5 text-[11.5px] text-tg-acento-txt"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="mb-3 text-[12px] leading-relaxed text-tg-fraco-3">
+                Nada de dosimetria foi reconhecido nesta pergunta — o cálculo abaixo usa o cenário
+                padrão. Escreva fatos como “réu primário”, “confessou”, “reincidente” ou “grande
+                quantidade” para o cartão lê-los.
+              </p>
+            )}
+
+            <div className="grid grid-cols-3 gap-2">
+              {fases.map((f) => (
+                <div key={f.k} className="rounded-lg bg-tg-preenche px-3 py-2.5">
+                  <p className="text-[10.5px] uppercase tracking-wider text-tg-fraco-3">{f.k}</p>
+                  <p className="mt-0.5 text-[15px] font-medium tabular-nums text-tg-tinta">{f.v}</p>
+                  <p className="mt-0.5 text-[11px] leading-tight text-tg-fraco-3">{f.d}</p>
+                </div>
               ))}
             </div>
-          ) : (
-            <p className="mb-3 text-[12px] leading-relaxed text-tg-fraco-3">
-              Nada de dosimetria foi reconhecido nesta pergunta — o cálculo abaixo usa o cenário
-              padrão. Escreva fatos como “réu primário”, “confessou”, “reincidente” ou “grande
-              quantidade” para o cartão lê-los.
-            </p>
-          )}
 
-          <div className="grid grid-cols-3 gap-2">
-            {fases.map((f) => (
-              <div key={f.k} className="rounded-lg bg-tg-preenche px-3 py-2.5">
-                <p className="text-[10.5px] uppercase tracking-wider text-tg-fraco-3">{f.k}</p>
-                <p className="mt-0.5 text-[15px] font-medium tabular-nums text-tg-tinta">{f.v}</p>
-                <p className="mt-0.5 text-[11px] leading-tight text-tg-fraco-3">{f.d}</p>
-              </div>
-            ))}
-          </div>
-
-          <div
-            className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl px-4 py-3"
-            style={{ background: GRADIENTE_RESULTADO }}
-          >
-            <span className="font-tg-serif text-[20px] leading-none text-white">
-              {meses(c.definitiva)}
-            </span>
-            <span className="text-[11.5px] text-white/70">
-              regime inicial {c.regime}
-              {c.abaixoDoMinimo ? ' · abaixo do mínimo pelo § 4º' : ''}
-            </span>
-            <span className="flex-1" />
-            <Link
-              href="/dosimetria"
-              className="rounded-lg bg-white/95 px-2.5 py-1.5 text-[11.5px] font-medium text-tg-acento-txt hover:bg-white"
+            <div
+              className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl px-4 py-3"
+              style={{ background: GRADIENTE_RESULTADO }}
             >
-              Abrir na ferramenta →
-            </Link>
-          </div>
+              <span className="font-tg-serif text-[20px] leading-none text-white">
+                {meses(c.definitiva)}
+              </span>
+              <span className="text-[11.5px] text-white/70">
+                regime inicial {c.regime}
+                {c.abaixoDoMinimo ? ' · abaixo do mínimo pelo § 4º' : ''}
+              </span>
+              <span className="flex-1" />
+              <Link
+                href="/dosimetria"
+                className="rounded-lg bg-white/95 px-2.5 py-1.5 text-[11.5px] font-medium text-tg-acento-txt hover:bg-white"
+              >
+                Abrir na ferramenta →
+              </Link>
+            </div>
 
-          <p className="mt-2.5 text-[11px] leading-relaxed text-tg-tenue-2">
-            Estimativa, não parecer. Usa as frações majoritárias (1/8 do intervalo por
-            circunstância, art. 42 com peso dobrado) e respeita a Súmula 231 na segunda fase. O
-            regime sai das faixas do art. 33, § 2º, do CP, sem a fundamentação concreta que as
-            Súmulas 440/STJ e 719/STF exigem.
-          </p>
+            <p className="mt-2.5 text-[11px] leading-relaxed text-tg-tenue-2">
+              Estimativa, não parecer. Usa as frações majoritárias (1/8 do intervalo por
+              circunstância, art. 42 com peso dobrado) e respeita a Súmula 231 na segunda fase. O
+              regime sai das faixas do art. 33, § 2º, do CP, sem a fundamentação concreta que as
+              Súmulas 440/STJ e 719/STF exigem.
+            </p>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

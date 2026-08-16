@@ -239,7 +239,7 @@ export function Fontes({
             {lista.length === 0 ? (
               <Vazia total={alteracoes.length} dataDeCorte={dataDeCorte} />
             ) : (
-              <ul>
+              <ul className="tg-lista">
                 {lista.map((a) => (
                   <Linha
                     key={a.id}

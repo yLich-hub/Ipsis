@@ -151,14 +151,20 @@ export async function PaginaArtigo({
       )}
 
       {/* ---------- texto ---------- */}
-      <div className="mt-6 divide-y divide-white/[0.05] overflow-hidden rounded-xl border border-tg-linha bg-white">
+      <div className="tg-lista mt-6 divide-y divide-white/[0.05] overflow-hidden rounded-xl border border-tg-linha bg-white">
         {ds.dados.map((d) => {
           const marcado = d.id === destaque
           return (
             <div
               key={d.id}
               id={d.id}
-              className={`scroll-mt-6 px-4 py-3 ${marcado ? 'bg-tg-acento-fraco ring-1 ring-inset ring-tg-acento-palido' : ''}`}
+              // `tg-realce` só no marcado: toda citação do produto abre o
+              // artigo inteiro e destaca um bloco, e num artigo de trinta
+              // dispositivos o fundo estático não diz onde olhar. O realce some
+              // em 1,5 s e o fundo permanente fica.
+              className={`scroll-mt-6 px-4 py-3 ${
+                marcado ? 'tg-realce bg-tg-acento-fraco ring-1 ring-inset ring-tg-acento-palido' : ''
+              }`}
             >
               <div className={`flex gap-3 ${RECUO[d.tipo]}`}>
                 <span
@@ -197,7 +203,7 @@ export async function PaginaArtigo({
                   // Vai para o chat com a rubrica já consultada. É a mesma busca
                   // híbrida da página `/busca`, que saiu por ser a duplicata dela.
                   href={`/consulta?p=${encodeURIComponent(r.termo)}`}
-                  className="flex items-center gap-1.5 rounded-lg border border-tg-linha bg-tg-fundo px-2.5 py-1.5 text-[12.5px] text-tg-tinta-4 transition-colors hover:border-tg-acento-palido hover:text-tg-acento-txt"
+                  className="tgb flex items-center gap-1.5 rounded-lg border border-tg-linha bg-tg-fundo px-2.5 py-1.5 text-[12.5px] text-tg-tinta-4 hover:border-tg-acento-palido hover:text-tg-acento-txt"
                   title={
                     r.origem === 'oficial'
                       ? 'Rubrica marginal do Vade Mecum, devolvida ao dispositivo certo pela limpeza'
@@ -218,7 +224,7 @@ export async function PaginaArtigo({
         {viz.anterior ? (
           <Link
             href={`/artigo/${viz.anterior.id}`}
-            className="flex min-w-0 items-center gap-2 text-[13px] text-tg-corpo hover:text-tg-acento-txt"
+            className="flex min-w-0 items-center gap-2 text-[13px] text-tg-corpo transition-colors hover:text-tg-acento-txt"
           >
             <Icone nome="seta_esquerda" className="size-4 shrink-0" />
             <span className="truncate">
@@ -232,7 +238,7 @@ export async function PaginaArtigo({
         {viz.proximo && (
           <Link
             href={`/artigo/${viz.proximo.id}`}
-            className="ml-auto flex min-w-0 items-center gap-2 text-[13px] text-tg-corpo hover:text-tg-acento-txt"
+            className="ml-auto flex min-w-0 items-center gap-2 text-[13px] text-tg-corpo transition-colors hover:text-tg-acento-txt"
           >
             <span className="truncate">
               {tituloArtigo(viz.proximo.numero)}

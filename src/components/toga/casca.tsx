@@ -49,6 +49,7 @@ import {
   leMovimentoReduzido,
 } from '@/lib/toga/preferencias'
 import { GRADIENTE_CONTA, GRADIENTE_MARCA, MATIZ } from '@/lib/toga/tokens'
+import { MARCA } from '@/lib/toga/marca'
 
 // --- mapa de telas -----------------------------------------------------------
 
@@ -251,8 +252,8 @@ export function Lateral({
             href="/consulta"
             className="flex min-w-0 items-center gap-2.5"
             onClick={aoFechar}
-            aria-label="Toga — início"
-            title={colapsada ? 'Toga' : undefined}
+            aria-label={`${MARCA.nome} — início`}
+            title={colapsada ? MARCA.nome : undefined}
           >
             <span
               className="grid size-8 shrink-0 place-items-center rounded-[11px] font-tg-serif text-[15px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
@@ -262,7 +263,7 @@ export function Lateral({
             </span>
             <span className={`min-w-0 ${colapsada ? 'lg:hidden' : ''}`}>
               <span className="block text-[15.5px] font-semibold leading-[1.1] -tracking-[0.01em] text-tg-tinta">
-                Toga
+                {MARCA.nome}
               </span>
               <span className="block truncate text-[11px] leading-[1.3] text-tg-fraco-2">
                 Advocacia criminal
@@ -562,7 +563,7 @@ export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
     const exato = CABECALHOS[caminho]
     if (exato) return exato
     const prefixo = Object.keys(CABECALHOS).find((k) => caminho.startsWith(`${k}/`))
-    return prefixo ? CABECALHOS[prefixo]! : ['Toga', '']
+    return prefixo ? CABECALHOS[prefixo]! : [MARCA.nome, '']
   }, [caminho])
 
   useEffect(() => {
@@ -912,7 +913,21 @@ export function Casca({ children }: { children: React.ReactNode }) {
       />
       <div className="flex min-w-0 flex-1 flex-col bg-tg-fundo">
         <Topo aoAbrirMenu={() => setMenu(true)} />
-        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
+        {/*
+          A `key` no caminho é o que faz a entrada tocar a cada navegação: sem
+          ela o elemento sobrevive à troca de rota, e uma animação só toca quando
+          o nó nasce. Fica no wrapper, e não no `<main>`, para o `flex` da casca
+          não depender de um nó que remonta.
+
+          Só a área de conteúdo se move. Lateral e topo ficam parados de
+          propósito — o que mudou foi a tela, e mover a moldura junto faria toda
+          navegação parecer um recarregamento.
+        */}
+        <main className="flex min-h-0 flex-1 flex-col">
+          <div key={caminho} className="tg-tela flex min-h-0 flex-1 flex-col">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   )

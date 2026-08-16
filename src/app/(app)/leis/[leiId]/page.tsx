@@ -134,7 +134,7 @@ export default async function LeiPage({
               </Vazio>
             </div>
           ) : (
-            <ul className="mt-3 space-y-px pb-8">
+            <ul className="tg-lista mt-3 space-y-px pb-8">
               {artigos.map((a) => {
                 const h = heading(a)
                 const novoHeading = h && h !== ultimoHeading
