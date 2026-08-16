@@ -78,6 +78,22 @@ class Sessao:
     validade_horas: int = 12
     _s: requests.Session | None = None
 
+    #: Prazo da fonte em curso, em `time.monotonic()`. `None` é sem prazo.
+    #:
+    #: Existe porque **o timeout por requisição não limita a execução**. Cada
+    #: URL custa até `tentativas × timeout` mais a espera crescente — 183 s no
+    #: padrão —, e com paginação em seis fontes isso passa de meia hora sem que
+    #: nada esteja quebrado do ponto de vista de cada chamada.
+    #:
+    #: Foi o que derrubou as duas execuções agendadas do Actions: elas batiam no
+    #: `timeout-minutes: 25` do job, eram mortas no meio da primeira fonte e não
+    #: gravavam **nada** — nem o que as outras cinco teriam colhido. O disparo
+    #: manual, no mesmo dia, terminava em 60 s.
+    #:
+    #: Com prazo, uma fonte pendurada vira `colheita.erro` — que é como o resto
+    #: do pacote já trata fonte fora do ar — e as outras seguem e gravam.
+    prazo: float | None = None
+
     def __post_init__(self) -> None:
         self._s = requests.Session()
         self._s.headers.update({"User-Agent": AGENTE, "Accept-Encoding": "gzip, deflate"})
@@ -144,12 +160,31 @@ class Sessao:
         except ValueError as e:
             raise FalhaDeRede(f"{urlsplit(url).netloc} respondeu algo que não é JSON") from e
 
+    def _resta(self) -> float | None:
+        """Segundos até o prazo da fonte. `None` quando não há prazo."""
+        if self.prazo is None:
+            return None
+        return self.prazo - time.monotonic()
+
     def _tenta(self, metodo: str, url: str, **kw: Any) -> requests.Response:
         assert self._s is not None
-        kw.setdefault("timeout", self.timeout)
         ultima: Exception | None = None
 
         for n in range(self.tentativas):
+            # O prazo é conferido ANTES de cada tentativa, e não só no começo:
+            # é a repetição que consome o orçamento, e uma fonte lenta gasta
+            # tudo no retry sem nunca dar erro.
+            resta = self._resta()
+            if resta is not None and resta <= 0:
+                raise FalhaDeRede(
+                    f"{urlsplit(url).netloc}: orçamento da fonte esgotado"
+                    + (f" ({ultima})" if ultima else "")
+                )
+
+            # O timeout da requisição também não pode ultrapassar o prazo, senão
+            # a última tentativa sozinha o estoura por até `timeout` segundos.
+            kw["timeout"] = self.timeout if resta is None else max(1.0, min(self.timeout, resta))
+
             self._respira(url)
             try:
                 r = self._s.request(metodo, url, **kw)
@@ -166,6 +201,12 @@ class Sessao:
                 ultima = FalhaDeRede(f"{r.status_code} {r.reason}")
 
             if n < self.tentativas - 1:
-                time.sleep(2**n)
+                # Esperar mais do que resta do orçamento é gastar o prazo
+                # dormindo, para acordar e desistir.
+                espera = 2**n
+                resta = self._resta()
+                if resta is not None:
+                    espera = min(espera, max(0.0, resta))
+                time.sleep(espera)
 
         raise FalhaDeRede(f"{urlsplit(url).netloc}: {ultima}")

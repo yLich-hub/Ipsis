@@ -52,6 +52,18 @@ TETO_DOU = 12
 # ontem ou em 2019.
 JANELA_DIAS = 60
 
+#: Segundos que cada fonte tem antes de ser abandonada.
+#:
+#: Uma execução saudável inteira leva ~40 s, as seis fontes somadas — então 180 s
+#: por fonte é folga larga, não aperto. O que ele impede é o caso patológico: com
+#: `tentativas=3` e `timeout=60`, uma única URL pendurada custa 183 s, e a Câmara
+#: pagina. Sem teto, seis fontes assim passam de meia hora.
+#:
+#: O número foi escolhido contra o `timeout-minutes: 25` do job no Actions: seis
+#: fontes × 180 s = 18 min de pior caso absoluto, e ainda sobra para o `pip
+#: install`. Se o teto do job mudar, este número muda junto.
+ORCAMENTO_POR_FONTE = 180
+
 
 def _carrega_env_local() -> None:
     """Lê ``.env.local`` quando ele existe, para a CLI rodar na máquina de quem
@@ -104,6 +116,12 @@ def principal(argv: list[str] | None = None) -> int:
     p.add_argument("--seco", action="store_true", help="roda sem gravar em lugar nenhum")
     p.add_argument("--para-disco", action="store_true", help="grava em data/vigilia/")
     p.add_argument("--sem-cache", action="store_true", help="ignora o cache de páginas")
+    p.add_argument(
+        "--orcamento",
+        type=int,
+        default=ORCAMENTO_POR_FONTE,
+        help=f"segundos por fonte antes de desistir dela (padrão {ORCAMENTO_POR_FONTE}; 0 desliga)",
+    )
     args = p.parse_args(argv)
 
     cfg = carrega()
@@ -133,24 +151,46 @@ def principal(argv: list[str] | None = None) -> int:
             continue
 
         t = time.time()
-        if nome == "planalto":
-            c = planalto.colhe(sessao, cfg)
-        elif nome == "camara":
-            c = camara.colhe(sessao, janela, cfg)
-        elif nome == "senado":
-            c = senado.colhe(sessao, janela, cfg)
-        elif nome == "stj":
-            # Precedente qualificado não tem janela: um tema de 2015 continua
-            # valendo (ou continua cancelado) hoje, e as duas coisas importam.
-            c = stj.colhe(sessao)
-        else:
-            c = datajud.colhe(sessao, cfg)
+        # Prazo por fonte, rearmado a cada uma. Ver `Sessao.prazo`: sem isto,
+        # uma fonte pendurada consome o job inteiro no retry e as outras cinco
+        # nunca rodam — foi o que matou as execuções agendadas do Actions.
+        sessao.prazo = time.monotonic() + args.orcamento if args.orcamento else None
+
+        try:
+            if nome == "planalto":
+                c = planalto.colhe(sessao, cfg)
+            elif nome == "camara":
+                c = camara.colhe(sessao, janela, cfg)
+            elif nome == "senado":
+                c = senado.colhe(sessao, janela, cfg)
+            elif nome == "stj":
+                # Precedente qualificado não tem janela: um tema de 2015 continua
+                # valendo (ou continua cancelado) hoje, e as duas coisas importam.
+                c = stj.colhe(sessao)
+            else:
+                c = datajud.colhe(sessao, cfg)
+        except Exception as e:  # noqa: BLE001
+            # Os coletores já convertem `FalhaDeRede` em `colheita.erro`, que é a
+            # regra do pacote: "erro é valor, não exceção". Isto é a rede de
+            # segurança para o que escapar — um `KeyError` de HTML mudado não
+            # pode custar as outras fontes e a gravação do que já funcionou.
+            c = Colheita(fonte=nome, erro=f"{type(e).__name__}: {e}")
+
         c.ms = int((time.time() - t) * 1000)
         colheitas.append(c)
         _relata(c)
 
+    sessao.prazo = None
+
     if "dou" in fontes:
-        colheitas.append(_confirma_no_dou(sessao, colheitas, cfg))
+        # O DOU também ganha prazo: ele faz uma consulta por norma confirmada, e
+        # é o que mais depende de busca web quando falta credencial do INLABS.
+        sessao.prazo = time.monotonic() + args.orcamento if args.orcamento else None
+        try:
+            colheitas.append(_confirma_no_dou(sessao, colheitas, cfg))
+        except Exception as e:  # noqa: BLE001
+            colheitas.append(Colheita(fonte="dou", erro=f"{type(e).__name__}: {e}"))
+        sessao.prazo = None
 
     if args.seco:
         _detalha(colheitas)

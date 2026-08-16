@@ -1118,7 +1118,7 @@ nada. `.venv/Scripts/python -m coletores --seco` faz o mesmo com as seis fontes,
 incluindo o scraping — é como se confere o que o filtro está pegando antes de
 encher a tabela. `--tudo` faz a carga inicial, que nenhum dos dois crons faz.
 
-`.venv/Scripts/python -m pytest coletores -q` roda as 79 asserções do lado
+`.venv/Scripts/python -m pytest coletores -q` roda as 85 asserções do lado
 Python, offline e sem segredo, como as nove suítes do vitest.
 
 ### Jurisprudência: precedentes qualificados do STJ
@@ -1382,7 +1382,7 @@ mexe na interface. Os coletores têm a própria suíte, com o mesmo critério �
 offline, sem segredo:
 
 ```
-.venv/Scripts/python -m pytest coletores -q      # 79 asserções
+.venv/Scripts/python -m pytest coletores -q      # 85 asserções
 ```
 
 `tests/vigilia.test.ts` e `coletores/tests/test_filtro.py` testam a **mesma
