@@ -480,7 +480,7 @@ mentira que este produto pode contar.
 `leDaConversa()`, por regra, em TS, com 16 asserções travando a conta — pedir a
 mesma extração ao modelo criaria um segundo extrator para divergir do primeiro.
 
-**As cinco recusas de `valida()`**, todas no servidor, todas testadas offline:
+**As seis recusas de `valida()`**, todas no servidor, todas testadas offline:
 
 | Recusa | Por quê |
 |---|---|
@@ -489,6 +489,7 @@ mesma extração ao modelo criaria um segundo extrator para divergir do primeiro
 | forma diferente do esquema | segunda camada, para o dia em que o esquema mudar |
 | **transcrição de lei** | doze palavras seguidas iguais às de um dispositivo do contexto e a resposta cai: a decisão nº 1 diz que texto legal nunca é gerado, e "gerar" inclui copiar do contexto para a prosa |
 | **parágrafo sem âncora** | todo parágrafo tem de citar ao menos uma fonte — ver abaixo |
+| **letra fora do alfabeto latino** | observado numa geração real: `"não é um अपराधo autônomo"`, devanágari no lugar de "crime". Nenhuma das outras alcança — o parágrafo cita, não transcreve e tem a forma certa. A regra é allowlist por escrita e só sobre letras, então `ã`, `§`, `⅔` e aspas tipográficas passam |
 
 **A quinta entrou por último, e fecha a fresta que as outras quatro deixavam.**
 Elas garantem que o que o modelo CITA veio da busca; nenhuma obrigava a citar.
@@ -677,7 +678,7 @@ Cor nova que possa ser classe **tem** que ser classe.
 | Rota | Tela | De onde vêm os dados |
 |---|---|---|
 | `/consulta` | chat, painel de fonte, dosimetria e histórico | `/api/busca` + `conversas` |
-| `/jurisprudencia` | entendimento consolidado | `teses.jurisprudencia` (jsonb) |
+| `/jurisprudencia` | entendimento consolidado + precedentes do STJ | `teses.jurisprudencia` + `precedentes_stj` |
 | `/dosimetria` | cálculo trifásico ao vivo | aritmética local, sem banco |
 | `/vademecum` | grade de ramos + leitor | índice do acervo, em disco |
 | `/clientes` | cadastro do escritório | `clientes` (RLS por sessão) |
@@ -816,8 +817,8 @@ estaria perdida pela porta dos fundos. A vigília avisa; quem corrige é gente,
 rodando `vade_parser.py` sobre a nova redação e conferindo o diff. Por isso ela
 pode errar sem estragar nada, e é o que permite que o filtro seja heurístico.
 
-**As cinco fontes do desenho existem.** Três delas rodam em Python, em
-`coletores/` — detalhe completo em `coletores/README.md`.
+**As cinco fontes do desenho existem, e entrou uma sexta.** Quatro rodam em
+Python, em `coletores/` — detalhe completo em `coletores/README.md`.
 
 | Fonte | O que entrega | Onde roda |
 |---|---|---|
@@ -826,6 +827,7 @@ pode errar sem estragar nada, e é o que permite que o filtro seja heurístico.
 | Senado | processos e `normaGerada`, com data de publicação no DOU | Vercel (TS) |
 | DOU | confirma publicação da norma e guarda o endereço oficial | Python |
 | DataJud | contagem de processos por assunto | Python |
+| **STJ** | precedentes qualificados, com a situação de cada tema | Python |
 
 **A coleta é de dois andares, e isso é decisão.** O Vercel Cron roda o andar
 leve — Câmara e Senado, duas APIs REST que cabem numa função serverless e
@@ -937,12 +939,79 @@ Conferido no banco: sem sessão, `select` devolve 0 linhas e `insert`/`update`
 devolvem 42501.
 
 `npm run vigilia -- --seco` roda as duas APIs do andar leve e o filtro sem gravar
-nada. `.venv/Scripts/python -m coletores --seco` faz o mesmo com as cinco fontes,
+nada. `.venv/Scripts/python -m coletores --seco` faz o mesmo com as seis fontes,
 incluindo o scraping — é como se confere o que o filtro está pegando antes de
 encher a tabela. `--tudo` faz a carga inicial, que nenhum dos dois crons faz.
 
-`.venv/Scripts/python -m pytest coletores -q` roda as 35 asserções do lado
+`.venv/Scripts/python -m pytest coletores -q` roda as 59 asserções do lado
 Python, offline e sem segredo, como as oito suítes do vitest.
+
+### Jurisprudência: precedentes qualificados do STJ
+
+`precedentes_stj` (migration 0014), 61 temas do Portal de Dados Abertos do STJ,
+sob licença Creative Commons Atribuição. A tela `/jurisprudencia` sai de 15
+entradas escritas à mão para 76.
+
+**Por que temas e não ementas, que é a fonte óbvia.** As ementas do STJ também
+são abertas e há muito mais delas — 718 sobre a Lei 11.343 num único mês, só na
+Quinta Turma. Mas o dump de ementas não tem campo de vigência: medido em
+14/08/2026, `tema` e `termosAuxiliares` vêm vazios em 3.326 de 3.326 registros.
+Uma ementa de junho pode ter sido superada em agosto e o arquivo não diz.
+
+Indexá-las seria construir, ao lado de um corpus auditado e datado, uma base
+incapaz de dizer se o que mostra ainda vale — a decisão nº 3 perdida pela porta
+dos fundos, com acórdão no lugar de lei. O dataset de temas tem `situacao`,
+`entendimentoAnterior` e o histórico de mudança: é o análogo honesto de
+`leis.vigencia_ate`.
+
+**O caso que fixou as regras é o Tema 600** — *"o tráfico privilegiado não é
+equiparado a hediondo"*. É a resposta mais procurada do recorte e está
+`Revisado`. Dos 61 temas, 14 estão cancelados ou sobrestados.
+
+**O recorte foi medido, não estimado.** Só drogas dá 34 temas; aceitar qualquer
+artigo do Código Penal dá 87, sendo 53 sobre homicídio, roubo e estelionato. A
+lista fechada de parte geral em `data/curadoria/precedentes.yaml` (dosimetria,
+atenuantes, concurso, prescrição) traz 27 que valem para qualquer defesa —
+o Tema 585, sobre compensar confissão com reincidência, serve tanto a um tráfico
+quanto a um roubo.
+
+**No contexto do chat entram só 18: trânsito em julgado E com tese firmada.**
+Os 39 sem tese têm apenas a `questao` — a pergunta que o STJ vai responder, não
+a resposta —, e um modelo com uma questão submetida na frente escreve como se
+ela estivesse decidida. Os afetados, sobrestados e revisados continuam na TELA,
+com selo âmbar: lá são informação sob ressalva; na prosa virariam afirmação.
+
+A consequência é visível e é o desenho funcionando: perguntado se o tráfico
+privilegiado é hediondo, o chat continua dizendo que não sabe, porque o Tema 600
+está revisado. Já "inquéritos em curso afastam o § 4º?" — que antes não tinha
+resposta — passou a ser respondida pelo Tema 1139.
+
+**Sem embedding novo e sem tocar em `busca_hibrida`.** Os precedentes já estão
+pendurados no grafo de artigos da decisão nº 1, então o alcance é por
+interseção: o tema entra quando compartilha artigo com um dispositivo
+recuperado — e são os artigos do contexto **já filtrado pelo piso de fusão**.
+
+No contexto eles usam tag própria, `<precedente situacao="...">`, nunca
+`<dispositivo>`. São duas autoridades: uma diz o que a lei escreve, a outra como
+o STJ a lê. O efeito apareceu na saída sem ser pedido — o modelo passou a
+escrever "a resposta aqui é jurisprudencial, porque o dispositivo legal só
+descreve os requisitos".
+
+**Mudança de situação vira achado da vigília.** O upsert sobrescrevia `situacao`
+em silêncio, e um tema saindo de trânsito em julgado para cancelado é o mesmo
+tipo de evento que uma lei alterada. `situacoes_atuais()` lê o estado anterior
+ANTES de gravar; `mudancas()` é pura e distingue os três casos — saiu do
+contexto, entrou no contexto, mudou entre duas situações não citáveis.
+`CITAVEL` existe nos dois runtimes e um teste falha se divergirem.
+
+**Nada disto vira fundamento de peça.** Tabela separada, sem FK para
+`dispositivos`, fora da minuta. Precedente interpreta a lei e a interpretação
+muda; o `.docx` continua citando só dispositivo conferido e datado. É a mesma
+separação do acervo Vade Mecum.
+
+**Limite conhecido:** 6 dos 18 citáveis não têm artigo vinculado e são
+inalcançáveis pelo grafo. Aparecem na tela, não no chat. Resolver exigiria
+embedding próprio — vale quando a falta for sentida, não antes.
 
 ### O chat é a tela principal
 
@@ -1084,7 +1153,7 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As oito suítes (125 asserções) rodam **offline**, sem segredo: `citacao`, `peca` e
+As oito suítes (143 asserções) rodam **offline**, sem segredo: `citacao`, `peca` e
 `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco, e
 `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 
@@ -1112,7 +1181,7 @@ mexe na interface. Os coletores têm a própria suíte, com o mesmo critério �
 offline, sem segredo:
 
 ```
-.venv/Scripts/python -m pytest coletores -q      # 35 asserções
+.venv/Scripts/python -m pytest coletores -q      # 59 asserções
 ```
 
 `tests/vigilia.test.ts` e `coletores/tests/test_filtro.py` testam a **mesma
