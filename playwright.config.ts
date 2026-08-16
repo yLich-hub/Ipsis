@@ -29,6 +29,12 @@ const PORTA = 3100
 
 export default defineConfig({
   testDir: './e2e',
+  // Antes de qualquer teste: o `.next` está servindo JavaScript? Um `next build`
+  // entre duas execuções deixa o servidor de desenvolvimento sem os chunks, o
+  // React não hidrata, e a suíte inteira falha falando de seletor e de timeout.
+  // Detecta e diz o que fazer — não conserta, porque o conserto (apagar o
+  // `.next` sempre) cobraria recompilação em toda execução. Ver o arquivo.
+  globalSetup: './e2e/confere-build.ts',
   // Um trabalhador só: os testes compartilham a mesma conta e as mesmas linhas
   // no banco (a agenda de clientes, o histórico). Paralelizar faria um teste
   // apagar a linha que o outro acabou de criar.
