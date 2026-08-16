@@ -159,6 +159,39 @@ def grava_metricas(metricas: Iterable[Metrica]) -> int:
     return len(linhas)
 
 
+def situacoes_atuais(ids: list[str]) -> dict[str, str]:
+    """A situação que cada tema tem HOJE no banco, antes do upsert.
+
+    É o retrato de "antes" que `stj.mudancas` compara com o de "depois". Tem de
+    ser lido antes de gravar — o upsert sobrescreve `situacao` em silêncio, e
+    depois dele a informação já se perdeu.
+
+    Falha de leitura devolve dicionário vazio, e a consequência é benigna e
+    escolhida: sem o "antes", nenhuma mudança é detectada nesta execução e os
+    dados são gravados do mesmo jeito. Perder um aviso é ruim; deixar de
+    atualizar o banco por causa dele seria pior.
+    """
+    if not ids:
+        return {}
+
+    url, chave = _credenciais()
+    atual: dict[str, str] = {}
+
+    for i in range(0, len(ids), 100):
+        lote = ids[i : i + 100]
+        lista = ",".join(f'"{x}"' for x in lote)
+        r = requests.get(
+            f"{url}/rest/v1/precedentes_stj?select=id,situacao&id=in.({lista})",
+            headers=_cabecalhos(chave),
+            timeout=60,
+        )
+        if r.status_code >= 400:
+            return atual
+        atual.update({l["id"]: l["situacao"] for l in r.json()})
+
+    return atual
+
+
 def grava_precedentes(precedentes: Iterable[Precedente]) -> int:
     """Upsert por id estável (`stj:<sequencial>`).
 

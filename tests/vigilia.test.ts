@@ -365,6 +365,7 @@ describe('alvos e fontes', () => {
       'dou',
       'planalto',
       'senado',
+      'stj',
     ])
     // O Planalto é scraping de 900 KB por lei e o DataJud é consulta
     // Elasticsearch: nenhum dos dois cabe numa função serverless que serve
@@ -374,6 +375,7 @@ describe('alvos e fontes', () => {
       'datajud',
       'dou',
       'planalto',
+      'stj',
     ])
   })
 

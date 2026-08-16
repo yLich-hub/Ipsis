@@ -83,6 +83,16 @@ export const FONTES: Fonte[] = [
     matiz: MATIZ.rosa,
   },
   {
+    id: 'stj',
+    nome: 'STJ',
+    // Única fonte de jurisprudência do sistema, e a razão de ela ser esta:
+    // precedente qualificado tem situação controlada. Ementa não tem.
+    descricao: 'Precedentes qualificados, com a situação de cada tema. Avisa quando um deixa de valer.',
+    origem: 'dadosabertos.web.stj.jus.br',
+    motor: 'python',
+    matiz: MATIZ.musgo,
+  },
+  {
     id: 'datajud',
     nome: 'DataJud',
     // A descrição diz o que ele NÃO traz porque o card do desenho promete

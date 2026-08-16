@@ -35,7 +35,7 @@ import yaml
 from coletores.config import carrega as carrega_vigilia
 from coletores.filtro import artigos_de
 from coletores.rede import FalhaDeRede, Sessao
-from coletores.tipos import Colheita, Precedente
+from coletores.tipos import Achado, Colheita, Precedente
 
 RAIZ = Path(__file__).resolve().parent.parent
 CURADORIA = RAIZ / "data" / "curadoria" / "precedentes.yaml"
@@ -162,6 +162,93 @@ def _para_precedente(t: dict[str, str], escopo: str, texto: str, alvos) -> Prece
         escopo=escopo,
         artigos_tocados=artigos,
     )
+
+
+# --- mudança de situação -----------------------------------------------------
+
+# As situações que tornam um tema citável no chat. Espelha `CITAVEL` em
+# `src/lib/vigilia/precedentes.ts` — se as duas divergirem, a vigília avisa
+# sobre uma mudança que o chat não sofreu, ou cala sobre uma que sofreu.
+CITAVEL = "Trânsito em Julgado"
+
+
+def mudancas(precedentes: list[Precedente], antes: dict[str, str]) -> list[Achado]:
+    """Temas que mudaram de situação desde a última coleta, como achados da vigília.
+
+    **É isto que fecha o ciclo.** A razão de este projeto ter escolhido temas
+    qualificados em vez de ementas foi que esta fonte sabe dizer o que deixou de
+    valer — e essa garantia vale exatamente até a última coleta. Sem detectar a
+    mudança, o upsert sobrescreve `situacao` em silêncio e o sistema fica
+    congelado no dia em que alguém rodou o comando: a mesma armadilha da
+    fotografia de 28/02/2025, agora com jurisprudência.
+
+    O caso que importa é o tema que **deixa de ser citável**. Enquanto ele está
+    em trânsito em julgado, entra no contexto do chat e é afirmado com selo
+    verde; no dia em que for cancelado ou revisado, tem de sair — e alguém tem
+    de saber que saiu. É exatamente o que aconteceria com o Tema 600 se a coleta
+    o tivesse pego antes da revisão.
+
+    Puro: recebe o estado anterior pronto e não toca em banco, para poder ser
+    testado offline como o resto do filtro.
+
+    Tema novo não gera achado. Ele não *mudou* de nada, e a linha diria "situação
+    alterada de nada para trânsito em julgado", que é ruído.
+    """
+    saida: list[Achado] = []
+
+    for p in precedentes:
+        anterior = antes.get(p.id)
+        if not anterior or anterior == p.situacao:
+            continue
+
+        era_citavel = anterior == CITAVEL
+        virou_citavel = p.situacao == CITAVEL
+
+        # A lei sempre existe: vem do artigo quando dá, e do recorte quando não.
+        # `vigilia_alteracoes` exige `leis_tocadas` não vazio, e é a coluna que
+        # a tela usa para agrupar.
+        lei = "lei_11343_2006" if p.escopo == "drogas" else "dl_2848_1940"
+
+        if era_citavel and not virou_citavel:
+            aviso = "SAIU do contexto do chat — deixou de ser citável."
+        elif virou_citavel and not era_citavel:
+            aviso = "ENTROU no contexto do chat — passou a ser citável."
+        else:
+            aviso = "Segue fora do contexto do chat nas duas situações."
+
+        saida.append(
+            Achado(
+                # O id carrega a situação nova: cada transição é um fato próprio
+                # e fica no histórico. Sem ela, uma segunda mudança sobrescreveria
+                # o registro da primeira.
+                id=f"stj-mudanca:{p.id.split(':')[-1]}:{_chave(p.situacao)}",
+                fonte="stj",
+                identificacao=f"{p.tipo} {p.numero}"[:80],
+                ementa=(
+                    f"O STJ mudou a situação do {p.tipo} {p.numero} de "
+                    f"“{anterior}” para “{p.situacao}”. {aviso}"
+                    + (f" Tese firmada: {p.tese_firmada}" if p.tese_firmada else "")
+                ),
+                leis_tocadas=[lei],
+                artigos_tocados=list(p.artigos_tocados),
+                apresentado_em=p.julgado_em or "",
+                situacao=p.situacao,
+                # Precedente não é norma publicada. `virou_norma` marca "a lei
+                # mudou", e confundir os dois faria a tela contar mudança de
+                # jurisprudência como texto legal alterado.
+                virou_norma=False,
+                url="",
+            )
+        )
+
+    return saida
+
+
+def _chave(s: str) -> str:
+    """`Trânsito em Julgado` → `transito-em-julgado`. Para caber num id estável."""
+    from coletores.filtro import sem_acento
+
+    return re.sub(r"[^a-z0-9]+", "-", sem_acento(s)).strip("-")
 
 
 def _limpa(v: str | None) -> str | None:

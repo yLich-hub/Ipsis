@@ -17,8 +17,11 @@ from __future__ import annotations
 import csv
 import io
 
+from pathlib import Path
+
 from coletores import stj
 
+RAIZ = Path(__file__).resolve().parent.parent.parent
 CFG = stj.curadoria()
 
 
@@ -172,3 +175,64 @@ class TestCuradoria:
         alerta = {s.lower() for s in CFG["situacoes_de_alerta"]}
         assert "cancelada" in alerta
         assert "sobrestado" in alerta
+
+
+class TestMudancaDeSituacao:
+    """O que fecha o ciclo: um tema que deixa de valer tem de virar aviso."""
+
+    def prec(self, situacao: str, **extra):
+        c = recorta([tema(situacao=situacao, teseFirmada="Tráfico de drogas.", **extra)])
+        return c.precedentes[0]
+
+    def test_tema_novo_nao_gera_aviso(self):
+        # Ele não mudou de nada. "Situação alterada de nada para trânsito em
+        # julgado" seria ruído numa tela que existe para destacar o que importa.
+        p = self.prec("Trânsito em Julgado")
+        assert stj.mudancas([p], antes={}) == []
+
+    def test_situacao_igual_nao_gera_aviso(self):
+        p = self.prec("Trânsito em Julgado")
+        assert stj.mudancas([p], antes={p.id: "Trânsito em Julgado"}) == []
+
+    def test_deixar_de_ser_citavel_avisa_que_saiu_do_chat(self):
+        # O caso que justifica tudo. Enquanto o tema está em trânsito em
+        # julgado ele é afirmado no chat com selo verde; no dia em que for
+        # cancelado, tem de sair — e alguém tem de saber que saiu.
+        p = self.prec("Cancelada")
+        m = stj.mudancas([p], antes={p.id: "Trânsito em Julgado"})
+        assert len(m) == 1
+        assert "SAIU do contexto do chat" in m[0].ementa
+        assert "Trânsito em Julgado" in m[0].ementa and "Cancelada" in m[0].ementa
+
+    def test_virar_citavel_tambem_avisa(self):
+        p = self.prec("Trânsito em Julgado")
+        m = stj.mudancas([p], antes={p.id: "Sobrestado"})
+        assert "ENTROU no contexto do chat" in m[0].ementa
+
+    def test_mudanca_entre_duas_nao_citaveis(self):
+        p = self.prec("Cancelada")
+        m = stj.mudancas([p], antes={p.id: "Afetado"})
+        assert "Segue fora do contexto" in m[0].ementa
+
+    def test_o_achado_cabe_em_vigilia_alteracoes(self):
+        # `leis_tocadas` é `cardinality > 0` no banco (migration 0012). Um
+        # achado sem lei seria recusado pelo Postgres no meio da coleta.
+        p = self.prec("Cancelada")
+        linha = stj.mudancas([p], antes={p.id: "Trânsito em Julgado"})[0].linha()
+        assert linha["leis_tocadas"], "sem lei o insert é recusado pelo check do banco"
+        assert linha["virou_norma"] is False, "precedente não é norma publicada"
+        assert len(linha["identificacao"]) <= 80
+
+    def test_id_carrega_a_situacao_nova(self):
+        # Cada transição é um fato próprio e fica no histórico. Sem a situação
+        # no id, uma segunda mudança sobrescreveria o registro da primeira.
+        p = self.prec("Cancelada")
+        m = stj.mudancas([p], antes={p.id: "Trânsito em Julgado"})
+        assert m[0].id.endswith(":cancelada")
+        assert m[0].id.startswith("stj-mudanca:")
+
+    def test_citavel_espelha_o_lado_typescript(self):
+        # Se divergir de `CITAVEL` em `src/lib/vigilia/precedentes.ts`, a vigília
+        # avisa sobre mudança que o chat não sofreu — ou cala sobre uma que sofreu.
+        ts = (RAIZ / "src" / "lib" / "vigilia" / "precedentes.ts").read_text(encoding="utf-8")
+        assert f"const CITAVEL = '{stj.CITAVEL}'" in ts

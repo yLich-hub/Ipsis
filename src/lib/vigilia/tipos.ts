@@ -37,11 +37,15 @@ export type Candidato = Bruto & {
 }
 
 /**
- * As cinco fontes. Só as duas primeiras são coletadas pelo runtime TypeScript —
- * as outras três exigem scraping, extração de HTML e consulta Elasticsearch, e
- * moram em `coletores/`, em Python. A tela lê as cinco do mesmo jeito.
+ * As seis fontes. Só `camara` e `senado` são coletadas pelo runtime TypeScript;
+ * as outras quatro exigem scraping, extração de HTML, consulta Elasticsearch ou
+ * download de CSV, e moram em `coletores/`, em Python. A tela lê todas igual.
+ *
+ * `stj` é a única que não responde "a lei mudou?" — ela responde "o STJ mudou
+ * de ideia?". Compartilha a tabela de achados porque o efeito para quem lê é o
+ * mesmo: algo em que se confiava deixou de valer.
  */
-export type FonteId = 'camara' | 'senado' | 'planalto' | 'dou' | 'datajud'
+export type FonteId = 'camara' | 'senado' | 'planalto' | 'dou' | 'datajud' | 'stj'
 
 /** O que uma fonte devolve ao coletor. Erro é valor, não exceção. */
 export type Colheita =

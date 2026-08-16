@@ -24,6 +24,7 @@ import re
 
 from coletores import camara, datajud, dou, inlabs, planalto, senado, stj
 from coletores.banco import SemCredencial, grava_achados, grava_metricas, grava_precedentes
+from coletores.banco import situacoes_atuais
 from coletores.banco import ids_conhecidos
 from coletores.banco import para_disco, registra
 from coletores.config import carrega
@@ -312,9 +313,26 @@ def _grava(colheitas: list[Colheita]) -> int:
     try:
         for c in colheitas:
             if c.precedentes:
+                # O "antes" tem de ser lido ANTES do upsert: ele sobrescreve
+                # `situacao` em silêncio, e depois a informação já se perdeu.
+                antes = situacoes_atuais([p.id for p in c.precedentes])
+                novos = sum(1 for p in c.precedentes if p.id not in antes)
+                mudou = stj.mudancas(c.precedentes, antes)
+
                 grava_precedentes(c.precedentes)
-                registra(c, len(c.precedentes))
-                print(f"· {c.fonte}: {len(c.precedentes)} precedentes gravados")
+                # Mudança de situação vira achado da vigília: um tema que deixa
+                # de ser citável é o mesmo tipo de evento que uma lei alterada —
+                # algo que o usuário confiava e não vale mais.
+                if mudou:
+                    grava_achados(mudou)
+                registra(c, novos)
+
+                print(
+                    f"· {c.fonte}: {len(c.precedentes)} precedentes · {novos} inéditos"
+                    + (f" · {len(mudou)} MUDARAM de situação" if mudou else "")
+                )
+                for m in mudou:
+                    print(f"    {m.identificacao}: {m.ementa[:96]}")
                 continue
 
             if c.metricas:
