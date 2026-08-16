@@ -17,7 +17,7 @@
 // =============================================================================
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Chave, Segmentado } from '@/components/toga/base'
 import {
@@ -28,6 +28,7 @@ import {
   PREPONDERANTE,
   VETORES,
   calcula,
+  memorialDe,
   meses,
   type ChaveAgravante,
   type ChaveCausa,
@@ -53,12 +54,23 @@ export function Dosimetria() {
   const [causas, setCausas] = useState<Record<ChaveCausa, boolean>>(() => ({
     ...ENTRADA_PADRAO.causas,
   }))
-  const [memorial, setMemorial] = useState<0 | 1 | 2>(0)
+  /**
+   * Estado do botão de memorial. Antes era `0 | 1 | 2` com um `setTimeout` de
+   * 1400 ms entre o 1 e o 2 — "Gerando memorial…" e depois "Memorial pronto ✓"
+   * sem que nada tivesse sido gerado. Agora são só dois estados reais: parado, e
+   * copiado (ou falhou, quando a área de transferência é negada).
+   */
+  const [memorial, setMemorial] = useState<'parado' | 'copiado' | 'falhou'>('parado')
 
   const c = useMemo(
     () => calcula({ vetores, agravantes, causas }),
     [vetores, agravantes, causas],
   )
+
+  // Mexer na conta invalida o que foi copiado. Sem isto o "Memorial copiado ✓"
+  // sobreviveria à troca de um vetor e passaria a afirmar que a área de
+  // transferência tem o cálculo novo, quando ela tem o antigo.
+  useEffect(() => setMemorial('parado'), [vetores, agravantes, causas])
 
   const abaixoDoMinimo = c.abaixoDoMinimo
 
@@ -154,10 +166,15 @@ export function Dosimetria() {
         causas={causas}
         aoIrPara={setFase}
         memorial={memorial}
-        aoGerarMemorial={() => {
-          if (memorial === 1) return
-          setMemorial(1)
-          setTimeout(() => setMemorial(2), 1400)
+        aoCopiarMemorial={() => {
+          const texto = memorialDe({ vetores, agravantes, causas }, c)
+          // `clipboard` não existe fora de contexto seguro e pode ser negada
+          // pelo usuário. O erro vira estado visível: dizer "copiado" sobre uma
+          // cópia que não aconteceu é o defeito que este botão tinha.
+          void navigator.clipboard
+            ?.writeText(texto)
+            .then(() => setMemorial('copiado'))
+            .catch(() => setMemorial('falhou'))
         }}
       />
     </div>
@@ -328,7 +345,7 @@ function Resultado({
   causas,
   aoIrPara,
   memorial,
-  aoGerarMemorial,
+  aoCopiarMemorial,
 }: {
   c: {
     negativos: number
@@ -342,8 +359,8 @@ function Resultado({
   agravantes: Record<ChaveAgravante, boolean>
   causas: Record<ChaveCausa, boolean>
   aoIrPara: (f: 1 | 2 | 3) => void
-  memorial: 0 | 1 | 2
-  aoGerarMemorial: () => void
+  memorial: 'parado' | 'copiado' | 'falhou'
+  aoCopiarMemorial: () => void
 }) {
   const anos = c.definitiva / 12
 
@@ -473,11 +490,16 @@ function Resultado({
       <div className="mt-3.5 flex flex-col gap-2">
         <button
           type="button"
-          onClick={aoGerarMemorial}
-          disabled={memorial === 1}
-          className="tgb rounded-[14px] bg-tg-acento py-[11px] text-center text-[12.5px] font-medium text-white shadow-[var(--tg-elev-acento-forte)] disabled:cursor-wait"
+          onClick={aoCopiarMemorial}
+          className="tgb rounded-[14px] bg-tg-acento py-[11px] text-center text-[12.5px] font-medium text-white shadow-[var(--tg-elev-acento-forte)]"
         >
-          {['Gerar memorial de cálculo', 'Gerando memorial…', 'Memorial pronto ✓'][memorial]}
+          {
+            {
+              parado: 'Copiar memorial de cálculo',
+              copiado: 'Memorial copiado ✓',
+              falhou: 'Não foi possível copiar',
+            }[memorial]
+          }
         </button>
         <Link
           href="/jurisprudencia"
