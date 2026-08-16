@@ -7,8 +7,10 @@
 // (#f7f8fa), mesmo cartão branco, mesma marca — só que num cartão centrado.
 // =============================================================================
 
+import { dataBR } from '@/lib/formato'
 import { GRADIENTE_MARCA } from '@/lib/toga/tokens'
 import { MARCA } from '@/lib/toga/marca'
+import { DATA_DE_CORTE } from '@/lib/vigilia/alvos'
 
 export default function LayoutAuth({ children }: { children: React.ReactNode }) {
   return (
@@ -36,7 +38,7 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
 
           <p className="mt-6 text-center text-[11.5px] leading-relaxed text-tg-tenue-2">
             Consulta e geração de peças em tráfico de drogas. Base de legislação vigente em{' '}
-            <strong className="font-medium text-tg-fraco-3">28/02/2025</strong>.
+            <strong className="font-medium text-tg-fraco-3">{dataBR(DATA_DE_CORTE)}</strong>.
           </p>
         </div>
       </div>
