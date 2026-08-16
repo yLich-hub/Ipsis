@@ -12,17 +12,23 @@
 // há tela para editar: a marca é decisão de produto, muda em commit e se revisa
 // em diff, como a curadoria.
 //
-// `inicial` é o que vai no quadrado da lateral e da tela de entrada — hoje uma
-// letra em serifada sobre gradiente, não um SVG. Quando virar logotipo de
-// verdade, é aqui que ele entra, e as duas telas o herdam juntas.
+// `inicial` é o que vai no quadrado da lateral e da tela de entrada — hoje
+// serifada sobre gradiente, não um SVG. Quando virar logotipo de verdade, é
+// aqui que ele entra, e as duas telas o herdam juntas.
+//
+// `inicial` agora tem DUAS letras, e isso tem consequência de layout: nos três
+// quadrados que a desenham (lateral, tela de entrada, avatar de Configurações) e
+// no avatar do assistente, o corpo cai ~20% e entra `tracking-[0.01em]`, senão o
+// L e o J se encostam.
 // =============================================================================
 
 export const MARCA = {
-  nome: 'Toga',
-  /** A letra do quadrado da marca. Serifada, sobre `GRADIENTE_MARCA`. */
-  inicial: 'T',
-  /** Linha de apoio embaixo do nome, na lateral. */
-  tagline: 'Advocacia criminal',
+  nome: 'LJ',
+  /** As letras do quadrado da marca. Serifadas, sobre `GRADIENTE_MARCA`. */
+  inicial: 'LJ',
+  // `tagline` morava aqui e saiu com a única tela que a desenhava: em "LJ" a
+  // linha de apoio era mais larga que a marca e truncava na lateral. Campo que
+  // ninguém lê é o mesmo defeito que este arquivo evita, do outro lado.
   /** Pílula ao lado do nome nas telas de autenticação. */
   ramo: 'Penal',
   /** Complemento do título da aba na raiz e na descrição das telas públicas. */
@@ -30,7 +36,7 @@ export const MARCA = {
 } as const
 
 /**
- * O título da aba: `Jurisprudência — Toga`.
+ * O título da aba: `Jurisprudência — LJ`.
  *
  * Existe para o sufixo não ser digitado em cada `metadata`. O separador é o
  * travessão, e é ele que o navegador trunca por último quando a aba encolhe —

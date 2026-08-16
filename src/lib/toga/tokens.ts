@@ -1,5 +1,5 @@
 // =============================================================================
-// TOGA v2 — os tokens que precisam existir em TypeScript
+// LJ — os tokens que precisam existir em TypeScript
 //
 // A paleta canônica está em `src/app/globals.css`, no bloco `@theme`, e é de lá
 // que sai `bg-tg-acento`, `text-tg-fraco-2` e companhia. Este arquivo NÃO é uma
@@ -22,9 +22,9 @@
 // classe. Este arquivo é a exceção, não o atalho.
 // =============================================================================
 
-/** O acento, repetido aqui porque entra em gradiente e em `box-shadow` calculado. */
-export const ACENTO = '#3a3960'
-export const ACENTO_CLARO = '#8a86b8'
+/** O acento, tirado da logo. Repetido aqui porque entra em gradiente e sombra. */
+export const ACENTO = '#b3141f'
+export const ACENTO_CLARO = '#d97b83'
 
 // `ACENTO_TXT` e `ACENTO_FRACO` moravam aqui e não eram usados por ninguém: as
 // telas escrevem `text-tg-acento-txt` e `bg-tg-acento-fraco`, que é a regra do
@@ -39,10 +39,22 @@ export const ACENTO_CLARO = '#8a86b8'
  * `GRADIENTE_PROGRESSO` saiu: era a barra do painel de coletores do documento,
  * que virou a barra de `/fontes` — e essa é pintada por classe, porque não
  * depende de dado.
+ *
+ * `GRADIENTE_MARCA` é o vermelho da logo com 8% de variação de luz — em 32px o
+ * gradiente não se lê como gradiente, se lê como volume.
+ *
+ * `GRADIENTE_CONTA` é o único que NÃO é vermelho, e isso é decisão de
+ * hierarquia: o avatar da conta fica a 20px do quadrado da marca no cabeçalho, e
+ * dois vermelhos vizinhos disputam a mesma atenção. Tinta escura com a inicial
+ * branca resolve — é a mesma variante escura que a logo já prevê.
+ *
+ * `GRADIENTE_RESULTADO` é o painel de pena definitiva. É o único lugar do
+ * produto em que o vermelho ocupa uma superfície inteira, e ele ganha esse
+ * direito por ser o número que o advogado abriu a tela para ver.
  */
-export const GRADIENTE_MARCA = 'linear-gradient(160deg,#5b5987,#3a3960)'
-export const GRADIENTE_CONTA = 'linear-gradient(160deg,#6d6a9c,#43426b)'
-export const GRADIENTE_RESULTADO = 'linear-gradient(165deg,#43426b,#2c2b47)'
+export const GRADIENTE_MARCA = 'linear-gradient(160deg,#c9202c,#93101c)'
+export const GRADIENTE_CONTA = 'linear-gradient(160deg,#3b3844,#1c1a24)'
+export const GRADIENTE_RESULTADO = 'linear-gradient(165deg,#a5121f,#6b0d16)'
 
 /**
  * Matizes dos quadradinhos de ícone — caso 1 do cabeçalho.
@@ -50,9 +62,13 @@ export const GRADIENTE_RESULTADO = 'linear-gradient(165deg,#43426b,#2c2b47)'
  * São dessaturados de propósito: o documento não desenha glifo nenhum nesses
  * 18×18, só uma cor. Se fossem saturados, seis manchas coloridas competiriam
  * com o único elemento que a lateral precisa destacar, que é o item ativo.
+ *
+ * `lavanda` mantém o nome da chave (é ela que o mapa de telas da casca
+ * referencia) mas passou a ser um rosa: é o quadradinho da Consulta, a tela da
+ * marca, e agora ele concorda com o acento.
  */
 export const MATIZ = {
-  lavanda: '#dcdbee',
+  lavanda: '#f8dfe2',
   gelo: '#dfe6ee',
   areia: '#e6e2da',
   sabia: '#dde9e3',

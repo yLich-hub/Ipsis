@@ -327,7 +327,7 @@ function Cartao({ l }: { l: Linha }) {
         )}
         <Link
           href={`/consulta?p=${encodeURIComponent(l.tese ?? l.origem)}`}
-          className="tgb shrink-0 rounded-full bg-tg-acento px-3 py-1.5 text-[11.5px] font-medium text-white shadow-[0_4px_12px_-6px_rgb(58_57_96_/_0.8)]"
+          className="tgb shrink-0 rounded-full bg-tg-acento px-3 py-1.5 text-[11.5px] font-medium text-white shadow-[0_4px_12px_-6px_rgb(179_20_31_/_0.8)]"
         >
           Perguntar ao {MARCA.nome}
         </Link>

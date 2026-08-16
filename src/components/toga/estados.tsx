@@ -1,5 +1,5 @@
 // =============================================================================
-// TOGA v2 — estados de exceção
+// LJ — estados de exceção
 //
 // Banco fora do ar, lista vazia, recurso que existe no menu e não existe no
 // produto. Três telas que ninguém desenha com carinho e que são justamente as
@@ -19,10 +19,20 @@ import { Icone, type NomeIcone } from '@/components/icones'
  * `esmeralda` é sinônimo de `verde` e existe só por compatibilidade: era o nome
  * do tom no tema escuro anterior, e está espalhado pelas telas de autenticação.
  * Renomear em quinze lugares para não ganhar nada seria churn.
+ *
+ * `vermelho` deixou de usar `supressao` depois que o acento virou vermelho: o
+ * aviso de falha do login mora a dois centímetros de um botão vermelho de ação,
+ * e erro e ação com o mesmo matiz na mesma altura da tela é ambiguidade. O
+ * filete lateral e a tinta dessaturada separam "deu errado" de "clique aqui"
+ * sem inventar cor nova — `supressao` continua sendo o vermelho do diff de
+ * redação da lei em /fontes, que é outra coisa.
  */
 const TONS_AVISO = {
   ambar: ['bg-tg-ambar-fundo text-tg-ambar-txt', 'border-tg-ambar-borda'],
-  vermelho: ['bg-tg-supressao-fundo text-tg-supressao-txt', 'border-tg-supressao-txt'],
+  vermelho: [
+    'bg-tg-falha-fundo text-tg-falha-txt rounded-l-none border-l-2 border-l-tg-falha-borda',
+    'border-tg-falha-borda',
+  ],
   neutro: ['bg-tg-preenche text-tg-suave', 'border-tg-tenue'],
   verde: ['bg-tg-verde-fundo text-tg-verde-txt', 'border-tg-verde'],
   esmeralda: ['bg-tg-verde-fundo text-tg-verde-txt', 'border-tg-verde'],

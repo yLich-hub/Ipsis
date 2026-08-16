@@ -37,8 +37,9 @@ import type { EventoAoVivo } from '@/lib/consulta/contrato'
 import { dataBR } from '@/lib/formato'
 import { calcula, leDaConversa, meses } from '@/lib/toga/dosimetria'
 import { busca, registra } from '@/lib/toga/historico'
+import { MARCA } from '@/lib/toga/marca'
 import { comporResposta, type Fonte, type RespostaComposta } from '@/lib/toga/resposta'
-import { ACENTO, ACENTO_CLARO, GRADIENTE_MARCA, GRADIENTE_RESULTADO } from '@/lib/toga/tokens'
+import { ACENTO_CLARO, GRADIENTE_MARCA, GRADIENTE_RESULTADO } from '@/lib/toga/tokens'
 import { DATA_DE_CORTE } from '@/lib/vigilia/alvos'
 
 // --- constantes de animação (todas do documento de design) -------------------
@@ -620,7 +621,7 @@ export function Consulta({
             {msgs.map((m, i) =>
               m.papel === 'usuario' ? (
                 <div key={i} className="tg-entra flex justify-end">
-                  <p className="max-w-[76%] rounded-[20px_20px_6px_20px] bg-tg-acento px-[17px] py-3 text-[14px] leading-[1.55] text-[#f3f3f8] shadow-[0_6px_18px_-10px_rgb(58_57_96_/_0.75)]">
+                  <p className="max-w-[76%] rounded-[20px_20px_6px_20px] bg-tg-acento px-[17px] py-3 text-[14px] leading-[1.55] text-[#fdf2f3] shadow-[0_6px_18px_-10px_rgb(179_20_31_/_0.75)]">
                     {m.texto}
                   </p>
                 </div>
@@ -740,10 +741,10 @@ function Resposta({
       <div className="flex gap-[13px]">
         <span
           aria-hidden="true"
-          className="grid size-7 shrink-0 place-items-center rounded-[10px] font-tg-serif text-[12px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(58_57_96_/_0.6)]"
+          className="grid size-7 shrink-0 place-items-center rounded-[10px] font-tg-serif text-[10px] font-semibold tracking-[0.01em] text-white shadow-[0_3px_10px_-4px_rgb(179_20_31_/_0.6)]"
           style={{ background: GRADIENTE_MARCA }}
         >
-          T
+          {MARCA.inicial}
         </span>
 
         <div className="min-w-0 flex-1">
@@ -829,9 +830,15 @@ function Resposta({
           {paras.length > 0 && m.aoVivo?.estado !== 'gerando' && (
             <div>
               {paras.map((p, j) => (
+                /* `tg-chega`: aqui a prévia do streaming é descartada e o objeto
+                   validado entra de uma vez. Sem o desfoque que zera em 500ms, a
+                   troca é um pisco. O atraso escalonado dos três primeiros é o
+                   ritmo da leitura, não o tempo da rede — do quarto em diante
+                   todos usam o mesmo, senão o fim de uma resposta longa chegaria
+                   depois de o usuário já ter começado a ler. */
                 <p
                   key={j}
-                  className="mb-[13px] font-tg-serif text-[15px] leading-[1.72] text-tg-tinta-2"
+                  className={`${['tg-chega', 'tg-chega-2', 'tg-chega-3'][Math.min(j, 2)]} mb-[13px] font-tg-serif text-[15px] leading-[1.72] text-tg-tinta-2`}
                 >
                   {p.texto}
                   {p.cite && (
@@ -1255,7 +1262,7 @@ function Entrada({
               disabled={ocupado}
               aria-label="Enviar consulta"
               className="tgb grid size-[34px] shrink-0 place-items-center rounded-full shadow-[var(--tg-elev-acento)] disabled:cursor-not-allowed"
-              style={{ background: ocupado ? ACENTO_CLARO : ACENTO }}
+              style={{ background: ocupado ? ACENTO_CLARO : GRADIENTE_MARCA }}
             >
               {ocupado ? (
                 <Girador tamanho={13} espessura={2} trilho="rgba(255,255,255,.4)" cabeca="#fff" />

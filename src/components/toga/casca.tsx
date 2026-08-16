@@ -259,18 +259,21 @@ export function Lateral({
             title={colapsada ? MARCA.nome : undefined}
           >
             <span
-              className="grid size-8 shrink-0 place-items-center rounded-[11px] font-tg-serif text-[15px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
+              className="grid size-8 shrink-0 place-items-center rounded-[11px] font-tg-serif text-[12.5px] font-semibold tracking-[0.01em] text-white shadow-[var(--tg-elev-marca)]"
               style={{ background: GRADIENTE_MARCA }}
             >
               {MARCA.inicial}
             </span>
-            <span className={`min-w-0 ${colapsada ? 'lg:hidden' : ''}`}>
-              <span className="block text-[15.5px] font-semibold leading-[1.1] -tracking-[0.01em] text-tg-tinta">
-                {MARCA.nome}
-              </span>
-              <span className="block truncate text-[11px] leading-[1.3] text-tg-fraco-2">
-                {MARCA.tagline}
-              </span>
+            {/* Só o nome. A linha de apoio saiu a pedido: em "LJ" ela era mais
+                larga que a marca e truncava ("Advocacia crimi…"), que é pior que
+                não estar lá — e o ramo já é dito pela pílula das telas de
+                entrada e pela própria lateral. */}
+            <span
+              className={`block min-w-0 text-[15.5px] font-semibold leading-[1.1] -tracking-[0.01em] text-tg-tinta ${
+                colapsada ? 'lg:hidden' : ''
+              }`}
+            >
+              {MARCA.nome}
             </span>
           </Link>
 
@@ -675,7 +678,7 @@ function Conta() {
         aria-expanded={aberto}
         aria-haspopup="menu"
         title={perfil.nome.trim() ? `${perfil.nome.trim()} · ${email}` : email}
-        className="tgb grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(67_66_107_/_0.7)]"
+        className="tgb grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(28_26_36_/_0.7)]"
         style={{ background: GRADIENTE_CONTA }}
       >
         {iniciais(perfil.nome, email)}

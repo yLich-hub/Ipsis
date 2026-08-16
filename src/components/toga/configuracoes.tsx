@@ -323,7 +323,7 @@ function SecaoPerfil() {
         <div className="mb-[22px] flex items-center gap-4">
           <span
             aria-hidden="true"
-            className="grid size-[62px] shrink-0 place-items-center rounded-[22px] font-tg-serif text-[24px] text-white shadow-[0_8px_20px_-10px_rgb(67_66_107_/_0.9)]"
+            className="grid size-[62px] shrink-0 place-items-center rounded-[22px] font-tg-serif text-[19px] tracking-[0.01em] text-white shadow-[0_8px_20px_-10px_rgb(28_26_36_/_0.9)]"
             style={{ background: GRADIENTE_CONTA }}
           >
             {iniciais(perfil.nome, email)}

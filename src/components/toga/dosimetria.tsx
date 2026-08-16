@@ -426,7 +426,7 @@ function Resultado({
             número troca em silêncio e a conta parece não ter reagido. */}
         <p
           key={c.definitiva}
-          className="tg-pipoca my-[6px] font-tg-serif text-[34px] leading-[1.1] -tracking-[0.01em]"
+          className="tg-pipoca my-[8px] font-tg-serif text-[46px] leading-[1.02] -tracking-[0.02em]"
         >
           {meses(c.definitiva)}
         </p>
