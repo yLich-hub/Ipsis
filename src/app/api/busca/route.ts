@@ -1,12 +1,15 @@
 // =============================================================================
-// GET|POST /api/busca — a busca híbrida para o console do agente
+// GET|POST /api/busca — a busca híbrida para a tela de Consulta
 //
 // Existe porque o embedding da consulta precisa da chave da OpenAI, que é
-// server-side. O console (componente cliente) chama esta rota; a página /busca
-// chama `consultar()` direto, sem passar pela rede duas vezes.
+// server-side, e a Consulta é componente de cliente.
 //
-// Sem autenticação no projeto, a rota é pública — por isso ela só embute
-// consulta (fração de centavo por milhão) e nunca gera texto.
+// **É pública, e continua sendo por escolha**, mesmo depois de a autenticação
+// entrar: ela lê o mesmo corpus que a chave publishable já expõe sob RLS
+// somente-leitura, e devolver um 307 para `/login` a um `fetch()` de JSON produz
+// erro incompreensível no console. O que ela gasta é embedding de consulta —
+// fração de centavo por milhão —, nunca geração de texto. Quem gera texto é
+// `/api/consulta/aovivo`, e essa exige sessão. Ver `lib/auth/rotas.ts`.
 // =============================================================================
 
 import { consultar } from '@/lib/busca/consultar'

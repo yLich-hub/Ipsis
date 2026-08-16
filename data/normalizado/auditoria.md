@@ -1,19 +1,28 @@
 # Auditoria da normalização
 
-gerado em 2026-08-10T18:45:23.989Z
+gerado em 2026-08-16T03:39:01.623Z
 
 ## Contagem por lei
 
 | lei | artigos | revogados | dispositivos | rubricas | ordinais | notas rodapé | notas editor | emendas | rubrica marginal |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| lei_11343_2006 | 93 | 10 | 387 | 0 | 43 | 1 | 2 | 3 | 0 |
-| dl_2848_1940 | 416 | 19 | 1245 | 414 | 76 | 7 | 13 | 5 | 379 |
+| lei_11343_2006 | 94 | 10 | 390 | 0 | 43 | 1 | 2 | 3 | 0 |
+| dl_2848_1940 | 421 | 19 | 1312 | 414 | 76 | 7 | 13 | 5 | 379 |
+| dl_3689_1941 | 825 | 16 | 2069 | 7 | 104 | 50 | 54 | 3 | 6 |
 
-Referência do CLAUDE.md: 351 rubricas marginais no CP e 0 na Lei 11.343; 6 notas de rodapé; 547 ordinais. Divergência grande é sinal de regra errada, não de dado errado.
+Total: 838 alterações em 765 dispositivos — rubrica_marginal 385, ordinal 179, redacao 161, nota_rodape 58, nota_editor 42, emenda 11, estrutura 2.
+
+Estes são os números que o CLAUDE.md cita, e é daqui que eles saem. Se mudarem depois de um `npm run normalize`, o documento muda junto — divergência entre os dois é sinal de regra alterada, não de dado errado.
+
+## Suspeitos de truncamento
+
+Dispositivos que, depois de toda a limpeza, continuam sem pontuação terminal. Foi assim que o art. 37 da Lei de Drogas apareceu partido. Nem todo suspeito é defeito — enumeração pode terminar em "e". Confira contra o PDF.
+
+- `dl_3689_1941_art761_caput` …iver sentenciado por último ou a autoridade de jurisdição prevalente no caso do art. 82.49
 
 ## Headings
 
-### nao-segmentado — 51
+### nao-segmentado — 155
 
 Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou a rubrica é Title Case e escapou das duas regras. Confira contra o PDF e, se houver rubrica, copie a entrada de `headings.propostas.yaml` para `data/curadoria/headings.yaml` já corrigida.
 
@@ -68,8 +77,112 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
 - `dl_2848_1940_art312` TÍTULO XI – Dos Crimes contra a Administração Pública
 - `dl_2848_1940_art359-i` TÍTULO XII – Dos Crimes contra o Estado Democrático de Direito
 - `dl_2848_1940_art359-t` CAPÍTULO VI – Disposições Comuns
+- `dl_3689_1941_art1` TÍTULO I – Disposições Preliminares
+- `dl_3689_1941_art4` TÍTULO II – Do Inquérito Policial
+- `dl_3689_1941_art24` TÍTULO III – Da Ação Penal
+- `dl_3689_1941_art63` TÍTULO IV – Da Ação Civil
+- `dl_3689_1941_art69` TÍTULO V – Da Competência
+- `dl_3689_1941_art70` CAPÍTULO I – Da Competência pelo Lugar da Infração
+- `dl_3689_1941_art72` CAPÍTULO II – Da Competência pelo Domicílio ou Residência do Réu
+- `dl_3689_1941_art74` CAPÍTULO III – Da Competência pela Natureza da Infração
+- `dl_3689_1941_art75` CAPÍTULO IV – Da Competência por Distribuição
+- `dl_3689_1941_art76` CAPÍTULO V – Da Competência por Conexão ou Continência
+- `dl_3689_1941_art83` CAPÍTULO VI – Da Competência por Prevenção
+- `dl_3689_1941_art84` CAPÍTULO VII – Da Competência pela Prerrogativa de Função
+- `dl_3689_1941_art88` CAPÍTULO VIII – Disposições Especiais
+- `dl_3689_1941_art92` CAPÍTULO I – Das Questões Prejudiciais
+- `dl_3689_1941_art92` TÍTULO VI – Das Questões e Processos Incidentes
+- `dl_3689_1941_art95` CAPÍTULO II – Das Exceções
+- `dl_3689_1941_art112` CAPÍTULO III – Das Incompatibilidades e Impedimentos
+- `dl_3689_1941_art113` CAPÍTULO IV – Do Conflito de Jurisdição
+- `dl_3689_1941_art118` CAPÍTULO V – Da Restituição das Coisas Apreendidas
+- `dl_3689_1941_art125` CAPÍTULO VI – Das Medidas Assecuratórias
+- `dl_3689_1941_art145` CAPÍTULO VII – Do Incidente de Falsidade
+- `dl_3689_1941_art149` CAPÍTULO VIII – Da Insanidade Mental do Acusado
+- `dl_3689_1941_art155` CAPÍTULO I – Disposições Gerais
+- `dl_3689_1941_art155` TÍTULO VII – Da Prova
+- `dl_3689_1941_art158` CAPÍTULO II – Do Exame de Corpo de Delito, da Cadeia de Custódia e das Perícias em Geral
+- `dl_3689_1941_art185` CAPÍTULO III – Do Interrogatório do Acusado
+- `dl_3689_1941_art197` CAPÍTULO IV – Da Confissão
+- `dl_3689_1941_art201` CAPÍTULO V – Do Ofendido
+- `dl_3689_1941_art202` CAPÍTULO VI – Das Testemunhas
+- `dl_3689_1941_art226` CAPÍTULO VII – Do Reconhecimento de Pessoas e Coisas
+- `dl_3689_1941_art229` CAPÍTULO VIII – Da Acareação
+- `dl_3689_1941_art231` CAPÍTULO IX – Dos Documentos
+- `dl_3689_1941_art239` CAPÍTULO X – Dos Indícios
+- `dl_3689_1941_art240` CAPÍTULO XI – Da Busca e da Apreensão
+- `dl_3689_1941_art251` CAPÍTULO I – Do Juiz
+- `dl_3689_1941_art251` TÍTULO VIII – Do Juiz, do Ministério Público, do Acusado e Defensor, dos Assistentes e Auxiliares da Justiça
+- `dl_3689_1941_art257` CAPÍTULO II – Do Ministério Público
+- `dl_3689_1941_art259` CAPÍTULO III – Do Acusado e Seu Defensor
+- `dl_3689_1941_art268` CAPÍTULO IV – Dos Assistentes
+- `dl_3689_1941_art274` CAPÍTULO V – Dos Funcionários da Justiça
+- `dl_3689_1941_art275` CAPÍTULO VI – Dos Peritos e Intérpretes
+- `dl_3689_1941_art282` TÍTULO IX – Da Prisão, das Medidas Cautelares e da Liberdade Provisória
+- `dl_3689_1941_art301` CAPÍTULO II – Da Prisão em Flagrante
+- `dl_3689_1941_art311` CAPÍTULO III – Da Prisão Preventiva
+- `dl_3689_1941_art317` CAPÍTULO IV – Da Prisão Domiciliar
+- `dl_3689_1941_art319` CAPÍTULO V – Das Outras Medidas Cautelares
+- `dl_3689_1941_art321` CAPÍTULO VI – Da Liberdade Provisória, com ou sem Fiança
+- `dl_3689_1941_art351` CAPÍTULO I – Das Citações
+- `dl_3689_1941_art351` TÍTULO X – Das Citações e Intimações
+- `dl_3689_1941_art370` CAPÍTULO II – Das Intimações
+- `dl_3689_1941_art373` TÍTULO XI – Da Aplicação Provisória de Interdições de Direitos e Medidas de Segurança
+- `dl_3689_1941_art381` TÍTULO XII – Da Sentença
+- `dl_3689_1941_art394` CAPÍTULO I – Da Instrução Criminal
+- `dl_3689_1941_art394` TÍTULO I – Do Processo Comum
+- `dl_3689_1941_art406` SEÇÃO I – Da Acusação e da Instrução Preliminar
+- `dl_3689_1941_art406` CAPÍTULO II – Do Procedimento Relativo aos Processos da Competência do Tribunal do Júri
+- `dl_3689_1941_art413` SEÇÃO II – Da Pronúncia, da Impronúncia e da Absolvição Sumária
+- `dl_3689_1941_art422` SEÇÃO III – Da Preparação do Processo para Julgamento em Plenário
+- `dl_3689_1941_art425` SEÇÃO IV – Do Alistamento dos Jurados
+- `dl_3689_1941_art427` SEÇÃO V – Do Desaforamento
+- `dl_3689_1941_art429` SEÇÃO VI – Da Organização da Pauta
+- `dl_3689_1941_art432` SEÇÃO VII – Do Sorteio e da Convocação dos Jurados
+- `dl_3689_1941_art436` SEÇÃO VIII – Da Função do Jurado
+- `dl_3689_1941_art447` SEÇÃO IX – Da Composição do Tribunal do Júri e da Formação do Conselho de Sentença
+- `dl_3689_1941_art453` SEÇÃO X – Da Reunião e das Sessões do Tribunal do Júri
+- `dl_3689_1941_art473` SEÇÃO XI – Da Instrução em Plenário
+- `dl_3689_1941_art476` SEÇÃO XII – Dos Debates
+- `dl_3689_1941_art482` SEÇÃO XIII – Do Questionário e Sua Votação
+- `dl_3689_1941_art492` SEÇÃO XIV – Da Sentença
+- `dl_3689_1941_art494` SEÇÃO XV – Da Ata dos Trabalhos
+- `dl_3689_1941_art497` SEÇÃO XVI – Das Atribuições do Presidente do Tribunal do Júri
+- `dl_3689_1941_art513` CAPÍTULO II – Do Processo e do Julgamento dos Crimes de Responsabilidade dos Funcionários Públicos
+- `dl_3689_1941_art513` TÍTULO II – Dos Processos Especiais
+- `dl_3689_1941_art519` CAPÍTULO III – Do Processo e do Julgamento dos Crimes de Calúnia e Injúria, de Competência do Juiz Singular
+- `dl_3689_1941_art524` CAPÍTULO IV – Do Processo e do Julgamento dos Crimes contra a Propriedade Imaterial
+- `dl_3689_1941_art531` CAPÍTULO V – Do Processo Sumário
+- `dl_3689_1941_art541` CAPÍTULO VI – Do Processo de Restauração de Autos Extraviados ou Destruídos
+- `dl_3689_1941_art549` CAPÍTULO VII – Do Processo de Aplicação de Medida de Segurança por Fato Não Criminoso
+- `dl_3689_1941_art561` CAPÍTULO II – Do Julgamento
+- `dl_3689_1941_art561` TÍTULO III – Dos Processos de Competência do Supremo Tribunal Federal e dos Tribunais de Apelação
+- `dl_3689_1941_art563` TÍTULO I – Das Nulidades
+- `dl_3689_1941_art574` TÍTULO II – Dos Recursos em Geral
+- `dl_3689_1941_art581` CAPÍTULO II – Do Recurso em Sentido Estrito
+- `dl_3689_1941_art593` CAPÍTULO III – Da Apelação
+- `dl_3689_1941_art607` CAPÍTULO IV – Do Protesto por Novo Júri
+- `dl_3689_1941_art609` CAPÍTULO V – Do Processo e do Julgamento dos Recursos em Sentido Estrito e das Apelações, nos Tribunais de Apelação
+- `dl_3689_1941_art619` CAPÍTULO VI – Dos Embargos
+- `dl_3689_1941_art621` CAPÍTULO VII – Da Revisão
+- `dl_3689_1941_art639` CAPÍTULO IX – Da Carta Testemunhável
+- `dl_3689_1941_art647` CAPÍTULO X – Do Habeas Corpus e Seu Processo
+- `dl_3689_1941_art668` TÍTULO I – Disposições Gerais
+- `dl_3689_1941_art674` CAPÍTULO I – Das Penas Privativas de Liberdade
+- `dl_3689_1941_art674` TÍTULO II – Da Execução das Penas em Espécie
+- `dl_3689_1941_art686` CAPÍTULO II – Das Penas Pecuniárias
+- `dl_3689_1941_art691` CAPÍTULO III – Das Penas Acessórias
+- `dl_3689_1941_art696` CAPÍTULO I – Da Suspensão Condicional da Pena
+- `dl_3689_1941_art696` TÍTULO III – Dos Incidentes da Execução
+- `dl_3689_1941_art710` CAPÍTULO II – Do Livramento Condicional
+- `dl_3689_1941_art734` CAPÍTULO I – Da Graça, do Indulto e da Anistia
+- `dl_3689_1941_art734` TÍTULO IV – Da Graça, do Indulto, da Anistia e da Reabilitação
+- `dl_3689_1941_art743` CAPÍTULO II – Da Reabilitação
+- `dl_3689_1941_art751` TÍTULO V – Da Execução das Medidas de Segurança
+- `dl_3689_1941_art783` CAPÍTULO II – Das Cartas Rogatórias
+- `dl_3689_1941_art787` CAPÍTULO III – Da Homologação das Sentenças Estrangeiras
 
-### sentence-case — 46
+### sentence-case — 47
 
 - `dl_2848_1940_art13` TÍTULO II – Do Crime  **+ rubrica:** _Relação de causalidade_
 - `dl_2848_1940_art33` SEÇÃO I – Das Penas Privativas de Liberdade  **+ rubrica:** _Reclusão e detenção_
@@ -117,6 +230,7 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
 - `dl_2848_1940_art359-i` CAPÍTULO I – Dos Crimes contra a Soberania Nacional  **+ rubrica:** _Atentado à soberania_
 - `dl_2848_1940_art359-l` CAPÍTULO II – Dos Crimes contra as Instituições Democráticas  **+ rubrica:** _Abolição violenta do Estado Democrático de Direito_
 - `dl_2848_1940_art359-n` CAPÍTULO III – Dos Crimes contra o Funcionamento das Instituições Democráticas no Processo Eleitoral  **+ rubrica:** _Interrupção do processo eleitoral_
+- `dl_3689_1941_art637` CAPÍTULO VIII – Do Recurso Extraordinário  **+ rubrica:** _Arts. 632 a 636. (Revogados)_
 
 ### repeticao — 8
 
@@ -142,7 +256,7 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
 - `dl_2848_1940_art312` CAPÍTULO I – Dos Crimes Praticados por Funcionário Público contra a Administração em Geral  **+ rubrica:** _Peculato_
 - `dl_2848_1940_art359-r` CAPÍTULO IV – Dos Crimes contra o Funcionamento dos Serviços Essenciais  **+ rubrica:** _Sabotagem_
 
-## Fronteira de bloco corrigida (curadoria) — 8
+## Fronteira de bloco corrigida (curadoria) — 11
 
 - `lei_11343_2006_art23-a_p8`
   …gilo das informações disponíveis no sistema referido no[- ∅ -][+ § 7o e o acesso será permitido apenas às pessoas autorizadas a conhecê-las, sob pena de responsabilidade. +]
@@ -160,8 +274,14 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
   …elecido o sigilo sobre as informações a que se refere o[- ∅ -][+ § 1o deste artigo. +]
 - `dl_2848_1940_art293_p4`
   …ados ou alterados, a que se referem este artigo e o seu[- ∅ -][+ § 2o, depois de conhecer a falsidade ou alteração, incorre na pena de detenção, de seis meses a dois anos, ou multa. +]
+- `dl_3689_1941_art28-a_p7`
+  … quando não for realizada a adequação a que se refere o[- ∅ -][+ § 5o deste artigo. +]
+- `dl_3689_1941_art709_p3`
+  § 3o Não se aplicará o disposto no[- ∅ -][+ § 2o, quando houver sido imposta ou resultar de condenação pena acessória consistente em interdição de direitos. +]
+- `dl_3689_1941_art800_p2`
+  … vista, salvo para a interposição do recurso (art. 798,[- ∅ -][+ § 5o). +]
 
-## Nota do Editor removida do texto legal (curadoria) — 11
+## Nota do Editor removida do texto legal (curadoria) — 42
 
 - `lei_11343_2006_art37_caput`
   … como informante, com grupo, organização ou associação [- 1 Nota do Editor (NE): ver ADI no 4.274. 2 NE: ver Resolução do Senado Federal no 5/2012. -][+ ∅ +]destinados à prática de qualquer dos crimes previstos n…
@@ -185,8 +305,28 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
   …ificar, fabricando-a ou alterando-a, moeda metálica ou [- 12 NE: ver ADPF no 187. -][+ ∅ +]papel-moeda de curso legal no país ou no estrangeiro: P…
 - `dl_2848_1940_art291_caput`
   …bjeto especialmente destinado à falsificação de moeda: [- 13 NE: o valor máximo da multa foi suprimido conforme o estabelecido pelo art. 2o da Lei no 7.209/1984, que determinou o cancelamento das referências a valores de multas. -][+ ∅ +]Pena – reclusão, de dois a seis anos, e multa. Emissão …
+- `dl_3689_1941_art3-a_caput`
+  …dadas a iniciativa do juiz na fase de investigação e a [- 1 Nota do Editor (NE): os artigos mencionados são os da Constituição de 1937. 2 NE: o artigo mencionado é o da Constituição de 1937. 3 NE: ver ADPF no 130. -][+ ∅ +]substituição da atuação probatória do órgão de acusação…
+- `dl_3689_1941_art3-b_inc9`
+  …ento razoável para sua instauração ou prosseguimento;10[- 4 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 5 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 6 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 7 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 8 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 9 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 10 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. -][+ ∅ +]
+- `dl_3689_1941_art3-b_p2`
+  …oderá, mediante representação da autoridade policial e [- 11 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 12 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. -][+ ∅ +]ouvido o Ministério Público, prorrogar, uma única vez, …
+- `dl_3689_1941_art3-e_caput`
+  …normas de organização judiciária da União, dos Estados [- 13 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 14 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 15 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 16 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 17 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 18 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 19 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 20 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. -][+ ∅ +]e do Distrito Federal, observando critérios objetivos a…
+- `dl_3689_1941_art5_p2`
+  …ra de inquérito caberá recurso para o chefe de Polícia.[- 21 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 22 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. -][+ ∅ +]
+- `dl_3689_1941_art28-a_inc5`
+  …roporcional e compatível com a infração penal imputada.[- 23 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. 24 NE: ver ADIs nos 6.298, 6.299, 6.300 e 6.305. -][+ ∅ +]
+- `dl_3689_1941_art69_inc2`
+  o domicílio ou residência do réu;[- 25 NE: ver ADPF no 779. -][+ ∅ +]
+- `dl_3689_1941_art80_caput`
+  …hes prolongar a prisão provisória, ou por outro motivo [- 26 NE: os dispositivos mencionados são os do texto original do Código Penal. -][+ ∅ +]relevante, o juiz reputar conveniente a separação.
+- `dl_3689_1941_art84_p1`
+  …iciados após a cessação do exercício da função pública.[- 27 NE: ver ADIs nos 2.797 e 2.860. -][+ ∅ +]
 
-## Marcador de nota de rodapé removido — 8
+_(22 omitidas — `npm run audit -- --tudo`)_
+
+## Marcador de nota de rodapé removido — 58
 
 - `lei_11343_2006_art33_p4`
   …tividades criminosas nem integre organização criminosa.[- 2 -][+ ∅ +]
@@ -204,6 +344,32 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
   …o auferido pelo agente com a prática do fato criminoso.[- 6 -][+ ∅ +]
 - `dl_2848_1940_art128_caput`
   Não se pune o aborto praticado por médico:[- 9 -][+ ∅ +]
+- `dl_3689_1941_art1_inc5`
+  os processos por crimes de imprensa.[- 3 -][+ ∅ +]
+- `dl_3689_1941_art3-a_caput`
+  …ubstituição da atuação probatória do órgão de acusação.[- 4 -][+ ∅ +]
+- `dl_3689_1941_art3-b_caput`
+  …évia do Poder Judiciário, competindo-lhe especialmente:[- 5 -][+ ∅ +]
+- `dl_3689_1941_art3-b_inc4`
+  … sobre a instauração de qualquer investigação criminal;[- 6 -][+ ∅ +]
+- `dl_3689_1941_art3-b_inc6`
+  …osto neste Código ou em legislação especial pertinente;[- 7 -][+ ∅ +]
+- `dl_3689_1941_art3-b_inc7`
+  …raditório e a ampla defesa em audiência pública e oral;[- 8 -][+ ∅ +]
+- `dl_3689_1941_art3-b_inc8`
+  …e policial e observado o disposto no § 2º deste artigo;[- 9 -][+ ∅ +]
+- `dl_3689_1941_art3-b_inc9`
+  …amento razoável para sua instauração ou prosseguimento;[- 10 -][+ ∅ +]
+- `dl_3689_1941_art3-b_inc14`
+  …enúncia ou queixa, nos termos do art. 399 deste Código;[- 11 -][+ ∅ +]
+- `dl_3689_1941_art3-b_p1`
+  …gado constituído, vedado o emprego de videoconferência.[- 12 -][+ ∅ +]
+- `dl_3689_1941_art3-b_p2`
+  …ão for concluída, a prisão será imediatamente relaxada.[- 13 -][+ ∅ +]
+- `dl_3689_1941_art3-c_caput`
+  …a denúncia ou queixa na forma do art. 399 deste Código.[- 14 -][+ ∅ +]
+
+_(38 omitidas — `npm run audit -- --tudo`)_
 
 ## Divisor estrutural removido do fim do dispositivo — 2
 
@@ -212,7 +378,7 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
 - `dl_2848_1940_art359-u_caput`
   (Vetado)[- DISPOSIÇÕES FINAIS -][+ ∅ +]
 
-## Rubrica marginal removida do fim do dispositivo — 379
+## Rubrica marginal removida do fim do dispositivo — 385
 
 `[- removido -]` sai do dispositivo e vira a rubrica do dispositivo em **→**.
 
@@ -277,9 +443,9 @@ Nenhuma rubrica extraída. Ou o heading está limpo (esperado na Lei 11.343), ou
   …revisto como crime, senão quando o pratica dolosamente.[- Agravação pelo resultado -][+ ∅ +]
   → rubrica _"Agravação pelo resultado"_ para `dl_2848_1940_art19_caput`
 
-_(359 omitidas — `npm run audit -- --tudo`)_
+_(365 omitidas — `npm run audit -- --tudo`)_
 
-## Ordinal normalizado — 98
+## Ordinal normalizado — 179
 
 - `lei_11343_2006_art5_inc4`
   …ão e a articulação das atividades de que trata o art. 3[- o -][+ º +] desta Lei.
@@ -322,4 +488,4 @@ _(359 omitidas — `npm run audit -- --tudo`)_
 - `lei_11343_2006_art50_p5`
   …is de efetivada a destruição das drogas referida no § 3[- o -][+ º +], sendo lavrado auto circunstanciado pelo delegado de p…
 
-_(78 omitidas — `npm run audit -- --tudo`)_
+_(159 omitidas — `npm run audit -- --tudo`)_

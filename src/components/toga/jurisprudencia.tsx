@@ -28,6 +28,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { Caixinha, Esqueleto, Selo } from '@/components/toga/base'
+import { MARCA } from '@/lib/toga/marca'
 
 export type Linha = {
   tribunal?: string
@@ -236,7 +237,7 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
           </div>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-5 pb-[26px] pt-1 sm:px-[26px]">
+        <div className="tg-lista flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-5 pb-[26px] pt-1 sm:px-[26px]">
           {resultados.map((l, i) => (
             <Cartao key={`${l.origemId}-${i}`} l={l} />
           ))}
@@ -251,9 +252,11 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
               <p className="mx-auto mt-2 max-w-md text-[12.5px] leading-[1.6] text-tg-fraco-2">
                 {linhas.length === 0 ? (
                   <>
-                    As entradas vivem em <code className="text-tg-corpo">teses.jurisprudencia</code>{' '}
-                    e chegam com o incremento 4. Enquanto isso, o texto legal está todo consultável
-                    na{' '}
+                    As entradas vêm de{' '}
+                    <code className="text-tg-corpo">teses.jurisprudencia</code> e de{' '}
+                    <code className="text-tg-corpo">precedentes_stj</code>, e esta tela só as lê —
+                    se as duas estão vazias, o banco não respondeu. O texto legal continua
+                    consultável na{' '}
                     <Link href="/consulta" className="text-tg-acento-txt hover:underline">
                       consulta
                     </Link>
@@ -326,7 +329,7 @@ function Cartao({ l }: { l: Linha }) {
           href={`/consulta?p=${encodeURIComponent(l.tese ?? l.origem)}`}
           className="tgb shrink-0 rounded-full bg-tg-acento px-3 py-1.5 text-[11.5px] font-medium text-white shadow-[0_4px_12px_-6px_rgb(58_57_96_/_0.8)]"
         >
-          Perguntar ao Toga
+          Perguntar ao {MARCA.nome}
         </Link>
       </div>
     </article>

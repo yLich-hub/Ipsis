@@ -56,9 +56,14 @@ jobs:
     timeout-minutes: 25
 
     steps:
-      - uses: actions/checkout@v4
+      # As três actions ficam na major corrente, e a major é o alvo de propósito:
+      # `@v7` recebe correção de segurança sem exigir commit aqui, e é a forma
+      # que o próprio GitHub documenta. O que não pode é envelhecer — v4 e v5
+      # rodavam em Node 20, que saiu de suporte, e o Actions passou a avisar em
+      # toda execução. Aviso amarelo que ninguém conserta é aviso que ninguém lê.
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
           cache: pip
@@ -100,7 +105,10 @@ jobs:
         if: failure()
         run: python -m coletores --para-disco --sem-cache || true
 
-      - uses: actions/upload-artifact@v4
+      # upload-artifact a partir da v6 roda em Node 24 e exige runner ≥ 2.327.1.
+      # Aqui o runner é `ubuntu-latest`, hospedado pelo GitHub e sempre acima
+      # disso; num runner próprio, atualizar o runner antes.
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: vigilia-parcial

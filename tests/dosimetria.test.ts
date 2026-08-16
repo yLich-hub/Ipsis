@@ -22,6 +22,7 @@ import {
   VETORES,
   calcula,
   leDaConversa,
+  memorialDe,
   meses,
   type EntradaDosimetria,
   type Peso,
@@ -161,5 +162,61 @@ describe('formatação', () => {
     expect(meses(74)).toBe('6a 2m')
     expect(meses(1)).toBe('1 mês')
     expect(meses(11)).toBe('11 meses')
+  })
+})
+
+/**
+ * O memorial existe porque o botão que o oferecia não o produzia: acendia
+ * "Gerando memorial…" por 1400 ms e passava a "Memorial pronto ✓" sem gerar
+ * nada. Estas asserções são o que impede a volta do teatro — um memorial que
+ * não repita os números da conta é indistinguível de texto fixo.
+ */
+describe('memorial de cálculo', () => {
+  it('imprime as três fases com os números que `calcula` devolveu', () => {
+    const e = neutra()
+    const c = calcula(e)
+    const m = memorialDe(e, c)
+
+    expect(m).toContain('1ª FASE')
+    expect(m).toContain('2ª FASE')
+    expect(m).toContain('3ª FASE')
+    expect(m).toContain(meses(c.base))
+    expect(m).toContain(meses(c.provisoria))
+    expect(m).toContain(meses(c.definitiva))
+    expect(m).toContain(`${c.multa} dias-multa`)
+  })
+
+  it('acompanha a entrada em vez de ser texto fixo', () => {
+    const leve = neutra()
+    const grave = neutra()
+    grave.vetores = grave.vetores.map(() => 'desf') as Peso[]
+    expect(memorialDe(grave)).not.toBe(memorialDe(leve))
+  })
+
+  it('nomeia o art. 42 só quando a droga pesou de verdade', () => {
+    const semDroga = neutra()
+    const comDroga = neutra()
+    comDroga.vetores[PREPONDERANTE] = 'desf'
+
+    expect(memorialDe(comDroga)).toContain('art. 42')
+    expect(memorialDe(semDroga)).not.toContain('preponderam')
+  })
+
+  it('avisa quando a pena caiu abaixo do mínimo, e só então', () => {
+    const comPrivilegio = neutra()
+    comPrivilegio.causas = { ...comPrivilegio.causas, privilegiado: true }
+    const c = calcula(comPrivilegio)
+
+    // A frase conferida é a da terceira fase, e não "abaixo do mínimo legal"
+    // solto: a linha da Súmula 231 usa as mesmas palavras para dizer o oposto
+    // ("a pena provisória NÃO desce abaixo do mínimo"), e uma asserção frouxa
+    // passaria nos dois casos sem distinguir nada.
+    expect(c.abaixoDoMinimo).toBe(true)
+    expect(memorialDe(comPrivilegio, c)).toContain('A pena definitiva ficou abaixo do mínimo legal')
+    expect(memorialDe(neutra())).not.toContain('A pena definitiva ficou abaixo do mínimo legal')
+  })
+
+  it('diz que é calculadora, não parecer — a mesma ressalva da tela', () => {
+    expect(memorialDe(neutra())).toContain('Calculadora, não parecer')
   })
 })

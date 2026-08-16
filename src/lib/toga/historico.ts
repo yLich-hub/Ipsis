@@ -338,14 +338,9 @@ export async function remove(id: string): Promise<void> {
   avisa()
 }
 
-/** Renomeia. Existe para o usuário poder consertar um título ruim. */
-export async function renomeia(id: string, titulo: string): Promise<void> {
-  const limpo = titulo.replace(/\s+/g, ' ').trim().slice(0, 200)
-  if (!limpo) return
-  try {
-    await supabaseNavegador().from('conversas').update({ titulo: limpo }).eq('id', id)
-  } catch {
-    /* idem */
-  }
-  avisa()
-}
+// `renomeia(id, titulo)` vivia aqui, dizendo existir "para o usuário poder
+// consertar um título ruim". Nenhuma tela a chamava: não há campo de renomear em
+// lugar nenhum da lateral, e o título continua sendo sempre a primeira pergunta,
+// por `tituloDe`. Escrita no banco que nada aciona é superfície sem dono — se a
+// renomeação voltar como pedido de produto, ela volta junto com o controle que a
+// dispara, e não antes.

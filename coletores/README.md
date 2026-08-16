@@ -19,9 +19,17 @@ uma fonte só. Se um scraper pudesse alimentar `dispositivos`, `leis.vigencia_at
 deixaria de ser verdade e nenhum dispositivo citado numa peça teria passado por
 revisão — a decisão nº 3 estaria perdida pela porta dos fundos.
 
-A vigília avisa; quem corrige é gente, rodando o parser sobre a nova redação e
-conferindo o diff. É por isso que o filtro daqui pode ser heurístico sem
-estragar nada.
+A vigília avisa; quem corrige é gente, conferindo o diff. É por isso que o filtro
+daqui pode ser heurístico sem estragar nada.
+
+**`redacao.py` é a exceção que confirma a regra, e ela também não escreve nada.**
+O conserto previsto era "rodar o `vade_parser.py` sobre a nova redação", e ele
+não existe: o PDF do Vade Mecum *é* a fotografia de 28/02/2025 — a redação nova
+não está nele. Então `redacao.py` lê a página compilada, compara com o corpus
+artigo a artigo e escreve uma **proposta** em `data/vigilia/redacoes.propostas.yaml`.
+Quem vira corpus é `data/curadoria/redacoes.yaml`, conferido por gente, versionado
+e aplicado por `scripts/normalize.ts`. A distância entre a proposta e a curadoria
+é a decisão nº 1 inteira.
 
 ## Como rodar
 
@@ -34,8 +42,17 @@ python -m venv .venv
 .venv/Scripts/python -m coletores --fonte planalto --seco # uma fonte só
 .venv/Scripts/python -m coletores --para-disco            # data/vigilia/*.json
 .venv/Scripts/python -m coletores --tudo                  # carga completa, grava
-.venv/Scripts/python -m pytest coletores -q               # 35 asserções, offline
+.venv/Scripts/python -m pytest coletores -q               # 79 asserções, offline
+
+.venv/Scripts/python -m coletores.redacao                 # propõe a atualização do corpus
+.venv/Scripts/python -m coletores.redacao --sem-cache     # ignora o cache de página
+.venv/Scripts/python -m coletores.redacao --lei dl_2848_1940
 ```
+
+`coletores.redacao` compara os 1.340 artigos das três leis com o texto compilado
+e não grava em lugar nenhum. **"0 blocos a atualizar" é a resposta esperada**: o
+corpus está em dia. Ele exige `data/normalizado/`, que é saída de
+`npm run normalize` e não está no repositório.
 
 `--seco` roda rede, extração, filtro e contagem sem escrever em lugar nenhum. É
 como se confere o que o filtro está pegando antes de encher uma tabela.
@@ -48,11 +65,12 @@ sessão para ancorar policy.
 precisa exportar nada. No GitHub Actions elas vêm dos secrets do repositório, e
 variável já definida no ambiente sempre vence o arquivo.
 
-## As cinco fontes
+## As seis fontes
 
 | Fonte | O que entrega | Chave |
 |---|---|---|
 | **Planalto** | texto compilado; alteração **já em vigor**, por artigo | — (scraping) |
+| **STJ** | precedentes qualificados, com a situação de cada tema | — |
 | **Câmara** | proposições e situação da tramitação | — |
 | **Senado** | processos e `normaGerada`, com data de publicação no DOU | — |
 | **DOU** | confirma a publicação da norma e guarda o endereço oficial | — |
@@ -62,7 +80,8 @@ variável já definida no ambiente sempre vence o arquivo.
 *proposto*; só o texto compilado mostra o que *está em vigor*. Na primeira
 execução ele encontrou 63 alterações posteriores à data de corte, entre elas a
 Lei 15.581/2025 (art. 23 da Lei de Drogas) e a Lei 15.358/2026 (art. 40-A) —
-duas que nenhuma API de proposição reportaria como alteração consumada.
+duas que nenhuma API de proposição reportaria como alteração consumada. As 63
+estão hoje incorporadas ao corpus — ver "O corpus atualizado" no `CLAUDE.md`.
 
 ### O DOU tem dois caminhos, e o bom é opcional
 

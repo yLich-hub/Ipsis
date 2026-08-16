@@ -20,6 +20,7 @@ import { Aviso, Botao, Campo } from '@/components/ui'
 import { mensagemDeErro, validarEmail } from '@/lib/auth/mensagens'
 import { supabaseNavegador } from '@/lib/auth/navegador'
 import { destinoSeguro } from '@/lib/auth/rotas'
+import { MARCA } from '@/lib/toga/marca'
 
 export function FormularioLogin({
   proximo,
@@ -72,7 +73,7 @@ export function FormularioLogin({
   }
 
   return (
-    <Moldura titulo="Entrar" sub="Acesse sua área de trabalho no Toga.">
+    <Moldura titulo="Entrar" sub={`Acesse sua área de trabalho no ${MARCA.nome}.`}>
       {recado && (
         <Aviso tom="esmeralda" className="mb-4" role="status">
           {recado}

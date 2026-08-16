@@ -18,7 +18,8 @@
     "vigilia": "tsx scripts/vigilia.ts",
     "lint": "eslint .",
     "verificar": "npm run lint && tsc --noEmit && vitest run",
-    "migrar": "tsx scripts/migrar.ts"
+    "migrar": "tsx scripts/migrar.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.13",

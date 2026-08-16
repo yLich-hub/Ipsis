@@ -16,6 +16,7 @@ import { Icone } from '@/components/icones'
 import { ErroBanco, Selo, Vazio } from '@/components/ui'
 import { artigosDaLei, lei as buscaLei, type Artigo } from '@/lib/dados'
 import { dataBR, numeroBR, semAcento, tituloArtigo } from '@/lib/formato'
+import { titulo } from '@/lib/toga/marca'
 
 export const revalidate = 300
 
@@ -26,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { leiId } = await params
   const l = await buscaLei(leiId)
-  return { title: l.ok && l.dados ? `${l.dados.apelido} — Toga` : 'Legislação — Toga' }
+  return { title: l.ok && l.dados ? titulo(l.dados.apelido) : titulo('Legislação') }
 }
 
 /** Heading mais específico disponível — a seção diz mais que o capítulo. */
@@ -133,7 +134,7 @@ export default async function LeiPage({
               </Vazio>
             </div>
           ) : (
-            <ul className="mt-3 space-y-px pb-8">
+            <ul className="tg-lista mt-3 space-y-px pb-8">
               {artigos.map((a) => {
                 const h = heading(a)
                 const novoHeading = h && h !== ultimoHeading
@@ -156,10 +157,25 @@ export default async function LeiPage({
                         {a.rubrica ?? <span className="text-tg-tenue-2">—</span>}
                       </span>
                       {a.revogado && <Selo tom="vermelho">revogado</Selo>}
-                      {a.conferido_em && (
-                        <Selo title={`Conferido contra o texto oficial em ${dataBR(a.conferido_em)}`}>
-                          conferido
+                      {/*
+                        Âmbar quando a redação mudou depois da data de corte: na
+                        lista inteira de uma lei, é o único sinal que o leitor
+                        precisa ver antes de clicar. O selo neutro continua para
+                        o artigo conferido que não mudou.
+                      */}
+                      {a.alterado_por.length > 0 ? (
+                        <Selo
+                          tom="ambar"
+                          title={`Redação alterada por ${a.alterado_por.join(', ')} — conferida em ${dataBR(a.conferido_em ?? '')}`}
+                        >
+                          redação nova
                         </Selo>
+                      ) : (
+                        a.conferido_em && (
+                          <Selo title={`Conferido contra o texto oficial em ${dataBR(a.conferido_em)}`}>
+                            conferido
+                          </Selo>
+                        )
                       )}
                     </Link>
                   </li>

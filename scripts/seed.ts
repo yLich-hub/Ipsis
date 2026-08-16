@@ -93,7 +93,8 @@ try {
       await emLotes(artigos, (lote) => tx`
         insert into public.artigos ${tx(lote,
           'id', 'lei_id', 'numero', 'numero_base', 'numero_sufixo', 'ordem',
-          'titulo', 'capitulo', 'secao', 'rubrica', 'revogado', 'conferido_em')}
+          'titulo', 'capitulo', 'secao', 'rubrica', 'revogado', 'conferido_em',
+          'alterado_por', 'fonte_redacao')}
         on conflict (id) do update set
           lei_id        = excluded.lei_id,
           numero        = excluded.numero,
@@ -105,7 +106,9 @@ try {
           secao         = excluded.secao,
           rubrica       = excluded.rubrica,
           revogado      = excluded.revogado,
-          conferido_em  = excluded.conferido_em
+          conferido_em  = excluded.conferido_em,
+          alterado_por  = excluded.alterado_por,
+          fonte_redacao = excluded.fonte_redacao
       `)
 
       // Some da fonte → some do banco. O cascade leva os dispositivos junto.

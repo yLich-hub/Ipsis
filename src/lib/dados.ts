@@ -79,6 +79,8 @@ export type Artigo = {
   rubrica: string | null
   revogado: boolean
   conferido_em: string | null
+  alterado_por: string[]
+  fonte_redacao: string | null
 }
 
 /** Linha de `v_dispositivo`: o dispositivo já com artigo e lei resolvidos. */
@@ -102,6 +104,14 @@ export type Dispositivo = {
   secao: string | null
   artigo_revogado: boolean
   artigo_conferido_em: string | null
+  /**
+   * As leis posteriores à data de corte que alteraram este artigo.
+   *
+   * Vazio na esmagadora maioria. Quando tem conteúdo, `vigencia_ate` deixou de
+   * responder por este dispositivo — quem responde é `artigo_conferido_em`.
+   */
+  artigo_alterado_por: string[]
+  artigo_fonte_redacao: string | null
   lei_apelido: string
   lei_nome: string
   vigencia_ate: string
@@ -124,6 +134,7 @@ export type Saude = {
 const COLUNAS_DISPOSITIVO =
   'id,artigo_id,lei_id,tipo,numero,rotulo,pai_id,ordem,texto,rubrica,citacao,revogado,' +
   'artigo_numero,artigo_rubrica,titulo,capitulo,secao,artigo_revogado,artigo_conferido_em,' +
+  'artigo_alterado_por,artigo_fonte_redacao,' +
   'lei_apelido,lei_nome,vigencia_ate,cobertura,cobertura_nota'
 
 // --- consultas ---------------------------------------------------------------
@@ -140,7 +151,10 @@ export const artigosDaLei = (leiId: string) =>
   tenta<Artigo[]>(
     supabase
       .from('artigos')
-      .select('id,lei_id,numero,numero_base,ordem,titulo,capitulo,secao,rubrica,revogado,conferido_em')
+      .select(
+        'id,lei_id,numero,numero_base,ordem,titulo,capitulo,secao,rubrica,revogado,' +
+          'conferido_em,alterado_por,fonte_redacao',
+      )
       .eq('lei_id', leiId)
       .order('ordem'),
   )
@@ -215,13 +229,9 @@ export async function contagemDispositivos(leiId: string): Promise<number | null
   return error ? null : (count ?? null)
 }
 
-export async function contagemRubricas(origem: 'oficial' | 'curada'): Promise<number | null> {
-  const { count, error } = await supabase
-    .from('rubricas')
-    .select('id', { count: 'exact', head: true })
-    .eq('origem', origem)
-  return error ? null : (count ?? null)
-}
+// `contagemRubricas(origem)` saiu junto com o painel de diagnóstico que a
+// exibia. Nenhuma das sete telas conta rubrica por origem, e uma consulta ao
+// banco que ninguém chama envelhece sem que nada quebre.
 
 export type Tese = {
   id: string

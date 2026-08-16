@@ -51,6 +51,15 @@ export type Props = {
   coletas: Record<string, Coleta>
   teses: TeseCitante[]
   jurimetria: Jurimetria[]
+  /**
+   * `artigo_id → leis que já entraram no corpus`, de `artigos.alterado_por`.
+   *
+   * É o que permite a tela distinguir "a lei mudou e o corpus não sabe" de "a
+   * lei mudou e o corpus já foi alinhado". Sem isso, o achado incorporado
+   * continuaria na lista com a mesma cara do pendente, e a tela diria que há 63
+   * pendências onde não há nenhuma.
+   */
+  incorporados: Record<string, string[]>
   /** Data de corte lida de `leis.vigencia_ate` — a do banco, não a do código. */
   dataDeCorte: string | null
   /** Recado do banco quando a leitura falhou. A tela continua de pé sem ele. */
@@ -66,6 +75,7 @@ export function Fontes({
   coletas,
   teses,
   jurimetria,
+  incorporados,
   dataDeCorte,
   erro,
 }: Props) {
@@ -88,6 +98,30 @@ export function Fontes({
     }
     return mapa
   }, [alteracoes, teses])
+
+  /**
+   * Achados que o corpus já absorveu.
+   *
+   * A regra é estreita de propósito: o achado só conta como incorporado quando
+   * TODO artigo que ele nomeia já traz, em `alterado_por`, a norma dele. Um
+   * achado que toca três artigos e foi conferido em dois continua pendente — é
+   * nos dois terços restantes que a peça citaria redação revogada.
+   *
+   * Achado sem artigo nomeado nunca é incorporado: não há como afirmar nada
+   * sobre um alvo que a ementa não disse qual é.
+   */
+  const incorporado = useMemo(() => {
+    const mapa = new Map<string, boolean>()
+    for (const a of alteracoes) {
+      const norma = a.norma ?? a.identificacao
+      mapa.set(
+        a.id,
+        a.artigosTocados.length > 0 &&
+          a.artigosTocados.every((art) => (incorporados[art] ?? []).includes(norma)),
+      )
+    }
+    return mapa
+  }, [alteracoes, incorporados])
 
   const leisAtivas = Object.keys(leis).filter((k) => leis[k])
 
@@ -205,12 +239,13 @@ export function Fontes({
             {lista.length === 0 ? (
               <Vazia total={alteracoes.length} dataDeCorte={dataDeCorte} />
             ) : (
-              <ul>
+              <ul className="tg-lista">
                 {lista.map((a) => (
                   <Linha
                     key={a.id}
                     a={a}
                     teses={impacto.get(a.id) ?? []}
+                    incorporado={incorporado.get(a.id) ?? false}
                     marcado={marcados[a.id] ?? Boolean(a.reconferidoEm)}
                     aoMarcar={async () => {
                       setMarcados((m) => ({ ...m, [a.id]: true }))
@@ -402,11 +437,13 @@ function PainelJurimetria({ linhas }: { linhas: Jurimetria[] }) {
 function Linha({
   a,
   teses,
+  incorporado,
   marcado,
   aoMarcar,
 }: {
   a: Alteracao
   teses: TeseCitante[]
+  incorporado: boolean
   marcado: boolean
   aoMarcar: () => void
 }) {
@@ -418,8 +455,26 @@ function Linha({
         </Selo>
         <span className="text-[13px] font-semibold text-tg-tinta">{a.identificacao}</span>
         {a.virouNorma && (
-          <Selo tom="escuro" title="A fotografia do corpus está desatualizada neste ponto">
+          <Selo
+            tom={incorporado ? 'neutro' : 'escuro'}
+            title={
+              incorporado
+                ? 'O corpus já traz esta redação — ver artigos.alterado_por'
+                : 'A fotografia do corpus está desatualizada neste ponto'
+            }
+          >
             {a.norma ?? 'virou lei'}
+          </Selo>
+        )}
+        {/*
+          O selo verde não é "alguém leu": é "o texto do banco já é este". Ele
+          sai de `artigos.alterado_por`, que é a mesma coluna que a tela do
+          artigo e o rodapé da peça usam — se um dia divergirem, os três
+          divergem juntos, e não a tela sozinha.
+        */}
+        {incorporado && (
+          <Selo tom="verde" title="A redação nova já está no corpus, conferida e citável">
+            no corpus
           </Selo>
         )}
         <span className="flex-1" />

@@ -13,11 +13,12 @@ import { Cabecalho } from '@/components/casca/cabecalho'
 import { Icone } from '@/components/icones'
 import { Cartao, ErroBanco, Selo, Vazio } from '@/components/ui'
 import { aplicaA, casos, teses } from '@/lib/dados'
+import { titulo } from '@/lib/toga/marca'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Peças — Toga',
+  title: titulo('Peças'),
   description: 'Resposta à acusação (art. 396-A do CPP) a partir de caso e checklist de teses.',
 }
 

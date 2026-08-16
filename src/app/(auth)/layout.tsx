@@ -7,7 +7,10 @@
 // (#f7f8fa), mesmo cartão branco, mesma marca — só que num cartão centrado.
 // =============================================================================
 
+import { dataBR } from '@/lib/formato'
 import { GRADIENTE_MARCA } from '@/lib/toga/tokens'
+import { MARCA } from '@/lib/toga/marca'
+import { DATA_DE_CORTE } from '@/lib/vigilia/alvos'
 
 export default function LayoutAuth({ children }: { children: React.ReactNode }) {
   return (
@@ -21,11 +24,11 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
               className="grid size-9 place-items-center rounded-xl font-tg-serif text-[17px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
               style={{ background: GRADIENTE_MARCA }}
             >
-              T
+              {MARCA.inicial}
             </span>
-            <span className="text-xl font-semibold -tracking-[0.01em] text-tg-tinta">Toga</span>
+            <span className="text-xl font-semibold -tracking-[0.01em] text-tg-tinta">{MARCA.nome}</span>
             <span className="rounded-full bg-tg-acento-fraco px-2 py-0.5 text-[10px] font-medium text-tg-acento-txt">
-              Penal
+              {MARCA.ramo}
             </span>
           </div>
 
@@ -35,7 +38,7 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
 
           <p className="mt-6 text-center text-[11.5px] leading-relaxed text-tg-tenue-2">
             Consulta e geração de peças em tráfico de drogas. Base de legislação vigente em{' '}
-            <strong className="font-medium text-tg-fraco-3">28/02/2025</strong>.
+            <strong className="font-medium text-tg-fraco-3">{dataBR(DATA_DE_CORTE)}</strong>.
           </p>
         </div>
       </div>

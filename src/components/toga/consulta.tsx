@@ -11,13 +11,20 @@
 //   620 ms porque a busca inteira leva menos que isso e um progresso que pisca e
 //   some não informa nada — mas o `meta` de cada passo é o número que aquele
 //   passo produziu de verdade, não enfeite.
-// - A digitação é animação pura, 7 caracteres a cada 16 ms, exatamente como o
-//   documento. O texto já chegou inteiro; ele é revelado, não gerado.
+// - A digitação tem dois regimes, e os dois são honestos: no caminho composto
+//   ela é animação pura (7 caracteres a cada 16 ms, como o documento) porque o
+//   texto já chegou inteiro; no caminho ao vivo é revelação real, token a token,
+//   enquanto o JSON do modelo ainda está abrindo.
 // - Os cartões de fonte e o painel lateral são dados do banco, sem uma segunda
 //   ida à rede: `Achado` já traz texto, citação, vigência e cobertura, e clicar
 //   numa fonte não deveria custar uma requisição.
 //
-// Por que a prosa não é gerada por modelo: ver o cabeçalho de `lib/toga/resposta.ts`.
+// **A prosa É gerada por modelo**, em `/api/consulta/aovivo` — ver "O contrato da
+// geração" no CLAUDE.md. `comporResposta()`, em `lib/toga/resposta.ts`, deixou de
+// ser o caminho padrão e virou a rede de segurança: é ela que responde quando
+// falta chave, falta rede, o teto estoura ou a validação recusa duas vezes. As
+// duas produzem o mesmo `RespostaComposta`, e é isso que permite um renderizador
+// só e uma queda sem pulo de layout.
 // =============================================================================
 
 import Link from 'next/link'
@@ -27,10 +34,12 @@ import { Girador, Selo, Visto } from '@/components/toga/base'
 import { EVENTO_NOVA } from '@/components/toga/casca'
 import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
 import type { EventoAoVivo } from '@/lib/consulta/contrato'
+import { dataBR } from '@/lib/formato'
 import { calcula, leDaConversa, meses } from '@/lib/toga/dosimetria'
 import { busca, registra } from '@/lib/toga/historico'
 import { comporResposta, type Fonte, type RespostaComposta } from '@/lib/toga/resposta'
 import { ACENTO, ACENTO_CLARO, GRADIENTE_MARCA, GRADIENTE_RESULTADO } from '@/lib/toga/tokens'
+import { DATA_DE_CORTE } from '@/lib/vigilia/alvos'
 
 // --- constantes de animação (todas do documento de design) -------------------
 
@@ -53,23 +62,33 @@ const PASSOS_PROVISORIOS = [
   { t: 'Conferindo vigência e cobertura', meta: '' },
 ]
 
-/** Escopos de busca. Os dois últimos existem desligados, e o motivo está no `title`. */
+/**
+ * Escopo da busca: qual lei do corpus filtrar. O `id` vai direto em `lei` na
+ * chamada, e as três são as três de `LEIS_CONHECIDAS`.
+ *
+ * **Havia mais duas, desligadas — "Jurisprudência" e "Doutrina" — e as duas
+ * saíram.** Não eram escopo: esta fileira escolhe *lei*, e nenhuma das duas é
+ * uma. Um botão permanentemente morto numa fileira de filtros ensina que o
+ * filtro não funciona.
+ *
+ * A de Jurisprudência ainda dizia "o produto indexa lei, não acórdão", e isso
+ * passou a subestimar o produto quando os precedentes qualificados entraram: o
+ * chat traz temas do STJ como fonte numerada, com a situação no lugar da
+ * vigência, e há uma tela inteira deles. O que continua verdade — precedente não
+ * é fundamento de peça — já está dito onde importa: no subtítulo do próprio
+ * cartão de fonte ("jurisprudência, não texto de lei").
+ *
+ * A de Doutrina dizia a verdade, mas era a sexta vez que o produto a dizia — e a
+ * mais fraca. A restrição está na pílula "Sem doutrina" logo abaixo, num bloco
+ * próprio em `/jurisprudencia`, nas garantias de `/configuracoes`, na regra 4 da
+ * instrução do modelo e, o que de fato a sustenta, na recusa em runtime:
+ * `classifica()` reconhece o molde `doutrina` e a resposta se nega a atribuir
+ * nada ao autor. O que segura a regra é o código, não o botão cinza.
+ */
 const ESCOPOS = [
-  { id: 'lei_11343_2006', t: 'Lei de Drogas', vivo: true, nota: 'Lei 11.343/2006 · cobertura integral' },
-  { id: 'dl_2848_1940', t: 'Código Penal', vivo: true, nota: 'DL 2.848/1940 · cobertura integral' },
-  { id: 'dl_3689_1941', t: 'CPP', vivo: true, nota: 'DL 3.689/1941 · subconjunto curado' },
-  {
-    id: 'juris',
-    t: 'Jurisprudência',
-    vivo: false,
-    nota: 'Fora do corpus citável: o produto indexa lei, não acórdão.',
-  },
-  {
-    id: 'doutrina',
-    t: 'Doutrina',
-    vivo: false,
-    nota: 'Obra autoral protegida. O projeto não hospeda, não indexa e não resume doutrina.',
-  },
+  { id: 'lei_11343_2006', t: 'Lei de Drogas', nota: 'Lei 11.343/2006 · cobertura integral' },
+  { id: 'dl_2848_1940', t: 'Código Penal', nota: 'DL 2.848/1940 · cobertura integral' },
+  { id: 'dl_3689_1941', t: 'CPP', nota: 'DL 3.689/1941 · cobertura integral' },
 ] as const
 
 const ATALHOS = [
@@ -659,8 +678,8 @@ function Abertura({
         {saudacao}
       </h1>
       <p className="mt-2 max-w-[440px] text-[15px] leading-[1.6] text-tg-fraco">
-        Pergunte em linguagem natural. Eu leio o corpus curado — Lei 11.343, Código Penal e o
-        recorte do CPP —, mostro de onde tirei cada citação e digo a data da redação.
+        Pergunte em linguagem natural. Eu leio o corpus curado — Lei 11.343, Código Penal e Código
+        de Processo Penal —, mostro de onde tirei cada citação e digo a data da redação.
       </p>
       <div className="mt-[26px] grid gap-2.5 sm:grid-cols-2">
         {ATALHOS.map((a) => (
@@ -886,65 +905,78 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
         </span>
       </button>
 
-      {aberto && (
-        <div className="border-t border-tg-linha-fraca px-4 pb-4 pt-3">
-          {chips.length > 0 ? (
-            <div className="mb-3 flex flex-wrap gap-1.5">
-              {chips.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-md bg-tg-acento-fraco px-2 py-0.5 text-[11.5px] text-tg-acento-txt"
-                >
-                  {t}
-                </span>
+      {/*
+        Abre com a altura real, por `grid-template-rows: 0fr → 1fr`. Antes o
+        conteúdo era montado e desmontado, e o cartão saltava de 48px para 300px
+        num quadro só — o que empurra a conversa inteira para baixo sem que o
+        olho acompanhe. `max-height` chutado alto faria o fechamento parecer
+        lento; a grade mede sozinha.
+
+        `inert` quando fechado é o que impede o conteúdo escondido de continuar
+        no caminho do Tab e na leitura do leitor de tela. Sem ele, animar em vez
+        de desmontar seria trocar um salto visual por um defeito de acesso.
+      */}
+      <div className="tg-abre" data-aberto={aberto ? 'sim' : 'nao'}>
+        <div inert={!aberto}>
+          <div className="border-t border-tg-linha-fraca px-4 pb-4 pt-3">
+            {chips.length > 0 ? (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {chips.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-md bg-tg-acento-fraco px-2 py-0.5 text-[11.5px] text-tg-acento-txt"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="mb-3 text-[12px] leading-relaxed text-tg-fraco-3">
+                Nada de dosimetria foi reconhecido nesta pergunta — o cálculo abaixo usa o cenário
+                padrão. Escreva fatos como “réu primário”, “confessou”, “reincidente” ou “grande
+                quantidade” para o cartão lê-los.
+              </p>
+            )}
+
+            <div className="grid grid-cols-3 gap-2">
+              {fases.map((f) => (
+                <div key={f.k} className="rounded-lg bg-tg-preenche px-3 py-2.5">
+                  <p className="text-[10.5px] uppercase tracking-wider text-tg-fraco-3">{f.k}</p>
+                  <p className="mt-0.5 text-[15px] font-medium tabular-nums text-tg-tinta">{f.v}</p>
+                  <p className="mt-0.5 text-[11px] leading-tight text-tg-fraco-3">{f.d}</p>
+                </div>
               ))}
             </div>
-          ) : (
-            <p className="mb-3 text-[12px] leading-relaxed text-tg-fraco-3">
-              Nada de dosimetria foi reconhecido nesta pergunta — o cálculo abaixo usa o cenário
-              padrão. Escreva fatos como “réu primário”, “confessou”, “reincidente” ou “grande
-              quantidade” para o cartão lê-los.
-            </p>
-          )}
 
-          <div className="grid grid-cols-3 gap-2">
-            {fases.map((f) => (
-              <div key={f.k} className="rounded-lg bg-tg-preenche px-3 py-2.5">
-                <p className="text-[10.5px] uppercase tracking-wider text-tg-fraco-3">{f.k}</p>
-                <p className="mt-0.5 text-[15px] font-medium tabular-nums text-tg-tinta">{f.v}</p>
-                <p className="mt-0.5 text-[11px] leading-tight text-tg-fraco-3">{f.d}</p>
-              </div>
-            ))}
-          </div>
-
-          <div
-            className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl px-4 py-3"
-            style={{ background: GRADIENTE_RESULTADO }}
-          >
-            <span className="font-tg-serif text-[20px] leading-none text-white">
-              {meses(c.definitiva)}
-            </span>
-            <span className="text-[11.5px] text-white/70">
-              regime inicial {c.regime}
-              {c.abaixoDoMinimo ? ' · abaixo do mínimo pelo § 4º' : ''}
-            </span>
-            <span className="flex-1" />
-            <Link
-              href="/dosimetria"
-              className="rounded-lg bg-white/95 px-2.5 py-1.5 text-[11.5px] font-medium text-tg-acento-txt hover:bg-white"
+            <div
+              className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl px-4 py-3"
+              style={{ background: GRADIENTE_RESULTADO }}
             >
-              Abrir na ferramenta →
-            </Link>
-          </div>
+              <span className="font-tg-serif text-[20px] leading-none text-white">
+                {meses(c.definitiva)}
+              </span>
+              <span className="text-[11.5px] text-white/70">
+                regime inicial {c.regime}
+                {c.abaixoDoMinimo ? ' · abaixo do mínimo pelo § 4º' : ''}
+              </span>
+              <span className="flex-1" />
+              <Link
+                href="/dosimetria"
+                className="rounded-lg bg-white/95 px-2.5 py-1.5 text-[11.5px] font-medium text-tg-acento-txt hover:bg-white"
+              >
+                Abrir na ferramenta →
+              </Link>
+            </div>
 
-          <p className="mt-2.5 text-[11px] leading-relaxed text-tg-tenue-2">
-            Estimativa, não parecer. Usa as frações majoritárias (1/8 do intervalo por
-            circunstância, art. 42 com peso dobrado) e respeita a Súmula 231 na segunda fase. O
-            regime sai das faixas do art. 33, § 2º, do CP, sem a fundamentação concreta que as
-            Súmulas 440/STJ e 719/STF exigem.
-          </p>
+            <p className="mt-2.5 text-[11px] leading-relaxed text-tg-tenue-2">
+              Estimativa, não parecer. Usa as frações majoritárias (1/8 do intervalo por
+              circunstância, art. 42 com peso dobrado) e respeita a Súmula 231 na segunda fase. O
+              regime sai das faixas do art. 33, § 2º, do CP, sem a fundamentação concreta que as
+              Súmulas 440/STJ e 719/STF exigem.
+            </p>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -1161,15 +1193,10 @@ function Entrada({
                 key={e.id}
                 type="button"
                 title={e.nota}
-                disabled={!e.vivo}
                 onClick={() => aoTrocarEscopo(ativo ? null : e.id)}
-                aria-pressed={e.vivo ? ativo : undefined}
+                aria-pressed={ativo}
                 className={`tgb flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-[11px] py-1.5 text-[11.5px] font-medium shadow-[var(--tg-elev-1)] ${
-                  ativo
-                    ? 'bg-tg-acento-fraco text-tg-acento-txt'
-                    : e.vivo
-                      ? 'bg-white text-tg-suave'
-                      : 'cursor-not-allowed bg-white text-tg-tenue-2'
+                  ativo ? 'bg-tg-acento-fraco text-tg-acento-txt' : 'bg-white text-tg-suave'
                 }`}
               >
                 <span
@@ -1211,7 +1238,7 @@ function Entrada({
               title="Os JSONs são uma fotografia do Vade Mecum do Senado Federal, 1ª ed."
               className="hidden rounded-full bg-tg-preenche px-[11px] py-1.5 text-[11.5px] text-tg-suave sm:block"
             >
-              Corte 28/02/2025
+              Corte {dataBR(DATA_DE_CORTE)}
             </span>
             <span
               title="Doutrina é obra autoral protegida — ver a restrição no CLAUDE.md do projeto."
@@ -1384,7 +1411,11 @@ function PainelFonte({
           <div className="flex flex-col gap-3">
             {[
               {
-                chave: '28/02/2025',
+                // A data sai do próprio dispositivo, não de um literal: o painel
+                // já tem o registro em mãos, e `vigencia_ate` é o que a decisão
+                // nº 3 manda mostrar. Um `28/02/2025` escrito aqui continuaria
+                // impresso sobre um artigo em redação posterior.
+                chave: dataBR(atual.vigencia_ate),
                 txt: 'Fotografia do Vade Mecum do Senado Federal, 1ª edição. É a data de corte do corpus inteiro.',
               },
               {

@@ -253,6 +253,121 @@ body {
   animation: tgGrow 0.5s ease both;
 }
 
+/* -----------------------------------------------------------------------------
+   Entrada de tela
+
+   Uma navegação no App Router troca o conteúdo sem nenhum sinal de que trocou —
+   o cabeçalho e a lateral ficam parados e só a área central muda. Este é o sinal:
+   28 ms mais curto que `tg-sobe`, porque aqui ele acompanha uma troca que o
+   usuário pediu, e não a chegada de algo que ele estava esperando.
+
+   Quem aplica é a `Casca`, com `key` no caminho — sem a chave, a animação toca
+   uma vez e nunca mais.
+   ----------------------------------------------------------------------------- */
+.tg-tela {
+  animation: tgUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* -----------------------------------------------------------------------------
+   Lista em cascata
+
+   O atraso escalonado faz o olho ler a lista de cima para baixo, em vez de topar
+   com um bloco pronto. É pequeno de propósito: 26 ms entre itens some como
+   percepção e fica como ritmo.
+
+   **Só os dez primeiros animam.** O índice do Código de Processo Penal tem 825
+   linhas, e animar todas seria 825 elementos com `transform` e `opacity` na
+   mesma frame — trava a rolagem no aparelho de quem abriu a lei. O sinal é para
+   a primeira tela; o resto já está lá quando se chega nele.
+   ----------------------------------------------------------------------------- */
+.tg-lista > * {
+  animation: tgUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.tg-lista > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.tg-lista > *:nth-child(2) {
+  animation-delay: 26ms;
+}
+.tg-lista > *:nth-child(3) {
+  animation-delay: 52ms;
+}
+.tg-lista > *:nth-child(4) {
+  animation-delay: 78ms;
+}
+.tg-lista > *:nth-child(5) {
+  animation-delay: 104ms;
+}
+.tg-lista > *:nth-child(6) {
+  animation-delay: 130ms;
+}
+.tg-lista > *:nth-child(7) {
+  animation-delay: 156ms;
+}
+.tg-lista > *:nth-child(8) {
+  animation-delay: 182ms;
+}
+.tg-lista > *:nth-child(9) {
+  animation-delay: 208ms;
+}
+.tg-lista > *:nth-child(10) {
+  animation-delay: 234ms;
+}
+.tg-lista > *:nth-child(n + 11) {
+  animation: none;
+}
+
+/* -----------------------------------------------------------------------------
+   Abrir e fechar com a altura real
+
+   `grid-template-rows: 0fr → 1fr` é o único jeito de animar até "a altura que o
+   conteúdo tiver" sem medir nada em JavaScript. `max-height` chutado alto faz o
+   fechamento parecer atrasado, e `scaleY` — que é o que `tg-cresce` faz —
+   esmaga o texto enquanto abre, o que num cartão de dosimetria com números fica
+   ilegível.
+   ----------------------------------------------------------------------------- */
+.tg-abre {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.tg-abre > * {
+  overflow: hidden;
+}
+.tg-abre[data-aberto='sim'] {
+  grid-template-rows: 1fr;
+}
+
+/* -----------------------------------------------------------------------------
+   Realce de chegada
+
+   Toda citação do produto abre o artigo INTEIRO com um dispositivo marcado — é a
+   decisão nº 1 em forma de navegação. Num artigo de trinta blocos, o marcado
+   pode estar na dobra de baixo, e o fundo estático não diz "é este aqui".
+
+   A sombra interna cobre o bloco e some; o fundo permanente do dispositivo em
+   destaque continua embaixo, intacto. Animar `background-color` apagaria esse
+   fundo ao terminar, que é o oposto do que se quer.
+   ----------------------------------------------------------------------------- */
+@keyframes tgRealce {
+  0% {
+    box-shadow: inset 0 0 0 9999px var(--color-tg-acento-nevoa);
+  }
+  100% {
+    box-shadow: inset 0 0 0 9999px transparent;
+  }
+}
+/* O segundo seletor não é redundância: dentro de uma `.tg-lista`, a regra que
+   zera a animação a partir do décimo primeiro item tem especificidade maior que
+   `.tg-realce` sozinha, e o realce sumiria justamente no artigo longo — que é o
+   único em que ele faz falta. Igualando a especificidade e vindo depois, ele
+   ganha; e o atraso da cascata sai, porque quem chega por citação não espera. */
+.tg-realce,
+.tg-lista > .tg-realce {
+  animation: tgRealce 1.5s ease-out both;
+  animation-delay: 0ms;
+}
+
 /* Respeitar quem desligou animação no sistema. O documento de design não trata
    disso — protótipo não precisa; produto precisa. O conteúdo é o mesmo: o que
    cai é só o movimento. */
@@ -263,6 +378,11 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    /* O atraso também: sem isto, a lista em cascata continua esperando os 234 ms
+       do décimo item para então aparecer de uma vez. Duração zero com atraso
+       intacto não é "sem movimento" — é o conteúdo chegando tarde e piscando. */
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
   }
 }
 
@@ -276,6 +396,8 @@ body {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  transition-delay: 0ms !important;
 }
 
 /* =============================================================================

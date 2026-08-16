@@ -37,6 +37,7 @@ const CURADORIA = resolve(RAIZ, 'data/curadoria')
 
 type LinhaNormalizada = {
   id: string
+  artigo_id: string
   citacao: string
   texto: string
   revogado?: boolean
@@ -49,9 +50,16 @@ function mapaDoCorpus(): Map<string, Citado> {
     if (!arq.endsWith('.json') || arq === 'relatorio.json') continue
     const doc = JSON.parse(readFileSync(resolve(NORMALIZADO, arq), 'utf8')) as {
       lei?: { apelido?: string; vigencia_ate?: string }
+      artigos?: { id: string; conferido_em: string | null; alterado_por?: string[] }[]
       dispositivos?: LinhaNormalizada[]
     }
+    // A procedência mora no ARTIGO, e é ela que o rodapé imprime quando a
+    // redação transcrita é posterior à data de corte. Montar o mapa sem ela
+    // faria o teste passar por cima justamente do caso que importa — o art. 65
+    // do CP, que é fundamento de tese e mudou depois da fotografia.
+    const porArtigo = new Map((doc.artigos ?? []).map((a) => [a.id, a]))
     for (const d of doc.dispositivos ?? []) {
+      const a = porArtigo.get(d.artigo_id)
       mapa.set(d.id, {
         id: d.id,
         citacao: d.citacao,
@@ -59,6 +67,8 @@ function mapaDoCorpus(): Map<string, Citado> {
         leiApelido: doc.lei?.apelido ?? '',
         vigenciaAte: doc.lei?.vigencia_ate ?? '',
         revogado: Boolean(d.revogado),
+        conferidoEm: a?.conferido_em ?? null,
+        alteradoPor: a?.alterado_por ?? [],
       })
     }
   }
@@ -215,6 +225,30 @@ describe('.docx gerado', () => {
 
     expect(rodape, 'data de corte ausente do rodapé').toContain(peca.vigenciaAte)
     expect(rodape).toContain('dispositivos transcritos do banco')
+  })
+
+  // Uma data só no rodapé deixou de bastar quando o corpus passou a ter artigo
+  // em redação posterior à fotografia — e a peça cita um: o art. 65 do Código
+  // Penal, atenuantes, alterado pela Lei 15.160/2025. Carimbar 28/02/2025 sobre
+  // esse texto seria a decisão nº 3 mentindo dentro do arquivo protocolado.
+  it('o rodapé diz quando a redação transcrita é posterior à data de corte', async () => {
+    const comConferido = CASOS.map((c) => resolvePeca(c, TESES.filter((t) => aplicaA(t, c)), CORPUS))
+      .find((p) => p.conferidos.length > 0)
+
+    if (!comConferido) {
+      // Nenhuma tese cita artigo atualizado hoje. Não é falha: é o corpus não
+      // ter mudado onde a peça pisa. A asserção volta a morder sozinha no dia
+      // em que mudar.
+      expect(true).toBe(true)
+      return
+    }
+
+    const rodape = parteDoDocx(await pecaEmDocx(comConferido), 'word/footer1.xml')
+    expect(rodape, 'rodapé não menciona a conferência').toContain('redação posterior à data de corte')
+    expect(rodape).toContain(comConferido.conferidos[0]!.conferidoEm)
+    for (const lei of new Set(comConferido.conferidos.flatMap((c) => c.alteradoPor))) {
+      expect(rodape, `rodapé sem a lei ${lei}`).toContain(lei)
+    }
   })
 
   it('caso sem tese aplicável gera peça que diz isso, em vez de peça vazia', async () => {

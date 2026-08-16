@@ -26,6 +26,15 @@ export type Citado = {
   leiApelido: string
   vigenciaAte: string
   revogado: boolean
+  /**
+   * Procedência do ARTIGO, quando ela já não é a da fotografia.
+   *
+   * Um dispositivo transcrito na peça pode estar em redação mais nova que a data
+   * de corte — 45 artigos estão. O rodapé precisa disso: quem abrir o .docx daqui
+   * a seis meses lê uma data só, e ela tem de cobrir o que está transcrito acima.
+   */
+  conferidoEm?: string | null
+  alteradoPor?: string[]
 }
 
 /** Um pedaço de tese já resolvido: ou prosa da curadoria, ou citação da fonte. */
@@ -63,6 +72,12 @@ export type PecaMontada = {
   teses: TeseMontada[]
   /** Data de corte do corpus. Vai impressa no rodapé — decisão nº 3. */
   vigenciaAte: string
+  /**
+   * Os dispositivos transcritos cuja redação é posterior à data de corte, com a
+   * data em que foram conferidos. Vazio na maioria das minutas — e o rodapé
+   * então diz só a data de corte, como sempre disse.
+   */
+  conferidos: { id: string; citacao: string; conferidoEm: string; alteradoPor: string[] }[]
   /** Ids citados, na ordem em que aparecem. Serve de conferência na tela. */
   citados: string[]
 }
@@ -153,5 +168,15 @@ export function resolvePeca(
   // vigência que a fonte não tem.
   const vigencia = [...mapa.values()][0]?.vigenciaAte ?? ''
 
-  return { caso, teses: montadas, vigenciaAte: vigencia, citados }
+  const conferidos = citados
+    .map((id) => mapa.get(id))
+    .filter((d): d is Citado => Boolean(d?.conferidoEm && d.alteradoPor?.length))
+    .map((d) => ({
+      id: d.id,
+      citacao: d.citacao,
+      conferidoEm: d.conferidoEm!,
+      alteradoPor: d.alteradoPor ?? [],
+    }))
+
+  return { caso, teses: montadas, vigenciaAte: vigencia, citados, conferidos }
 }

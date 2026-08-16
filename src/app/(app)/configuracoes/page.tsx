@@ -15,11 +15,12 @@ import type { Metadata } from 'next'
 
 import { Configuracoes, type FonteLei } from '@/components/toga/configuracoes'
 import { contagemDispositivos, leis } from '@/lib/dados'
+import { titulo } from '@/lib/toga/marca'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Configurações — Toga',
+  title: titulo('Configurações'),
   description: 'Perfil, garantias de citação, fontes do corpus, aparência e segurança da conta.',
 }
 

@@ -5,8 +5,10 @@
 //   npm run audit -- --tudo    # todas as alterações, sem amostragem
 //
 // A limpeza da rubrica marginal é heurística e tem falso positivo. Este script
-// é o passo em que uma pessoa olha as 351 alterações do CP antes de qualquer
-// coisa entrar no banco. Ele não conserta nada — ele mostra.
+// é o passo em que uma pessoa olha as alterações do CP — 379 de rubrica
+// marginal, hoje — antes de qualquer coisa entrar no banco. Ele não conserta
+// nada; ele mostra. Os totais saem do relatório, nunca de número digitado aqui:
+// ver o comentário sobre a "Referência do CLAUDE.md" que este arquivo tinha.
 // =============================================================================
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -75,9 +77,39 @@ for (const l of r.leis) {
   )
 }
 p()
+
+/*
+ * O total por regra, somado das três leis.
+ *
+ * Aqui havia uma linha de "Referência do CLAUDE.md" com números escritos à mão —
+ * 351 rubricas marginais, 6 notas de rodapé, 547 ordinais — e ela tinha
+ * envelhecido: o corpus real traz 385, 58 e 179. Como a frase seguinte dizia
+ * "divergência grande é sinal de regra errada", ela mandava quem auditasse
+ * suspeitar das regras, que estavam certas, por causa de uma referência que
+ * estava errada. Um artefato de conferência que erra assim é pior que nenhum.
+ *
+ * A direção certa é a inversa, e o próprio CLAUDE.md já a declara: "os números
+ * desta seção vêm de `data/normalizado/relatorio.json`, não da memória". Então o
+ * relatório é a fonte e o documento é que segue — não há mais número escrito à
+ * mão para divergir de si mesmo.
+ */
+const totalPorRegra = new Map<string, number>()
+for (const a of r.alteracoes) totalPorRegra.set(a.regra, (totalPorRegra.get(a.regra) ?? 0) + 1)
+
 p(
-  'Referência do CLAUDE.md: 351 rubricas marginais no CP e 0 na Lei 11.343; ' +
-    '6 notas de rodapé; 547 ordinais. Divergência grande é sinal de regra errada, não de dado errado.',
+  `Total: ${r.alteracoes.length} alterações em ${new Set(r.alteracoes.map((a) => a.dispositivo_id)).size} ` +
+    'dispositivos — ' +
+    [...totalPorRegra.entries()]
+      .sort((x, y) => y[1] - x[1])
+      .map(([regra, n]) => `${regra} ${n}`)
+      .join(', ') +
+    '.',
+)
+p()
+p(
+  'Estes são os números que o CLAUDE.md cita, e é daqui que eles saem. Se mudarem ' +
+    'depois de um `npm run normalize`, o documento muda junto — divergência entre os ' +
+    'dois é sinal de regra alterada, não de dado errado.',
 )
 p()
 

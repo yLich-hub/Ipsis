@@ -15,11 +15,12 @@ import type { Metadata } from 'next'
 
 import { Clientes } from '@/components/toga/clientes'
 import { casos } from '@/lib/dados'
+import { titulo } from '@/lib/toga/marca'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Clientes — Toga',
+  title: titulo('Clientes'),
   description: 'Cadastro de clientes do escritório, sob RLS por sessão.',
 }
 

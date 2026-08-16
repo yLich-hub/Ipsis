@@ -24,11 +24,12 @@ import { Jurisprudencia, type Linha } from '@/components/toga/jurisprudencia'
 import { ErroBanco } from '@/components/toga/estados'
 import { teses } from '@/lib/dados'
 import { agrupaPorTese, precedentes } from '@/lib/vigilia/precedentes'
+import { titulo } from '@/lib/toga/marca'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Jurisprudência — Toga',
+  title: titulo('Jurisprudência'),
   description:
     'Entendimento consolidado e precedentes qualificados do STJ, com a situação de cada um.',
 }

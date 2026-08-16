@@ -196,6 +196,14 @@ export function soArtigo(dispositivoId: string): string {
  * ANTES de falar com o banco, para não pedir às APIs uma janela que já é
  * conhecida. A verdade continua sendo `leis.vigencia_ate`, e a tela mostra a do
  * banco — se as duas divergirem, é a tela que está certa.
+ *
+ * **É também a fonte única da data que a interface escreve à mão.** Onde a tela
+ * já tem um dispositivo em mãos, ela imprime `vigencia_ate` daquele registro; só
+ * onde não há registro nenhum — a lateral, a tela de entrada, a pílula da caixa
+ * de consulta — é que esta constante aparece. Antes eram cinco literais
+ * `28/02/2025` espalhados pelo JSX, que é o mesmo defeito que `marca.ts` existe
+ * para evitar: a próxima fotografia deixaria a metade das telas com a data
+ * velha, e a data velha é justamente o que a decisão nº 3 proíbe.
  */
 export const DATA_DE_CORTE = '2025-02-28'
 

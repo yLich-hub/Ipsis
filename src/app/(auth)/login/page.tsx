@@ -11,10 +11,11 @@ import type { Metadata } from 'next'
 
 import { FormularioLogin } from '@/components/auth/login'
 import { PARAM_PROXIMO } from '@/lib/auth/rotas'
+import { MARCA, titulo } from '@/lib/toga/marca'
 
 export const metadata: Metadata = {
-  title: 'Entrar — Toga',
-  description: 'Acesso à área de trabalho do Toga.',
+  title: titulo('Entrar'),
+  description: `Acesso à área de trabalho do ${MARCA.nome}.`,
 }
 
 const RECADOS: Record<string, string> = {

@@ -56,43 +56,11 @@ export function Selo({
   )
 }
 
-/**
- * Pílula clicável — aba, filtro ativo, sugestão, modo de busca.
- *
- * É `<button>` e não `<span class="tgb">` como no documento: o protótipo não
- * precisa ser navegável por teclado, o produto precisa. O visual é idêntico.
- */
-export function Pilula({
-  ativa = false,
-  onClick,
-  children,
-  className = '',
-  title,
-  type = 'button',
-}: {
-  ativa?: boolean
-  onClick?: () => void
-  children: ReactNode
-  className?: string
-  title?: string
-  type?: 'button' | 'submit'
-}) {
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      aria-pressed={onClick ? ativa : undefined}
-      title={title}
-      className={`tgb inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[11.5px] font-medium ${
-        ativa
-          ? 'bg-tg-acento-fraco text-tg-acento-txt hover:bg-tg-acento-fraco-3'
-          : 'bg-tg-preenche text-tg-corpo hover:bg-tg-preenche-alto'
-      } ${className}`}
-    >
-      {children}
-    </button>
-  )
-}
+// `Pilula` — pílula clicável genérica — nunca chegou a ser usada: cada tela que
+// precisou de uma (os escopos da Consulta, os filtros da Jurisprudência, os
+// ramos do Vade Mecum) escreveu a sua, porque todas carregam estado e `title`
+// próprios que o componente genérico não previa. Um botão de biblioteca que
+// nenhuma tela adota é peso morto na leitura do arquivo.
 
 /** Superfície branca padrão: raio 18px, elevação de repouso, sem borda. */
 export function Cartao({

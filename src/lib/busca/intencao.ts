@@ -85,10 +85,7 @@ export function refina(intencao: Intencao, viaRubrica: string | null): Intencao 
   return { ...intencao, molde: 'tema', sinal: `rubrica "${viaRubrica}" (match exato)` }
 }
 
-export const ROTULO_MOLDE: Record<Molde, string> = {
-  dispositivo: 'Dispositivo citado',
-  tema: 'Tema · rubrica',
-  processual: 'Processual',
-  doutrina: 'Doutrina',
-  aberta: 'Busca aberta',
-}
+// `ROTULO_MOLDE` traduzia o molde para a tela de diagnóstico da busca, que saiu
+// junto com `/busca`. Hoje quem mostra o molde ao usuário é o passo animado da
+// Consulta, e ele imprime `intencao.sinal`, que é uma frase inteira e não um
+// rótulo. Um segundo vocabulário para a mesma coisa só teria como divergir.

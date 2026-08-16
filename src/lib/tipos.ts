@@ -63,7 +63,19 @@ export type LinhaArtigo = {
   secao: string | null
   rubrica: string | null
   revogado: boolean
+  /**
+   * Data em que a redação deste artigo foi conferida contra o texto oficial.
+   *
+   * Nula na esmagadora maioria: o artigo está na redação da fotografia do Vade
+   * Mecum, e quem responde por ela é `leis.vigencia_ate`. Preenchida nos artigos
+   * que `data/curadoria/redacoes.yaml` atualizou — ali a data da lei não vale
+   * mais, e é esta que a tela mostra.
+   */
   conferido_em: string | null
+  /** As leis posteriores à data de corte que alteraram este artigo. */
+  alterado_por: string[]
+  /** Endereço do texto compilado contra o qual a conferência foi feita. */
+  fonte_redacao: string | null
 }
 
 export type LinhaDispositivo = {
@@ -162,6 +174,11 @@ export type Alteracao = {
     | 'rubrica_marginal'
     | 'estrutura'
     | 'emenda'
+    // A única regra que NÃO é limpeza de artefato do PDF: a redação mudou depois
+    // da fotografia, e o corpus está sendo alinhado ao texto compilado. Fica na
+    // mesma lista porque o que ela precisa é do mesmo: aparecer no diff da
+    // auditoria, com o antes e o depois lado a lado.
+    | 'redacao'
   antes: string
   depois: string
   /** só em rubrica_marginal: para onde o fragmento removido foi parar */

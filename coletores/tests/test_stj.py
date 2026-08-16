@@ -16,10 +16,15 @@ from __future__ import annotations
 
 import csv
 import io
+import json
+import re
+
+import pytest
 
 from pathlib import Path
 
 from coletores import stj
+from coletores.config import carrega as carrega_vigilia
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
 CFG = stj.curadoria()
@@ -236,3 +241,68 @@ class TestMudancaDeSituacao:
         # avisa sobre mudança que o chat não sofreu — ou cala sobre uma que sofreu.
         ts = (RAIZ / "src" / "lib" / "vigilia" / "precedentes.ts").read_text(encoding="utf-8")
         assert f"const CITAVEL = '{stj.CITAVEL}'" in ts
+
+
+# --- vínculo curado ----------------------------------------------------------
+#
+# Seis dos dezoito temas citáveis não tinham artigo e eram inalcançáveis pelo
+# grafo: apareciam na tela e nunca no chat. O conserto foi curadoria manual, e o
+# que precisa de trava é justamente ela — um id errado aqui não quebra nada
+# visivelmente, só faz o precedente entrar na resposta de outra pergunta.
+
+VINCULOS = CFG.get("vinculos") or {}
+
+exige_corpus = pytest.mark.skipif(
+    not (RAIZ / "data" / "normalizado" / "lei_11343_2006.json").exists(),
+    reason=(
+        "data/normalizado/ não está neste clone (é saída do `npm run normalize`, "
+        "ignorada pelo git). Rode `npm run normalize` para ativar esta asserção."
+    ),
+)
+
+
+def test_todo_vinculo_tem_artigos_e_motivo():
+    assert VINCULOS, "a curadoria de vínculos sumiu — seis temas voltam a ficar fora do chat"
+    for chave, v in VINCULOS.items():
+        assert chave.startswith("stj:"), f"{chave}: a chave é o id do precedente, como no banco"
+        assert v.get("artigos"), f"{chave}: vínculo sem artigo não vincula nada"
+        # O `porque` não é ornamento: é o que permite conferir a escolha depois,
+        # e cada linha aqui é uma decisão de leitura da tese.
+        assert v.get("porque", "").strip(), f"{chave}: vínculo sem justificativa escrita"
+
+
+def test_o_id_do_vinculo_tem_a_forma_de_artigo_do_corpus():
+    """Id de DISPOSITIVO (`..._art33_p4`) passaria despercebido e nunca casaria:
+    `artigos_tocados` é comparado com artigo, não com dispositivo."""
+    for chave, v in VINCULOS.items():
+        for a in v["artigos"]:
+            assert re.fullmatch(
+                r"(lei_11343_2006|dl_2848_1940|dl_3689_1941)_art\d{1,4}(-[a-z])*", a
+            ), f"{chave}: {a} não tem a forma de id de artigo do corpus"
+
+
+@exige_corpus
+def test_todo_artigo_curado_existe_no_corpus():
+    existentes: set[str] = set()
+    for lei in ("lei_11343_2006", "dl_2848_1940", "dl_3689_1941"):
+        arq = RAIZ / "data" / "normalizado" / f"{lei}.json"
+        if arq.exists():
+            existentes |= {a["id"] for a in json.loads(arq.read_text(encoding="utf-8"))["artigos"]}
+
+    for chave, v in VINCULOS.items():
+        for a in v["artigos"]:
+            assert a in existentes, f"{chave}: {a} não existe no corpus"
+
+
+def test_o_vinculo_curado_vence_a_extracao_automatica():
+    """O tema que o extrator resolveria de um jeito e a curadoria de outro fica
+    com o da curadoria — quem leu a tese inteira foi ela."""
+    chave = next(iter(VINCULOS))
+    linha = tema(
+        sequencialPrecedente=chave.split(":")[1],
+        teseFirmada="Tráfico de drogas: aplica-se o art. 59 da Lei n. 11.343/2006.",
+    )
+    p = stj.colhe.__globals__["_para_precedente"](
+        linha, "drogas", linha["teseFirmada"], carrega_vigilia().alvos, CFG
+    )
+    assert p.artigos_tocados == VINCULOS[chave]["artigos"]

@@ -45,3 +45,10 @@ data/vigilia/
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Saída do Playwright. `e2e/.sessao.json` guarda um cookie de sessão válido —
+# versioná-lo seria publicar credencial; os outros dois são relatório e rastro,
+# regenerados a cada execução.
+e2e/.sessao.json
+test-results/
+playwright-report/

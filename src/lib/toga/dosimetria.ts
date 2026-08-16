@@ -143,6 +143,68 @@ export function calcula({ vetores, agravantes, causas }: EntradaDosimetria): Cal
   }
 }
 
+/**
+ * O memorial de cálculo, em texto corrido, pronto para colar numa peça.
+ *
+ * Existe porque o botão que o oferecia não o produzia: ele acendia "Gerando
+ * memorial…" por 1400 ms e passava a "Memorial pronto ✓" sem nada ter sido
+ * gerado. Um visto de conclusão sobre trabalho que não aconteceu é o mesmo
+ * defeito de classe que uma barra de progresso chegando a 100% antes do
+ * resultado — e este projeto recusa os dois.
+ *
+ * Fica aqui, ao lado de `calcula`, pelo motivo de sempre: o memorial descreve a
+ * conta, e conta e descrição em arquivos diferentes divergem na primeira
+ * correção. A tela só copia o que esta função escreveu.
+ *
+ * Não cita artigo por marcador `{{cite:}}` e não vai para o `.docx`: isto é
+ * saída de calculadora, não peça. O texto legal continua saindo do banco, pelo
+ * caminho de `lib/peca/`.
+ */
+export function memorialDe(entrada: EntradaDosimetria, c = calcula(entrada)): string {
+  const desfavoraveis = VETORES.filter((_, i) => entrada.vetores[i] === 'desf')
+  const favoraveis = VETORES.filter((_, i) => entrada.vetores[i] === 'fav')
+  const marcadas = <T extends { k: string; nome: string }>(
+    lista: readonly T[],
+    estado: Record<string, boolean>,
+  ) => lista.filter((x) => estado[x.k]).map((x) => x.nome)
+
+  const agravantes = marcadas(AGRAVANTES, entrada.agravantes)
+  const causas = marcadas(CAUSAS, entrada.causas)
+  const lista = (xs: string[]) => (xs.length ? xs.join('; ') : 'nenhuma')
+
+  return [
+    'MEMORIAL DE CÁLCULO DA PENA',
+    'Art. 33, caput, da Lei nº 11.343/2006 — reclusão de 5 a 15 anos e 500 a 1.500 dias-multa.',
+    '',
+    '1ª FASE — pena-base (art. 59 do CP e art. 42 da Lei nº 11.343/2006)',
+    `Circunstâncias desfavoráveis: ${lista(desfavoraveis.map((v) => v.nome))}.`,
+    `Circunstâncias favoráveis: ${lista(favoraveis.map((v) => v.nome))}.`,
+    // O art. 42 é o que distingue a dosimetria do tráfico da de qualquer outro
+    // crime, e o memorial tem de dizer isso quando ele pesou.
+    entrada.vetores[PREPONDERANTE] === 'desf'
+      ? 'A natureza e a quantidade da droga preponderam sobre as demais, por força do art. 42 da Lei nº 11.343/2006, e entram com peso dobrado.'
+      : 'A natureza e a quantidade da droga não foram consideradas desfavoráveis.',
+    `Pena-base fixada em ${meses(c.base)}.`,
+    '',
+    '2ª FASE — agravantes e atenuantes (arts. 61 a 65 do CP)',
+    `Marcadas: ${lista(agravantes)}.`,
+    'A pena provisória não desce abaixo do mínimo legal nesta fase (Súmula 231 do STJ).',
+    `Pena provisória: ${meses(c.provisoria)}.`,
+    '',
+    '3ª FASE — causas de aumento e de diminuição',
+    `Aplicadas: ${lista(causas)}.`,
+    `Pena definitiva: ${meses(c.definitiva)} de reclusão e ${c.multa} dias-multa.`,
+    c.abaixoDoMinimo
+      ? 'A pena definitiva ficou abaixo do mínimo legal de 5 anos, o que é válido: a redução veio de causa de diminuição na terceira fase, onde a Súmula 231 não incide.'
+      : '',
+    `Regime inicial estimado: ${c.regime} (art. 33, § 2º, do CP).`,
+    '',
+    'Calculadora, não parecer. As frações são as majoritárias; o caso concreto pode justificar outra.',
+  ]
+    .filter((l) => l !== '')
+    .join('\n')
+}
+
 /** `74` → `6a 2m`. Meses arredondados: a lei não conta pena em fração de mês. */
 export function meses(m: number): string {
   const total = Math.round(m)

@@ -14,9 +14,10 @@ import { LinkAuth, Moldura } from '@/components/auth/moldura'
 import { FormularioRedefinirSenha } from '@/components/auth/redefinir-senha'
 import { Aviso } from '@/components/ui'
 import { usuarioAtual } from '@/lib/auth/servidor'
+import { titulo } from '@/lib/toga/marca'
 
 export const metadata: Metadata = {
-  title: 'Nova senha — Toga',
+  title: titulo('Nova senha'),
   description: 'Definição de nova senha pelo Supabase Auth.',
 }
 

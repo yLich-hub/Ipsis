@@ -24,6 +24,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { Selo, TituloTela } from '@/components/toga/base'
+import { ListaFavoritas } from '@/components/vademecum/lista-favoritas'
 import { numeroBR } from '@/lib/formato'
 import type { AreaAcervo, LeiAcervo } from '@/lib/tipos'
 import { MATIZ, type Matiz } from '@/lib/toga/tokens'
@@ -109,6 +110,15 @@ export function VadeMecum({
           O crédito da fonte continua no rodapé do leitor, que é obrigação de
           licença, não aviso ao usuário.
         */}
+        {/*
+          A faixa de favoritas. `ListaFavoritas` existia pronta e não estava
+          montada em lugar nenhum: a estrela do leitor gravava no `localStorage`
+          e nada no produto lia de volta, então favoritar era um botão que não
+          levava a nada. Ela some sozinha quando não há favorito — ver o próprio
+          componente.
+        */}
+        <ListaFavoritas leis={leis.map((l) => ({ id: l.id, apelido: l.apelido }))} />
+
         <div className="mt-4 flex items-center gap-2.5 rounded-[18px] bg-white px-4 py-3 shadow-[var(--tg-elev-1f)]">
           <span
             aria-hidden="true"
