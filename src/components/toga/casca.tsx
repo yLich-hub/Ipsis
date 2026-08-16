@@ -584,7 +584,17 @@ export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
   }, [])
 
   return (
-    <header className="flex h-[60px] shrink-0 items-center gap-3 border-b border-tg-linha-media bg-white/70 px-4 backdrop-blur-[14px] sm:px-[22px]">
+    // `relative z-20` não é enfeite: `backdrop-blur` cria contexto de
+    // empilhamento, então o `z-20` do menu da conta ficava PRESO dentro do
+    // header, e a área de conteúdo — que vem depois no DOM — pintava por cima
+    // de toda a camada. Como ela é transparente, o menu aparecia na tela e o
+    // clique morria nela. Medido com `elementFromPoint` no centro do item:
+    // devolvia a div de conteúdo, não o item do menu.
+    //
+    // Fica em 20 e não em 30 de propósito: acima do conteúdo, abaixo do fundo
+    // da gaveta (30), da própria gaveta (40) e da paleta de busca (50), que
+    // precisam continuar cobrindo o topo.
+    <header className="relative z-20 flex h-[60px] shrink-0 items-center gap-3 border-b border-tg-linha-media bg-white/70 px-4 backdrop-blur-[14px] sm:px-[22px]">
       <button
         type="button"
         onClick={aoAbrirMenu}
@@ -637,12 +647,25 @@ function Conta() {
   const perfil = usePerfil()
   const [aberto, setAberto] = useState(false)
   const [saindo, setSaindo] = useState(false)
+  const caixa = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!aberto) return
     const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && setAberto(false)
+    // Fechar ao clicar fora é ouvinte no documento, e não uma sobreposição
+    // `fixed inset-0` como no resto do arquivo. O `backdrop-filter` do header
+    // faz dele o bloco de contenção dos descendentes `fixed`, então a
+    // sobreposição não media a tela: media o próprio header. Conferido —
+    // 1034×59 num viewport de 1280×720. Clique fora do topo não fechava nada.
+    const aoApontar = (e: PointerEvent) => {
+      if (!caixa.current?.contains(e.target as Node)) setAberto(false)
+    }
     window.addEventListener('keydown', aoTeclar)
-    return () => window.removeEventListener('keydown', aoTeclar)
+    document.addEventListener('pointerdown', aoApontar)
+    return () => {
+      window.removeEventListener('keydown', aoTeclar)
+      document.removeEventListener('pointerdown', aoApontar)
+    }
   }, [aberto])
 
   if (!usuario?.email) return null
@@ -663,15 +686,7 @@ function Conta() {
   }
 
   return (
-    <div className="relative shrink-0">
-      {aberto && (
-        <button
-          type="button"
-          aria-label="Fechar menu da conta"
-          onClick={() => setAberto(false)}
-          className="fixed inset-0 z-10 cursor-default"
-        />
-      )}
+    <div ref={caixa} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setAberto((a) => !a)}

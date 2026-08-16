@@ -211,6 +211,73 @@ test.describe('consulta', () => {
   })
 })
 
+test.describe('menu da conta', () => {
+  // O menu abria e os dois itens não faziam nada. Não era o `onClick`: o
+  // `backdrop-blur` do header cria contexto de empilhamento, então o `z-20` do
+  // menu ficava preso nele, e a área de conteúdo — que vem depois no DOM —
+  // pintava por cima da camada inteira. Sendo transparente, ela deixava o menu
+  // À VISTA e engolia o clique.
+  //
+  // É o tipo de defeito que este arquivo existe para pegar: não quebra tipo,
+  // não quebra build, e o HTML de servidor não sabe o que é clique.
+  test('“Configurações” leva à tela, e clicar fora fecha', async ({ page }) => {
+    await page.goto('/consulta')
+
+    await page.getByRole('button', { name: /Conta de/ }).click()
+    const item = page.getByRole('menuitem', { name: 'Configurações' })
+    await expect(item).toBeVisible()
+
+    // A trava contra a regressão exata: quem está no ponto do item tem de ser o
+    // item. Um `click()` do Playwright rola e força o alvo; `elementFromPoint`
+    // é o que o dedo do usuário encontraria.
+    const dono = await item.evaluate((el) => {
+      const r = el.getBoundingClientRect()
+      return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest('a')?.tagName
+    })
+    expect(dono).toBe('A')
+
+    await item.click()
+    await page.waitForURL('**/configuracoes')
+
+    // Clicar fora fecha. A sobreposição `fixed inset-0` que fazia isso media o
+    // header e não a tela — mesmo `backdrop-filter`, que também torna o header
+    // bloco de contenção de `fixed`. Hoje é ouvinte no documento.
+    await page.getByRole('button', { name: /Conta de/ }).click()
+    await expect(page.getByRole('menuitem', { name: 'Configurações' })).toBeVisible()
+    await page.mouse.click(640, 500)
+    await expect(page.getByRole('menuitem', { name: 'Configurações' })).toBeHidden()
+  })
+
+  test('“Sair” encerra a sessão e devolve ao login', async ({ page }) => {
+    // O logout é interceptado de propósito. `signOut()` do Supabase revoga os
+    // refresh tokens da conta no servidor, e a suíte inteira reusa uma sessão
+    // guardada em `e2e/.sessao.json` — sair de verdade aqui derrubaria todos os
+    // outros testes e exigiria login novo a cada execução.
+    //
+    // O que este teste cobre é o que pode quebrar do nosso lado: o clique
+    // chegar ao botão, o estado "Saindo…" aparecer e a tela voltar ao login.
+    // Que o Supabase revoga sessão quando recebe a chamada é responsabilidade
+    // dele, e não é o que regride aqui.
+    let pedido = false
+    await page.route('**/auth/v1/logout*', (rota) => {
+      pedido = true
+      return rota.fulfill({ status: 204, body: '' })
+    })
+
+    await page.goto('/consulta')
+    await page.getByRole('button', { name: /Conta de/ }).click()
+    await page.getByRole('menuitem', { name: /Sair/ }).click()
+
+    // Regex, e não glob: o destino é `/login?recado=saiu` — a saída deliberada
+    // se distingue da sessão expirada por esse parâmetro (ver `ProvedorSessao`),
+    // e `'**/login'` não casa com query string.
+    await page.waitForURL(/\/login/)
+    expect(page.url()).toContain('recado=saiu')
+    expect(pedido).toBe(true)
+    await expect(page.getByRole('heading', { name: 'Entrar' })).toBeVisible()
+  })
+})
+
 test.describe('clientes', () => {
   test('cadastra, aparece na lista e apaga', async ({ page }) => {
     const nome = `Cliente E2E ${Date.now()}`
