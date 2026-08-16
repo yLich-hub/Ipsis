@@ -229,13 +229,9 @@ export async function contagemDispositivos(leiId: string): Promise<number | null
   return error ? null : (count ?? null)
 }
 
-export async function contagemRubricas(origem: 'oficial' | 'curada'): Promise<number | null> {
-  const { count, error } = await supabase
-    .from('rubricas')
-    .select('id', { count: 'exact', head: true })
-    .eq('origem', origem)
-  return error ? null : (count ?? null)
-}
+// `contagemRubricas(origem)` saiu junto com o painel de diagnóstico que a
+// exibia. Nenhuma das sete telas conta rubrica por origem, e uma consulta ao
+// banco que ninguém chama envelhece sem que nada quebre.
 
 export type Tese = {
   id: string

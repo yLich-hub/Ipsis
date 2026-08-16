@@ -24,19 +24,25 @@
 
 /** O acento, repetido aqui porque entra em gradiente e em `box-shadow` calculado. */
 export const ACENTO = '#3a3960'
-export const ACENTO_TXT = '#4b4a7a'
-export const ACENTO_FRACO = '#ecebf6'
 export const ACENTO_CLARO = '#8a86b8'
+
+// `ACENTO_TXT` e `ACENTO_FRACO` moravam aqui e não eram usados por ninguém: as
+// telas escrevem `text-tg-acento-txt` e `bg-tg-acento-fraco`, que é a regra do
+// cabeçalho acima. Duas cópias do mesmo hexadecimal, uma em CSS e outra em TS,
+// é exatamente o que este arquivo existe para não ter.
 
 /**
  * Gradientes da marca. O documento de design usa o mesmo par de roxos em quatro
  * lugares (logo da lateral, avatar do assistente, avatar da conta, cartão de
  * resultado da dosimetria) sempre a 160°, exceto o painel de resultado, a 165°.
+ *
+ * `GRADIENTE_PROGRESSO` saiu: era a barra do painel de coletores do documento,
+ * que virou a barra de `/fontes` — e essa é pintada por classe, porque não
+ * depende de dado.
  */
 export const GRADIENTE_MARCA = 'linear-gradient(160deg,#5b5987,#3a3960)'
 export const GRADIENTE_CONTA = 'linear-gradient(160deg,#6d6a9c,#43426b)'
 export const GRADIENTE_RESULTADO = 'linear-gradient(165deg,#43426b,#2c2b47)'
-export const GRADIENTE_PROGRESSO = 'linear-gradient(90deg,#6d6a9c,#43426b)'
 
 /**
  * Matizes dos quadradinhos de ícone — caso 1 do cabeçalho.

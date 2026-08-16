@@ -1,24 +1,20 @@
 // =============================================================================
 // Peças de interface compartilhadas pelas telas que vieram antes do TOGA v2.
 //
-// O cartão de citação é a única forma de exibir texto legal no produto. Ele
-// carrega vigência e cobertura por construção: quem escreve uma tela nova não
-// tem como esquecer de mostrar a data de corte, porque não existe caminho para
-// renderizar o texto sem ela. Ver CLAUDE.md, decisão nº 3.
+// O que sobrou aqui é o que as telas de autenticação e as de corpus (`/leis`,
+// `/artigo`, `/dispositivo`, `/pecas`) ainda importam: `Selo`, `Cartao`, `Campo`
+// e `Botao`. Os primitivos do desenho novo moram em `components/toga/base.tsx`;
+// os estados de exceção, em `components/toga/estados.tsx` — daqui eles são só
+// reexportados, para não existirem duas implementações da mesma tela de banco
+// fora do ar.
 //
-// Migrado para a paleta clara do TOGA v2 sem mudar a API: as telas que já
-// importavam `Selo`, `Cartao`, `Campo` e companhia continuam funcionando. Os
-// primitivos novos, desenhados a partir do documento, moram em
-// `components/toga/base.tsx`; os estados de exceção, em `components/toga/estados.tsx`
-// — daqui eles são só reexportados, para não existirem duas implementações da
-// mesma tela de banco fora do ar.
+// `CartaoCitacao` e `Metrica` saíram junto com as telas que as usavam. Quem
+// exibe texto legal hoje é `components/artigo.tsx` e o painel de fonte da
+// Consulta, e os dois carregam vigência e cobertura por construção — a decisão
+// nº 3 continua sem caminho para ser esquecida.
 // =============================================================================
 
-import Link from 'next/link'
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
-
-import { Icone } from '@/components/icones'
-import { dataBR } from '@/lib/formato'
 
 export { Aviso, ErroBanco, ForaDeEscopo, Vazio } from '@/components/toga/estados'
 
@@ -59,32 +55,10 @@ export function Cartao({ children, className = '' }: { children: ReactNode; clas
   )
 }
 
-export function Metrica({
-  rotulo,
-  valor,
-  nota,
-  tom = 'neutro',
-}: {
-  rotulo: string
-  valor: ReactNode
-  nota?: ReactNode
-  tom?: 'neutro' | 'esmeralda' | 'ambar'
-}) {
-  const cor =
-    tom === 'esmeralda' ? 'text-tg-verde-txt' : tom === 'ambar' ? 'text-tg-ambar-txt' : 'text-tg-acento'
-  return (
-    <Cartao className="p-4">
-      <p className="text-[11px] font-medium text-tg-fraco-3">{rotulo}</p>
-      {/* Serifada e grande: o número é o conteúdo do cartão, e a serifa é a voz
-          que o documento de design reserva para o que se lê, não para o que se
-          clica. */}
-      <p className={`mt-1 font-tg-serif text-[28px] leading-none -tracking-[0.01em] ${cor}`}>
-        {valor}
-      </p>
-      {nota && <p className="mt-2 text-[12px] leading-[1.5] text-tg-fraco-2">{nota}</p>}
-    </Cartao>
-  )
-}
+// `Metrica` — cartão de número grande com rótulo e nota — foi escrita para o
+// `/painel` de diagnóstico, que saiu da navegação. As telas que hoje mostram
+// número (Fontes, Configurações, Vade Mecum) o fazem dentro dos próprios cartões
+// do TOGA v2, com tipografia diferente desta.
 
 // --- formulário --------------------------------------------------------------
 
@@ -186,83 +160,13 @@ export function Botao({
 }
 
 // --- citação -----------------------------------------------------------------
+//
+// `CartaoCitacao` e o tipo `Citavel` que o alimentava saíram: eram do console
+// anterior (`/agente`, hoje um redirect para `/consulta`) e do `/busca`, e
+// nenhuma das sete telas os importava. O cartão de fonte do TOGA v2 mora em
+// `components/toga/consulta.tsx`, lê o `Achado` direto e mostra outra coisa —
+// entre elas o `score`, que este imprimia com cinco casas na cara do usuário.
+//
+// Não é duplicação a trancar como a de `tests/vigilia.test.ts`: era uma segunda
+// implementação sem ninguém do outro lado.
 
-/**
- * O mínimo que a UI precisa para exibir um dispositivo. `busca_hibrida` e
- * `v_dispositivo` devolvem os mesmos campos com nomes ligeiramente diferentes;
- * a normalização acontece em quem chama, não aqui.
- */
-export type Citavel = {
-  id: string
-  citacao: string
-  texto: string
-  rubrica: string | null
-  contexto: string | null
-  lei_apelido: string
-  vigencia_ate: string
-  cobertura: 'integral' | 'parcial'
-  cobertura_nota: string | null
-  revogado: boolean
-  rubrica_termo?: string | null
-  papel?: string | null
-  score?: number | null
-}
-
-export function CartaoCitacao({ d, compacto = false }: { d: Citavel; compacto?: boolean }) {
-  return (
-    <figure className="overflow-hidden rounded-[18px] bg-white shadow-[var(--tg-elev-1)]">
-      <figcaption className="flex flex-wrap items-center gap-2 border-b border-tg-linha-fraca px-4 py-2.5">
-        <Link
-          href={`/dispositivo/${d.id}`}
-          className="text-[13px] font-medium text-tg-acento-txt underline-offset-4 hover:underline"
-        >
-          {d.citacao}
-        </Link>
-        {d.rubrica && <Selo>{d.rubrica}</Selo>}
-        {d.revogado && <Selo tom="vermelho">revogado</Selo>}
-        {d.rubrica_termo && (
-          <Selo tom="acento" title={`Match exato de rubrica${d.papel ? ` · ${d.papel}` : ''}`}>
-            ◆ rubrica “{d.rubrica_termo}”
-          </Selo>
-        )}
-        <span className="ml-auto text-[11px] text-tg-fraco-3">
-          vigente em {dataBR(d.vigencia_ate)}
-        </span>
-      </figcaption>
-
-      {/* Serifada: é texto de lei, a única voz do produto que a Source Serif
-          carrega. Ver o cabeçalho de globals.css. */}
-      <blockquote
-        className={`px-4 py-3.5 font-tg-serif text-[14px] leading-[1.75] text-tg-tinta-4 ${
-          compacto ? 'line-clamp-4' : ''
-        }`}
-      >
-        {d.texto}
-      </blockquote>
-
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-tg-linha-fraca px-4 py-2 text-[11.5px] text-tg-fraco-3">
-        <Link
-          href={`/dispositivo/${d.id}`}
-          className="flex items-center gap-1.5 text-tg-corpo transition-colors hover:text-tg-acento-txt"
-        >
-          Abrir dispositivo
-          <Icone nome="link_externo" className="size-3" />
-        </Link>
-        <span>
-          {d.lei_apelido} ·{' '}
-          {d.cobertura === 'parcial' ? (
-            <span className="text-tg-ambar-txt" title={d.cobertura_nota ?? undefined}>
-              cobertura parcial
-            </span>
-          ) : (
-            'cobertura integral'
-          )}
-        </span>
-        {d.contexto && <span className="truncate text-tg-tenue-2">{d.contexto}</span>}
-        {typeof d.score === 'number' && (
-          <span className="ml-auto tabular-nums text-tg-tenue-2">score {d.score.toFixed(5)}</span>
-        )}
-      </div>
-    </figure>
-  )
-}
