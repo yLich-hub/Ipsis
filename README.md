@@ -1,6 +1,13 @@
 # Jesbick
 
+[![verificação](https://github.com/yLich-hub/Jesbick/actions/workflows/verificacao.yml/badge.svg)](https://github.com/yLich-hub/Jesbick/actions/workflows/verificacao.yml)
+
 **Consulta e geração de peças para advocacia criminal — recorte de tráfico de drogas.**
+
+**No ar em [jesbick.vercel.app](https://jesbick.vercel.app)** — as sete telas
+ficam atrás de login, e quem quiser ver o desenho sem criar conta encontra a
+captura das sete em [`Design_system/estado-atual.html`](Design_system/estado-atual.html):
+o HTML que o servidor produz, com o CSS real e os dados reais.
 
 Busca híbrida sobre a Lei 11.343/2006, o Código Penal e o Código de Processo
 Penal, com geração de resposta à acusação em que **toda citação resolve para o
@@ -15,7 +22,10 @@ Projeto de portfólio. Next.js 15 · TypeScript · Supabase (Postgres 17 + pgvec
 > O que falta é acabamento, não estrutura — a lista está no [roadmap](#roadmap).
 >
 > Verificação: 159 asserções em vitest e 85 em pytest, todas offline e sem
-> segredo, mais 11 de navegador em Playwright.
+> segredo, mais 12 de navegador em Playwright. As duas primeiras rodam sozinhas
+> em todo push e todo PR — é o selo acima. As de navegador ficam fora do CI de
+> propósito: falam com o Supabase de verdade, e quebrariam sempre que o plano
+> gratuito pausasse o projeto por inatividade.
 
 ---
 
@@ -315,7 +325,8 @@ Jesbick/
 │
 ├── tests/                      # 9 suítes vitest · 159 asserções · offline
 │   └── corpus.ts               # pula o que exige data/normalizado/ num clone novo
-├── e2e/                        # 11 asserções de navegador · Playwright
+├── e2e/                        # 12 asserções de navegador · Playwright
+│   └── confere-build.ts        # aborta se o .next não serve JavaScript
 │
 ├── data/
 │   ├── *.json                  # saída do parser — FONTE IMUTÁVEL
@@ -356,6 +367,7 @@ Jesbick/
 | Estilo | Tailwind 4 | tokens no bloco `@theme`, uma vez só |
 | Testes | vitest · pytest · Playwright | offline por padrão; navegador só onde HTML de servidor não alcança |
 | Deploy | Vercel + Vercel Cron + GitHub Actions | dois andares de coleta — ver 3.4 |
+| CI | GitHub Actions | `verificacao.yml`: lint, tipos, vitest e pytest em todo push e PR, sem segredo |
 
 ---
 
