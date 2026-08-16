@@ -93,7 +93,7 @@ def colhe(sessao: Sessao, cfg: dict[str, Any] | None = None) -> Colheita:
         else:
             continue
 
-        colheita.precedentes.append(_para_precedente(t, escopo, texto, alvos_corpus))
+        colheita.precedentes.append(_para_precedente(t, escopo, texto, alvos_corpus, cfg))
 
     return colheita
 
@@ -123,7 +123,9 @@ def baixa_temas(sessao: Sessao, cfg: dict[str, Any]) -> list[dict[str, str]]:
     return list(csv.DictReader(io.StringIO(bruto.decode("utf-8-sig", errors="replace"))))
 
 
-def _para_precedente(t: dict[str, str], escopo: str, texto: str, alvos) -> Precedente:
+def _para_precedente(
+    t: dict[str, str], escopo: str, texto: str, alvos, cfg: dict[str, Any]
+) -> Precedente:
     # A extração de artigo é a mesma da vigília; a DETERMINAÇÃO DA LEI, não.
     #
     # `toca_o_corpus` exige verbo de alteração, porque a vigília pergunta "quem
@@ -144,8 +146,21 @@ def _para_precedente(t: dict[str, str], escopo: str, texto: str, alvos) -> Prece
     )
     artigos = artigos_de(texto, [alvo]) if alvo else []
 
+    # Vínculo curado, para o tema que o extrator não resolve — e ele vence,
+    # quando existe. Não é preferência por curadoria: é que aqui alguém leu a
+    # tese inteira, e `artigos_de` leu uma frase. Ver `vinculos` no cabeçalho de
+    # `data/curadoria/precedentes.yaml`, onde cada linha diz por que aponta para
+    # o que aponta.
+    #
+    # Sem isto, seis dos dezoito temas citáveis ficavam fora do contexto do chat
+    # — entre eles o Tema 1336 (indulto e tráfico privilegiado) e o Tema 585
+    # (confissão compensada com reincidência), que são pergunta de plantão.
+    curado = (cfg.get("vinculos") or {}).get(_id(t))
+    if curado and curado.get("artigos"):
+        artigos = list(curado["artigos"])
+
     return Precedente(
-        id=f"stj:{t.get('sequencialPrecedente') or ''}".strip(),
+        id=_id(t),
         tipo=(t.get("tipoPrecedente") or "").strip() or "Precedente",
         numero=(t.get("numeroPrecedente") or "").strip(),
         situacao=(t.get("situacao") or "").strip() or "—",
@@ -162,6 +177,12 @@ def _para_precedente(t: dict[str, str], escopo: str, texto: str, alvos) -> Prece
         escopo=escopo,
         artigos_tocados=artigos,
     )
+
+
+def _id(t: dict[str, str]) -> str:
+    """`stj:4517`. É a chave do banco e a chave dos vínculos curados — uma só,
+    para não haver como as duas divergirem."""
+    return f"stj:{(t.get('sequencialPrecedente') or '').strip()}"
 
 
 # --- mudança de situação -----------------------------------------------------

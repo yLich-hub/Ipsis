@@ -97,3 +97,83 @@ situacoes_de_alerta:
   - Revisado
   - Em Julgamento
   - Afetado
+
+# --- vínculo curado: os temas que o grafo não alcança ------------------------
+#
+# **O problema.** Um precedente entra no contexto do chat por interseção de
+# artigo: ele aparece quando compartilha artigo com um dispositivo que a busca
+# recuperou. Quem não tem artigo vinculado é inalcançável — está na tela, não
+# está no chat.
+#
+# Seis dos dezoito citáveis estavam nessa situação, e não por descuido do
+# extrator: `artigos_de` recusa atribuir artigo quando a frase numera mais de um
+# diploma, porque "art. 42 do Código Penal" e "Decreto n. 11.846/2023" na mesma
+# tese produziriam `lei_11343_2006_art42` — um id que existe, aponta para o
+# artigo errado e não levantaria suspeita de ninguém. A recusa está certa; o que
+# faltava era o caminho para quem lê a tese decidir.
+#
+# **É o mesmo desenho de `rubricas.yaml`.** Lá, o que a extração automática não
+# alcança ("tráfico privilegiado" não está escrito no art. 33) é escrito à mão,
+# em arquivo versionado e revisável em diff. Aqui igual — e com o mesmo limite:
+# vínculo é para o tema que o extrator NÃO resolveu, e cada linha diz por quê.
+#
+# `artigos` são ids de ARTIGO do corpus (`lei_11343_2006_art33`), não de
+# dispositivo: é a granularidade em que `precedentes_stj.artigos_tocados` vive e
+# em que o cruzamento com `teses.fundamentos` acontece.
+#
+# O vínculo curado VENCE a extração automática quando os dois existem. Não é
+# preferência: é que alguém leu a tese inteira aqui, e o extrator leu uma frase.
+vinculos:
+  'stj:3765':
+    tema: IAC 16 — cânhamo industrial não é droga proscrita
+    artigos: [lei_11343_2006_art1, lei_11343_2006_art2]
+    porque: >
+      A tese firma o alcance da definição legal de droga, e ela cita os dois
+      artigos que a fixam: o parágrafo único do art. 1º (droga é o que está em
+      lista da União) e o caput do art. 2º (fica proibido tudo que a lista
+      alcança). Não é tema sobre o art. 33 — é sobre o que, antes dele, conta
+      como droga.
+
+  'stj:448':
+    tema: Tema 191 — retroatividade da Lei de Drogas, vedada a combinação de leis
+    artigos: [lei_11343_2006_art33, dl_2848_1940_art2]
+    porque: >
+      A pergunta prática é se o § 4º do art. 33 alcança condenação da Lei
+      6.368/1976, e a regra que a responde é a do art. 2º do Código Penal — lei
+      posterior mais favorável retroage. Os dois artigos, porque o tema vive
+      exatamente na junção deles: a lei nova é a Lei de Drogas e o comando de
+      retroatividade é do Código.
+
+  'stj:2828':
+    tema: Tema 1052 — prova da menoridade para a majorante do art. 40, VI
+    artigos: [lei_11343_2006_art40]
+    porque: >
+      A tese diz o que basta para provar a menoridade que aciona o inciso VI do
+      art. 40. Só este artigo do corpus: o art. 244-B do ECA, que ela cita ao
+      lado, é lei que o banco não tem, e inventar vínculo para ela seria apontar
+      para um artigo que não existe aqui.
+
+  'stj:4363':
+    tema: Tema 1277 — prisão provisória computada para indulto e comutação
+    artigos: [dl_2848_1940_art42]
+    porque: >
+      A tese nomeia o art. 42 do Código Penal (detração) e é sobre a extensão
+      dele. O decreto de indulto muda a cada ano e não está no corpus; o artigo
+      que o tema interpreta, sim.
+
+  'stj:4517':
+    tema: Tema 1336 — indulto não alcança o tráfico, salvo o privilegiado
+    artigos: [lei_11343_2006_art33]
+    porque: >
+      Caput, § 1º e § 4º do art. 33 — a tese trata dos três, e é o § 4º que
+      inverte o resultado. É a resposta mais próxima do recorte entre as seis, e
+      era invisível para o chat.
+
+  'stj:841':
+    tema: Tema 585 — confissão espontânea compensada com a reincidência
+    artigos: [dl_2848_1940_art61, dl_2848_1940_art65, dl_2848_1940_art67]
+    porque: >
+      A segunda fase da dosimetria inteira: a agravante do art. 61, I (que a
+      tese nomeia), a atenuante da confissão do art. 65, III, "d", e a regra de
+      preponderância do art. 67, que é o que autoriza compensar uma com a outra.
+      Vale para qualquer defesa criminal, não só para tráfico.
