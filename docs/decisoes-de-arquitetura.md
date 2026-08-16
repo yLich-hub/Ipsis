@@ -24,8 +24,8 @@ demais para depender de verificação probabilística.
 | Camada | Mecanismo | Estado |
 |---|---|---|
 | Banco | triggers `valida_ids_dispositivo` e `valida_citacoes` recusam `INSERT`/`UPDATE` com id inexistente, com `errcode = foreign_key_violation` | ativo |
-| Build | `tests/citacao.test.ts` varre todos os `{{cite:}}` de `data/curadoria/teses.yaml` e falha o build | incremento 4 |
-| Runtime | o renderizador não tem caminho para emitir texto legal que não venha de `SELECT` | incremento 4 |
+| Build | `tests/citacao.test.ts` varre todos os `{{cite:}}` e todos os ids de `fundamentos` e `imputacao` da curadoria, e falha o build | ativo · 16 asserções |
+| Runtime | `lib/peca/resolver.ts` não tem caminho para emitir texto legal que não venha de `SELECT`; citação órfã lança `CitacaoOrfa` e a rota devolve 500 com os ids | ativo |
 
 O Postgres não faz FK de marcador dentro de texto, então o trigger é o que
 fecha essa lacuna na camada de armazenamento. Ver
@@ -66,8 +66,8 @@ encabeça o resultado — não é um candidato entre outros.
 
 | `origem` | O que é | Volume |
 |---|---|---|
-| `oficial` | rubrica marginal extraída do PDF, já ligada ao dispositivo exato | 414 termos |
-| `curada` | termo coloquial escrito à mão para o recorte de tráfico | incremento 2 |
+| `oficial` | rubrica marginal extraída do PDF, já ligada ao dispositivo exato | 421 termos |
+| `curada` | termo coloquial escrito à mão para o recorte de tráfico | 35 termos · 153 variantes |
 
 Uma rubrica aponta para N dispositivos via `rubrica_dispositivos`, com `papel`
 (`principal` / `correlato` / `requisito`) e `peso`. "Dosimetria da pena" é um
@@ -89,7 +89,7 @@ mostra texto legal sem dizer de quando ele é transfere ao usuário um risco que
 ele não tem como avaliar.
 
 O mesmo raciocínio vale para cobertura: `leis.cobertura` é `integral` (Lei
-11.343, Código Penal) ou `parcial` (CPP, subconjunto curado). Todo dispositivo
+11.343, Código Penal e CPP) ou `parcial`. Todo dispositivo
 de lei parcial exibe o aviso. O banco recusa `cobertura = 'parcial'` sem nota
 explicativa — é a mesma classe de erro que redação revogada sem aviso:
 
@@ -124,35 +124,59 @@ imediata, o que quebra qualquer reordenação num re-seed.
 
 ---
 
-## 5. Nenhuma chamada a LLM em runtime
+## 5. Nenhuma rota sem sessão gasta com modelo
 
-**Contexto.** O app é público e sem autenticação (fora de escopo).
+**Contexto.** Esta decisão já se chamou "nenhuma chamada a LLM em runtime", e a
+premissa dela era que o app fosse público e sem autenticação. A autenticação
+entrou; a regra não caiu, mas deixou de ser absoluta.
 
-**Decisão.** A costura argumentativa é gerada **offline** por
-`scripts/argumentar.ts`, revisada à mão, versionada em
-`data/curadoria/argumentacao.yaml` e servida do banco.
+**Decisão.** A regra é **"nenhuma rota que responda sem sessão pode gastar com
+modelo"**. Sob ela, duas escolhas opostas convivem:
 
-**Por quê.** Rota pública que chama a API do Claude é superfície de gasto
-anônima. Sem autenticação, não há como distinguir uso legítimo de abuso.
+| | Modelo em runtime? | Por quê |
+|---|---|---|
+| **Minuta** (`/api/peca/[casoId]`) | **não** | a argumentação está escrita à mão em `teses.yaml`; cada frase do `.docx` passou por revisão humana |
+| **Chat** (`/api/consulta/aovivo`) | **sim** | a prosa composta respondia a mesma coisa para toda pergunta |
 
-**Efeito colateral desejável.** Cada frase da minuta passa por revisão humana
-antes de ir ao ar — padrão profissional real para peça jurídica. A policy de RLS
-`leitura_revisada` transforma isso em invariante do banco, não em disciplina de
-processo:
+**Por que a minuta continua sem modelo.** Não é economia: é que não há frase na
+peça que alguém não tenha lido antes. Revisão humana de cada linha é padrão
+profissional real para peça jurídica, e o texto legal vem do banco de qualquer
+forma.
 
-```sql
-create policy leitura_revisada on public.argumentacao
-  for select to anon, authenticated
-  using (revisado_em is not null);
-```
+**Por que o chat passou a ter.** A versão anterior compunha a prosa a partir de
+*fatos sobre a busca* — qual molde a classificação reconheceu, se a rubrica
+bateu, quantos dispositivos vieram. Era verdadeira, verificável na mesma tela, e
+**respondia a mesma coisa para toda pergunta**. Explicar o próprio pipeline é bom
+como rodapé; não serve como resposta a quem perguntou a diferença entre
+associação e concurso de pessoas.
 
-**Exceção.** Embeddings de consulta em runtime são aceitáveis:
-`text-embedding-3-small` custa fração de centavo por milhão de buscas. O corpus
-inteiro (1.632 dispositivos) custou **US$ 0,0028**.
+O que a geração **não** afrouxou: o conteúdo jurídico continua vindo do texto do
+dispositivo lido do banco, e toda citação é conferida contra o contexto
+recuperado antes de a tela ver.
 
-O botão opcional "gerar ao vivo" é limitado por IP e por teto mensal (`uso_llm`).
-Estourado o teto, cai para a versão armazenada. **A demonstração nunca depende do
-caminho ao vivo funcionar.**
+**Os três freios.** A rota exige sessão; há limite por IP na memória do processo;
+e há teto mensal no banco, `consome_uso_llm()`, que decide e escreve na mesma
+instrução — duas requisições simultâneas não passam juntas pela última vaga.
+
+**Sem modelo de reserva, e é decisão.** A recomendação usual é declarar um
+segundo modelo para quando o primeiro recusa. Aqui já existe reserva melhor:
+`comporResposta()`, que não custa nada e não pode falhar. Pagar uma segunda
+chamada para recuperar o que uma função pura entrega seria trocar o
+determinístico pelo caro.
+
+**A demonstração nunca depende do caminho ao vivo funcionar.** Sem chave, a rota
+devolve 503 e a resposta composta continua na tela. As duas produzem o mesmo
+`RespostaComposta`, e é isso que permite um renderizador só e uma queda sem pulo
+de layout.
+
+**Exceção antiga, que continua valendo.** Embeddings de consulta em runtime são
+aceitáveis: `text-embedding-3-small` custa fração de centavo por milhão de
+buscas. O corpus inteiro (3.771 dispositivos) custou **US$ 0,008**.
+
+> `argumentacao` e a policy `leitura_revisada` continuam no schema e continuam
+> vazias. Elas eram a peça de `scripts/argumentar.ts`, que nunca foi escrito
+> porque a argumentação encontrou lugar melhor: `teses.template_md`. A policy não
+> incomoda e documenta a intenção; a tabela está na lista de pendências.
 
 ---
 
@@ -164,11 +188,21 @@ atividade. Um portfólio é justamente um link clicado semanas depois.
 **Decisão.** Duas defesas somadas:
 
 1. Vercel Cron diário batendo em `/api/health`, que chama `public.saude()`.
-2. Páginas dos três casos renderizadas estaticamente.
+2. `/vademecum`, que lê 75 legislações **do disco**, sem tocar o Supabase.
 
 **Por quê a segunda.** A primeira é uma aposta em uma política de terceiro que
-pode mudar. Se o banco cair mesmo assim, o núcleo da demonstração continua de
-pé — só a busca degrada.
+pode mudar. Se o banco cair mesmo assim, o acervo continua inteiro — só a busca e
+as telas de corpus degradam.
+
+> A segunda defesa já foi "páginas dos três casos renderizadas estaticamente", e
+> deixou de existir quando a autenticação entrou: ler cookie torna a rota
+> dinâmica, e tudo sob `(app)/` passou a ser servido sob demanda. Está registrado
+> como consequência aceita. Conferido no `next build`: das 26 rotas, só `/` e
+> `/_not-found` saem estáticas.
+>
+> O acervo assumiu o papel sem ter sido projetado para isso — ele lê do disco
+> porque é espelho de terceiro que não pode virar corpus citável, e o efeito
+> colateral é ser a única parte do produto imune ao banco pausado.
 
 O mesmo princípio aparece na RPC: `p_embedding` aceita `null`, e a busca degrada
 para rubrica + lexical se a API de embeddings estiver fora.

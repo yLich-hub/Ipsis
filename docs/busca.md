@@ -158,7 +158,7 @@ vezes.
 ## Classificação de intenção
 
 Por regras em TypeScript, **sem chamada de modelo** — precisa ser determinístico
-e rápido. `src/lib/busca/intencao.ts`, incremento 3.
+e rápido, e roda antes da rede. `src/lib/busca/intencao.ts`.
 
 | Molde | Sinal | Resposta |
 |---|---|---|
