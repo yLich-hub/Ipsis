@@ -52,11 +52,22 @@ A separação não é convenção que alguém precise lembrar:
 
 E o que o leitor vê:
 
-- selo `acervo` no cabeçalho de toda tela;
-- aviso âmbar fixo, sem botão de fechar, dizendo que não é fonte de citação;
+- selo âmbar **"não citável"** no leitor, com a razão no `title`;
 - link para o texto oficial no Planalto quando existe;
 - no CP e no CPP, **link cruzado para o corpus curado** — as duas leis existem
-  dos dois lados, e só um deles é citável.
+  dos dois lados, e só um deles é citável;
+- crédito de licença no rodapé do leitor.
+
+> **O aviso âmbar fixo de procedência foi removido a pedido.** Ele abria a grade
+> e o leitor, antes de qualquer coisa, e atrapalhava quem só queria localizar uma
+> lei.
+>
+> **A separação não dependia dele** — ela é estrutural, e os quatro pontos da
+> tabela acima continuam valendo sem uma linha de texto na tela. O que saiu foi o
+> aviso, não a garantia.
+>
+> O crédito de licença no rodapé **não** sai: é obrigação para com o espelho de
+> terceiro, não escolha de produto.
 
 ---
 

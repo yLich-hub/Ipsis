@@ -34,9 +34,28 @@ data/normalizado/*
 
 .DS_Store
 
-# Cache de páginas dos coletores da vigília. Conteúdo de terceiro, regenerável,
-# e o do Planalto passa de 1,8 MB por execução.
-data/vigilia/
+# Cache de páginas dos coletores da vigília e as colheitas cruas em JSON.
+# Conteúdo de terceiro, regenerável, e o do Planalto passa de 1,8 MB por
+# execução — `.cache/` sozinho é 7,4 MB.
+#
+# A regra casa o CONTEÚDO da pasta, não a pasta: `data/vigilia/` excluiria o
+# diretório, e o git não desce em diretório excluído — a exceção abaixo nunca
+# seria alcançada.
+data/vigilia/*
+
+# Exceção: a proposta de redação não é cache, é o começo da conferência humana.
+# São 265 KB, sem timestamp dentro, então diff só aparece quando o Planalto
+# muda de verdade — e é justamente esse diff que se quer ver.
+#
+# Ela estava ignorada por vizinhança, não por decisão: caiu na regra do cache
+# por morar na mesma pasta. Mas o CLAUDE.md diz das 545 divergências
+# tipográficas que elas "ficam no relatório de propósito — lista escondida é
+# lista que ninguém audita, e é ali que um erro do extrator apareceria". Arquivo
+# no .gitignore É lista escondida: existe numa máquina só, ninguém revisa, e não
+# há histórico mostrando o que mudou entre duas execuções.
+#
+# Mesmo argumento que rendeu a exceção ao `auditoria.md`, acima.
+!data/vigilia/redacoes.propostas.yaml
 
 # Python — os coletores da vigília e o vade_parser.py rodam num venv local.
 # O venv tem centenas de MB e é reconstruível a partir de coletores/requirements.txt;

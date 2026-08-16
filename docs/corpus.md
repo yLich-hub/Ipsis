@@ -15,13 +15,35 @@ que poriam texto corrompido dentro de uma peça protocolada.
 
 | Arquivo | Lei | `id` | Cobertura | Origem |
 |---|---|---|---|---|
-| `data/lei11343.json` | Lei Antidrogas 11.343/2006 | `lei_11343_2006` | integral · 93 arts. | `vade_parser.py` |
-| `data/codigo_penal.json` | Código Penal (DL 2.848/1940) | `dl_2848_1940` | integral · 416 arts. | `vade_parser.py` |
-| `data/cpp_subconjunto.json` | CPP (DL 3.689/1941) | `dl_3689_1941` | **parcial** · ~25 arts. | curadoria manual |
+| `data/lei11343.json` | Lei Antidrogas 11.343/2006 | `lei_11343_2006` | integral · 94 arts. | `vade_parser.py` + Planalto |
+| `data/codigo_penal.json` | Código Penal (DL 2.848/1940) | `dl_2848_1940` | integral · 421 arts. | `vade_parser.py` + Planalto |
+| `data/codigo_processo_penal.json` | CPP (DL 3.689/1941) | `dl_3689_1941` | integral · 825 arts. | `vade_parser.py` + Planalto |
 
 Os JSONs são **fonte imutável**. A limpeza acontece em `scripts/normalize.ts`,
 nunca editando os JSONs no lugar. Isso é o que permite reexecutar a pipeline
-inteira e comparar resultados quando uma regra muda.
+inteira e comparar resultados quando uma regra muda — e ela é determinística:
+reexecutar devolve os três arquivos byte a byte idênticos.
+
+> **O CPP deixou de ser subconjunto digitado à mão.** Este documento já
+> prescreveu digitar ~25 artigos em `data/cpp_subconjunto.json` e marcar
+> `cobertura = parcial`. A premissa era que o Vade Mecum não trazia o CPP, e ela
+> não se sustentou: ele está no mesmo PDF, e o mesmo parser o extrai inteiro, com
+> a mesma data de corte.
+>
+> Digitar à mão seria **produzir texto legal fora da fonte**, que é exatamente o
+> que a decisão nº 1 proíbe. O arquivo nunca chegou a existir. A máquina de
+> `cobertura = parcial` continua no schema e nas telas, sem nenhuma lei a usar
+> por enquanto.
+>
+> Intervalo conferido no PDF: **CPP = páginas 366 a 422**. Não use 423 — a página
+> só carrega o título do Código Tributário Nacional, que vaza para dentro do art.
+> 811. Nem 424, que traz o índice sistemático do CTN e vaza 8 mil caracteres para
+> o mesmo artigo.
+
+A coluna "Origem" ganhou o Planalto porque o corpus tem uma **segunda fonte**: 47
+artigos estão hoje na redação posterior à fotografia, conferidos contra o texto
+compilado e registrados em `data/curadoria/redacoes.yaml`. Ver
+[Redação posterior](#redação-posterior-à-data-de-corte).
 
 ---
 
@@ -29,15 +51,37 @@ inteira e comparar resultados quando uma regra muda.
 
 | Classe | Ocorrências | Detecção | Correção |
 |---|--:|---|---|
-| **A.** Rubrica marginal colada | 379 + 64 headings | heurística | automática, com diff revisado |
-| **B.** Marcador de nota de rodapé | 8 | heurística | automática |
-| **C.** Ordinal como letra `o` | 119 | determinística | automática |
-| **D.** Nota do Editor no texto legal | 11 blocos | determinística | **curadoria** |
-| **E.** Parágrafo inexistente | 8 blocos | determinística | **curadoria** |
-| **E'.** Parágrafo com sufixo colapsado | 29 colisões | determinística | automática |
+| **A.** Rubrica marginal colada | 385 | heurística | automática, com diff revisado |
+| **B.** Marcador de nota de rodapé | 58 | heurística | automática |
+| **C.** Ordinal como letra `o` | 179 | determinística | automática |
+| **D.** Nota do Editor no texto legal | 42 | determinística | **curadoria** |
+| **E.** Parágrafo inexistente | 11 | determinística | **curadoria** |
+| **F.** Divisor estrutural vazado | 2 | heurística | automática |
+| | **677** | | *limpeza do PDF* |
+| **Redação posterior à data de corte** | 161 | comparação | **curadoria** |
+| | **838** | | *total* |
 
-Total: **506 alterações** registradas, cada uma com o antes e o depois em
+Cada uma com o antes e o depois em
 [`data/normalizado/auditoria.md`](../data/normalizado/auditoria.md).
+
+> **Os números vêm de `data/normalizado/relatorio.json`, não da memória.** Foram
+> corrigidos depois de uma auditoria encontrar divergência entre o que este
+> documento afirmava e o que o pipeline registrava. São a contagem de
+> `alteracoes[]` — **uma entrada por dispositivo e regra**. O `contagem` por lei,
+> no mesmo relatório, conta ocorrências e dá outro número (909): um dispositivo
+> com três ordinais corrigidos é 3 ali e 1 aqui.
+>
+> Ao reexecutar `npm run normalize`, conferir se estes números mudaram.
+
+A última linha não conserta artefato do PDF: é a regra `redacao`, que aplica o
+texto novo de 25 leis posteriores. Ver
+[Redação posterior](#redação-posterior-à-data-de-corte).
+
+**E'** — parágrafo com sufixo colapsado no mesmo id (`§ 4º`, `4º-A`, `4º-B`,
+`4º-C` chegando todos como `numero: "4"`) — não aparece na tabela porque foi
+resolvida em código, antes de virar alteração registrada. Confiar no
+comportamento antigo colapsava 29 dispositivos distintos; o art. 155 do CP tem
+exatamente esses quatro.
 
 ---
 
@@ -261,25 +305,28 @@ no corpus. Estão lá porque a peça às vezes precisa argumentar sobre a revoga
 
 ## O que sai da pipeline
 
-| | Lei 11.343 | Código Penal | Total |
-|---|--:|--:|--:|
-| Artigos | 93 | 416 | **509** |
-| Dispositivos | 387 | 1.245 | **1.632** |
-| Artigos revogados | 10 | 19 | 29 |
-| Rubricas oficiais | 0 | 414 | **414** |
-| Embeddings | 387 | 1.245 | **1.632** |
+| | Lei 11.343 | Código Penal | CPP | Total |
+|---|--:|--:|--:|--:|
+| Artigos | 94 | 421 | 825 | **1.340** |
+| Dispositivos | 390 | 1.312 | 2.069 | **3.771** |
+| Artigos revogados | 10 | 19 | 16 | 45 |
+| Rubricas oficiais | 0 | 414 | 7 | **421** |
+| Embeddings | 390 | 1.312 | 2.069 | **3.771** |
 
 Verificações que `normalize.ts` faz e que abortam a execução:
 
 - nenhum id de dispositivo repetido
 - nenhum `NE:` remanescente
 - nenhuma entrada de curadoria órfã ou desatualizada
+- nenhuma redação aplicada cujo `era` não case exatamente com o texto atual
 
 E que ele reporta sem abortar, para revisão humana:
 
 - conflito de rubrica (duas origens disputando o mesmo dispositivo) — **0**
-- suspeitos de truncamento — **0**
-- headings sem corte — **51**, todos conferidos
+- suspeitos de truncamento — **1**: o `art. 761` do CPP, que termina em
+  `"art. 82.49"`. O `49` é marcador de rodapé que a regra B recusa remover, por
+  ser indistinguível de decimal. Fora do recorte, e listado nas pendências.
+- headings sem corte — **155**, todos conferidos
 
 ---
 
@@ -287,9 +334,71 @@ E que ele reporta sem abortar, para revisão humana:
 
 ```bash
 npm run normalize    # data/*.json + curadoria → data/normalizado/
-npm run audit        # o diff das 506 alterações, para revisão humana
+npm run audit        # o diff das 838 alterações, para revisão humana
 npm run seed         # → banco, uma transação, idempotente
 npm run embed        # só o que teve embed_hash alterado
 ```
 
 `npm run audit -- --tudo` mostra todas as alterações sem amostragem.
+
+Exige o PDF, que não é versionado — ver
+[como obtê-lo](../README.md#como-obter-o-pdf-de-origem). Sem rodar isto,
+`data/normalizado/` não existe e quatro suítes do vitest se pulam com o motivo
+impresso, em vez de falhar.
+
+---
+
+## Redação posterior à data de corte
+
+A vigília encontrou **63 alterações posteriores** à fotografia de 28/02/2025,
+duas delas na Lei de Drogas. O conserto que este documento previa era "rodar o
+`vade_parser.py` sobre a nova redação", e ele não existe: **o PDF do Vade Mecum
+é a fotografia.** A redação nova não está nele e nunca vai estar.
+
+A segunda fonte é o texto compilado do Planalto, e ela entra por um caminho que
+preserva as três decisões:
+
+```
+coletores/redacao.py         →  data/vigilia/redacoes.propostas.yaml   (proposta)
+        ↓ conferência humana, bloco a bloco
+data/curadoria/redacoes.yaml →  scripts/normalize.ts → seed            (corpus)
+```
+
+**O scraper não escreve texto legal em lugar nenhum.** Ele propõe;
+`redacoes.yaml` é curadoria versionada, revisável em diff, com data e endereço da
+conferência em cada entrada. É a mesma distância que existe entre
+`headings.propostas.yaml` e `headings.yaml`.
+
+Hoje são **47 artigos**, alterados por 25 leis: 37 com blocos reescritos ou
+incluídos (125 blocos) e 10 que a lei criou depois da fotografia — entre eles o
+art. 40-A da Lei de Drogas.
+
+### As travas, porque isto reescreve texto legal
+
+1. `era` guarda o texto que o corpus tinha, exato. `normalize.ts` **aborta** se
+   ele não casar — nenhuma redação se aplica no escuro.
+2. Entrada que não casa com dispositivo nenhum aborta o script.
+3. `dispositivos.texto_bruto` continua guardando o que o Vade Mecum dizia; o diff
+   sai em `npm run audit` sob a regra `redacao`.
+4. `tests/redacao.test.ts` confere que o corpus carrega a redação **nova e não a
+   antiga**, que o bloco incluído entrou na ordem certa, e que nenhuma anotação
+   do Planalto vazou para o texto.
+
+A quarta pegou dois erros reais antes do seed: treze parágrafos novos do art. 310
+do CPP entrando de trás para a frente, e a rubrica do artigo seguinte colada no
+fim do art. 168-A.
+
+**A conferência é sobre a lei inteira, não sobre a lista da vigília.**
+`redacao.py` compara os 1.340 artigos com a página compilada; artigo que ninguém
+alterou tem de bater, e quando não bate é o extrator que está errado. Só vira
+curadoria a divergência que carrega norma posterior à data de corte — o que sobra
+são **545 divergências tipográficas** (`seqüestro`, `Assembléias`, `Decreto-lei`
+contra `Decreto-Lei`), que ficam no relatório de propósito.
+
+Rodar de novo hoje devolve **0 blocos a atualizar** nas três leis. É essa a
+verificação: o comando é idempotente, e a resposta "nada a fazer" é a prova de
+que o corpus está em dia.
+
+```bash
+.venv/Scripts/python -m coletores.redacao
+```
