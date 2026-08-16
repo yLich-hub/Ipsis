@@ -2,8 +2,8 @@
 
 **Consulta e geração de peças para advocacia criminal — recorte de tráfico de drogas.**
 
-Busca híbrida sobre a Lei 11.343/2006, o Código Penal e um subconjunto curado do
-CPP, com geração de resposta à acusação em que **toda citação resolve para o
+Busca híbrida sobre a Lei 11.343/2006, o Código Penal e o Código de Processo
+Penal, com geração de resposta à acusação em que **toda citação resolve para o
 texto lido do banco** — nunca para texto gerado por modelo.
 
 Projeto de portfólio. Next.js 15 · TypeScript · Supabase (Postgres 17 + pgvector).
@@ -67,9 +67,9 @@ inexistente, em peça protocolada não é bug de UX — é dano ao cliente.
 
 ### Escopo deliberadamente estreito
 
-Crimes de tráfico de drogas, com Código Penal e um subconjunto curado do CPP
-disponíveis para consulta. Uma peça processual: resposta à acusação
-(art. 396-A do CPP).
+Crimes de tráfico de drogas, com Código Penal e Código de Processo Penal
+disponíveis para consulta — os três em cobertura integral. Uma peça processual:
+resposta à acusação (art. 396-A do CPP).
 
 **30% do escopo com 100% de acabamento > sistema amplo e quebrado.**
 
@@ -162,7 +162,7 @@ flowchart LR
     JSON --> NORM["normalize.ts<br/>limpeza A–E"]
     CUR["data/curadoria/*.yaml<br/>emendas · notas · headings"] --> NORM
     NORM --> ND["data/normalizado/"]
-    NORM --> AUD["auditoria.md<br/>506 alterações"]
+    NORM --> AUD["auditoria.md<br/>838 alterações"]
     AUD -.->|"revisão humana"| CUR
     ND --> SEED["seed.ts<br/>1 transação · idempotente"]
     ND --> EMB["embed.ts"]
@@ -285,7 +285,7 @@ Jesbick/
 | [docs/busca.md](docs/busca.md) | fusão RRF, as três pernas, `texto_embed`, a armadilha do `IMMUTABLE` | vai mexer na busca |
 | [docs/seguranca.md](docs/seguranca.md) | segredos, RLS, superfície de gasto, integridade do texto legal, direito autoral | vai revisar segurança |
 | [docs/acervo-vademecum.md](docs/acervo-vademecum.md) | as 75 leis de leitura, por que ficam fora do corpus citável e como a separação é trancada | vai mexer no `/vademecum` |
-| [data/normalizado/auditoria.md](data/normalizado/auditoria.md) | o diff `texto_bruto → texto` das 506 alterações, gerado | quer auditar o corpus linha a linha |
+| [data/normalizado/auditoria.md](data/normalizado/auditoria.md) | o diff `texto_bruto → texto` das 838 alterações, gerado | quer auditar o corpus linha a linha |
 | [CLAUDE.md](CLAUDE.md) | documento de trabalho para desenvolvimento | vai contribuir com código |
 
 Sugestão de leitura em 90 segundos: [seção 1](#1-visão-do-produto) →
@@ -330,7 +330,7 @@ DATABASE_URL="postgresql://postgres.<ref>:<senha>@aws-0-<região>.pooler.supabas
 
 ```bash
 npm run normalize    # JSONs + curadoria → data/normalizado/
-npm run audit        # revise as 506 alterações antes de popular o banco
+npm run audit        # revise as 838 alterações antes de popular o banco
 npm run seed         # → banco, uma transação, idempotente
 npm run embed        # → 1.632 vetores, ~US$ 0,003
 ```
@@ -376,6 +376,28 @@ proteção depende de sessão, porque não existe usuário confiável.
 
 O PDF do Vade Mecum não é versionado. O `.gitignore` usa `.env*` em vez dos
 padrões usuais, que deixam passar backups como `.env.local.bak`.
+
+### Como obter o PDF de origem
+
+O repositório não redistribui o PDF, mas ele é a cabeça da cadeia inteira — sem
+ele, `vade_parser.py` não roda e o corpus não se reconstrói do zero. A edição é:
+
+> **Vade Mecum**, Senado Federal, Coordenação de Edições Técnicas,
+> **1ª edição — atualizada até fevereiro de 2025**.
+
+Publicada na Biblioteca Digital do Senado Federal, em
+<https://www2.senado.leg.br/bdsf/>. O parser espera o arquivo como
+`Vade_mecum_Senado_Federal_1ed.pdf` na raiz; para apontá-lo para outro caminho,
+use a variável `VADE_PDF`.
+
+**A 2ª edição não serve como substituta**, e trocar uma pela outra é um erro
+silencioso. Ela está atualizada até **junho de 2025**, quatro meses depois da
+fotografia — usá-la moveria a data de corte sem que nada no projeto avisasse,
+porque `leis.vigencia_ate` é escrito pelo seed a partir do que a curadoria
+declara, não lido do PDF. Todo o mecanismo da decisão nº 3 passaria a carimbar
+28/02/2025 sobre texto de junho. Se um dia o corpus subir para a 2ª edição, é uma
+migração deliberada: nova data de corte, novo `npm run audit` revisado, e
+`data/curadoria/redacoes.yaml` reconferido contra o Planalto.
 
 ---
 
