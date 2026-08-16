@@ -1359,6 +1359,20 @@ configuração de ESLint alguma**, e a flag escondia a ausência — build verde
 dizia nada sobre o código. Conferido por mutação: uma variável não usada em
 `resolver.ts` derruba `npm run build` com `no-unused-vars`.
 
+**Isso agora roda sozinho em todo PR** (`.github/workflows/verificacao.yml`).
+Sete PRs entraram no `main` sem verificação automática nenhuma, e a única razão
+de não ter custado nada é que alguém rodou o comando à mão todas as vezes — que
+é a garantia que some no dia cansado. São dois jobs, pela mesma razão que
+`npm run verificar` não chama o pytest: separados, rodam em paralelo e o
+vermelho aponta o lado certo sem ninguém abrir o log.
+
+Sem segredo, sem rede, sem banco — o que é o que permite o arquivo existir sem
+dar a um PR de fork acesso à service role. Fora dele ficam `npm run e2e` (fala
+com o Supabase de verdade, e quebraria sempre que o plano gratuito pausasse o
+projeto: falha vermelha que não é defeito do código ensina todo mundo a ignorar
+o CI) e `next build` (precisa das variáveis para importar `lib/supabase.ts`, e
+pegaria pouco além do que o `tsc` já pega).
+
 `eslint.config.mjs` é flat config com o plugin do Next via `FlatCompat`, porque
 `next lint` está deprecado no Next 16. Três desvios do padrão, todos com motivo
 escrito no arquivo: `argsIgnorePattern: '^_'` (a rota de peça recebe `_req`),
@@ -1386,9 +1400,14 @@ e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 > workflow da vigília quebrou com `FileNotFoundError` e derrubou a coleta antes
 > de ela começar. O lado Python passou a **pular** essas asserções com o motivo
 > impresso (`exige_corpus`, em `coletores/tests/test_filtro.py`); as do filtro,
-> que são as que podem errar em silêncio, continuam rodando sempre. O lado
-> vitest ainda quebraria num clone sem corpus — hoje não há CI que o rode, e
-> quando houver, é o mesmo conserto. `consulta`
+> que são as que podem errar em silêncio, continuam rodando sempre. **O lado
+> vitest recebeu o mesmo conserto** (`seComCorpus`, em `citacao`, `peca`,
+> `redacao` e `vigilia`): num clone sem corpus são 133 asserções passando e 26
+> anunciadas como puladas, em vez de nove suítes vermelhas.
+>
+> Medido escondendo `data/normalizado/` e rodando o vitest: 8 arquivos passam, 1
+> é pulado inteiro (`peca`), zero falham. É o que permite o CI existir sem
+> segredo — ver `.github/workflows/verificacao.yml`. `consulta`
 é a que tranca o contrato da geração ao vivo — validação e leitura incremental —
 sem chamar modelo nenhum. O que fala com o Supabase é verificado contra o banco
 de verdade, não em teste offline.

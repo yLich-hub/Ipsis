@@ -1,0 +1,111 @@
+# =============================================================================
+# Verificação — o que roda em toda mudança
+#
+# Sete PRs entraram no `main` sem verificação automática nenhuma. A única razão
+# de isso não ter cobrado nada é que alguém rodou `npm run verificar` na mão
+# todas as vezes — e essa é exatamente a garantia que some no dia cansado.
+#
+# **Dois jobs e não um, pela mesma razão que `npm run verificar` não chama o
+# pytest.** Quem mexe só na interface não deve depender de um venv, e quem mexe
+# só nos coletores não deve esperar o `tsc`. Separados, eles rodam em paralelo e
+# o vermelho aponta o lado certo sem ninguém abrir o log.
+#
+# **Sem segredo, sem rede, sem banco.** É a mesma regra que as suítes já seguem,
+# e é o que permite este arquivo existir sem dar a um PR de terceiro acesso à
+# service role. O que precisa de segredo mora na vigília, em `vigilia.yml`.
+#
+# ## O que NÃO está aqui, e por quê
+#
+# **`npm run e2e`.** As dez asserções de navegador falam com o Supabase de
+# verdade: a sessão é cookie assinado pelo servidor de Auth e não há como
+# forjá-la offline. Pô-las aqui significaria dar credencial de uma conta real ao
+# CI e ver a suíte quebrar sempre que o plano gratuito pausar o projeto por
+# inatividade — falha vermelha que não é defeito do código é o jeito mais rápido
+# de ensinar todo mundo a ignorar o CI. Elas continuam sendo o passo manual
+# descrito em `e2e/README.md`.
+#
+# **`next build`.** Precisa das variáveis do Supabase para importar
+# `lib/supabase.ts`. O que o build pegaria e o `tsc` não pega é pouco, e o preço
+# seria pôr segredo neste arquivo — que é justamente o que o mantém seguro para
+# rodar em PR vindo de fork.
+# =============================================================================
+
+name: verificação
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Empurrar duas vezes no mesmo branch não precisa de duas execuções: a segunda
+# torna a primeira irrelevante. No `main` não cancela — lá cada commit é um
+# estado que alguém pode querer conferir depois.
+concurrency:
+  group: verificacao-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  javascript:
+    name: eslint, tsc e vitest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # Major corrente de propósito, como em `vigilia.yml`: recebe correção de
+      # segurança sem exigir commit aqui, e é a forma que o GitHub documenta.
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` e não `npm install`: instala exatamente o que está no
+      # package-lock.json e falha se ele divergir do package.json. Num CI, a
+      # resolução "esperta" de versão é a diferença entre reproduzir o defeito
+      # de quem abriu o PR e caçar um fantasma.
+      - name: instalar dependências
+        run: npm ci
+
+      # O mesmo comando que se roda antes de commitar: eslint, tsc --noEmit e as
+      # nove suítes do vitest. Um comando só, e não três passos, porque quem for
+      # reproduzir a falha na máquina digita exatamente esta linha.
+      #
+      # **26 das 159 asserções são puladas aqui, e isso é esperado.**
+      # `data/normalizado/` é saída determinística do `npm run normalize` e não
+      # é versionada — a regra do .gitignore é versionar a entrada e as regras,
+      # não o resultado. E o PDF do Vade Mecum, que é a entrada, também não é.
+      # Num clone limpo o corpus não existe, então o que confere id contra ele
+      # se anuncia como pulado em vez de quebrar.
+      #
+      # O que continua rodando é o que pode errar em silêncio: o filtro da
+      # vigília, a validação da geração ao vivo, a aritmética da dosimetria e os
+      # tetos de clientes. A conferência de citação contra o corpus é a segunda
+      # camada; a primeira são os triggers do banco, na escrita.
+      - name: verificar
+        run: npm run verificar
+
+  python:
+    name: pytest dos coletores
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: coletores/requirements.txt
+
+      - name: instalar dependências
+        run: pip install -r coletores/requirements.txt
+
+      # As 85 asserções rodam offline. `tests/vigilia.test.ts` e
+      # `coletores/tests/test_filtro.py` testam a MESMA regra contra as MESMAS
+      # ementas reais, em runtimes diferentes — não é redundância, é a trava que
+      # faz a divergência entre os dois filtros aparecer aqui em vez de virar
+      # uma tela dizendo que nada mudou. Por isso os dois jobs importam.
+      - name: pytest
+        run: python -m pytest coletores -q
