@@ -26,8 +26,9 @@ export const MARCA = {
   nome: 'LJ',
   /** As letras do quadrado da marca. Serifadas, sobre `GRADIENTE_MARCA`. */
   inicial: 'LJ',
-  /** Linha de apoio embaixo do nome, na lateral. */
-  tagline: 'Advocacia criminal',
+  // `tagline` morava aqui e saiu com a única tela que a desenhava: em "LJ" a
+  // linha de apoio era mais larga que a marca e truncava na lateral. Campo que
+  // ninguém lê é o mesmo defeito que este arquivo evita, do outro lado.
   /** Pílula ao lado do nome nas telas de autenticação. */
   ramo: 'Penal',
   /** Complemento do título da aba na raiz e na descrição das telas públicas. */

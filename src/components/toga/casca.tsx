@@ -264,13 +264,16 @@ export function Lateral({
             >
               {MARCA.inicial}
             </span>
-            <span className={`min-w-0 ${colapsada ? 'lg:hidden' : ''}`}>
-              <span className="block text-[15.5px] font-semibold leading-[1.1] -tracking-[0.01em] text-tg-tinta">
-                {MARCA.nome}
-              </span>
-              <span className="block truncate text-[11px] leading-[1.3] text-tg-fraco-2">
-                {MARCA.tagline}
-              </span>
+            {/* Só o nome. A linha de apoio saiu a pedido: em "LJ" ela era mais
+                larga que a marca e truncava ("Advocacia crimi…"), que é pior que
+                não estar lá — e o ramo já é dito pela pílula das telas de
+                entrada e pela própria lateral. */}
+            <span
+              className={`block min-w-0 text-[15.5px] font-semibold leading-[1.1] -tracking-[0.01em] text-tg-tinta ${
+                colapsada ? 'lg:hidden' : ''
+              }`}
+            >
+              {MARCA.nome}
             </span>
           </Link>
 
