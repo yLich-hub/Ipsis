@@ -44,15 +44,34 @@ const CHAVE = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 const EMAIL = process.env.E2E_EMAIL
 const SENHA = process.env.E2E_SENHA
 
+/**
+ * A sessão que o Playwright já estabeleceu, e que serve de segunda porta.
+ *
+ * O caminho principal continua sendo e-mail e senha. Mas exigir a senha no
+ * ambiente para gerar uma captura de design é atrito com pouca contrapartida:
+ * o arquivo abaixo já guarda uma sessão da MESMA conta, criada pela tela de
+ * login de verdade, e o `refresh_token` dele troca por uma sessão nova sem
+ * credencial nenhuma. Menos um lugar por onde a senha passa.
+ *
+ * A sessão renovada é gravada de volta: o `refresh_token` roda a cada uso, e
+ * deixar o arquivo com o token velho quebraria a próxima execução do Playwright
+ * que dependesse dele.
+ */
+const SESSAO = path.join(RAIZ, 'e2e', '.sessao.json')
+
 if (!URL_SUPABASE || !CHAVE) {
   console.error('faltam NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY')
   process.exit(1)
 }
 if (!EMAIL || !SENHA) {
-  console.error(
-    'defina E2E_EMAIL e E2E_SENHA — as sete telas exigem sessão. Ver e2e/README.md.',
-  )
-  process.exit(1)
+  if (!fs.existsSync(SESSAO)) {
+    console.error(
+      'defina E2E_EMAIL e E2E_SENHA — as sete telas exigem sessão. Ver e2e/README.md.\n' +
+        `(ou deixe ${path.relative(RAIZ, SESSAO)} no lugar, que a sessão dele é reusada)`,
+    )
+    process.exit(1)
+  }
+  console.log('· sem E2E_EMAIL/E2E_SENHA: reusando a sessão do Playwright')
 }
 
 /** As sete da lateral, na ordem em que aparecem nela. */
@@ -103,14 +122,45 @@ async function sobeServidor() {
  * prefixo, fatiada em 3180 caracteres. Montá-lo à mão evita subir um navegador
  * só para capturar HTML de servidor.
  */
-async function cookieDeSessao() {
-  const r = await fetch(`${URL_SUPABASE}/auth/v1/token?grant_type=password`, {
+async function pedeToken(corpo, tipo) {
+  const r = await fetch(`${URL_SUPABASE}/auth/v1/token?grant_type=${tipo}`, {
     method: 'POST',
     headers: { apikey: CHAVE, 'content-type': 'application/json' },
-    body: JSON.stringify({ email: EMAIL, password: SENHA }),
+    body: JSON.stringify(corpo),
   })
   const s = await r.json()
   if (!s.access_token) throw new Error(`login falhou: ${s.error_description ?? s.msg ?? r.status}`)
+  return s
+}
+
+/** O `refresh_token` guardado no `storageState` do Playwright. */
+function tokenGuardado() {
+  const j = JSON.parse(fs.readFileSync(SESSAO, 'utf8'))
+  const bruto = j.cookies?.find((c) => c.name.includes('auth-token'))?.value
+  if (!bruto) throw new Error(`${path.relative(RAIZ, SESSAO)} não tem cookie de sessão`)
+  const s = JSON.parse(Buffer.from(bruto.replace(/^base64-/, ''), 'base64url').toString('utf8'))
+  if (!s.refresh_token) throw new Error(`${path.relative(RAIZ, SESSAO)} não tem refresh_token`)
+  return s.refresh_token
+}
+
+/** Grava a sessão renovada de volta, senão o token velho fica no arquivo. */
+function guardaSessao(s) {
+  const j = JSON.parse(fs.readFileSync(SESSAO, 'utf8'))
+  const valor = 'base64-' + Buffer.from(JSON.stringify(s), 'utf8').toString('base64url')
+  const alvo = j.cookies?.find((c) => c.name.includes('auth-token'))
+  if (!alvo) return
+  alvo.value = valor
+  alvo.expires = s.expires_at ?? alvo.expires
+  fs.writeFileSync(SESSAO, JSON.stringify(j, null, 2))
+}
+
+async function cookieDeSessao() {
+  const s =
+    EMAIL && SENHA
+      ? await pedeToken({ email: EMAIL, password: SENHA }, 'password')
+      : await pedeToken({ refresh_token: tokenGuardado() }, 'refresh_token')
+
+  if (!(EMAIL && SENHA)) guardaSessao(s)
 
   const ref = new URL(URL_SUPABASE).hostname.split('.')[0]
   const valor = 'base64-' + Buffer.from(JSON.stringify(s), 'utf8').toString('base64url')
@@ -159,7 +209,7 @@ const BRIEF = `
   <h2>A linguagem, em uma linha cada</h2>
   <ul>
     <li><b>Duas famílias, dois papéis.</b> Inter Tight é a voz da interface (rótulo, botão, metadado); Source Serif 4 é a voz do texto jurídico (lei, ementa, súmula, resposta). A divisão separa, sem moldura, o que o produto <i>afirma</i> do que o produto <i>cita</i>.</li>
-    <li><b>Tema claro.</b> Fundo <code>#f7f8fa</code>, lateral <code>#f1f2f6</code>, acento roxo <code>#3a3960</code>.</li>
+    <li><b>Tema claro.</b> Fundo <code>#f7f8fa</code>, lateral <code>#f1f2f6</code>, acento vermelho <code>#b3141f</code> — tirado da logo. O protótipo de origem é roxo (<code>#3a3960</code>): a divergência é a marca, não um desvio de implementação, e trocá-la mexeu em um bloco <code>@theme</code> porque a cor nunca foi digitada no JSX.</li>
     <li><b>Lateral de largura fixa</b>, 246px, ou 64px recolhida. São dois valores fixos, não uma lateral fluida: os painéis (420px no chat, 352px na dosimetria, 404px no Vade Mecum) foram medidos contra os 246.</li>
     <li><b>Cor mora no <code>@theme</code> de <code>src/app/globals.css</code></b>, uma vez só. Cor que puder ser classe tem que ser classe.</li>
   </ul>
