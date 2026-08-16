@@ -259,7 +259,7 @@ export function Lateral({
             title={colapsada ? MARCA.nome : undefined}
           >
             <span
-              className="grid size-8 shrink-0 place-items-center rounded-[11px] font-tg-serif text-[15px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
+              className="grid size-8 shrink-0 place-items-center rounded-[11px] font-tg-serif text-[12.5px] font-semibold tracking-[0.01em] text-white shadow-[var(--tg-elev-marca)]"
               style={{ background: GRADIENTE_MARCA }}
             >
               {MARCA.inicial}
@@ -675,7 +675,7 @@ function Conta() {
         aria-expanded={aberto}
         aria-haspopup="menu"
         title={perfil.nome.trim() ? `${perfil.nome.trim()} · ${email}` : email}
-        className="tgb grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(67_66_107_/_0.7)]"
+        className="tgb grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(28_26_36_/_0.7)]"
         style={{ background: GRADIENTE_CONTA }}
       >
         {iniciais(perfil.nome, email)}

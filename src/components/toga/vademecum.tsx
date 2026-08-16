@@ -151,7 +151,7 @@ export function VadeMecum({
                 aria-pressed={ativo}
                 className={`tgb tgc tg-sobe rounded-[18px] bg-white px-[17px] py-4 text-left ${
                   ativo
-                    ? 'shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_14px_30px_-20px_rgb(58_57_96_/_0.7)]'
+                    ? 'shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_14px_30px_-20px_rgb(179_20_31_/_0.7)]'
                     : 'shadow-[var(--tg-elev-1)]'
                 }`}
               >

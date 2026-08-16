@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /* =============================================================================
-   TOGA v2 — camada de design
+   LJ — camada de design
 
    Os valores abaixo são a transcrição literal do documento de design
    (`Design_system/TOGA v2 - Assistente Jurídico.dc.html`). Ele desenha tudo em
@@ -44,16 +44,16 @@
   --color-tg-tenue: #a8adb8;
   --color-tg-tenue-2: #adb2bc;
 
-  /* acento — o roxo da toga */
-  --color-tg-acento: #3a3960;
-  --color-tg-acento-txt: #4b4a7a;
-  --color-tg-acento-fraco: #ecebf6;
-  --color-tg-acento-fraco-2: #e6e5f2;
-  --color-tg-acento-fraco-3: #dedcf0;
-  --color-tg-acento-medio: #6d6a9c;
-  --color-tg-acento-claro: #8a86b8;
-  --color-tg-acento-palido: #b8b6d4;
-  --color-tg-acento-nevoa: #dcdbee;
+  /* acento — o vermelho da marca LJ, tirado da logo (#b3141f) */
+  --color-tg-acento: #b3141f;
+  --color-tg-acento-txt: #9c1420;
+  --color-tg-acento-fraco: #fbecee;
+  --color-tg-acento-fraco-2: #f8e3e5;
+  --color-tg-acento-fraco-3: #f4d7da;
+  --color-tg-acento-medio: #c93340;
+  --color-tg-acento-claro: #d97b83;
+  --color-tg-acento-palido: #eebcc1;
+  --color-tg-acento-nevoa: #f8dfe2;
 
   /* estados */
   --color-tg-verde: #3f9e79;
@@ -62,10 +62,24 @@
   --color-tg-ambar-txt: #8d7b46;
   --color-tg-ambar-fundo: #f6f1e3;
   --color-tg-ambar-borda: #b9a877;
-  --color-tg-supressao-fundo: #fdf1f1;
-  --color-tg-supressao-txt: #8a5050;
+  /* `supressao` foi dessaturado ~30% junto com o rebranding, pelo mesmo motivo
+     que `falha` existe: com o acento em vermelho, botão de apagar cliente e
+     botão de ação ficaram do mesmo matiz e à mesma altura da tela. O nome vem
+     do par diff (`supressao`/`insercao`), mas quem ele pinta hoje é o erro e a
+     ação destrutiva — `insercao` não é usado por ninguém. Contraste conferido
+     sobre o fundo próprio: 5,5:1, acima do mínimo AA. */
+  --color-tg-supressao-fundo: #fbf3f3;
+  --color-tg-supressao-txt: #815959;
   --color-tg-insercao-fundo: #eef7f2;
   --color-tg-insercao-txt: #3f6b57;
+
+  /* falha — o aviso de erro das telas de acesso. Separado de `supressao` porque
+     agora o acento é vermelho: o aviso mora a dois centímetros de um botão
+     vermelho de ação, e a distinção entre "deu errado" e "clique aqui" passou a
+     depender da saturação e do filete, não do matiz. */
+  --color-tg-falha-fundo: #fbf4f4;
+  --color-tg-falha-txt: #7e4747;
+  --color-tg-falha-borda: #8a5050;
 
   /* traços — o documento usa quatro opacidades distintas, e a diferença entre
      .06 e .04 é visível quando duas divisórias se encostam */
@@ -86,10 +100,10 @@
   --tg-elev-cartao: 0 2px 4px rgb(18 20 30 / 0.05), 0 18px 40px -22px rgb(18 20 30 / 0.28);
   --tg-elev-entrada: 0 1px 2px rgb(18 20 30 / 0.06), 0 14px 34px -22px rgb(18 20 30 / 0.4);
   --tg-elev-fase: 0 1px 2px rgb(18 20 30 / 0.06), 0 10px 24px -16px rgb(18 20 30 / 0.4);
-  --tg-elev-acento: 0 5px 14px -7px rgb(58 57 96 / 0.8);
-  --tg-elev-acento-forte: 0 6px 16px -8px rgb(58 57 96 / 0.85);
-  --tg-elev-marca: 0 4px 12px -4px rgb(58 57 96 / 0.6);
-  --tg-elev-painel: 0 14px 34px -18px rgb(44 43 71 / 0.9);
+  --tg-elev-acento: 0 5px 14px -7px rgb(179 20 31 / 0.8);
+  --tg-elev-acento-forte: 0 6px 16px -8px rgb(179 20 31 / 0.85);
+  --tg-elev-marca: 0 4px 12px -4px rgb(179 20 31 / 0.55);
+  --tg-elev-painel: 0 14px 34px -18px rgb(120 14 24 / 0.8);
 }
 
 html,
@@ -599,4 +613,193 @@ body {
 ::highlight(acervo-atual) {
   background-color: var(--color-tg-acento);
   color: #fff;
+}
+
+/* =============================================================================
+   Acabamento e movimento — camada LJ
+
+   Nada aqui muda estrutura de tela: são estados que o produto já tinha, mas não
+   dizia em voz alta. Cada regra responde a uma pergunta que o usuário faz com o
+   mouse na mão: "qual item eu estou vendo?", "o campo pegou o meu clique?",
+   "esse cartão é clicável?", "chegou resposta nova?".
+
+   Fica no fim do arquivo de propósito: é a última palavra sobre `.tgb`/`.tgc`,
+   e a media query de movimento reduzido, mais acima, já a alcança porque usa
+   `*` com `!important`.
+   ============================================================================= */
+
+:root {
+  /* As duas curvas do produto, nomeadas. `saida` desacelera tarde — o bloco
+     assenta em vez de frear cedo; `mola` passa de 1 e volta, e é só para coisa
+     pequena que aparece (o trilho do menu, o quadradinho no hover). */
+  --tg-saida: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --tg-mola: cubic-bezier(0.34, 1.32, 0.6, 1);
+}
+
+/* Seleção de texto no acento: quem copia trecho de lei o dia inteiro vê esse
+   azul de sistema mais que qualquer outra cor do produto. */
+::selection {
+  background: var(--color-tg-acento-fraco-3);
+  color: var(--color-tg-acento-txt);
+}
+
+input,
+textarea {
+  caret-color: var(--color-tg-acento);
+}
+
+/* -----------------------------------------------------------------------------
+   Trilho do item ativo
+
+   O item ativo já era um cartão branco; o que faltava era um sinal que sobreviva
+   à periferia da visão. 3px encostados na sarjeta da lateral, e só ele é
+   vermelho no menu — dois sinais vermelhos numa lista de sete não hierarquizam
+   nada.
+   ----------------------------------------------------------------------------- */
+@keyframes tgTrilho {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: 18px;
+    opacity: 1;
+  }
+}
+
+nav[aria-label='Telas'] a[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 1;
+  width: 3px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--color-tg-acento);
+  animation: tgTrilho 0.34s var(--tg-mola) both;
+}
+
+/* O quadradinho de matiz reage ao hover da linha inteira. É 2° de rotação — o
+   suficiente para a linha parecer viva, longe o bastante de chamar atenção. */
+nav[aria-label='Telas'] a > span[style*='background:#'] {
+  transition: transform 0.22s var(--tg-mola);
+}
+nav[aria-label='Telas'] a:hover > span[style*='background:#'] {
+  transform: scale(1.08) rotate(-2deg);
+}
+
+/* A marca gira de leve no hover — o único enfeite do arquivo, e ele existe
+   porque o quadrado é também o botão de "voltar para o começo". */
+a[aria-label$='início'] > span:first-child {
+  transition:
+    transform 0.3s var(--tg-mola),
+    box-shadow 0.3s ease;
+}
+a[aria-label$='início']:hover > span:first-child {
+  transform: rotate(-3deg) scale(1.05);
+}
+
+/* -----------------------------------------------------------------------------
+   Cartão clicável revela um fio
+
+   `.tgc` levantava 2px no hover, e sobre um fundo #f7f8fa o levantar sozinho é
+   quase invisível. O fio de 1px no acento, por dentro do raio, diz "isto abre".
+   Vem em `::after` para não somar borda ao cálculo de tamanho.
+   ----------------------------------------------------------------------------- */
+.tgc {
+  position: relative;
+}
+.tgc::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(179 20 31 / 0);
+  transition: box-shadow 0.25s ease;
+  pointer-events: none;
+}
+.tgc:hover::after {
+  box-shadow: inset 0 0 0 1px rgb(179 20 31 / 0.16);
+}
+
+/* -----------------------------------------------------------------------------
+   Barra de entrada
+
+   Clicar no campo não mudava nada na tela — em cartão branco sobre fundo claro,
+   sem anel, o usuário não sabe se o teclado vai chegar ali. O anel é de 1,5px
+   para caber na sombra que já existe sem parecer uma segunda borda.
+
+   Sai por `:has()` para não mexer no JSX; se você preferir a classe explícita,
+   troque o seletor por `.tg-entrada`.
+   ----------------------------------------------------------------------------- */
+form:has(input[aria-label='Sua consulta']),
+.tg-entrada {
+  transition:
+    box-shadow 0.28s ease,
+    transform 0.28s var(--tg-saida);
+}
+form:has(input[aria-label='Sua consulta']):focus-within,
+.tg-entrada:focus-within {
+  box-shadow:
+    var(--tg-elev-entrada),
+    0 0 0 1.5px rgb(179 20 31 / 0.22);
+  transform: translateY(-1px);
+}
+
+/* O botão de envio é a ação mais repetida do produto: ganha brilho próprio no
+   hover, e nada quando está desabilitado. */
+button[aria-label='Enviar consulta'] {
+  transition:
+    box-shadow 0.22s ease,
+    transform 0.18s ease;
+}
+button[aria-label='Enviar consulta']:hover:not(:disabled) {
+  box-shadow: 0 9px 20px -8px rgb(179 20 31 / 0.9);
+}
+
+/* -----------------------------------------------------------------------------
+   Chegada da resposta
+
+   `tg-entra` serve para bloco que aparece; a resposta do assistente chega em
+   pedaços, e o desfoque de 6px que zera em 500ms faz o parágrafo "assentar" em
+   vez de piscar. Aplicar em cada bloco de resposta — o atraso entre eles é o
+   ritmo da leitura, não o tempo da rede.
+   ----------------------------------------------------------------------------- */
+@keyframes tgChega {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+.tg-chega {
+  animation: tgChega 0.5s var(--tg-saida) both;
+}
+.tg-chega-2 {
+  animation: tgChega 0.5s var(--tg-saida) 0.16s both;
+}
+.tg-chega-3 {
+  animation: tgChega 0.5s var(--tg-saida) 0.32s both;
+}
+
+/* A fase escolhida na dosimetria: filete interno de 2px no topo do cartão. O
+   cartão branco com sombra já dizia "selecionado", mas as três fases são
+   cartões e a diferença ficava só no peso do texto. */
+.tgb[aria-pressed='true'][class*='rounded-2xl'] {
+  box-shadow:
+    var(--tg-elev-fase),
+    inset 0 2px 0 var(--color-tg-acento);
+}
+
+/* Esqueleto de carregamento com a varredura levemente quente, para o cinza não
+   parecer azul ao lado do vermelho. */
+.tgsk {
+  background: linear-gradient(90deg, #eef0f4 0%, #fbf7f8 40%, #eef0f4 80%);
 }

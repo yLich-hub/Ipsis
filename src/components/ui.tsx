@@ -24,7 +24,7 @@ const TONS = {
   neutro: 'bg-tg-preenche text-tg-corpo',
   esmeralda: 'bg-tg-verde-fundo text-tg-verde-txt',
   ambar: 'bg-tg-ambar-fundo text-tg-ambar-txt',
-  vermelho: 'bg-tg-supressao-fundo text-tg-supressao-txt',
+  vermelho: 'bg-tg-falha-fundo text-tg-falha-txt',
   acento: 'bg-tg-acento-fraco text-tg-acento-txt',
 } as const
 
@@ -69,6 +69,11 @@ export function Cartao({ children, className = '' }: { children: ReactNode; clas
  * daltônico precisam saber qual dos quatro campos reprovou. `noValidate` nos
  * formulários desliga o balão nativo do navegador — ele aparece em inglês na
  * metade dos casos e some ao trocar de aba.
+ *
+ * O foco é borda no acento médio **mais** um anel de 3px a 12%. A borda sozinha
+ * era `acento-palido`, e num vermelho claro sobre branco ela quase não aparece —
+ * numa tela com dois campos e um botão, o campo em foco é o único sinal que a
+ * interface tem para dar.
  */
 export function Campo({
   id,
@@ -96,15 +101,15 @@ export function Campo({
         id={id}
         aria-invalid={erro ? true : undefined}
         aria-describedby={erro ? idErro : dica ? idDica : undefined}
-        className={`mt-1.5 block w-full rounded-xl border bg-tg-preenche px-3.5 py-2.5 text-[14px] text-tg-tinta outline-none transition-colors placeholder:text-tg-tenue-2 disabled:cursor-not-allowed disabled:opacity-60 ${
+        className={`mt-1.5 block w-full rounded-xl border bg-tg-preenche px-3.5 py-2.5 text-[14px] text-tg-tinta outline-none transition-[color,background-color,border-color,box-shadow] placeholder:text-tg-tenue-2 disabled:cursor-not-allowed disabled:opacity-60 ${
           erro
-            ? 'border-tg-supressao-txt/50 focus:border-tg-supressao-txt'
-            : 'border-transparent focus:border-tg-acento-palido focus:bg-white'
+            ? 'border-tg-falha-borda/50 focus:border-tg-falha-borda'
+            : 'border-transparent focus:border-tg-acento-medio focus:bg-white focus:shadow-[0_0_0_3px_rgb(179_20_31_/_0.12)]'
         }`}
         {...resto}
       />
       {erro ? (
-        <p id={idErro} className="mt-1.5 text-[12px] text-tg-supressao-txt">
+        <p id={idErro} className="mt-1.5 text-[12px] text-tg-falha-txt">
           {erro}
         </p>
       ) : dica ? (
@@ -122,6 +127,11 @@ export function Campo({
  * `disabled` sai de `carregando` aqui dentro em vez de ficar por conta de quem
  * chama: submit duplicado em cadastro cria duas requisições de conta, e a
  * defesa não pode depender de cada tela lembrar de escrever a mesma linha.
+ *
+ * O hover era `brightness-110`. Sobre o roxo antigo isso clareava; sobre o
+ * vermelho ele satura e puxa para laranja. Aprofundar a sombra do próprio
+ * acento dá a mesma resposta sem mexer no matiz — e o levantar de 1px já vem
+ * do `.tgb`.
  */
 export function Botao({
   carregando = false,
@@ -140,7 +150,7 @@ export function Botao({
   const estilo =
     variante === 'secundario'
       ? 'bg-tg-preenche text-tg-corpo hover:bg-tg-preenche-alto disabled:text-tg-tenue-2'
-      : 'bg-tg-acento text-white shadow-[var(--tg-elev-acento)] hover:brightness-110 disabled:bg-tg-acento-claro disabled:shadow-none'
+      : 'bg-tg-acento text-white shadow-[var(--tg-elev-acento)] hover:shadow-[0_9px_20px_-8px_rgb(179_20_31_/_0.9)] disabled:bg-tg-acento-claro disabled:shadow-none'
   return (
     <button
       disabled={disabled || carregando}

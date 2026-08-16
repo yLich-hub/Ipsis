@@ -18,10 +18,13 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
       <div className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
         <div className="w-full max-w-sm">
           {/* Marca sem link: a raiz agora só desvia de volta para cá, e um
-              logotipo clicável que recarrega a mesma tela é ruído. */}
+              logotipo clicável que recarrega a mesma tela é ruído.
+
+              O corpo é 14px e não 17px porque a inicial passou a ter duas
+              letras: em 17px o L e o J se encostam dentro do quadrado de 36. */}
           <div className="mx-auto flex w-fit items-center gap-2.5">
             <span
-              className="grid size-9 place-items-center rounded-xl font-tg-serif text-[17px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
+              className="grid size-9 place-items-center rounded-xl font-tg-serif text-[14px] font-semibold tracking-[0.01em] text-white shadow-[var(--tg-elev-marca)]"
               style={{ background: GRADIENTE_MARCA }}
             >
               {MARCA.inicial}
@@ -32,7 +35,10 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
             </span>
           </div>
 
-          <div className="mt-6 rounded-[22px] bg-white p-6 shadow-[var(--tg-elev-entrada)] sm:p-7">
+          {/* `tg-entra`: as quatro telas do fluxo trocam entre si sem que nada
+              na página se mova, e sem o sinal de entrada a troca de formulário
+              passa despercebida. */}
+          <div className="tg-entra mt-6 rounded-[22px] bg-white p-6 shadow-[var(--tg-elev-entrada)] sm:p-7">
             {children}
           </div>
 
