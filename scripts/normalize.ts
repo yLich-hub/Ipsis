@@ -109,6 +109,14 @@ type Bloco = {
   rubrica: string | null
   /** partes intermediárias da citação: ['§ 4º', 'I', 'a'] */
   cadeia: string[]
+  /**
+   * Bloco que veio de `redacoes.yaml`, e não do PDF.
+   *
+   * `novo` não passa por limpeza nenhuma: as limpezas A, B e C consertam
+   * artefato de extração do Vade Mecum, e este texto não veio de lá — rodar a
+   * heurística da rubrica marginal sobre ele só poderia estragá-lo.
+   */
+  curado?: 'novo'
 }
 
 const ehRevogado = (t: string) => /^\(?\s*\(?\s*(revogad|vetad)/i.test(t.trim())
@@ -137,6 +145,59 @@ function carregaCuradoriaHeadings(): Map<string, Override> {
 // -----------------------------------------------------------------------------
 type NotaEditor = { dispositivo: string; marcadores: number[]; remover: string }
 type Emenda = { artigo: string; paragrafo_indice: number; comeca_com: string; motivo: string }
+
+// -----------------------------------------------------------------------------
+// Curadoria: redações posteriores à data de corte
+//
+// A única curadoria deste script que não conserta artefato do PDF — ela alinha o
+// corpus ao texto compilado do Planalto, artigo por artigo, onde uma lei
+// posterior a 28/02/2025 mudou a redação. Ver o cabeçalho de
+// `data/curadoria/redacoes.yaml` e `coletores/redacao.py`.
+//
+// A trava é a mesma de `emendas.yaml`, e pela mesma razão: `era` tem de casar
+// com o texto que o corpus tem hoje. Se o Vade Mecum for reprocessado e o texto
+// mudar embaixo, a atualização não se aplica em cima de um texto que ninguém
+// conferiu — o script para.
+// -----------------------------------------------------------------------------
+type NoCurado = { rotulo: string; texto: string; incisos?: NoCurado[]; alineas?: NoCurado[] }
+
+type BlocoCurado = {
+  id: string
+  acao: 'alterar' | 'incluir'
+  tipo: TipoDispositivo
+  rotulo: string
+  /** só em incluir: o dispositivo depois do qual o novo entra */
+  depois_de?: string
+  /** só em alterar: o texto que o corpus tem hoje, exato */
+  era?: string
+  texto: string
+}
+
+type Redacao = {
+  artigo: string
+  /** ausente = mexe em artigo que já existe; 'criar' = artigo novo na lei */
+  acao?: 'criar'
+  numero?: string
+  depois_de?: string
+  rubrica?: string | null
+  normas: string[]
+  fonte: string
+  conferido_em: string
+  blocos?: BlocoCurado[]
+  caput?: string
+  incisos?: NoCurado[]
+  paragrafos?: NoCurado[]
+}
+
+const REDACOES = leYaml<Redacao>('redacoes.yaml')
+const REDACAO_DO_ARTIGO = new Map(REDACOES.map((r) => [r.artigo, r]))
+const redacoesUsadas = new Set<string>()
+
+/** `_p4_inc2` do artigo → texto novo, com a trava do texto anterior. */
+function blocosAlterados(artigoId: string): Map<string, BlocoCurado> {
+  const r = REDACAO_DO_ARTIGO.get(artigoId)
+  return new Map((r?.blocos ?? []).filter((b) => b.acao === 'alterar').map((b) => [b.id, b]))
+}
 
 const NOTAS = new Map(leYaml<NotaEditor>('notas_editor.yaml').map((n) => [n.dispositivo, n]))
 const notasUsadas = new Set<string>()
@@ -336,6 +397,147 @@ function montaBlocos(
 }
 
 // -----------------------------------------------------------------------------
+// Redações novas: artigo inteiro e bloco solto
+// -----------------------------------------------------------------------------
+
+/** `I` → `I - texto`, `§ 3º` → `§ 3º texto`. */
+function comMarcador(no: NoCurado, tipo: TipoDispositivo): string {
+  if (tipo === 'inciso') return `${no.rotulo} - ${no.texto}`
+  if (tipo === 'alinea') return `${no.rotulo} ${no.texto}`
+  return `${no.rotulo} ${no.texto}`
+}
+
+/**
+ * Artigo criado por lei posterior à data de corte entra na lista do parser, na
+ * posição em que a lei o colocou.
+ *
+ * **Injetar aqui, e não montar a linha pronta depois, é o ponto todo.** Id,
+ * ordem, citação, `texto_embed` e hash saem do mesmo código que produz os outros
+ * 1.330 artigos; um caminho paralelo para os oito artigos novos seria um segundo
+ * gerador de id de citação, e a decisão nº 1 depende de haver só um.
+ *
+ * O contexto (título, capítulo, seção) é herdado do artigo anterior: um artigo
+ * inserido pela lei fica no capítulo em que ela o inseriu.
+ */
+function injetaArtigosNovos(doc: LeiBruta, redacoes: Redacao[]) {
+  const inseridos = new Map<string, number>()
+
+  for (const r of redacoes) {
+    if (r.acao !== 'criar') continue
+
+    const i = doc.artigos.findIndex((a) => a.id === r.depois_de)
+    if (i < 0) {
+      throw new Error(
+        `redacoes.yaml: ${r.artigo} pede para entrar depois de ${r.depois_de}, ` +
+          'que não existe nesta lei.',
+      )
+    }
+    if (doc.artigos.some((a) => a.id === r.artigo)) {
+      throw new Error(
+        `redacoes.yaml: ${r.artigo} manda criar um artigo que o corpus já tem. ` +
+          'Se a redação mudou, a entrada é de bloco, não de artigo novo.',
+      )
+    }
+
+    // Dois artigos novos ancorados no mesmo anterior (o art. 350-A e o 350-B do
+    // CPP, os dois "depois do art. 350") entram na ordem em que estão no YAML,
+    // que é a ordem do documento. Sem este deslocamento, o segundo entraria
+    // antes do primeiro.
+    const deslocamento = inseridos.get(r.depois_de!) ?? 0
+    inseridos.set(r.depois_de!, deslocamento + 1)
+
+    doc.artigos.splice(i + 1 + deslocamento, 0, {
+      id: r.artigo,
+      artigo: r.numero!,
+      contexto: doc.artigos[i]!.contexto,
+      caput: r.caput ?? '',
+      incisos: (r.incisos ?? []).map((inc) => ({
+        numero: inc.rotulo,
+        texto: comMarcador(inc, 'inciso'),
+        alineas: (inc.alineas ?? []).map((al) => comMarcador(al, 'alinea')),
+      })),
+      paragrafos: (r.paragrafos ?? []).map((p) => ({
+        numero: /único/i.test(p.rotulo) ? 'único' : p.rotulo.replace(/[^\d-]/g, ''),
+        texto: comMarcador(p, 'paragrafo'),
+        incisos: (p.incisos ?? []).map((inc) => ({
+          numero: inc.rotulo,
+          texto: comMarcador(inc, 'inciso'),
+          alineas: (inc.alineas ?? []).map((al) => comMarcador(al, 'alinea')),
+        })),
+      })),
+    })
+  }
+}
+
+/**
+ * Blocos incluídos por lei posterior, dentro de um artigo que já existe.
+ *
+ * Entram como Bloco, antes de qualquer limpeza, para herdarem do resto do script
+ * a citação e o `texto_embed`. O pai e a cadeia saem do id — que é a mesma
+ * convenção que `montaBlocos` usa para construí-los —, e não de uma segunda
+ * regra escrita aqui.
+ */
+function insereBlocosNovos(blocos: Bloco[], curados: BlocoCurado[]) {
+  // Vários blocos novos seguidos ancoram no MESMO dispositivo, porque `depois_de`
+  // aponta para o último bloco que já existia no corpus — o § 5º do art. 310 do
+  // CPP e os seis incisos dele vêm todos "depois do § 4º", que é o último que a
+  // fotografia tinha. Inserir cada um logo após a âncora empilha o seguinte
+  // ANTES do anterior, e o artigo sai com os treze parágrafos novos de trás para
+  // a frente. Daí a âncora andar junto: o segundo entra depois do primeiro.
+  const ultimoInserido = new Map<string, string>()
+
+  for (const c of curados.filter((b) => b.acao === 'incluir')) {
+    const alvo = ultimoInserido.get(c.depois_de ?? '') ?? c.depois_de
+    const posicao = blocos.findIndex((b) => b.id === alvo)
+    if (posicao < 0) {
+      throw new Error(
+        `redacoes.yaml: ${c.id} pede para entrar depois de ${c.depois_de}, ` +
+          'que não é um dispositivo deste artigo.',
+      )
+    }
+    if (blocos.some((b) => b.id === c.id)) {
+      throw new Error(`redacoes.yaml: ${c.id} já existe no corpus — a ação seria 'alterar'.`)
+    }
+
+    const paiId = c.id.replace(/_(inc\d+|al[a-z]|p[^_]+)$/, '')
+    const pai = blocos.find((b) => b.id === paiId)
+    const caput = blocos.find((b) => b.tipo === 'caput')!
+
+    const cadeia = (() => {
+      if (c.tipo === 'paragrafo') return [c.rotulo]
+      const partes = pai && pai.tipo !== 'caput' ? pai.cadeia : []
+      return c.tipo === 'alinea'
+        ? [...(pai?.cadeia ?? []), c.rotulo.replace(')', '')]
+        : [...partes, c.rotulo]
+    })()
+
+    blocos.splice(posicao + 1, 0, {
+      id: c.id,
+      artigo: caput.artigo,
+      artigoRow: caput.artigoRow,
+      tipo: c.tipo,
+      numero:
+        c.tipo === 'paragrafo'
+          ? analisaParagrafo(c.rotulo, c.rotulo).numero
+          : c.rotulo.replace(')', ''),
+      rotulo: c.rotulo,
+      paiId: c.tipo === 'paragrafo' ? caput.id : (pai?.id ?? caput.id),
+      ordem: 0, // renumerado abaixo
+      bruto: c.texto,
+      texto: c.texto,
+      rubrica: null,
+      cadeia,
+      curado: 'novo',
+    })
+    ultimoInserido.set(c.depois_de ?? '', c.id)
+  }
+
+  blocos.forEach((b, i) => {
+    b.ordem = i + 1
+  })
+}
+
+// -----------------------------------------------------------------------------
 // Processamento de uma lei
 // -----------------------------------------------------------------------------
 function processa(
@@ -353,7 +555,13 @@ function processa(
     rubrica_marginal: 0,
     estrutura: 0,
     emenda: 0,
+    redacao: 0,
   }
+
+  // Artigo criado por lei posterior entra na lista do parser ANTES de qualquer
+  // outra coisa: os headings, a ordem e os ids são calculados sobre a lista já
+  // completa.
+  injetaArtigosNovos(doc, REDACOES.filter((r) => r.artigo.startsWith(`${cfg.id}_`)))
 
   const { mapa, rubricaDoHeading, cortes } = resolveHeadings(doc, cfg.id, curadoria)
 
@@ -367,6 +575,7 @@ function processa(
       const bruto = a.contexto?.[k]
       return bruto ? (mapa.get(bruto)?.heading ?? bruto) : null
     }
+    const redacao = REDACAO_DO_ARTIGO.get(a.id)
     const row: LinhaArtigo = {
       id: a.id,
       lei_id: cfg.id,
@@ -377,12 +586,41 @@ function processa(
       titulo: limpo('titulo'),
       capitulo: limpo('capitulo'),
       secao: limpo('secao'),
-      rubrica: null,
+      // Artigo criado depois da fotografia não tem rubrica no PDF; a do Planalto
+      // entra aqui e é sobrescrita adiante se um heading a definir.
+      rubrica: redacao?.rubrica ?? null,
       revogado: ehRevogado(a.caput),
-      conferido_em: (a as { conferido_em?: string }).conferido_em ?? null,
+      // A data da fotografia deixou de responder por este artigo. Quem responde
+      // é a conferência contra o texto compilado, e é ela que a tela mostra.
+      conferido_em: redacao?.conferido_em ?? (a as { conferido_em?: string }).conferido_em ?? null,
+      alterado_por: redacao?.normas ?? [],
+      fonte_redacao: redacao?.fonte ?? null,
     }
     artigos.push(row)
-    blocos.push(...montaBlocos(a, row, EMENDAS.get(a.id) ?? [], alteracoes, suspeitos))
+
+    const doArtigo = montaBlocos(a, row, EMENDAS.get(a.id) ?? [], alteracoes, suspeitos)
+    if (redacao?.acao === 'criar') {
+      // Artigo inteiro vindo da curadoria: nenhum de seus blocos passou pelo
+      // parser do PDF, logo nenhum passa pelas limpezas dele.
+      for (const b of doArtigo) b.curado = 'novo'
+      redacoesUsadas.add(a.id)
+    }
+    if (redacao?.blocos?.length) {
+      insereBlocosNovos(doArtigo, redacao.blocos)
+      redacoesUsadas.add(a.id)
+    }
+    for (const b of doArtigo) {
+      if (b.curado === 'novo') {
+        alteracoes.push({
+          dispositivo_id: b.id,
+          regra: 'redacao',
+          antes: '',
+          depois: b.bruto,
+          motivo: `dispositivo incluído por ${(redacao?.normas ?? []).join(', ')}`,
+        })
+      }
+    }
+    blocos.push(...doArtigo)
   })
   contagem.emenda = alteracoes.filter((x) => x.regra === 'emenda').length
 
@@ -395,6 +633,17 @@ function processa(
   let origemPendente: string | null = null
 
   for (const b of blocos) {
+    // 0. bloco que veio de `redacoes.yaml` não passa por limpeza nenhuma, e
+    //    NÃO consome a rubrica pendente: ela é do bloco seguinte do PDF, que
+    //    continua sendo o seguinte — o dispositivo novo entrou no meio, e a
+    //    rubrica não é dele.
+    if (b.curado === 'novo') {
+      // O marcador sai do mesmo jeito — ele é estrutura, não artefato do PDF, e
+      // `rotulo` é quem o guarda. O que não roda são as limpezas A, B e C.
+      b.texto = (b.tipo === 'caput' ? b.bruto : tiraMarcador(b.bruto, b.tipo)).trim()
+      continue
+    }
+
     // 1. rubrica herdada: heading tem prioridade sobre o bloco anterior, porque
     //    o Vade Mecum imprime a rubrica logo abaixo do heading.
     const doHeading = b.tipo === 'caput' ? rubricaDoHeading.get(b.artigo.id) : undefined
@@ -474,6 +723,32 @@ function processa(
     }
 
     b.texto = t.trim()
+
+    // 6. redação nova para um dispositivo que já existia. Vem por último, depois
+    //    de a limpeza ter rodado sobre o texto do PDF — e roda inteira de
+    //    propósito: é ela que tira do fim deste bloco a rubrica marginal do
+    //    bloco seguinte. Trocar o texto antes faria o dispositivo seguinte
+    //    perder a rubrica, que é o efeito colateral mais silencioso possível.
+    const nova = blocosAlterados(b.artigo.id).get(b.id)
+    if (nova) {
+      if (b.texto !== nova.era) {
+        throw new Error(
+          `redacoes.yaml: o texto de ${b.id} não é mais o que a curadoria conferiu.\n` +
+            `  conferido: ${nova.era?.slice(0, 160)}…\n` +
+            `  no corpus: ${b.texto.slice(0, 160)}…\n` +
+            '  Reconfira com `python -m coletores.redacao --sem-cache` antes de seguir.',
+        )
+      }
+      alteracoes.push({
+        dispositivo_id: b.id,
+        regra: 'redacao',
+        antes: b.texto,
+        depois: nova.texto,
+        motivo: `redação dada por ${(REDACAO_DO_ARTIGO.get(b.artigo.id)?.normas ?? []).join(', ')}`,
+      })
+      b.texto = nova.texto
+      redacoesUsadas.add(b.artigo.id)
+    }
   }
 
   if (pendente) {
@@ -493,6 +768,10 @@ function processa(
       trecho: `…${b.texto.slice(-90)}`,
     })
   }
+
+  // Contado no fim porque a redação de bloco que já existia só é aplicada depois
+  // da limpeza — ver o passo 6 do laço acima.
+  contagem.redacao = alteracoes.filter((x) => x.regra === 'redacao').length
 
   // fecha o destino de cada rubrica removida, agora que a cadeia está montada
   const porOrigem = new Map(blocos.map((b, i) => [b.id, i]))
@@ -659,11 +938,15 @@ const emendasOrfas = [...EMENDAS.values()]
   .flat()
   .map(chaveEmenda)
   .filter((k) => daLeiProcessada(k) && !emendasUsadas.has(k))
-if (notasOrfas.length || emendasOrfas.length) {
+const redacoesOrfas = REDACOES.map((r) => r.artigo).filter(
+  (k) => daLeiProcessada(k) && !redacoesUsadas.has(k),
+)
+if (notasOrfas.length || emendasOrfas.length || redacoesOrfas.length) {
   throw new Error(
     'curadoria que não casou com nenhum dispositivo:\n' +
       [...notasOrfas.map((k) => `  notas_editor.yaml → ${k}`),
-       ...emendasOrfas.map((k) => `  emendas.yaml → ${k}`)].join('\n'),
+       ...emendasOrfas.map((k) => `  emendas.yaml → ${k}`),
+       ...redacoesOrfas.map((k) => `  redacoes.yaml → ${k}`)].join('\n'),
   )
 }
 

@@ -220,7 +220,11 @@ export function romanoParaArabico(r: string): number {
 
 /** '216-B' → { base: 216, sufixo: 'B' }; '33' → { base: 33, sufixo: null } */
 export function partesNumeroArtigo(numero: string) {
-  const m = /^(\d+)(?:-([A-Za-z]+))?$/.exec(numero.trim())
+  // O sufixo pode ser composto: `359-M-A` e `359-M-B` foram criados no Código
+  // Penal pela Lei 15.402/2026, depois da fotografia do corpus. A técnica
+  // legislativa acrescenta letra ao artigo mais próximo, e quando esse artigo
+  // já tem letra o novo herda as duas.
+  const m = /^(\d+)(?:-([A-Za-z]+(?:-[A-Za-z]+)*))?$/.exec(numero.trim())
   if (!m) throw new Error(`número de artigo fora do padrão: ${numero}`)
   return { base: Number(m[1]), sufixo: m[2]?.toUpperCase() ?? null }
 }

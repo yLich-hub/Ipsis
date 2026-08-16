@@ -116,6 +116,16 @@ Os JSONs são uma fotografia de **fevereiro/2025** (Vade Mecum Senado Federal,
 1ª ed.). Citar redação revogada em peça criminal é grave. `leis.vigencia_ate`
 é renderizado em banner global e ao lado de cada dispositivo.
 
+**A data deixou de ser uma só, e isso é o cumprimento da decisão, não uma
+exceção a ela.** A vigília do Planalto mostrou 63 alterações posteriores à
+fotografia, duas na Lei de Drogas; `data/curadoria/redacoes.yaml` alinhou 47
+artigos ao texto compilado, e a partir daí `leis.vigencia_ate` mentiria nos dois
+sentidos — subestimando os artigos conferidos e continuando certa para os outros
+1.293. Quem responde por um artigo atualizado é `artigos.conferido_em`, ao lado
+de `artigos.alterado_por` (as leis) e `artigos.fonte_redacao` (o endereço). A
+tela do artigo, a lista da lei e o rodapé do `.docx` mostram a data do artigo
+quando ela existe, e a da lei quando não. Ver "O corpus atualizado" abaixo.
+
 O mesmo vale para cobertura: `leis.cobertura` é `integral` ou `parcial`, e todo
 dispositivo de lei parcial exibe o aviso. As três leis do corpus são hoje
 `integral` — o mecanismo fica de pé para a próxima lei que entrar recortada.
@@ -127,9 +137,9 @@ Silenciar cobertura seria o mesmo erro de classe que silenciar a data de corte.
 
 | Arquivo | Lei | id | Cobertura | Origem |
 |---|---|---|---|---|
-| `data/lei11343.json` | Lei Antidrogas 11.343/2006 | `lei_11343_2006` | integral (93 arts) | `vade_parser.py` |
-| `data/codigo_penal.json` | Código Penal (DL 2.848/1940) | `dl_2848_1940` | integral (416 arts) | `vade_parser.py` |
-| `data/codigo_processo_penal.json` | CPP (DL 3.689/1941) | `dl_3689_1941` | integral (821 arts) | `vade_parser.py` |
+| `data/lei11343.json` | Lei Antidrogas 11.343/2006 | `lei_11343_2006` | integral (94 arts) | `vade_parser.py` + Planalto |
+| `data/codigo_penal.json` | Código Penal (DL 2.848/1940) | `dl_2848_1940` | integral (421 arts) | `vade_parser.py` + Planalto |
+| `data/codigo_processo_penal.json` | CPP (DL 3.689/1941) | `dl_3689_1941` | integral (825 arts) | `vade_parser.py` + Planalto |
 
 **`vade_parser.py` está validado. Não reescrever.** Trate os JSONs como fonte de
 dados imutável — a limpeza acontece em `scripts/normalize.ts`, nunca editando os
@@ -231,7 +241,9 @@ abreviação.
 > **Os números desta seção vêm de `data/normalizado/relatorio.json`, não da
 > memória.** Foram corrigidos depois de a auditoria encontrar divergência entre
 > o que o documento afirmava e o que o pipeline registrava. Com o CPP no corpus
-> são 677 alterações. `/fontes` lê o mesmo relatório, então tela e documento não
+> são 838 alterações — 677 de limpeza do PDF e 161 de redação nova, que é a
+> regra `redacao` e não conserta artefato nenhum (ver "O corpus atualizado").
+> `/fontes` lê o mesmo relatório, então tela e documento não
 > podem mais divergir sem que os dois mudem juntos. Ao reexecutar
 > `npm run normalize`, conferir se estes números mudaram.
 
@@ -272,6 +284,104 @@ Os buracos na numeração são legítimos, não perda do parser:
 Lei 11.343 pula 8→15 (arts. 9º–14 revogados pela Lei 13.840/2019);
 CP pula 186→196 e 218→223 (revogados). Artigos `(Vetado)` / `(Revogado)` entram
 no banco com `artigos.revogado = true`.
+
+---
+
+## O corpus atualizado — a segunda fonte
+
+A vigília do Planalto encontrou **63 alterações posteriores à fotografia de
+28/02/2025**, duas delas na Lei de Drogas. O conserto que este documento previa
+era "rodar o `vade_parser.py` sobre a nova redação", e ele não existe: **o PDF do
+Vade Mecum é a fotografia.** A redação nova não está nele e nunca vai estar. Sem
+uma segunda fonte, o sistema fica para sempre sabendo que está desatualizado — e
+saber não conserta o texto que sai no `.docx`.
+
+A segunda fonte é o **texto compilado do Planalto**, e ela entra por um caminho
+que preserva as três decisões:
+
+```
+coletores/redacao.py         →  data/vigilia/redacoes.propostas.yaml   (proposta)
+        ↓ conferência humana, bloco a bloco
+data/curadoria/redacoes.yaml →  scripts/normalize.ts → seed            (corpus)
+```
+
+**O scraper continua não escrevendo texto legal em lugar nenhum.** Ele propõe;
+`redacoes.yaml` é curadoria versionada, revisável em diff, com data e endereço da
+conferência em cada entrada. É a mesma distância que existe entre
+`headings.propostas.yaml` e `headings.yaml` — e ela é a decisão nº 1 inteira: um
+scraper que alimentasse `dispositivos` trocaria a fonte auditada por uma
+raspagem, e ninguém saberia dizer qual dispositivo passou por olho humano.
+
+Hoje são **47 artigos**, alterados por 25 leis posteriores: 37 com blocos
+reescritos ou incluídos (125 blocos) e 10 artigos que a lei criou depois da
+fotografia — entre eles o **art. 40-A da Lei de Drogas** (pena em dobro para
+integrante de organização criminosa ultraviolenta) e o art. 23, parágrafo único.
+
+### A conferência é sobre a lei inteira, não sobre a lista da vigília
+
+`coletores/redacao.py` compara os **1.340 artigos** das três leis com a página
+compilada. Artigo que ninguém alterou tem de bater com o corpus, e quando não
+bate é o extrator que está errado — é o mesmo raciocínio de `tests/vigilia.test.ts`
+rodar o filtro contra ementas reais.
+
+Só vira curadoria a divergência que carrega **norma posterior à data de corte**.
+O que sobra fica no relatório da proposta e não entra: são 545 divergências
+tipográficas entre o Vade Mecum e o Planalto (`seqüestro`, `Assembléias`,
+`Decreto-lei` contra `Decreto-Lei`), que não são mudança de lei nenhuma.
+
+Rodar de novo hoje devolve **0 blocos a atualizar** nas três leis. É essa a
+verificação: o comando é idempotente e a resposta "nada a fazer" é a prova de
+que o corpus está em dia.
+
+### As armadilhas do HTML, que custaram texto legal errado
+
+Estão anotadas em `coletores/redacao.py` e cobertas por
+`coletores/tests/test_redacao.py`. As que mais custaram:
+
+- **`cp1252`, não `latin-1`.** As páginas não declaram charset e são exportação
+  de Word: o travessão vive na faixa 0x91–0x97, que o latin-1 lê como caractere
+  de controle invisível. Com ele some o `VII – contra`, e a enumeração viaja
+  escondida dentro do parágrafo pai.
+- **`Art. 1º - Não há crime`.** O `- N` virava sufixo de artigo: 302 dos 416
+  artigos do CP deixavam de casar com o corpus. O mesmo com `§ 1º - Para`.
+- **`Art. 359-M-A`.** Sufixo composto. Sem ele o artigo virava repetição do
+  `359-M` e o texto novo sumia sem erro nenhum.
+- **A rubrica marginal também está no Planalto**, em bloco próprio. Colada no
+  dispositivo anterior, fazia 414 artigos do CP parecerem alterados.
+- **O texto revogado continua na página, riscado** (`<strike>`), e emenda duas
+  redações numa frase se não for descartado antes de qualquer leitura.
+
+### As travas, porque isto reescreve texto legal
+
+1. `era` guarda o texto que o corpus tinha, exato. `normalize.ts` aborta se ele
+   não casar — nenhuma redação se aplica no escuro, como em `emendas.yaml`.
+2. Entrada que não casa com dispositivo nenhum aborta o script.
+3. `dispositivos.texto_bruto` continua guardando o que o Vade Mecum dizia; o
+   diff sai em `npm run audit` sob a regra `redacao`.
+4. `tests/redacao.test.ts` (10 asserções, offline) confere que o corpus **carrega
+   a redação nova e não a antiga**, que o bloco incluído entrou na ordem certa,
+   que o artigo criado nasce com citação e com o caput no vetor, que nenhuma
+   anotação do Planalto vazou para o texto e que nenhum bloco traz a enumeração
+   dos filhos embutida.
+
+A quarta pegou dois erros reais antes do seed: treze parágrafos novos do art. 310
+do CPP entrando de trás para a frente, e a rubrica do artigo seguinte colada no
+fim do art. 168-A.
+
+**Bloco com enumeração embutida não é aplicado no automático.** Quando o Planalto
+imprime os incisos dentro do texto do parágrafo, gravar aquele texto escreveria o
+conteúdo dos filhos duas vezes no banco — e uma citação ao parágrafo passaria a
+transcrever, na peça, trecho que não é dele. Esses vão para o relatório com o
+motivo.
+
+### O que isto não faz
+
+Não apaga a data de corte e não torna o corpus auto-atualizável. A vigília
+continua só avisando; quem confere e assina é gente, e a assinatura é o
+`conferido_em` de cada entrada. `/fontes` cruza `artigos.alterado_por` com os
+achados e marca com selo verde o que o corpus já absorveu — **derivado, não um
+estado novo**: sai da mesma coluna que a tela do artigo e o rodapé da peça usam,
+então não tem como divergir sozinho.
 
 ---
 
@@ -319,7 +429,7 @@ Uma peça só: **resposta à acusação** (art. 396-A do CPP).
 Fluxo: seleção de caso → checklist de teses aplicáveis → minuta em DOCX.
 **Os três passos estão implementados e verificados** — ver "A minuta" abaixo.
 
-- `teses` — 13 curadas à mão em `data/curadoria/teses.yaml`, cada uma com
+- `teses` — 16 curadas à mão em `data/curadoria/teses.yaml`, cada uma com
   `gatilho` (jsonb objetivo), `fundamentos` (ids de dispositivos) e
   `template_md` com os marcadores `{{cite:}}`.
 - `casos` — três casos de tráfico realistas e anonimizados em
@@ -390,11 +500,13 @@ Conferido por mutação: engolir a citação em `fatia()` (o modo de falha
 silencioso, em que a peça sai sem o texto legal e sem erro) faz o teste falhar
 com "minuta sem nenhuma citação".
 
-**Restrição herdada do corpus:** a peça é do art. 396-A do CPP, mas o CPP não
-está semeado (`data/cpp_subconjunto.json` não existe; o banco tem duas leis).
-Por isso nenhum `fundamentos` e nenhum `{{cite:}}` aponta para o CPP — apontar
-quebraria o seed, corretamente. As 13 teses são todas de direito material; as de
-rito entram quando o subconjunto do CPP for digitado e normalizado.
+**O rodapé aprendeu a dizer mais de uma data.** A minuta transcreve o art. 65 do
+Código Penal, que a Lei 15.160/2025 alterou depois da fotografia; carimbar
+28/02/2025 sobre esse texto seria a decisão nº 3 mentindo dentro do arquivo
+protocolado. Quando algum dispositivo transcrito está em redação posterior, o
+rodapé diz quantos são, contra o que foram conferidos e por quais leis. A data
+impressa é a **mais antiga** das conferências: é a única que cobre todos os
+artigos citados.
 
 ---
 
@@ -852,6 +964,11 @@ data de corte**, entre elas a Lei 15.581/2025 (art. 23 da Lei de Drogas) e a Lei
 alteração consumada. **A fotografia de 28/02/2025 já está furada, e o projeto não
 sabia.**
 
+As 63 estão hoje incorporadas ao corpus, por `data/curadoria/redacoes.yaml` — ver
+"O corpus atualizado". O achado continua na tela, com selo verde de "no corpus":
+o fato de a lei ter mudado não deixa de ser verdade porque o corpus a alcançou, e
+apagar a linha faria a tela esquecer o que aconteceu.
+
 **O que ficou de fora, e por quê:** o LexML (SRU atrás de verificação com
 JavaScript — fonte que só funciona no navegador não serve para coleta), o INLABS
 (edição completa do DOU em ZIP, com cadastro — e não fez falta, porque o Senado
@@ -943,8 +1060,8 @@ nada. `.venv/Scripts/python -m coletores --seco` faz o mesmo com as seis fontes,
 incluindo o scraping — é como se confere o que o filtro está pegando antes de
 encher a tabela. `--tudo` faz a carga inicial, que nenhum dos dois crons faz.
 
-`.venv/Scripts/python -m pytest coletores -q` roda as 59 asserções do lado
-Python, offline e sem segredo, como as oito suítes do vitest.
+`.venv/Scripts/python -m pytest coletores -q` roda as 79 asserções do lado
+Python, offline e sem segredo, como as nove suítes do vitest.
 
 ### Jurisprudência: precedentes qualificados do STJ
 
@@ -1009,9 +1126,24 @@ contexto, entrou no contexto, mudou entre duas situações não citáveis.
 muda; o `.docx` continua citando só dispositivo conferido e datado. É a mesma
 separação do acervo Vade Mecum.
 
-**Limite conhecido:** 6 dos 18 citáveis não têm artigo vinculado e são
-inalcançáveis pelo grafo. Aparecem na tela, não no chat. Resolver exigiria
-embedding próprio — vale quando a falta for sentida, não antes.
+**Os seis que o grafo não alcançava entraram por curadoria.** Seis dos dezoito
+citáveis não tinham artigo vinculado: apareciam na tela e nunca no chat. Não era
+descuido do extrator — `artigos_de` recusa atribuir artigo quando a frase numera
+mais de um diploma, e uma tese que cita "o art. 42 do Código Penal" e o "Decreto
+n. 11.846/2023" produziria `lei_11343_2006_art42`, um id que existe, aponta para
+o artigo errado e não levantaria suspeita de ninguém. A recusa está certa; o que
+faltava era o caminho para quem lê a tese decidir.
+
+`vinculos`, em `data/curadoria/precedentes.yaml`, é esse caminho — e é o mesmo
+desenho de `rubricas.yaml`: o que a extração não alcança é escrito à mão, em
+arquivo versionado, com um `porque` por linha. **O vínculo curado vence a
+extração automática**, e não por preferência: quem leu a tese inteira foi a
+curadoria, e `artigos_de` leu uma frase.
+
+O efeito é verificável: "indulto e tráfico" agora alcança o Tema 1336, e
+"confissão compensa reincidência" alcança o Tema 585 — as duas respostas exatas,
+sem embedding novo e sem tocar em `busca_hibrida`. `coletores/tests/test_stj.py`
+confere que todo id curado existe no corpus e tem a forma de id de artigo.
 
 ### O chat é a tela principal
 
@@ -1121,7 +1253,7 @@ protótipo não precisa; produto precisa.
 
 Incrementos verificáveis, parando ao fim de cada um para demonstração:
 
-1. schema + seed — feito: 3 leis, 1330 artigos, 3653 dispositivos, todos com vetor
+1. schema + seed — feito: 3 leis, 1340 artigos, 3771 dispositivos, todos com vetor
 2. rubricas — feito: 421 oficiais + 35 curadas, com 153 variantes
 3. busca — feito: RPC única, com a ordem do cluster corrigida em 0005
 4. geração de peça — feito: `/api/peca/[casoId]`, ver "A minuta" acima
@@ -1153,9 +1285,9 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As oito suítes (143 asserções) rodam **offline**, sem segredo: `citacao`, `peca` e
-`vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco, e
-`dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
+As nove suítes (154 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+`redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
+e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 
 > **"Offline" não é o mesmo que "em qualquer clone".** `data/normalizado/*` é
 > ignorado pelo git — são 5,2 MB de saída determinística do `npm run normalize`,
@@ -1181,7 +1313,7 @@ mexe na interface. Os coletores têm a própria suíte, com o mesmo critério �
 offline, sem segredo:
 
 ```
-.venv/Scripts/python -m pytest coletores -q      # 59 asserções
+.venv/Scripts/python -m pytest coletores -q      # 79 asserções
 ```
 
 `tests/vigilia.test.ts` e `coletores/tests/test_filtro.py` testam a **mesma
@@ -1203,6 +1335,17 @@ está no `ls` da pasta.
 - **`art. 761` do CPP termina em `"art. 82.49"`.** O `49` é marcador de rodapé
   que a regra B recusa remover, por ser indistinguível de decimal (`82.49`).
   Aparece em `relatorio.json` como o único suspeito. Fora do recorte.
+- **545 divergências tipográficas entre o Vade Mecum e o Planalto**, listadas em
+  `data/vigilia/redacoes.propostas.yaml`. Não são mudança de lei: são ortografia
+  anterior ao Acordo do lado do Planalto (`seqüestro`, `Assembléias`, `argüir`) e
+  segmentação diferente em artigo cujo inciso o Planalto imprime dentro do
+  parágrafo. Ficam no relatório de propósito — lista escondida é lista que
+  ninguém audita, e é ali que um erro do extrator apareceria.
+- **Cinco achados da vigília não recebem o selo "no corpus", e é atribuição, não
+  falta.** A vigília atribui a anotação de procedência ao artigo corrente, e
+  quando ela vem impressa na linha da rubrica do artigo SEGUINTE (o art. 121-B, o
+  338-A, o 350-A), o achado nomeia o artigo anterior, que não mudou. A tela erra
+  para o lado seguro: diz "pendente" sobre o que já está feito.
 - **`argumentacao` continua vazia e sem uso.** A costura offline por
   `scripts/argumentar.ts` não existe, e hoje não é necessária: a argumentação da
   peça vive em `teses.template_md`, escrita à mão. `uso_llm` saiu desta lista —

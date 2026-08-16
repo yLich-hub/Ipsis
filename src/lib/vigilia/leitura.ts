@@ -84,6 +84,39 @@ export async function alteracoes(limite = 80): Promise<Resultado<Alteracao[]>> {
   }
 }
 
+/**
+ * Os artigos cuja redação já foi alinhada ao texto compilado, com as leis que os
+ * alteraram: `dl_2848_1940_art121` → `['Lei 15.134/2025', …]`.
+ *
+ * **É o que fecha o ciclo da vigília, e é derivado — não é um estado novo.** O
+ * achado diz "a Lei 15.581/2025 mudou o art. 23"; `artigos.alterado_por` diz que
+ * o art. 23 do corpus já traz a redação dessa lei. Cruzar os dois responde
+ * "isto ainda está pendente?" sem que ninguém precise marcar caixinha — e uma
+ * marca manual poderia mentir, esta não pode: ela sai do mesmo lugar de onde a
+ * peça tira o texto.
+ *
+ * Não substitui `reconferido_em`, que continua sendo "uma pessoa olhou". As duas
+ * perguntas são diferentes: uma é sobre o corpus, a outra é sobre quem leu.
+ */
+export async function artigosAtualizados(): Promise<Resultado<Map<string, string[]>>> {
+  try {
+    const { data, error } = await supabase
+      .from('artigos')
+      .select('id,alterado_por')
+      .neq('alterado_por', '{}')
+
+    if (error) return { ok: false, erro: error.message }
+    return {
+      ok: true,
+      dados: new Map(
+        (data ?? []).map((a) => [a.id as string, (a.alterado_por as string[] | null) ?? []]),
+      ),
+    }
+  } catch (e) {
+    return { ok: false, erro: e instanceof Error ? e.message : 'falha ao ler os artigos' }
+  }
+}
+
 /** Uma tese da peça e os artigos que ela cita — o outro lado do vínculo. */
 export type TeseCitante = { id: string; nome: string; artigos: string[] }
 

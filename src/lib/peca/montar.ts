@@ -29,7 +29,10 @@ async function carregaCitados(ids: string[]): Promise<Map<string, Citado>> {
 
   const { data, error } = await supabase
     .from('v_dispositivo')
-    .select('id,citacao,texto,lei_apelido,vigencia_ate,revogado')
+    // Uma string literal só: o supabase-js deriva o tipo das colunas do texto
+    // do `select`, e quebrá-lo em concatenação faz o retorno virar
+    // `GenericStringError` — o erro aparece longe daqui, nas propriedades.
+    .select('id,citacao,texto,lei_apelido,vigencia_ate,revogado,artigo_conferido_em,artigo_alterado_por')
     .in('id', ids)
 
   if (error) throw new Error(`falha ao ler dispositivos da minuta: ${error.message}`)
@@ -44,6 +47,8 @@ async function carregaCitados(ids: string[]): Promise<Map<string, Citado>> {
         leiApelido: d.lei_apelido as string,
         vigenciaAte: d.vigencia_ate as string,
         revogado: Boolean(d.revogado),
+        conferidoEm: (d.artigo_conferido_em as string | null) ?? null,
+        alteradoPor: (d.artigo_alterado_por as string[] | null) ?? [],
       },
     ]),
   )

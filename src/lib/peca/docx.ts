@@ -32,6 +32,17 @@ const CM = 567 // 1 cm em twips (1440 / 2.54)
 const CORPO = { size: 24, font: 'Times New Roman' } // 12 pt
 const MIUDO = { size: 20, font: 'Times New Roman' } // 10 pt
 
+/**
+ * A mais ANTIGA das conferências que a minuta transcreve.
+ *
+ * O rodapé afirma até quando o texto transcrito foi conferido, e a única data
+ * que cobre todos os artigos citados é a menor delas. Imprimir a mais recente
+ * afirmaria sobre um artigo uma conferência que só outro teve — que é a mesma
+ * classe de erro que carimbar a data da fotografia sobre um texto novo.
+ */
+const conferenciaMaisAntiga = (peca: PecaMontada) =>
+  peca.conferidos.map((c) => c.conferidoEm).sort()[0] ?? ''
+
 const paragrafo = (texto: string) =>
   new Paragraph({
     alignment: AlignmentType.JUSTIFIED,
@@ -215,7 +226,19 @@ export async function pecaEmDocx(peca: PecaMontada): Promise<Buffer> {
                   new TextRun({
                     text:
                       `Texto legal conforme redação vigente em ${peca.vigenciaAte} ` +
-                      `(Vade Mecum Senado Federal, 1ª ed.). ${peca.citados.length} dispositivos transcritos do banco. — `,
+                      `(Vade Mecum Senado Federal, 1ª ed.). ${peca.citados.length} dispositivos transcritos do banco.` +
+                      // Uma data só no rodapé passou a ser insuficiente quando o
+                      // corpus ganhou artigos em redação mais nova que a
+                      // fotografia. Omitir esta frase faria a peça carimbar
+                      // fevereiro de 2025 sobre um texto de 2026 — o mesmo erro
+                      // que a decisão nº 3 existe para impedir, agora dentro do
+                      // arquivo protocolado.
+                      (peca.conferidos.length
+                        ? ` Destes, ${peca.conferidos.length} em redação posterior à data de corte, ` +
+                          `conferida contra o texto compilado do Planalto em ${conferenciaMaisAntiga(peca)} ` +
+                          `(${[...new Set(peca.conferidos.flatMap((c) => c.alteradoPor))].join(', ')}).`
+                        : '') +
+                      ' — ',
                     size: 16,
                     font: 'Times New Roman',
                   }),

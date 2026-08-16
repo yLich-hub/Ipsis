@@ -53,6 +53,12 @@ export async function PaginaArtigo({
 
   const trilha = [primeiro.titulo, primeiro.capitulo, primeiro.secao].filter(Boolean) as string[]
 
+  // Artigo cuja redação já não é a da fotografia. As duas condições andam
+  // juntas por construção — `artigos_conferencia_ck`, na migration 0015 —, e
+  // exigir as duas aqui é o que impede a tela de anunciar conferência sem data.
+  const atualizado =
+    primeiro.artigo_alterado_por.length > 0 && Boolean(primeiro.artigo_conferido_em)
+
   return (
     <article className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
       {/* ---------- contexto ---------- */}
@@ -80,20 +86,65 @@ export async function PaginaArtigo({
         {primeiro.artigo_revogado && <Selo tom="vermelho">revogado</Selo>}
       </div>
 
+      {/*
+        A data que vale para ESTE artigo, não a da lei.
+
+        A fotografia do Vade Mecum responde por 1.293 artigos; os outros 45 foram
+        alinhados ao texto compilado do Planalto depois que a vigília mostrou que
+        haviam mudado. Continuar imprimindo 28/02/2025 num artigo cuja redação é
+        de agosto de 2026 seria a decisão nº 3 dizendo o contrário do que ela
+        existe para dizer — e o erro apareceria justamente no artigo que mudou,
+        que é o único em que ele custa caro.
+      */}
       <div className="mt-2 flex flex-wrap items-center gap-2 text-[11.5px] text-tg-fraco-3">
-        <span className="flex items-center gap-1">
-          <Icone nome="alerta" className="size-3" />
-          redação vigente em {dataBR(primeiro.vigencia_ate)}
-        </span>
+        {atualizado ? (
+          <span
+            className="flex items-center gap-1"
+            title={`Redação conferida contra o texto compilado em ${primeiro.artigo_fonte_redacao ?? 'fonte oficial'}`}
+          >
+            <Icone nome="alerta" className="size-3" />
+            redação conferida em {dataBR(primeiro.artigo_conferido_em!)}
+          </span>
+        ) : (
+          <span className="flex items-center gap-1">
+            <Icone nome="alerta" className="size-3" />
+            redação vigente em {dataBR(primeiro.vigencia_ate)}
+          </span>
+        )}
         <span>·</span>
         <span>{primeiro.lei_nome}</span>
         {primeiro.cobertura === 'parcial' && <Selo tom="ambar">cobertura parcial</Selo>}
-        {primeiro.artigo_conferido_em && (
+        {atualizado && (
+          <Selo tom="ambar" title="Alterado depois da data de corte do corpus">
+            {primeiro.artigo_alterado_por.join(' · ')}
+          </Selo>
+        )}
+        {primeiro.artigo_conferido_em && !atualizado && (
           <Selo title="Artigo de curadoria manual, conferido contra o texto oficial">
             conferido em {dataBR(primeiro.artigo_conferido_em)}
           </Selo>
         )}
       </div>
+
+      {atualizado && (
+        <Aviso className="mt-4">
+          Este artigo mudou depois da fotografia do corpus ({dataBR(primeiro.vigencia_ate)}). O
+          texto abaixo é o do Planalto compilado, conferido em{' '}
+          {dataBR(primeiro.artigo_conferido_em!)} —{' '}
+          {primeiro.artigo_alterado_por.length === 1 ? 'a alteração é da ' : 'as alterações são das '}
+          {primeiro.artigo_alterado_por.join(', ')}.{' '}
+          {primeiro.artigo_fonte_redacao && (
+            <a
+              href={primeiro.artigo_fonte_redacao}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-tg-tinta-4"
+            >
+              Ver o texto oficial
+            </a>
+          )}
+        </Aviso>
+      )}
 
       {primeiro.cobertura === 'parcial' && primeiro.cobertura_nota && (
         <Aviso className="mt-4">{primeiro.cobertura_nota}</Aviso>

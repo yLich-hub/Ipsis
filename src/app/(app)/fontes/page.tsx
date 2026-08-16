@@ -19,7 +19,13 @@ import type { Metadata } from 'next'
 
 import { Fontes } from '@/components/toga/fontes'
 import { leis } from '@/lib/dados'
-import { alteracoes, jurimetria, tesesCitantes, ultimasColetas } from '@/lib/vigilia/leitura'
+import {
+  alteracoes,
+  artigosAtualizados,
+  jurimetria,
+  tesesCitantes,
+  ultimasColetas,
+} from '@/lib/vigilia/leitura'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,12 +36,13 @@ export const metadata: Metadata = {
 }
 
 export default async function PaginaFontes() {
-  const [achados, coletas, teses, metricas, ls] = await Promise.all([
+  const [achados, coletas, teses, metricas, ls, atualizados] = await Promise.all([
     alteracoes(),
     ultimasColetas(),
     tesesCitantes(),
     jurimetria(),
     leis(),
+    artigosAtualizados(),
   ])
 
   // A data de corte é a mesma para as três leis do corpus; a primeira serve.
@@ -53,6 +60,13 @@ export default async function PaginaFontes() {
       coletas={coletas.ok ? coletas.dados : {}}
       teses={teses.ok ? teses.dados : []}
       jurimetria={metricas.ok ? metricas.dados : []}
+      // Falha na leitura vira mapa vazio, e a tela volta a mostrar tudo como
+      // pendente. É o lado seguro do erro: dizer "ainda não está no corpus"
+      // sobre algo que já está custa uma conferência a mais; o contrário custa
+      // uma peça com redação revogada.
+      incorporados={
+        atualizados.ok ? Object.fromEntries(atualizados.dados) : {}
+      }
       dataDeCorte={dataDeCorte}
       erro={erro}
     />
