@@ -41,8 +41,20 @@ export default defineConfig({
   workers: 1,
   fullyParallel: false,
   reporter: process.env.CI ? 'github' : 'list',
-  timeout: 30_000,
-  expect: { timeout: 10_000 },
+  // Os prazos são largos porque o servidor é o `next dev`, que compila cada rota
+  // na PRIMEIRA visita. Numa suíte com `.next` quente nada chega perto disto — a
+  // execução inteira leva ~40 s. Mas na primeira execução depois de a pasta ser
+  // apagada, uma rota pesada sozinha come dezenas de segundos, e com 30 s/10 s a
+  // suíte falhava em quatro testes por motivo que não era o deles: dois estouram
+  // o prazo do teste e dois clicam antes de o React hidratar, o que não vira
+  // erro, vira asserção que não confere.
+  //
+  // O prazo generoso não esconde defeito: teste que trava de verdade continua
+  // falhando, só que 90 s depois em vez de 30. Diagnóstico enganoso custa mais
+  // que um minuto de espera — e é justo o que o `globalSetup` acima existe para
+  // não deixar acontecer de novo.
+  timeout: 90_000,
+  expect: { timeout: 20_000 },
 
   use: {
     baseURL: `http://localhost:${PORTA}`,
