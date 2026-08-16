@@ -11,7 +11,7 @@ import type { Metadata } from 'next'
 
 import { Cabecalho } from '@/components/casca/cabecalho'
 import { Icone } from '@/components/icones'
-import { Aviso, Cartao, ErroBanco, Selo } from '@/components/ui'
+import { Cartao, ErroBanco, Selo } from '@/components/ui'
 import { contagemDispositivos, leis } from '@/lib/dados'
 import { dataBR, numeroBR } from '@/lib/formato'
 import { titulo } from '@/lib/toga/marca'
@@ -20,7 +20,8 @@ export const revalidate = 300
 
 export const metadata: Metadata = {
   title: titulo('Legislação'),
-  description: 'Lei 11.343/2006 e Código Penal, com data de corte e cobertura declaradas.',
+  description:
+    'Lei 11.343/2006, Código Penal e Código de Processo Penal, com data de corte e cobertura declaradas.',
 }
 
 export default async function LeisPage() {
@@ -86,15 +87,15 @@ export default async function LeisPage() {
             ))}
           </ul>
 
-          {!comContagem.some(({ l }) => l.id === 'dl_3689_1941') && (
-            <Aviso className="mt-4">
-              O subconjunto curado do <strong>CPP</strong> (arts. 155, 157, 386, 396, 396-A, 397,
-              400, 402, 403, 563–566 e busca e apreensão domiciliar) está digitado e conferido em{' '}
-              <code>data/cpp_subconjunto.json</code>, mas ainda não foi semeado — por isso não
-              aparece acima.
-            </Aviso>
-          )}
-
+          {/*
+            Aqui vivia um aviso de que o CPP era um subconjunto digitado à mão e
+            ainda não semeado, condicionado à ausência de `dl_3689_1941`. As duas
+            metades caducaram: o CPP entrou inteiro pelo mesmo parser, com a
+            mesma data de corte, e o `data/cpp_subconjunto.json` que o aviso
+            citava nunca chegou a existir. Um ramo que não renderiza mais é pior
+            que texto errado na tela — ninguém o revisa, e ele descreve um
+            produto que não é este.
+          */}
           <Cartao className="mt-6 p-4">
             <h2 className="text-[13px] font-medium text-tg-tinta-2">Buracos na numeração não são defeito</h2>
             <p className="mt-1.5 text-[12.5px] leading-relaxed text-tg-fraco-3">

@@ -5,7 +5,7 @@ import { MARCA } from '@/lib/toga/marca'
 export const metadata: Metadata = {
   title: `${MARCA.nome} — ${MARCA.descricao}`,
   description:
-    'Consulta à Lei 11.343/2006, ao Código Penal e a um subconjunto curado do CPP, ' +
+    'Consulta à Lei 11.343/2006, ao Código Penal e ao Código de Processo Penal, ' +
     'com geração de resposta à acusação. Toda citação resolve para o texto do banco.',
 }
 
