@@ -24,6 +24,7 @@ import { CreditoAcervo, Procedencia } from '@/components/vademecum/procedencia'
 import { Sumario } from '@/components/vademecum/sumario'
 import { numeroBR } from '@/lib/formato'
 import { leiDoAcervo, origemDoAcervo, textoDoAcervo } from '@/lib/vademecum'
+import { titulo } from '@/lib/toga/marca'
 
 // Sem generateStaticParams: a rota está sob (app), que lê cookie de sessão e
 // por isso renderiza sob demanda de qualquer jeito. Ver CLAUDE.md, Autenticação.
@@ -33,7 +34,7 @@ export async function generateMetadata({
   params: Promise<{ leiId: string }>
 }): Promise<Metadata> {
   const lei = leiDoAcervo((await params).leiId)
-  return { title: lei ? `${lei.apelido} — Vade Mecum — Toga` : 'Vade Mecum — Toga' }
+  return { title: titulo(lei ? `${lei.apelido} — Vade Mecum` : 'Vade Mecum') }
 }
 
 const ID_ROLAGEM = 'acervo-rolagem'

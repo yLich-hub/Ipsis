@@ -16,6 +16,7 @@ import { Icone } from '@/components/icones'
 import { ErroBanco, Selo, Vazio } from '@/components/ui'
 import { artigosDaLei, lei as buscaLei, type Artigo } from '@/lib/dados'
 import { dataBR, numeroBR, semAcento, tituloArtigo } from '@/lib/formato'
+import { titulo } from '@/lib/toga/marca'
 
 export const revalidate = 300
 
@@ -26,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { leiId } = await params
   const l = await buscaLei(leiId)
-  return { title: l.ok && l.dados ? `${l.dados.apelido} — Toga` : 'Legislação — Toga' }
+  return { title: l.ok && l.dados ? titulo(l.dados.apelido) : titulo('Legislação') }
 }
 
 /** Heading mais específico disponível — a seção diz mais que o capítulo. */

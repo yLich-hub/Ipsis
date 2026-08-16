@@ -14,11 +14,12 @@ import { Icone } from '@/components/icones'
 import { Aviso, Cartao, ErroBanco, Selo } from '@/components/ui'
 import { contagemDispositivos, leis } from '@/lib/dados'
 import { dataBR, numeroBR } from '@/lib/formato'
+import { titulo } from '@/lib/toga/marca'
 
 export const revalidate = 300
 
 export const metadata: Metadata = {
-  title: 'Legislação — Toga',
+  title: titulo('Legislação'),
   description: 'Lei 11.343/2006 e Código Penal, com data de corte e cobertura declaradas.',
 }
 

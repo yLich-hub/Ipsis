@@ -785,6 +785,14 @@ só, no bloco `@theme` de `src/app/globals.css` (`bg-tg-acento`, `text-tg-fraco-
 cor escolhida por índice, valor calculado em runtime e cor dentro de gradiente.
 Cor nova que possa ser classe **tem** que ser classe.
 
+**A marca segue a mesma regra, em `src/lib/toga/marca.ts`.** Nome, inicial,
+tagline e ramo ficam ali e em nenhum outro lugar; `titulo('Jurisprudência')` monta
+o título da aba. O argumento é o do `@theme`: o nome estava escrito em 27 pontos
+— título de página, `aria-label`, texto de botão, `creator` do `.docx` —, e é
+assim que uma tela fica com o nome antigo depois de uma troca de marca. Não é
+arquivo de configuração: não se lê de variável de ambiente e não há tela para
+editar, porque marca é decisão de produto, muda em commit e se revisa em diff.
+
 ### As sete telas
 
 | Rota | Tela | De onde vêm os dados |

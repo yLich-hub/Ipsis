@@ -18,8 +18,9 @@ import type { Metadata } from 'next'
 
 import { VadeMecum } from '@/components/toga/vademecum'
 import { areasDoAcervo, leisDoAcervo, origemDoAcervo } from '@/lib/vademecum'
+import { titulo } from '@/lib/toga/marca'
 
-export const metadata: Metadata = { title: 'Vade Mecum — Toga' }
+export const metadata: Metadata = { title: titulo('Vade Mecum') }
 
 export default function PaginaAcervo() {
   return (

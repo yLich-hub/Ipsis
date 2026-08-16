@@ -19,6 +19,7 @@ import type { Metadata } from 'next'
 
 import { Fontes } from '@/components/toga/fontes'
 import { leis } from '@/lib/dados'
+import { titulo } from '@/lib/toga/marca'
 import {
   alteracoes,
   artigosAtualizados,
@@ -30,7 +31,7 @@ import {
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Fontes e atualizações — Toga',
+  title: titulo('Fontes e atualizações'),
   description:
     'Vigília sobre as três leis do corpus: o que foi proposto e o que virou lei depois da data de corte.',
 }

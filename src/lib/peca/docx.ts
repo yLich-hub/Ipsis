@@ -26,6 +26,7 @@ import {
 } from 'docx'
 
 import type { PecaMontada, TeseMontada } from '@/lib/peca/resolver'
+import { MARCA } from '@/lib/toga/marca'
 
 const CM = 567 // 1 cm em twips (1440 / 2.54)
 
@@ -203,7 +204,7 @@ export async function pecaEmDocx(peca: PecaMontada): Promise<Buffer> {
   )
 
   const doc = new Document({
-    creator: 'Toga',
+    creator: MARCA.nome,
     title: `Resposta à acusação — ${peca.caso.titulo}`,
     description: 'Minuta gerada a partir de teses curadas, com citações lidas do banco.',
     sections: [

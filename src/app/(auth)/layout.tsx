@@ -8,6 +8,7 @@
 // =============================================================================
 
 import { GRADIENTE_MARCA } from '@/lib/toga/tokens'
+import { MARCA } from '@/lib/toga/marca'
 
 export default function LayoutAuth({ children }: { children: React.ReactNode }) {
   return (
@@ -21,11 +22,11 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
               className="grid size-9 place-items-center rounded-xl font-tg-serif text-[17px] font-semibold text-white shadow-[var(--tg-elev-marca)]"
               style={{ background: GRADIENTE_MARCA }}
             >
-              T
+              {MARCA.inicial}
             </span>
-            <span className="text-xl font-semibold -tracking-[0.01em] text-tg-tinta">Toga</span>
+            <span className="text-xl font-semibold -tracking-[0.01em] text-tg-tinta">{MARCA.nome}</span>
             <span className="rounded-full bg-tg-acento-fraco px-2 py-0.5 text-[10px] font-medium text-tg-acento-txt">
-              Penal
+              {MARCA.ramo}
             </span>
           </div>
 

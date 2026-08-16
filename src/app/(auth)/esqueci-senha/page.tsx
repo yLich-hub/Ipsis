@@ -9,9 +9,10 @@
 import type { Metadata } from 'next'
 
 import { FormularioEsqueciSenha } from '@/components/auth/esqueci-senha'
+import { titulo } from '@/lib/toga/marca'
 
 export const metadata: Metadata = {
-  title: 'Recuperar senha — Toga',
+  title: titulo('Recuperar senha'),
   description: 'Envio do link de redefinição de senha pelo Supabase Auth.',
 }
 

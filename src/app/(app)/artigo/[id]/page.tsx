@@ -4,6 +4,7 @@ import { PaginaArtigo } from '@/components/artigo'
 import { Cabecalho } from '@/components/casca/cabecalho'
 import { artigo } from '@/lib/dados'
 import { tituloArtigo } from '@/lib/formato'
+import { titulo } from '@/lib/toga/marca'
 
 export const revalidate = 300
 
@@ -16,8 +17,8 @@ export async function generateMetadata({
   return {
     title:
       a.ok && a.dados
-        ? `${tituloArtigo(a.dados.numero)}${a.dados.rubrica ? ` · ${a.dados.rubrica}` : ''} — Toga`
-        : 'Artigo — Toga',
+        ? titulo(`${tituloArtigo(a.dados.numero)}${a.dados.rubrica ? ` · ${a.dados.rubrica}` : ''}`)
+        : titulo('Artigo'),
   }
 }
 

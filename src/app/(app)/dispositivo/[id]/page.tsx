@@ -13,6 +13,7 @@ import type { Metadata } from 'next'
 import { PaginaArtigo } from '@/components/artigo'
 import { Cabecalho } from '@/components/casca/cabecalho'
 import { dispositivo } from '@/lib/dados'
+import { titulo } from '@/lib/toga/marca'
 
 export const revalidate = 300
 
@@ -22,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const d = await dispositivo((await params).id)
-  return { title: d.ok && d.dados ? `${d.dados.citacao} — Toga` : 'Dispositivo — Toga' }
+  return { title: d.ok && d.dados ? titulo(d.dados.citacao) : titulo('Dispositivo') }
 }
 
 export default async function DispositivoPage({ params }: { params: Promise<{ id: string }> }) {
