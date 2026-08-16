@@ -14,7 +14,7 @@ Projeto de portfólio. Next.js 15 · TypeScript · Supabase (Postgres 17 + pgvec
 > autenticação, e uma vigília diária que pergunta se a data de corte envelheceu.
 > O que falta é acabamento, não estrutura — a lista está no [roadmap](#roadmap).
 >
-> Verificação: 159 asserções em vitest e 79 em pytest, todas offline e sem
+> Verificação: 159 asserções em vitest e 85 em pytest, todas offline e sem
 > segredo, mais 11 de navegador em Playwright.
 
 ---
@@ -113,7 +113,7 @@ flowchart TB
         PY["coletores/ · Python<br/>Planalto · DOU · DataJud · STJ"]
     end
     subgraph GH["GitHub Actions"]
-        ACT["vigília completa<br/>06:40 UTC · seis fontes"]
+        ACT["vigília completa<br/>12:40 UTC · seis fontes"]
     end
     subgraph VERCEL["Vercel"]
         APP["Next.js App Router<br/>chave publishable + sessão"]
@@ -308,7 +308,7 @@ Jesbick/
 │   ├── embed.ts                # → vetores, só o que mudou de hash
 │   └── vademecum.ts            # espelho de leitura → data/vademecum/
 │
-├── coletores/                  # a vigília, em Python · 79 asserções offline
+├── coletores/                  # a vigília, em Python · 85 asserções offline
 │   ├── planalto.py             # texto compilado — o que está EM VIGOR
 │   ├── redacao.py              # propõe a atualização do corpus, não a aplica
 │   └── stj.py                  # precedentes qualificados, com situação
@@ -457,7 +457,7 @@ npm run dev          # http://localhost:3000
 O lado Python tem a própria suíte, com o mesmo critério — offline e sem segredo:
 
 ```bash
-.venv/Scripts/python -m pytest coletores -q          # 79 asserções
+.venv/Scripts/python -m pytest coletores -q          # 85 asserções
 .venv/Scripts/python -m coletores --seco             # as seis fontes, sem gravar
 .venv/Scripts/python -m coletores.redacao            # confere o corpus contra o Planalto
 ```

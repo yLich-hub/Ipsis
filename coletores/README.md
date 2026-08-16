@@ -42,7 +42,7 @@ python -m venv .venv
 .venv/Scripts/python -m coletores --fonte planalto --seco # uma fonte só
 .venv/Scripts/python -m coletores --para-disco            # data/vigilia/*.json
 .venv/Scripts/python -m coletores --tudo                  # carga completa, grava
-.venv/Scripts/python -m pytest coletores -q               # 79 asserções, offline
+.venv/Scripts/python -m pytest coletores -q               # 85 asserções, offline
 
 .venv/Scripts/python -m coletores.redacao                 # propõe a atualização do corpus
 .venv/Scripts/python -m coletores.redacao --sem-cache     # ignora o cache de página
@@ -135,7 +135,7 @@ responde de verdade — quanto o recorte pesa no Judiciário — vai para
 | | Vercel Cron (TypeScript) | GitHub Actions (Python) |
 |---|---|---|
 | fontes | Câmara, Senado | as cinco |
-| frequência | diária, 09:20 UTC | diária, 06:40 UTC |
+| frequência | diária, 09:20 UTC | diária, 12:40 UTC |
 | por quê | cabe numa função serverless e mantém a tela viva sem depender de nada fora da Vercel | scraping de 900 KB por lei e consulta Elasticsearch não cabem — nem devem — no runtime que serve a tela |
 
 **Os dois filtros não divergem por construção.** `data/curadoria/vigilia.yaml` é

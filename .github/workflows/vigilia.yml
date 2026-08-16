@@ -30,10 +30,22 @@ name: vigília do corpus
 
 on:
   schedule:
-    # 06:40 UTC = 03:40 em Brasília. Depois do cron da Vercel (09:20 UTC) não
-    # ficaria bom: os dois escreveriam o mesmo card com minutos de diferença e a
-    # tela diria "há 1 min" o dia inteiro por engano.
-    - cron: '40 6 * * *'
+    # 12:40 UTC = 09:40 em Brasília. Continua depois do cron da Vercel (09:20
+    # UTC) — os dois no mesmo minuto escreveriam o mesmo card com minutos de
+    # diferença, e a tela diria "há 1 min" o dia inteiro por engano.
+    #
+    # **Era 06:40 UTC, e as duas execuções agendadas morreram no teto de 25 min
+    # do job.** Todo disparo manual terminava em ~60 s; todo agendado travava.
+    # A diferença era o horário: 06:40 UTC é 03:40 em Brasília, dentro da janela
+    # em que serviço público brasileiro costuma entrar em manutenção — e um
+    # serviço em manutenção pendura a conexão em vez de recusá-la.
+    #
+    # A causa de fundo era outra e está consertada em `Sessao.prazo`: sem teto
+    # por fonte, a primeira pendurada consumia o job inteiro no retry e as outras
+    # cinco nunca rodavam. Mudar a hora sozinho seria trocar de sorte; o prazo é
+    # o que impede o modo de falha. As duas coisas juntas porque a hora também
+    # não custa nada.
+    - cron: '40 12 * * *'
   workflow_dispatch:
     inputs:
       desde:
