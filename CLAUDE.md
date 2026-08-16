@@ -792,7 +792,7 @@ inteira com o banco pausado.
 
 A interface é a implementação de `Design_system/TOGA v2 - Assistente Jurídico.dc.html`,
 um protótipo vivo de 1440×940. Tema **claro**: fundo `#f7f8fa`, lateral `#f1f2f6`,
-acento roxo `#3a3960`. Duas famílias, e cada uma tem um trabalho: **Inter Tight**
+acento vermelho `#b3141f`. Duas famílias, e cada uma tem um trabalho: **Inter Tight**
 é a voz da interface (rótulo, botão, metadado) e **Source Serif 4** é a voz do
 texto jurídico (lei, ementa, súmula, resposta do assistente). A divisão separa,
 sem precisar de moldura, o que o produto afirma do que o produto cita.
@@ -802,6 +802,23 @@ só, no bloco `@theme` de `src/app/globals.css` (`bg-tg-acento`, `text-tg-fraco-
 `src/lib/toga/tokens.ts` guarda **apenas** o que a folha de estilo não alcança:
 cor escolhida por índice, valor calculado em runtime e cor dentro de gradiente.
 Cor nova que possa ser classe **tem** que ser classe.
+
+**O acento divergiu do protótipo, e é a prova de que o token valeu a pena.** O
+`TOGA v2` desenha em roxo `#3a3960`; o produto é `LJ` e o acento saiu da logo,
+vermelho `#b3141f`. A troca mexeu em **um** bloco `@theme` e em três gradientes
+de `tokens.ts` — as ~200 ocorrências de `bg-tg-acento` e `text-tg-acento-txt`
+seguiram intactas, porque o que mudou foi o valor e não o nome. É exatamente o
+que esta seção argumenta: paleta em hexadecimal espalhado pelo JSX teria feito
+do rebranding uma varredura de 200 pontos, com telas ficando para trás.
+
+Uma consequência que não era óbvia: `--color-tg-falha-*` nasceu junto. Antes o
+aviso de erro usava `supressao`, e com o acento em vermelho ele passou a morar a
+dois centímetros de um botão vermelho de ação. Erro e ação com o mesmo matiz na
+mesma altura da tela é ambiguidade, e a saída foi tinta dessaturada mais filete
+lateral — não um matiz novo. `supressao` foi dessaturado ~30% pela mesma razão:
+apesar do nome vir do par diff (`supressao`/`insercao`), quem ele pinta hoje é o
+erro e a ação destrutiva de `/clientes` e `/configuracoes` — `insercao` não é
+usado por ninguém, e a tela de diff que o nome sugere nunca existiu.
 
 **A marca segue a mesma regra, em `src/lib/toga/marca.ts`.** Nome, inicial,
 tagline e ramo ficam ali e em nenhum outro lugar; `titulo('Jurisprudência')` monta

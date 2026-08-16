@@ -150,7 +150,7 @@ Estão anotadas no código, e vale saber que existem antes de mexer nele.
 
 1. **User-Agent.** O Planalto derruba a conexão para agente que não comece por
    `Mozilla` — ConnectionError em 0,4 s. A saída não foi fingir ser Chrome:
-   `Mozilla/5.0 (compatible; Toga-vigilia/1.0; ...)` passa pelo filtro de
+   `Mozilla/5.0 (compatible; LJ-vigilia/1.0; ...)` passa pelo filtro de
    prefixo e continua dizendo quem é. Ver `rede.py`.
 
 2. **`get_text("\n")` do BeautifulSoup.** Insere quebra entre todo nó de texto,
