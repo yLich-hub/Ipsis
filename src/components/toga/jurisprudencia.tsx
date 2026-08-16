@@ -252,9 +252,11 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
               <p className="mx-auto mt-2 max-w-md text-[12.5px] leading-[1.6] text-tg-fraco-2">
                 {linhas.length === 0 ? (
                   <>
-                    As entradas vivem em <code className="text-tg-corpo">teses.jurisprudencia</code>{' '}
-                    e chegam com o incremento 4. Enquanto isso, o texto legal está todo consultável
-                    na{' '}
+                    As entradas vêm de{' '}
+                    <code className="text-tg-corpo">teses.jurisprudencia</code> e de{' '}
+                    <code className="text-tg-corpo">precedentes_stj</code>, e esta tela só as lê —
+                    se as duas estão vazias, o banco não respondeu. O texto legal continua
+                    consultável na{' '}
                     <Link href="/consulta" className="text-tg-acento-txt hover:underline">
                       consulta
                     </Link>

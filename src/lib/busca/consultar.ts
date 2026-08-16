@@ -2,7 +2,9 @@
 // A busca do runtime: embedding da consulta + uma única RPC.
 //
 // Server-side apenas — a chave da OpenAI não pode ir para o bundle do browser.
-// Chamado pela página /busca e pela rota /api/busca (console do agente).
+// Dois chamadores, os dois no servidor: `/api/busca`, que a tela de Consulta
+// chama por `fetch`, e `/api/consulta/aovivo`, que a usa para montar o contexto
+// do modelo.
 //
 // Duas degradações previstas, ambas silenciosas para o app e visíveis para o
 // usuário: sem OPENAI_API_KEY ou com a API fora, `p_embedding` vai nulo e a
@@ -144,8 +146,8 @@ async function resolveDireto(
 
   // `Math.max(qtd, 1)` com `qtd` não numérico devolveria NaN, e `slice(0, NaN)`
   // é lista vazia — que o chamador leria como "endereço resolvido, zero
-  // dispositivos". A rota já saneia; isto é a segunda linha, para quem chamar
-  // `consultar()` direto (a página /busca chama).
+  // dispositivos". `/api/busca` já saneia na borda; isto é a segunda linha, para
+  // quem chamar `consultar()` direto, como faz a rota do ao vivo.
   const limite = Number.isFinite(qtd) ? Math.max(Math.trunc(qtd), 1) : 12
 
   return (data as unknown as LinhaDireta[])
