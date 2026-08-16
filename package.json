@@ -19,7 +19,8 @@
     "lint": "eslint .",
     "verificar": "npm run lint && tsc --noEmit && vitest run",
     "migrar": "tsx scripts/migrar.ts",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "instantaneo": "node scripts/instantaneo.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
