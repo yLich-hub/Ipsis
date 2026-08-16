@@ -131,6 +131,16 @@ dispositivo de lei parcial exibe o aviso. As três leis do corpus são hoje
 `integral` — o mecanismo fica de pé para a próxima lei que entrar recortada.
 Silenciar cobertura seria o mesmo erro de classe que silenciar a data de corte.
 
+**A data não é digitada em JSX, e isso é o argumento de `marca.ts` aplicado ao
+que o projeto mais preza.** Onde a tela tem um dispositivo em mãos, ela imprime o
+`vigencia_ate` daquele registro; onde não tem — a lateral, a tela de entrada, a
+pílula da caixa de consulta — ela lê `DATA_DE_CORTE`, em `lib/vigilia/alvos.ts`,
+que é o mesmo valor que o coletor usa para recortar a janela das APIs. Havia
+cinco literais `28/02/2025` espalhados pelo JSX, e um deles ficava no painel de
+procedência da Consulta, que já recebia o `vigencia_ate` do dispositivo e o
+ignorava. A próxima fotografia deixaria metade das telas com a data velha — e
+data velha é exatamente o que esta decisão existe para impedir.
+
 ---
 
 ## Fontes de dados
@@ -432,8 +442,9 @@ Fluxo: seleção de caso → checklist de teses aplicáveis → minuta em DOCX.
 - `teses` — 16 curadas à mão em `data/curadoria/teses.yaml`, cada uma com
   `gatilho` (jsonb objetivo), `fundamentos` (ids de dispositivos) e
   `template_md` com os marcadores `{{cite:}}`.
-- `casos` — três casos de tráfico realistas e anonimizados em
-  `data/curadoria/casos.yaml`, já no banco.
+- `casos` — quatro casos de tráfico realistas e anonimizados em
+  `data/curadoria/casos.yaml`, já no banco (flagrante em via pública, apreensão
+  em rodovia, vigilância sem apreensão e entrada em residência sem mandado).
   **A demo nunca depende de upload de arquivo para funcionar.**
 - `casos.fatos` usa as mesmas chaves de `teses.gatilho`, para o checklist ser
   avaliação direta, não heurística. A avaliação é `aplicaA()`, em `lib/dados.ts`,
@@ -683,8 +694,15 @@ O plano gratuito do Supabase pausa projetos após alguns dias sem atividade
 link clicado semanas depois. Duas defesas somadas:
 
 - Vercel Cron diário batendo em `/api/health`, que faz um `select` trivial.
-- Páginas dos três casos renderizadas estaticamente. Se o banco cair, o núcleo
-  da demonstração continua de pé; só a busca degrada.
+- `/vademecum` lê do disco, sem Supabase: com o banco pausado, é a parte do
+  produto que continua inteira.
+
+> **A renderização estática das páginas de caso não existe mais, e a troca foi
+> consciente.** Ler cookie torna a rota dinâmica, então tudo sob `src/app/(app)/`
+> é renderizado sob demanda desde que a autenticação entrou — está escrito em
+> "Autenticação", como consequência aceita. O que sustenta a demonstração de
+> banco pausado é o acervo em disco, não uma página pré-renderizada. Conferido no
+> `next build`: das 26 rotas, só `/` e `/_not-found` saem estáticas.
 
 ### Segredos
 
@@ -1198,9 +1216,20 @@ condicionado a palavra-chave erraria justamente aí.
 A conta vem de `lib/toga/dosimetria.ts`, **a mesma** que a tela de Dosimetria
 usa. Antes a aritmética morava dentro do componente da tela; duas cópias
 divergiriam na primeira correção, e divergir aqui é a tela dizer uma pena e o
-cartão dizer outra sobre o mesmo caso. `tests/dosimetria.test.ts` (16 asserções)
+cartão dizer outra sobre o mesmo caso. `tests/dosimetria.test.ts` (21 asserções)
 tranca as regras que a conta tem de respeitar: Súmula 231 na segunda fase, peso
 dobrado do art. 42 na primeira, e terceira fase podendo cair abaixo do mínimo.
+
+**O memorial de cálculo passou a existir.** O botão que o oferecia acendia
+"Gerando memorial…" por 1400 ms e passava a "Memorial pronto ✓" sem nada ter sido
+gerado — um visto de conclusão sobre trabalho que não aconteceu, que é o mesmo
+defeito de classe que a barra de progresso chegando a 100% antes do resultado.
+`memorialDe()` mora ao lado de `calcula()`, pelo motivo de sempre: conta e
+descrição da conta em arquivos diferentes divergem na primeira correção. O botão
+copia para a área de transferência e o rótulo volta a "Copiar" assim que a
+entrada muda — dizer "copiado" sobre um cálculo que já não é o da tela seria o
+mesmo teatro por outro caminho. Cinco asserções conferem que o texto repete os
+números que `calcula` devolveu, e não é fixo.
 
 `leDaConversa()` lê da pergunta os fatos que sabe representar — "reincidente",
 "primário", "3 kg", "perto de escola". É reconhecimento de termo, não
@@ -1325,7 +1354,7 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As nove suítes (154 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As nove suítes (159 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
 e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 
@@ -1394,9 +1423,9 @@ está no `ls` da pasta.
 - **A geração ao vivo só existe na Consulta.** A minuta continua sem modelo
   nenhum, e não é lacuna a preencher sem pedido: cada frase do `.docx` passou por
   revisão humana, que é padrão profissional real para peça jurídica.
-- **`/sumulas` e `/fontes` foram removidas** a pedido, para o sistema ficar só
-  com o que se usa. Saíram por inteiro: rota, componente e módulo de dados
-  (`lib/toga/sumulas.ts` e `lib/toga/pipeline.ts`). Nada mais as importava, e o
-  `outputFileTracingIncludes` de `/fontes` saiu junto. Se voltarem, o relatório
-  do normalize continua em `data/normalizado/relatorio.json` — a fonte que
-  `/fontes` lia nunca esteve na tela.
+- **`/sumulas` foi removida** a pedido, para o sistema ficar só com o que se usa.
+  Saiu por inteiro: rota, componente e módulo de dados (`lib/toga/sumulas.ts`).
+  Nada mais a importava. O `/fontes` que saiu junto **voltou com outro trabalho**
+  — é a vigília do corpus, e tem seção própria acima; o que não voltou foi o
+  painel de diagnóstico do normalize, cuja fonte segue em
+  `data/normalizado/relatorio.json`, fora da tela.
