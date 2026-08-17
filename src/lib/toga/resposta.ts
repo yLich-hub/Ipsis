@@ -113,17 +113,22 @@ function abertura(r: RespostaBusca): string {
     }
 
     case 'processual':
-      return `Pergunta de rito (${r.intencao.sinal}), então a busca privilegiou o processual. Lembre que o CPP entra aqui em **cobertura parcial**: só o subconjunto curado que o recorte de tráfico usa, conferido à mão contra o texto oficial.`
+      return `Pergunta de rito (${r.intencao.sinal}), então a busca privilegiou o processual. O CPP está aqui **integral** — 825 artigos, extraídos do mesmo Vade Mecum e com a mesma data de corte que as outras duas leis.`
 
     case 'doutrina':
       // A restrição de doutrina é regra dura do projeto, não preferência. Ver
       // CLAUDE.md, "Restrição de doutrina (não negociável)".
-      return `Isto é pedido de doutrina, e doutrina é obra autoral protegida. Não hospedo, não indexo e não resumo de forma substitutiva — nem para você, nem em peça. O que posso entregar é o dispositivo legal e o entendimento consolidado, que é o que está abaixo.`
+      //
+      // A segunda frase é a metade que faltava: a regra sempre disse "entregar
+      // entendimento consolidado extraído de jurisprudência e link para fonte
+      // legítima", e por muito tempo só a recusa estava implementada. Os links
+      // saem de `lib/consulta/doutrina.ts` e a tela os desenha abaixo.
+      return `Isto é pedido de doutrina, e doutrina é obra autoral protegida — a Lei 9.610/98 deixa de fora lei e decisão judicial (art. 8º, IV), não livro nem artigo. Não hospedo, não indexo e não resumo de forma substitutiva, nem aqui nem em peça. O que entrego é o dispositivo legal, o entendimento consolidado da jurisprudência — que é o que está abaixo — e o endereço de onde ler a doutrina na fonte.`
 
     default:
       return primeiro
         ? `Consulta aberta: fundi os três rankings numa chamada só ao banco — rubrica por match exato, léxico por ts_rank_cd e semântica por distância de vetor. ${n} dispositivo${n === 1 ? '' : 's'} sobreviveram à fusão.`
-        : `Nenhum dispositivo do corpus curado casou com esta consulta. O recorte é estreito de propósito: tráfico de drogas, com Código Penal e um subconjunto do CPP como apoio.`
+        : `Nenhum dispositivo do corpus curado casou com esta consulta. O recorte é estreito de propósito: tráfico de drogas, com o Código Penal e o Código de Processo Penal integrais como apoio.`
   }
 }
 

@@ -28,6 +28,42 @@ O **acervo Vade Mecum** (`/vademecum`) também saiu: 75 legislações federais d
 todas as áreas, para leitura. Ele não fere o recorte porque não participa de nada
 que produza peça — ver "Acervo Vade Mecum" abaixo e `docs/acervo-vademecum.md`.
 
+**Dois institutos fora do tráfico entraram na busca, por pedido explícito** —
+roubo majorado com concurso de agentes (art. 157) e a presunção de
+vulnerabilidade do art. 217-A. São três rubricas curadas em
+`data/curadoria/rubricas.yaml`, e só isso: o Código Penal já está no corpus em
+cobertura integral, então os dispositivos já existiam, já tinham vetor e já eram
+citáveis. O que faltava era a camada de apelido.
+
+**Eles chegam à peça**, também por pedido: dois casos novos em `casos.yaml`
+(roubo com reconhecimento fotográfico; estupro de vulnerável com resultado
+qualificador sem laudo) e cinco teses novas, quatro delas de rito e de prova.
+
+**Isso obrigou a consertar uma colisão do modelo, e o conserto importa mais que
+as teses.** `gatilho` é um saco plano de chaves, sem noção de qual crime: um caso
+de roubo com acusado primário e bons antecedentes satisfazia, inteirinho, o
+gatilho de **tráfico privilegiado** — e o checklist ofereceria o art. 33, § 4º a
+quem responde pelo art. 157. As nove teses cuja argumentação está presa à Lei de
+Drogas passaram a exigir `trafico_imputado: true`; `regime_inicial_menos_gravoso`
+ganhou guarda de pena (`pena_provavel_superior_a_oito_anos: false`), porque o
+art. 33, § 2º do CP fecha o regime acima de oito anos e o mínimo do art. 217-A é
+oito. Conferido caso a caso: os quatro casos de tráfico recebem exatamente as
+mesmas teses de antes, e nenhuma tese de tráfico aparece nos dois casos novos.
+
+**As cinco teses novas não têm `jurisprudencia`, e é a regra 3 de `teses.yaml`
+funcionando:** entendimento consolidado não se infere, e não houve como conferir
+número de súmula ou de acórdão. Tese sem precedente é honesta; tese com
+precedente inventado é o dado plausível e falso que o projeto recusa.
+
+**Não há tese sobre a vulnerabilidade do art. 217-A**, e a ausência é decisão. O
+§ 4º-A diz que a presunção é absoluta e a relativização inadmissível — escrever
+argumento contra texto expresso seria pôr numa peça protocolada uma alegação que
+a lei rejeita em termos.
+
+**A restrição de doutrina não foi tocada por isto.** `explicacao` continua sendo
+texto autoral próprio dizendo o que o dispositivo faz — ver "Restrição de
+doutrina" abaixo, que segue valendo palavra por palavra.
+
 ---
 
 ## As três decisões que definem o projeto
@@ -64,8 +100,8 @@ dominante na fusão.
 Rubricas têm duas origens (`rubricas.origem`):
 - `oficial` — extraídas do artefato de extração do PDF (ver Limpeza, abaixo).
   414 rubricas marginais do CP, texto do próprio Vade Mecum.
-- `curada` — 35 termos coloquiais escritos à mão para o recorte, em
-  `data/curadoria/rubricas.yaml`, com 153 variantes e 96 vínculos.
+- `curada` — 38 termos coloquiais escritos à mão, em
+  `data/curadoria/rubricas.yaml`, com 173 variantes e 109 vínculos.
 
 **Nem a Lei de Drogas nem o CPP têm rubrica `oficial` que preste** — o Vade Mecum
 imprime rubrica marginal quase só no Código Penal (414 lá, 0 na Lei de Drogas, 7
@@ -431,6 +467,35 @@ entregar entendimento consolidado extraído de jurisprudência (acórdão não t
 essa proteção) e link para fonte legítima. `rubricas.explicacao` é texto autoral
 próprio, curto e funcional — não é resumo de doutrina.
 
+**A segunda metade dessa regra passou a existir em código.** Por muito tempo o
+molde `doutrina` só sabia recusar: reconhecia a intenção e devolvia "não
+hospedo, não indexo, não resumo". Recusa correta e ramo morto — o classificador
+enxergava um pedido que o produto não atendia. `lib/consulta/doutrina.ts` é o
+link para a fonte, e a tela o desenha só nesse molde.
+
+**A distinção legal é do art. 8º, IV da Lei 9.610/98:** lei e decisão judicial
+não são obra protegida, e por isso o corpus as hospeda inteiras; livro e artigo
+são. O que a lei autoriza expressamente é a **citação de passagem** com autor e
+origem (art. 46, III) — não a paráfrase reescrita, que é o mesmo risco por outra
+forma, porque o que se protege é a expressão e não a ideia.
+
+**Uma fonte só, e é a regra do acervo Vade Mecum aplicada de novo:** endereço não
+conferido fica ausente em vez de ser deduzido. Medido em 17/08/2026 — o BDJur do
+STJ passou (DSpace 7; a rota humana é casca Angular, e o que se conferiu foi a
+consulta que ela dispara na API REST: 372 itens para "tráfico privilegiado", 0
+para palavra inventada, com escopo na comunidade Doutrina). SciELO devolve 403 a
+cliente que não é navegador, Oasisbr não respondeu, e o LexML está atrás da mesma
+verificação de JavaScript que já o tirou dos coletores.
+
+**Nada é colhido, e o colhedor não existe.** O OAI-PMH do BDJur está de pé
+(`/server/oai/request` responde `<repositoryName>BDJur</repositoryName>`), e se um
+dia entrar, entra pelo desenho de `redacao.py`: Python em `coletores/`, proposta
+em `data/vigilia/`, curadoria humana em `data/curadoria/`, tabela própria sem FK
+para `dispositivos`. **Metadado tem um problema que o corpus não tem: doutrina
+não carrega vigência.** Um artigo de 2015 sobre tráfico privilegiado é anterior
+ao HC 118.533 do STF e nenhum campo do Dublin Core diz isso — é a mesma razão
+pela qual as ementas do STJ ficaram de fora, e ela vale com mais força aqui.
+
 ---
 
 ## Geração da peça
@@ -439,7 +504,7 @@ Uma peça só: **resposta à acusação** (art. 396-A do CPP).
 Fluxo: seleção de caso → checklist de teses aplicáveis → minuta em DOCX.
 **Os três passos estão implementados e verificados** — ver "A minuta" abaixo.
 
-- `teses` — 16 curadas à mão em `data/curadoria/teses.yaml`, cada uma com
+- `teses` — 21 curadas à mão em `data/curadoria/teses.yaml`, cada uma com
   `gatilho` (jsonb objetivo), `fundamentos` (ids de dispositivos) e
   `template_md` com os marcadores `{{cite:}}`.
 - `casos` — quatro casos de tráfico realistas e anonimizados em
@@ -1350,7 +1415,7 @@ protótipo não precisa; produto precisa.
 Incrementos verificáveis, parando ao fim de cada um para demonstração:
 
 1. schema + seed — feito: 3 leis, 1340 artigos, 3771 dispositivos, todos com vetor
-2. rubricas — feito: 421 oficiais + 35 curadas, com 153 variantes
+2. rubricas — feito: 421 oficiais + 38 curadas, com 173 variantes
 3. busca — feito: RPC única, com a ordem do cluster corrigida em 0005
 4. geração de peça — feito: `/api/peca/[casoId]`, ver "A minuta" acima
 5. acabamento visual — feito: TOGA v2 implementado, ver "Design system" acima
@@ -1395,7 +1460,7 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As nove suítes (159 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As nove suítes (164 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
 e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 

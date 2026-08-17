@@ -21,7 +21,7 @@ Projeto de portfólio. Next.js 15 · TypeScript · Supabase (Postgres 17 + pgvec
 > autenticação, e uma vigília diária que pergunta se a data de corte envelheceu.
 > O que falta é acabamento, não estrutura — a lista está no [roadmap](#roadmap).
 >
-> Verificação: 159 asserções em vitest e 85 em pytest, todas offline e sem
+> Verificação: 164 asserções em vitest e 85 em pytest, todas offline e sem
 > segredo, mais 12 de navegador em Playwright. As duas primeiras rodam sozinhas
 > em todo push e todo PR — é o selo acima. As de navegador ficam fora do CI de
 > propósito: falam com o Supabase de verdade, e quebrariam sempre que o plano
@@ -323,7 +323,7 @@ Ipsis/
 │   ├── redacao.py              # propõe a atualização do corpus, não a aplica
 │   └── stj.py                  # precedentes qualificados, com situação
 │
-├── tests/                      # 9 suítes vitest · 159 asserções · offline
+├── tests/                      # 9 suítes vitest · 164 asserções · offline
 │   └── corpus.ts               # pula o que exige data/normalizado/ num clone novo
 ├── e2e/                        # 12 asserções de navegador · Playwright
 │   └── confere-build.ts        # aborta se o .next não serve JavaScript
@@ -539,9 +539,9 @@ Incrementos verificáveis, cada um parando em estado demonstrável.
 | # | Incremento | Estado |
 |---|---|---|
 | 1 | **Schema + seed** — migrations, limpeza do corpus, seed, embeddings | ✅ concluído |
-| 2 | **Rubricas** — termos coloquiais curados e clusters `papel`/`peso` | ✅ 421 oficiais + 35 curadas, com 153 variantes |
+| 2 | **Rubricas** — termos coloquiais curados e clusters `papel`/`peso` | ✅ 421 oficiais + 38 curadas, com 173 variantes |
 | 3 | **Busca** — `intencao.ts`, RPC única, fusão por RRF | ✅ concluído; match contido em rubrica desde a migration 0011 |
-| 4 | **Geração de peça** — teses, casos, render DOCX | ✅ `/api/peca/[casoId]`, 16 teses e 4 casos |
+| 4 | **Geração de peça** — teses, casos, render DOCX | ✅ `/api/peca/[casoId]`, 21 teses e 6 casos |
 | 5 | **Acabamento visual** — design system TOGA v2 | ✅ sete telas implementadas |
 
 **O que veio depois dos cinco**, sem estar previsto: autenticação de usuário
@@ -567,7 +567,7 @@ Estado atual do banco, verificado por `public.saude()`:
 | Rubricas oficiais | 0 | 414 | 7 | **421** |
 | Embeddings | 390 | 1.312 | 2.069 | **3.771** |
 
-Somam-se 35 rubricas **curadas** à mão, com 153 variantes e 96 vínculos. Elas
+Somam-se 38 rubricas **curadas** à mão, com 173 variantes e 109 vínculos. Elas
 carregam o recorte inteiro do projeto: nem a Lei de Drogas nem o CPP têm rubrica
 marginal impressa no Vade Mecum, e sem a curadoria a busca erra de forma
 silenciosa — medido antes de ela existir, `tráfico privilegiado` devolvia o

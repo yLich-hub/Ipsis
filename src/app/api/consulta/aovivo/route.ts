@@ -96,7 +96,9 @@ export async function POST(req: Request) {
     // O nome da variável vem de `temChave()`, que é quem a lê. Escrevê-lo à mão
     // aqui já custou caro uma vez: a mensagem dizia ANTHROPIC_API_KEY muito
     // depois da troca de provedor, e mandava quem lia o 503 procurar uma chave
-    // que o projeto não usa. É o mesmo defeito do nome do modelo fixo no JSX.
+    // que o projeto não usa. Era o mesmo defeito do nome do modelo escrito à
+    // mão na prévia da Consulta, que dizia `claude-opus-5` durante toda a
+    // geração — de lá o nome saiu, e quem nomeia é o aviso do fim.
     return NextResponse.json({ erro: 'OPENAI_API_KEY ausente no servidor' }, { status: 503 })
   }
 
