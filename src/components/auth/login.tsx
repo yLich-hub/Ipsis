@@ -46,6 +46,15 @@ export function FormularioLogin({
     const erroSenha = senha ? undefined : 'Informe sua senha.'
     if (erroEmail || erroSenha) {
       setErros({ email: erroEmail ?? undefined, senha: erroSenha })
+      // `Campo` já marcava `aria-invalid` e ligava a mensagem por
+      // `aria-describedby`; o que faltava era o foco chegar lá. Sem isto, quem
+      // envia por teclado fica no botão e a mensagem some do caminho — ela está
+      // acima, e a próxima tecla leva para baixo.
+      //
+      // Pelo `id`, que é prop obrigatória de `Campo` e já é o que sustenta o
+      // `htmlFor` e o `aria-describedby` dele. Um `ref` novo diria a mesma coisa
+      // por um segundo caminho.
+      document.getElementById(erroEmail ? 'email' : 'senha')?.focus()
       return
     }
 
@@ -59,6 +68,10 @@ export function FormularioLogin({
     })
 
     if (error) {
+      // Sem mover o foco, e é decisão: a mensagem diz "E-mail ou senha
+      // incorretos" nos dois casos justamente para não dizer qual dos dois
+      // errou, e mandar o cursor para um deles desfaria isso na prática. O
+      // `role="alert"` do aviso é o que anuncia, e ele basta.
       setFalha(mensagemDeErro(error, 'Não foi possível entrar. Tente de novo em instantes.'))
       setCarregando(false)
       return
