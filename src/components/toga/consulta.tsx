@@ -186,6 +186,8 @@ export function Consulta({
   const [qtd, setQtd] = useState(8)
   const [escopo, setEscopo] = useState<string | null>(null)
   const [painel, setPainel] = useState<{ achados: Achado[]; id: string } | null>(null)
+  /** O que a região viva diz. Só para leitor de tela — ver `anunciarPronto`. */
+  const [anuncio, setAnuncio] = useState('')
 
   // Id da conversa em curso. Ref e não estado: muda fora do ciclo de render
   // (em "Nova consulta" e ao gravar) e nada na tela depende dele.
@@ -209,6 +211,12 @@ export function Consulta({
   const esperaT = useRef<ReturnType<typeof setTimeout> | null>(null)
   /** Falso depois do desmonte: nenhum relógio deve ressuscitar a partir daí. */
   const vivo = useRef(true)
+  /** A consulta em curso, para o botão de parar. `null` quando não há nenhuma. */
+  const aborto = useRef<AbortController | null>(null)
+  /** Ligada por `parar`: quem estiver no meio do fluxo desiste sem tocar na tela. */
+  const cancelado = useRef(false)
+  /** A pergunta em curso, para o `parar` devolvê-la à caixa. */
+  const perguntaEmCurso = useRef('')
 
   const pararRelogios = useCallback(() => {
     if (passoT.current) clearInterval(passoT.current)
@@ -354,6 +362,62 @@ export function Consulta({
     [mutarEm],
   )
 
+  /**
+   * Diz, para quem não está olhando, que a resposta terminou.
+   *
+   * A única região viva da tela dizia "Consultando o corpus curado" enquanto se
+   * esperava e ficava VAZIA quando a resposta chegava — o texto entra fora de
+   * região viva, então nada era anunciado. Quem usa leitor de tela ficava com a
+   * última frase sendo a da espera, sem saber que a espera acabou.
+   *
+   * Anuncia o tamanho e as fontes em vez do texto inteiro: a resposta está ali
+   * para ser lida no ritmo de quem lê, e despejá-la numa região viva atropela a
+   * navegação por parágrafo que o leitor de tela já oferece.
+   */
+  const anunciarPronto = useCallback((m: MsgAssistente) => {
+    const paras = m.comp?.paras.length ?? 0
+    const fontes = m.comp?.fontes.length ?? 0
+    setAnuncio(
+      `Resposta pronta: ${paras} ${paras === 1 ? 'parágrafo' : 'parágrafos'}, ` +
+        `${fontes} ${fontes === 1 ? 'fonte citada' : 'fontes citadas'}.`,
+    )
+  }, [])
+
+  /**
+   * Desiste da consulta em curso.
+   *
+   * Faz as duas coisas aqui, e não espera o `fetch` reclamar: derruba a
+   * requisição E arruma a tela na hora.
+   *
+   * A primeira versão só chamava `abort()` e deixava o `catch` do envio cuidar
+   * do resto, esperando um `AbortError`. Medido no navegador: a requisição
+   * morre mesmo — `net::ERR_ABORTED` no painel de rede —, mas o
+   * `await leitor.read()` do laço de streaming fica pendurado sem resolver nem
+   * rejeitar, então o `catch` nunca roda e a tela congelava com "Consultando o
+   * corpus curado…" para sempre. Botão de parar que não para é pior que botão
+   * nenhum.
+   *
+   * `cancelado` é o mesmo desenho de `vivo.current`, que este arquivo já usa
+   * para o desmonte: quem estiver no meio do fluxo confere a bandeira e sai sem
+   * tocar em estado nenhum.
+   */
+  const parar = useCallback(() => {
+    cancelado.current = true
+    aborto.current?.abort()
+    aborto.current = null
+    pararRelogios()
+    // As DUAS mensagens: a pergunta e a resposta que ia respondê-la. Tirar só a
+    // resposta deixaria a pergunta na tela para sempre sem nada embaixo, que é
+    // pior que o estado anterior a ela.
+    setMsgs((ms) => ms.slice(0, -2))
+    // E a pergunta volta para a caixa. Quem cancela quase sempre cancela porque
+    // perguntou errado; devolver o texto é a diferença entre corrigir uma
+    // palavra e digitar tudo de novo.
+    setRascunho(perguntaEmCurso.current)
+    setOcupado(false)
+    setAnuncio('Consulta cancelada. A pergunta voltou para a caixa.')
+  }, [pararRelogios])
+
   const digitar = useCallback(() => {
     if (!vivo.current) return
     if (digitaT.current) clearInterval(digitaT.current)
@@ -364,11 +428,12 @@ export function Consulta({
         pararRelogios()
         mutar(() => ({ pronto: true }))
         setOcupado(false)
+        anunciarPronto(m)
         return
       }
       mutar((x) => ({ digitado: Math.min(x.total, x.digitado + CHARS_POR_QUADRO) }))
     }, MS_POR_QUADRO)
-  }, [mutar, pararRelogios])
+  }, [anunciarPronto, mutar, pararRelogios])
 
   const enviar = useCallback(
     async (texto: string) => {
@@ -379,6 +444,9 @@ export function Consulta({
       setRascunho('')
       setOcupado(true)
       setPainel(null)
+      setAnuncio('Consultando o corpus curado…')
+      cancelado.current = false
+      perguntaEmCurso.current = q
       setMsgs((ms) =>
         ms.concat([{ papel: 'usuario', texto: q }, vazia(q, { lei: escopo, qtd })]),
       )
@@ -402,12 +470,21 @@ export function Consulta({
       let gerada: RespostaComposta | null = null
       let modelo: string | null = null
       let motivo: string | null = null
+      /** Já chegou algum passo do servidor? Ver o `tipo === 'passo'`, abaixo. */
+      let reais = false
 
       try {
+        // Uma consulta leva ~9 s, e não havia como desistir dela: nem tecla, nem
+        // botão. Quem percebeu que perguntou errado esperava a resposta inteira
+        // para poder perguntar de novo. O `signal` é o que torna "parar" uma
+        // ação de verdade — sem ele, um botão só esconderia o fluxo, e o
+        // servidor continuaria gerando (e cobrando) do outro lado.
+        aborto.current = new AbortController()
         const res = await fetch('/api/consulta/aovivo', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ q, lei: escopo, qtd }),
+          signal: aborto.current.signal,
         })
 
         if (!res.ok || !res.body) {
@@ -438,12 +515,46 @@ export function Consulta({
               } catch {
                 continue
               }
-              if (!vivo.current) return
+              // A mesma guarda do desmonte, agora também para a desistência:
+              // `parar` já arrumou a tela, e qualquer escrita daqui a
+              // desarrumaria de novo.
+              if (!vivo.current || cancelado.current) return
 
               if (e.tipo === 'passo') {
-                mutar((m) => ({
-                  passos: [...m.passos, { t: e.t, meta: e.meta }],
-                }))
+                // O PRIMEIRO passo real substitui a lista provisória; os
+                // seguintes se acumulam.
+                //
+                // Concatenar os dois desde o começo punha "Classificando a
+                // intenção da consulta" duas vezes na tela: uma como terceiro
+                // provisório e outra como quinto item, depois de "Conferindo
+                // vigência e cobertura" — repetido e fora de ordem, porque a
+                // lista provisória adivinha a mesma sequência que o servidor
+                // depois anuncia de verdade.
+                //
+                // Os provisórios existem para a tela não ficar parada até o
+                // servidor falar. Assim que ele fala, quem manda é ele.
+                //
+                // A decisão é tomada AQUI, fora do updater, e não dentro dele.
+                // Escrever `reais = true` lá dentro parece natural e está
+                // errado: updater de estado tem de ser puro, o StrictMode do
+                // desenvolvimento o invoca duas vezes de propósito para expor
+                // exatamente isso, e a segunda passagem já encontrava
+                // `reais = true` — voltando a concatenar, que é o defeito que
+                // este trecho existe para consertar. Conferido no navegador:
+                // com o efeito colateral dentro, os quatro provisórios e o
+                // primeiro real continuavam aparecendo juntos.
+                const primeiro = !reais
+                reais = true
+                const novo = { t: e.t, meta: e.meta }
+                mutar((m) =>
+                  primeiro
+                    ? // `passo: 1` junto: sem isso o contador ficaria adiantado
+                      // em relação à lista nova e os passos reais apareceriam
+                      // todos de uma vez, sem o encadeamento que eles existem
+                      // para mostrar.
+                      { passos: [novo], passo: 1 }
+                    : { passos: [...m.passos, novo] },
+                )
               } else if (e.tipo === 'busca') {
                 bruta = e.bruta
                 mutar(() => ({ achados: e.bruta.itens }))
@@ -470,8 +581,19 @@ export function Consulta({
           }
         }
       } catch (e) {
+        // Se foi desistência, a tela já foi arrumada por `parar` e não há nada a
+        // relatar. O `catch` continua existindo para a falha de verdade.
+        if (cancelado.current) return
         motivo = e instanceof Error ? e.message : 'falha de rede'
+      } finally {
+        aborto.current = null
       }
+
+      // Desistência não pode cair na rede de segurança logo abaixo: ir buscar e
+      // compor uma resposta seria entregar exatamente o que quem cancelou disse
+      // não querer mais. E o laço de streaming pode nem ter reclamado — ver o
+      // comentário de `parar`.
+      if (cancelado.current) return
 
       // --- rede de segurança: a resposta composta ----------------------------
       //
@@ -530,6 +652,9 @@ export function Consulta({
           aoVivo: { estado: 'pronto', previa: '', erro: null, modelo },
         }))
         setOcupado(false)
+        // No caminho gerado o texto já foi revelado enquanto chegava, então não
+        // há digitação para esperar: o anúncio é aqui, e não em `digitar`.
+        anunciarPronto({ ...vazia(q, { lei: escopo, qtd }), comp })
         return
       }
 
@@ -558,7 +683,7 @@ export function Consulta({
         digitar()
       }, restantes * MS_POR_PASSO)
     },
-    [digitar, escopo, mutar, ocupado, pararRelogios, qtd],
+    [anunciarPronto, digitar, escopo, mutar, ocupado, pararRelogios, qtd],
   )
 
   // Conversa que veio na URL (?c=…) — é como a lateral devolve o usuário a um
@@ -633,7 +758,17 @@ export function Consulta({
 
   // Rolagem acompanha a digitação. `block: 'end'` e não `scrollIntoView()` seco:
   // o segundo centraliza e faz a conversa pular para o meio da tela.
+  //
+  // Só com conversa na tela. Sem a guarda, a tela de abertura também era rolada
+  // até o fim ao abrir: numa janela de 320px ela é mais alta que a área, e a
+  // Consulta nascia com `scrollTop = 315` de 321 — o "Boa tarde." em
+  // `top: -161`, fora da vista, e as sugestões de primeira pergunta com ele.
+  // Quem abria o produto no celular pequeno chegava no rodapé da tela inicial.
+  //
+  // Reabrir conversa pelo `?c=` continua descendo, que é o certo: ali o fim é
+  // onde a leitura para.
   useEffect(() => {
+    if (msgs.length === 0) return
     fim.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [msgs])
 
@@ -643,6 +778,20 @@ export function Consulta({
 
   return (
     <div className="flex min-h-0 flex-1">
+      {/*
+        A região viva da tela, e a única. Fica montada sempre, vazia quase
+        sempre: região viva que nasce e morre com o estado que anuncia não
+        anuncia nada — o navegador precisa dela já presente para notar que o
+        conteúdo mudou. Era esse o defeito: o "Consultando o corpus curado"
+        vivia dentro do bloco de espera e sumia junto com ele, e a chegada da
+        resposta passava em silêncio.
+
+        `role="status"` em vez de `aria-live="assertive"`: a resposta não
+        interrompe o que a pessoa estiver lendo, entra na primeira folga.
+      */}
+      <p role="status" aria-live="polite" className="sr-only">
+        {anuncio}
+      </p>
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 overflow-auto px-5 pb-1.5 pt-[30px] sm:px-[34px]">
           <div className="mx-auto flex max-w-[690px] flex-col gap-[26px]">
@@ -679,6 +828,7 @@ export function Consulta({
           aoTrocarEscopo={setEscopo}
           qtd={qtd}
           aoTrocarQtd={setQtd}
+          aoParar={parar}
         />
       </div>
 
@@ -790,7 +940,12 @@ function Resposta({
                     />
                   ))}
                 </span>
-                <span aria-live="polite" className="text-[12.5px] font-medium text-tg-suave">
+                {/* Sem `aria-live` aqui: este nó nasce com a espera e morre com
+                    ela, e região viva que desmonta não anuncia o fim de nada —
+                    era exatamente por isso que a chegada da resposta passava em
+                    silêncio. Quem anuncia é a região fixa lá embaixo, que
+                    sobrevive às duas pontas. */}
+                <span className="text-[12.5px] font-medium text-tg-suave">
                   Consultando o corpus curado
                 </span>
               </div>
@@ -1276,11 +1431,14 @@ function Entrada({
   aoTrocarEscopo,
   qtd,
   aoTrocarQtd,
+  aoParar,
 }: {
   rascunho: string
   aoDigitar: (v: string) => void
   aoEnviar: (t: string) => void
   ocupado: boolean
+  /** Desiste da consulta em curso. Ver `parar`, na tela. */
+  aoParar: () => void
   escopo: string | null
   aoTrocarEscopo: (v: string | null) => void
   qtd: number
@@ -1354,15 +1512,28 @@ function Entrada({
             <span className="text-[11px] text-tg-tenue-2">
               {ocupado ? 'consultando…' : 'Enter para enviar'}
             </span>
+            {/*
+              Enquanto consulta, o botão de enviar vira botão de parar — e não um
+              disco desabilitado com um girador dentro.
+
+              A consulta leva ~9 s e não havia como desistir dela: nem tecla, nem
+              botão. Quem percebia que tinha perguntado errado esperava a resposta
+              inteira antes de poder perguntar de novo. Ele fica no MESMO lugar
+              porque é o mesmo gesto — o dedo já está ali, e um segundo botão ao
+              lado obrigaria a escolher entre dois discos vermelhos parecidos.
+
+              O girador saiu do botão e não da tela: quem diz que há trabalho em
+              curso continua sendo o "consultando…" ao lado e os passos acima.
+            */}
             <button
-              type="submit"
-              disabled={ocupado}
-              aria-label="Enviar consulta"
-              className="tgb grid size-[34px] shrink-0 place-items-center rounded-full shadow-[var(--tg-elev-acento)] disabled:cursor-not-allowed"
+              type={ocupado ? 'button' : 'submit'}
+              onClick={ocupado ? aoParar : undefined}
+              aria-label={ocupado ? 'Parar a consulta' : 'Enviar consulta'}
+              className="tgb grid size-[34px] shrink-0 place-items-center rounded-full shadow-[var(--tg-elev-acento)]"
               style={{ background: ocupado ? ACENTO_CLARO : GRADIENTE_MARCA }}
             >
               {ocupado ? (
-                <Girador tamanho={13} espessura={2} trilho="rgba(255,255,255,.4)" cabeca="#fff" />
+                <span aria-hidden="true" className="size-2.5 rounded-[3px] bg-white" />
               ) : (
                 <span
                   aria-hidden="true"

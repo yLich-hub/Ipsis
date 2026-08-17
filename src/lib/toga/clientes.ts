@@ -47,7 +47,21 @@ export const RASCUNHO_VAZIO: Rascunho = {
   nota: '',
 }
 
-export type Resultado<T> = { ok: true; dados: T } | { ok: false; erro: string }
+/**
+ * `campo` é qual entrada tem o defeito, quando dá para saber.
+ *
+ * Existe porque a tela precisa fazer três coisas que uma frase solta não
+ * permite: marcar o campo com `aria-invalid`, ligá-lo à mensagem por
+ * `aria-describedby` e levar o foco até ele. Sem isso o erro aparecia numa
+ * caixa vermelha, o foco ficava no `<body>` e quem não enxerga a tela não tinha
+ * como saber nem que houve erro, nem onde.
+ *
+ * Fica opcional porque nem todo erro tem campo: sessão expirada e queda de rede
+ * não são de ninguém em particular.
+ */
+export type Resultado<T> =
+  | { ok: true; dados: T }
+  | { ok: false; erro: string; campo?: keyof Rascunho }
 
 /** Disparado depois de toda escrita, para a lista se atualizar sem recarregar. */
 export const EVENTO_CLIENTES = 'toga:clientes'
@@ -91,28 +105,50 @@ export function cpfValido(cpf: string): boolean {
 
 // --- validação do rascunho ---------------------------------------------------
 
+/** O defeito encontrado: onde ele está e o que dizer sobre ele. */
+export type Critica = { campo: keyof Rascunho; mensagem: string }
+
 /**
  * Confere o que o banco também confere, e um pouco mais.
  *
  * Não é redundância inútil: o check do banco devolve uma mensagem do Postgres
  * ("violates check constraint clientes_cpf_ck"), que não é recado para
  * advogado nenhum. Aqui a mensagem é em português e aponta o campo.
+ *
+ * "Aponta o campo" era só a prosa da mensagem — `nome`, `CPF`, `telefone`
+ * escritos na frase. Serve para quem lê a tela e não serve para a tela: ela
+ * precisa do campo como valor para marcar `aria-invalid` e mandar o foco. Daí
+ * `Critica` em vez de `string`, e daí as duas metades saírem sempre juntas
+ * daqui — mensagem que aponta um campo e foco que vai para outro é pior que
+ * não apontar nenhum.
  */
-export function critica(r: Rascunho): string | null {
-  if (!r.nome.trim()) return 'O nome é obrigatório.'
-  if (r.nome.trim().length > 120) return 'O nome passa de 120 caracteres.'
+export function critica(r: Rascunho): Critica | null {
+  if (!r.nome.trim()) return { campo: 'nome', mensagem: 'O nome é obrigatório.' }
+  if (r.nome.trim().length > 120) {
+    return { campo: 'nome', mensagem: 'O nome passa de 120 caracteres.' }
+  }
 
   const cpf = soDigitos(r.cpf)
-  if (cpf && cpf.length !== 11) return 'O CPF precisa ter 11 dígitos.'
-  if (cpf && !cpfValido(cpf)) return 'CPF inválido — confira os dígitos verificadores.'
+  if (cpf && cpf.length !== 11) {
+    return { campo: 'cpf', mensagem: 'O CPF precisa ter 11 dígitos.' }
+  }
+  if (cpf && !cpfValido(cpf)) {
+    return { campo: 'cpf', mensagem: 'CPF inválido — confira os dígitos verificadores.' }
+  }
 
   const tel = r.telefone.trim()
-  if (tel && (tel.length < 8 || tel.length > 24)) return 'O telefone precisa ter de 8 a 24 caracteres.'
+  if (tel && (tel.length < 8 || tel.length > 24)) {
+    return { campo: 'telefone', mensagem: 'O telefone precisa ter de 8 a 24 caracteres.' }
+  }
 
   const email = r.email.trim()
-  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'E-mail inválido.'
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { campo: 'email', mensagem: 'E-mail inválido.' }
+  }
 
-  if (r.nota.length > 2000) return 'A anotação passa de 2000 caracteres.'
+  if (r.nota.length > 2000) {
+    return { campo: 'nota', mensagem: 'A anotação passa de 2000 caracteres.' }
+  }
   return null
 }
 
@@ -166,7 +202,7 @@ export async function lista(termo = ''): Promise<Resultado<Cliente[]>> {
 /** Cria. Devolve o cliente com o id do banco. */
 export async function cria(r: Rascunho): Promise<Resultado<Cliente>> {
   const problema = critica(r)
-  if (problema) return { ok: false, erro: problema }
+  if (problema) return { ok: false, erro: problema.mensagem, campo: problema.campo }
 
   try {
     const sb = supabaseNavegador()
@@ -187,7 +223,7 @@ export async function cria(r: Rascunho): Promise<Resultado<Cliente>> {
       .select(COLUNAS)
       .single()
 
-    if (error) return { ok: false, erro: traduz(error.message) }
+    if (error) return { ok: false, ...traduz(error.message) }
     avisa()
     return { ok: true, dados: daLinha(data) }
   } catch (e) {
@@ -198,7 +234,7 @@ export async function cria(r: Rascunho): Promise<Resultado<Cliente>> {
 /** Atualiza. `atualizado_em` é escrito aqui porque não há trigger para isso. */
 export async function atualiza(id: string, r: Rascunho): Promise<Resultado<Cliente>> {
   const problema = critica(r)
-  if (problema) return { ok: false, erro: problema }
+  if (problema) return { ok: false, erro: problema.mensagem, campo: problema.campo }
 
   try {
     const { data, error } = await supabaseNavegador()
@@ -216,7 +252,7 @@ export async function atualiza(id: string, r: Rascunho): Promise<Resultado<Clien
       .select(COLUNAS)
       .single()
 
-    if (error) return { ok: false, erro: traduz(error.message) }
+    if (error) return { ok: false, ...traduz(error.message) }
     avisa()
     return { ok: true, dados: daLinha(data) }
   } catch (e) {
@@ -242,10 +278,13 @@ export async function remove(id: string): Promise<Resultado<null>> {
  * Só os dois que o usuário consegue causar digitando. O resto passa cru: uma
  * mensagem genérica esconderia a causa de quem pode consertá-la.
  */
-function traduz(mensagem: string): string {
+function traduz(mensagem: string): { erro: string; campo?: keyof Rascunho } {
   if (mensagem.includes('clientes_usuario_cpf_uq')) {
-    return 'Já existe um cliente cadastrado com este CPF.'
+    return { erro: 'Já existe um cliente cadastrado com este CPF.', campo: 'cpf' }
   }
-  if (mensagem.includes('clientes_email_ck')) return 'E-mail inválido.'
-  return mensagem
+  if (mensagem.includes('clientes_email_ck')) return { erro: 'E-mail inválido.', campo: 'email' }
+  // Sem `campo`: o que sobra é erro de rede, de sessão e de constraint que o
+  // usuário não causou digitando. Apontar um campo qualquer mandaria o foco
+  // para uma entrada que não tem defeito nenhum.
+  return { erro: mensagem }
 }

@@ -32,7 +32,7 @@
 // =============================================================================
 
 import Link from 'next/link'
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { marcarSaidaDeliberada, useUsuario } from '@/components/casca/sessao'
 import { Chave, Selo } from '@/components/toga/base'
@@ -117,6 +117,41 @@ export function Configuracoes({
   const [secao, setSecao] = useState<ChaveSecao>('perfil')
   const atual = SECOES.find((s) => s.k === secao)!
 
+  // A fileira de pílulas do modo estreito não cabe: 527px de conteúdo em 390 de
+  // tela, e "Aparência" e "Segurança" nascem fora dela. Rolava, e não dizia que
+  // rolava — quem abre as Configurações no celular vê cinco seções e conclui
+  // que são cinco.
+  //
+  // A borda esfumada aparece do lado em que há mais, e some quando não há: um
+  // esfumado fixo continuaria prometendo conteúdo depois do fim, que é o mesmo
+  // defeito da barra de progresso que chega a 100% antes do resultado.
+  const fileira = useRef<HTMLDivElement>(null)
+  const [maisAntes, setMaisAntes] = useState(false)
+  const [maisDepois, setMaisDepois] = useState(false)
+
+  const medeFileira = useCallback(() => {
+    const n = fileira.current
+    if (!n) return
+    // A folga de 2px absorve o arredondamento de zoom e de tela de alta
+    // densidade, senão o esfumado pisca no fim da rolagem.
+    setMaisAntes(n.scrollLeft > 2)
+    setMaisDepois(n.scrollLeft + n.clientWidth < n.scrollWidth - 2)
+  }, [])
+
+  useEffect(() => {
+    medeFileira()
+    window.addEventListener('resize', medeFileira)
+    return () => window.removeEventListener('resize', medeFileira)
+  }, [medeFileira])
+
+  // Trocar de seção traz a pílula ativa para dentro da vista. Sem isto, escolher
+  // "Segurança" marcava um botão que continuava fora da tela.
+  useEffect(() => {
+    fileira.current
+      ?.querySelector('[aria-current="true"]')
+      ?.scrollIntoView({ inline: 'nearest', block: 'nearest' })
+  }, [secao])
+
   return (
     <div className="flex min-h-0 flex-1">
       {/* trilha das seções — some no estreito, onde vira a fileira de pílulas */}
@@ -154,21 +189,43 @@ export function Configuracoes({
       <div className="min-w-0 flex-1 overflow-auto px-5 pb-[34px] pt-[26px] sm:px-[30px]">
         <div className="max-w-[720px]">
           {/* fileira de pílulas do modo estreito, no lugar da trilha */}
-          <div className="-mx-5 mb-5 flex gap-1.5 overflow-x-auto px-5 pb-1 md:hidden">
-            {SECOES.map((s) => (
-              <button
-                key={s.k}
-                type="button"
-                onClick={() => setSecao(s.k)}
-                className={`tgb shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[11.5px] font-medium ${
-                  s.k === secao
-                    ? 'bg-tg-acento-fraco text-tg-acento-txt'
-                    : 'bg-tg-preenche text-tg-corpo'
-                }`}
-              >
-                {s.t}
-              </button>
-            ))}
+          <div className="relative -mx-5 mb-5 md:hidden">
+            <div
+              ref={fileira}
+              onScroll={medeFileira}
+              className="flex gap-1.5 overflow-x-auto px-5 pb-1"
+            >
+              {SECOES.map((s) => (
+                <button
+                  key={s.k}
+                  type="button"
+                  onClick={() => setSecao(s.k)}
+                  // A trilha do desktop já dizia qual está aberta; a fileira do
+                  // celular não dizia, e cor de fundo não é estado para quem não
+                  // enxerga a tela.
+                  aria-current={s.k === secao ? 'true' : undefined}
+                  className={`tgb shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[11.5px] font-medium ${
+                    s.k === secao
+                      ? 'bg-tg-acento-fraco text-tg-acento-txt'
+                      : 'bg-tg-preenche text-tg-corpo'
+                  }`}
+                >
+                  {s.t}
+                </button>
+              ))}
+            </div>
+            {maisAntes && (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 left-0 w-7 bg-gradient-to-r from-tg-fundo to-transparent"
+              />
+            )}
+            {maisDepois && (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-0 w-7 bg-gradient-to-l from-tg-fundo to-transparent"
+              />
+            )}
           </div>
 
           <h1 className="font-tg-serif text-[26px] leading-[1.2] -tracking-[0.01em] text-tg-tinta">

@@ -26,7 +26,7 @@
 // está conferindo enquanto cadastra.
 // =============================================================================
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { BotaoAcento, BotaoClaro, Selo, TituloTela } from '@/components/toga/base'
 import type { CasoCurado } from '@/lib/tipos'
@@ -281,6 +281,9 @@ function Linha({
 
 // --- formulário --------------------------------------------------------------
 
+/** Um formulário por vez na tela (cadastro OU edição), então o id pode ser fixo. */
+const ID_ERRO = 'cliente-erro'
+
 const CAMPOS = [
   { k: 'nome', rot: 'Nome', dica: 'Nome completo', larga: true },
   { k: 'cpf', rot: 'CPF (opcional)', dica: '000.000.000-00', larga: false },
@@ -311,26 +314,48 @@ function Formulario({
       : RASCUNHO_VAZIO,
   )
   const [erro, setErro] = useState<string | null>(null)
+  /** Qual campo tem o defeito, quando o erro sabe dizer. */
+  const [campoRuim, setCampoRuim] = useState<keyof Rascunho | null>(null)
   const [salvando, setSalvando] = useState(false)
+  const entradas = useRef(new Map<keyof Rascunho, HTMLElement>())
 
-  const altera = (k: keyof Rascunho, v: string) => setR((x) => ({ ...x, [k]: v }))
+  const altera = (k: keyof Rascunho, v: string) => {
+    setR((x) => ({ ...x, [k]: v }))
+    // Corrigir o campo apontado apaga a marca. Deixar o `aria-invalid` colado
+    // depois da correção faria o leitor de tela anunciar como inválido um campo
+    // que já está certo.
+    if (campoRuim === k) setCampoRuim(null)
+  }
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault()
     if (salvando) return
     setSalvando(true)
     setErro(null)
+    setCampoRuim(null)
 
     const resposta = inicial ? await atualiza(inicial.id, r) : await cria(r)
 
     if (resposta.ok) {
       aoFechar()
-    } else {
-      // O formulário continua preenchido de propósito: o erro mais comum é CPF
-      // repetido, e limpar os campos obrigaria a redigitar tudo por causa de um.
-      setErro(resposta.erro)
-      setSalvando(false)
+      return
     }
+
+    // O formulário continua preenchido de propósito: o erro mais comum é CPF
+    // repetido, e limpar os campos obrigaria a redigitar tudo por causa de um.
+    setErro(resposta.erro)
+    setCampoRuim(resposta.campo ?? null)
+    setSalvando(false)
+
+    // O foco ia para lugar nenhum — ficava no `<body>`, e quem enviou por
+    // teclado tinha de tabular o formulário inteiro de volta para descobrir
+    // onde estava o defeito. Quem não enxerga a tela não descobria nem que
+    // houve defeito: a caixa vermelha aparecia sem `role="alert"`.
+    //
+    // Sem campo apontado (rede, sessão), não se rouba o foco de ninguém: o
+    // `role="alert"` da caixa já anuncia, e mover o cursor para um campo que
+    // não tem culpa seria pior.
+    if (resposta.campo) entradas.current.get(resposta.campo)?.focus()
   }
 
   return (
@@ -343,21 +368,38 @@ function Formulario({
       </p>
 
       <div className="grid gap-3.5 sm:grid-cols-2">
-        {CAMPOS.map((c) => (
-          <label key={c.k} className={`block ${c.larga ? 'sm:col-span-2' : ''}`}>
-            <span className="mb-[7px] block text-[11.5px] font-medium text-tg-fraco-2">
-              {c.rot}
-            </span>
-            <input
-              value={r[c.k]}
-              onChange={(e) => altera(c.k, e.target.value)}
-              placeholder={c.dica}
-              autoComplete="off"
-              inputMode={c.k === 'cpf' || c.k === 'telefone' ? 'numeric' : undefined}
-              className="w-full rounded-xl bg-tg-preenche px-[13px] py-[11px] text-[13.5px] text-tg-tinta outline-none placeholder:text-tg-tenue focus:bg-tg-campo"
-            />
-          </label>
-        ))}
+        {CAMPOS.map((c) => {
+          const ruim = campoRuim === c.k
+          return (
+            <label key={c.k} className={`block ${c.larga ? 'sm:col-span-2' : ''}`}>
+              <span className="mb-[7px] block text-[11.5px] font-medium text-tg-fraco-2">
+                {c.rot}
+              </span>
+              <input
+                ref={(n) => {
+                  if (n) entradas.current.set(c.k, n)
+                  else entradas.current.delete(c.k)
+                }}
+                value={r[c.k]}
+                onChange={(e) => altera(c.k, e.target.value)}
+                placeholder={c.dica}
+                autoComplete="off"
+                inputMode={c.k === 'cpf' || c.k === 'telefone' ? 'numeric' : undefined}
+                aria-invalid={ruim || undefined}
+                // Liga o campo à caixa de erro: quem chega nele pelo Tab ouve o
+                // motivo, sem ter de procurar a mensagem na tela.
+                aria-describedby={ruim ? ID_ERRO : undefined}
+                // Filete lateral, e não borda vermelha inteira: é o mesmo
+                // desenho do `Aviso` de falha, e pelo mesmo motivo — o acento do
+                // produto é vermelho, e campo com contorno vermelho ao lado de
+                // um botão vermelho de ação é ambiguidade.
+                className={`w-full rounded-xl bg-tg-preenche px-[13px] py-[11px] text-[13.5px] text-tg-tinta outline-none placeholder:text-tg-tenue focus:bg-tg-campo ${
+                  ruim ? 'rounded-l-none border-l-2 border-l-tg-falha-borda bg-tg-falha-fundo' : ''
+                }`}
+              />
+            </label>
+          )
+        })}
 
         <label className="block sm:col-span-2">
           <span className="mb-[7px] block text-[11.5px] font-medium text-tg-fraco-2">
@@ -396,8 +438,19 @@ function Formulario({
         </label>
       </div>
 
+      {/*
+        `role="alert"` é o que faz o recado existir para quem não está olhando
+        a tela: sem ele a caixa vermelha aparecia e nada era anunciado. É a
+        mesma peça que as cinco telas de autenticação já usam no `Aviso` —
+        aqui ela faltava, e este é o formulário que guarda dado de pessoa de
+        fora, onde perder o que foi digitado custa mais.
+      */}
       {erro && (
-        <p className="mt-3.5 rounded-[12px] bg-tg-supressao-fundo px-3.5 py-2.5 text-[12.5px] leading-[1.5] text-tg-supressao-txt">
+        <p
+          id={ID_ERRO}
+          role="alert"
+          className="mt-3.5 rounded-[12px] bg-tg-supressao-fundo px-3.5 py-2.5 text-[12.5px] leading-[1.5] text-tg-supressao-txt"
+        >
           {erro}
         </p>
       )}

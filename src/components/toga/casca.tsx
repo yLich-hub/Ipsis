@@ -880,7 +880,11 @@ function Conta() {
         aria-expanded={aberto}
         aria-haspopup="menu"
         title={perfil.nome.trim() ? `${perfil.nome.trim()} · ${email}` : email}
-        className="tgb grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(28_26_36_/_0.7)]"
+        // O círculo continua com os 32px do documento; quem cresce para os 44
+        // do alvo mínimo é só o `::after`, como no botão da gaveta. Este é o
+        // único caminho para sair da sessão, e errar o toque nele no celular
+        // abre o menu de outra coisa.
+        className="tgb relative grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(28_26_36_/_0.7)] after:absolute after:-inset-1.5 after:content-['']"
         style={{ background: GRADIENTE_CONTA }}
       >
         {iniciais(perfil.nome, email)}
@@ -1152,6 +1156,26 @@ export function Casca({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-dvh overflow-hidden bg-tg-fundo text-tg-tinta">
+      {/*
+        Primeira parada de Tab do app inteiro, e invisível até receber o foco.
+
+        Sem ela eram 26 paradas até o campo de pergunta da Consulta — a lateral
+        inteira, item por item, mais o histórico, a cada tela aberta. Quem
+        navega por teclado paga a moldura de novo em toda navegação, e a moldura
+        é a mesma sempre.
+
+        `sr-only focus:not-sr-only` é o par que a mantém fora do desenho sem
+        tirá-la da árvore: leitor de tela sempre a encontra, olho só a vê quando
+        ela é o foco. E aí ela tem de ficar POR CIMA de tudo — daí `z-50` e
+        `fixed`, senão nasce atrás da lateral, que é o único lugar onde ela
+        aparece.
+      */}
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-xl focus:bg-tg-acento focus:px-4 focus:py-2.5 focus:text-[13px] focus:font-medium focus:text-white focus:shadow-[0_10px_30px_-12px_rgb(18_20_30_/_0.6)]"
+      >
+        Pular para o conteúdo
+      </a>
       <Lateral
         aberta={menu}
         aoFechar={fecharMenu}
@@ -1186,7 +1210,10 @@ export function Casca({ children }: { children: React.ReactNode }) {
           propósito — o que mudou foi a tela, e mover a moldura junto faria toda
           navegação parecer um recarregamento.
         */}
-        <main className="flex min-h-0 flex-1 flex-col">
+        {/* `tabIndex={-1}` é o que faz o salto pousar: sem ele o foco fica no
+            link e só o scroll se move, então a próxima tecla continua de onde
+            estava — na lateral. */}
+        <main id="conteudo" tabIndex={-1} className="flex min-h-0 flex-1 flex-col outline-none">
           <div key={caminho} className="tg-tela flex min-h-0 flex-1 flex-col">
             {children}
           </div>
