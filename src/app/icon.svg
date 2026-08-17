@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ipsis">
+  <!--
+    O quadrado da marca, o mesmo da lateral e das telas de entrada: raio 11/32 do
+    lado, GRADIENTE_MARCA a 160°, inicial serifada branca. Ver tokens.ts e marca.ts.
+
+    O ângulo do CSS vira vetor aqui: 160deg aponta para (sin160, -cos160) =
+    (0,34 · 0,94), quase de cima para baixo, escorregando um pouco à direita.
+
+    A fonte é a cauda da pilha de `--font-tg-serif`. Source Serif 4 não existe no
+    contexto de um favicon — ele é desenhado pelo sistema, fora da página —, e
+    Georgia é o que de fato pinta os 16px na aba.
+  -->
+  <defs>
+    <linearGradient id="m" x1="0.17" y1="0.03" x2="0.83" y2="0.97">
+      <stop offset="0" stop-color="#c9202c"/>
+      <stop offset="1" stop-color="#93101c"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="22" ry="22" fill="url(#m)"/>
+  <text x="32" y="33" fill="#fff"
+        font-family="Georgia,'Times New Roman',serif"
+        font-size="27" font-weight="600" letter-spacing="0.3"
+        text-anchor="middle" dominant-baseline="central">IP</text>
+</svg>
