@@ -264,7 +264,7 @@ export function Lateral({
             >
               {MARCA.inicial}
             </span>
-            {/* Só o nome. A linha de apoio saiu a pedido: em "LJ" ela era mais
+            {/* Só o nome. A linha de apoio saiu a pedido: ela era mais
                 larga que a marca e truncava ("Advocacia crimi…"), que é pior que
                 não estar lá — e o ramo já é dito pela pílula das telas de
                 entrada e pela própria lateral. */}

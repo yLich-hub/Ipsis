@@ -1,6 +1,6 @@
 -- =============================================================================
 -- 0001_schema.sql — extensões, funções auxiliares, tabelas e integridade
--- Jesbick · consulta e geração de peças (tráfico de drogas)
+-- Ipsis · consulta e geração de peças (tráfico de drogas)
 --
 -- Rodar no SQL Editor do Supabase. Idempotente: pode rodar duas vezes.
 -- =============================================================================

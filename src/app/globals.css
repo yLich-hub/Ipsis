@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /* =============================================================================
-   LJ — camada de design
+   Ipsis — camada de design
 
    Os valores abaixo são a transcrição literal do documento de design
    (`Design_system/TOGA v2 - Assistente Jurídico.dc.html`). Ele desenha tudo em
@@ -44,7 +44,7 @@
   --color-tg-tenue: #a8adb8;
   --color-tg-tenue-2: #adb2bc;
 
-  /* acento — o vermelho da marca LJ, tirado da logo (#b3141f) */
+  /* acento — o vermelho da marca Ipsis, tirado da logo (#b3141f) */
   --color-tg-acento: #b3141f;
   --color-tg-acento-txt: #9c1420;
   --color-tg-acento-fraco: #fbecee;
@@ -616,7 +616,7 @@ body {
 }
 
 /* =============================================================================
-   Acabamento e movimento — camada LJ
+   Acabamento e movimento — camada Ipsis
 
    Nada aqui muda estrutura de tela: são estados que o produto já tinha, mas não
    dizia em voz alta. Cada regra responde a uma pergunta que o usuário faz com o

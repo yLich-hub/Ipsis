@@ -1,10 +1,10 @@
-# Jesbick
+# Ipsis
 
-[![verificação](https://github.com/yLich-hub/Jesbick/actions/workflows/verificacao.yml/badge.svg)](https://github.com/yLich-hub/Jesbick/actions/workflows/verificacao.yml)
+[![verificação](https://github.com/yLich-hub/Ipsis/actions/workflows/verificacao.yml/badge.svg)](https://github.com/yLich-hub/Ipsis/actions/workflows/verificacao.yml)
 
 **Consulta e geração de peças para advocacia criminal — recorte de tráfico de drogas.**
 
-**No ar em [jesbick.vercel.app](https://jesbick.vercel.app)** — as sete telas
+**No ar em [ipsis-juridico.vercel.app](https://ipsis-juridico.vercel.app)** — as sete telas
 ficam atrás de login, e quem quiser ver o desenho sem criar conta encontra a
 captura das sete em [`Design_system/estado-atual.html`](Design_system/estado-atual.html):
 o HTML que o servidor produz, com o CSS real e os dados reais.
@@ -295,7 +295,7 @@ dizer qual dispositivo passou por olho humano.
 > topologia de pastas.
 
 ```
-Jesbick/
+Ipsis/
 ├── src/
 │   ├── app/
 │   │   ├── (app)/              # as sete telas — exigem sessão
@@ -399,8 +399,8 @@ Sugestão de leitura em 90 segundos: [seção 1](#1-visão-do-produto) →
 ### Passos
 
 ```bash
-git clone git@github.com:yLich-hub/Jesbick.git
-cd Jesbick
+git clone git@github.com:yLich-hub/Ipsis.git
+cd Ipsis
 npm install
 ```
 

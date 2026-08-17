@@ -16,19 +16,24 @@
 // serifada sobre gradiente, não um SVG. Quando virar logotipo de verdade, é
 // aqui que ele entra, e as duas telas o herdam juntas.
 //
-// `inicial` agora tem DUAS letras, e isso tem consequência de layout: nos três
+// `inicial` tem DUAS letras, e isso tem consequência de layout: nos três
 // quadrados que a desenham (lateral, tela de entrada, avatar de Configurações) e
-// no avatar do assistente, o corpo cai ~20% e entra `tracking-[0.01em]`, senão o
-// L e o J se encostam.
+// no avatar do assistente, o corpo cai ~20% e entra `tracking-[0.01em]`, senão as
+// duas letras se encostam.
+//
+// **Este arquivo já sobreviveu a dois rebrandings** — `Toga` → `LJ` → `Ipsis` —,
+// e é o argumento do topo medido em campo: o nome trocou duas vezes sem que
+// nenhuma tela ficasse para trás, porque só existe um lugar onde ele está
+// escrito. `nome` e `inicial` mudam juntos e por decisão, não por configuração.
 // =============================================================================
 
 export const MARCA = {
-  nome: 'LJ',
+  nome: 'Ipsis',
   /** As letras do quadrado da marca. Serifadas, sobre `GRADIENTE_MARCA`. */
-  inicial: 'LJ',
-  // `tagline` morava aqui e saiu com a única tela que a desenhava: em "LJ" a
-  // linha de apoio era mais larga que a marca e truncava na lateral. Campo que
-  // ninguém lê é o mesmo defeito que este arquivo evita, do outro lado.
+  inicial: 'IP',
+  // `tagline` morava aqui e saiu com a única tela que a desenhava: numa marca
+  // curta a linha de apoio ficava mais larga que o nome e truncava na lateral.
+  // Campo que ninguém lê é o mesmo defeito que este arquivo evita, do outro lado.
   /** Pílula ao lado do nome nas telas de autenticação. */
   ramo: 'Penal',
   /** Complemento do título da aba na raiz e na descrição das telas públicas. */
@@ -36,7 +41,7 @@ export const MARCA = {
 } as const
 
 /**
- * O título da aba: `Jurisprudência — LJ`.
+ * O título da aba: `Jurisprudência — Ipsis`.
  *
  * Existe para o sufixo não ser digitado em cada `metadata`. O separador é o
  * travessão, e é ele que o navegador trunca por último quando a aba encolhe —

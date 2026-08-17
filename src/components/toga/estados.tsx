@@ -1,5 +1,5 @@
 // =============================================================================
-// LJ — estados de exceção
+// Ipsis — estados de exceção
 //
 // Banco fora do ar, lista vazia, recurso que existe no menu e não existe no
 // produto. Três telas que ninguém desenha com carinho e que são justamente as
