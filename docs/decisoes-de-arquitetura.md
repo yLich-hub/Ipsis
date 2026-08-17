@@ -67,7 +67,7 @@ encabeça o resultado — não é um candidato entre outros.
 | `origem` | O que é | Volume |
 |---|---|---|
 | `oficial` | rubrica marginal extraída do PDF, já ligada ao dispositivo exato | 421 termos |
-| `curada` | termo coloquial escrito à mão para o recorte de tráfico | 35 termos · 153 variantes |
+| `curada` | termo coloquial escrito à mão para o recorte de tráfico | 38 termos · 173 variantes |
 
 Uma rubrica aponta para N dispositivos via `rubrica_dispositivos`, com `papel`
 (`principal` / `correlato` / `requisito`) e `peso`. "Dosimetria da pena" é um

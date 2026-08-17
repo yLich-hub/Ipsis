@@ -125,6 +125,45 @@ const SUGESTOES = [
   'Natureza e quantidade da droga',
 ]
 
+/**
+ * O que conta como parada de foco dentro da gaveta.
+ *
+ * `getClientRects()` filtra o que está com `display:none` — a lateral tem
+ * botões que só existem a partir de `lg` (recolher) e outros que só existem
+ * abaixo (fechar), e uma armadilha de foco que mirasse um botão invisível
+ * mandaria o Tab para o vazio.
+ */
+const FOCAVEL =
+  'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+const paradas = (caixa: HTMLElement): HTMLElement[] =>
+  [...caixa.querySelectorAll<HTMLElement>(FOCAVEL)].filter((n) => n.getClientRects().length > 0)
+
+/**
+ * A janela está abaixo de `lg` — isto é, a lateral é gaveta e não moldura?
+ *
+ * Precisa ser JavaScript, e não classe utilitária: `inert`, `role="dialog"` e
+ * armadilha de foco não existem em CSS, e o elemento é o MESMO nos dois modos.
+ * Aplicá-los sem esta pergunta inertizaria a lateral fixa do desktop.
+ *
+ * Nasce `false` para o primeiro render bater com o do servidor, que não tem
+ * janela para medir; o valor real chega no efeito, como as preferências.
+ * `1023.98px` é o `lg` do Tailwind (64rem) por baixo.
+ */
+function useEstreito(): boolean {
+  const [estreito, setEstreito] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1023.98px)')
+    const ler = () => setEstreito(mq.matches)
+    ler()
+    mq.addEventListener('change', ler)
+    return () => mq.removeEventListener('change', ler)
+  }, [])
+
+  return estreito
+}
+
 const ativoEm = (caminho: string, href: string) =>
   caminho === href || caminho.startsWith(`${href}/`)
 
@@ -145,6 +184,7 @@ export function Lateral({
   aoFechar,
   colapsada,
   aoAlternar,
+  estreito,
 }: {
   aberta: boolean
   aoFechar: () => void
@@ -154,6 +194,8 @@ export function Lateral({
    */
   colapsada: boolean
   aoAlternar: () => void
+  /** Abaixo de `lg`, onde esta mesma `aside` deixa de ser moldura e vira gaveta. */
+  estreito: boolean
 }) {
   const caminho = usePathname()
   const params = useSearchParams()
@@ -161,6 +203,15 @@ export function Lateral({
   const [conversas, setConversas] = useState<Conversa[]>([])
   const [busca, setBusca] = useState('')
   const router = useRouter()
+  const gaveta = useRef<HTMLElement>(null)
+
+  /**
+   * Está por cima da tela, cobrindo o conteúdo com o véu — e não encostada ao
+   * lado dele. É esta pergunta, e não `aberta`, que decide as obrigações de
+   * diálogo modal: em `lg` a lateral está sempre "aberta" e não é diálogo de
+   * coisa nenhuma.
+   */
+  const modal = aberta && estreito
 
   /** Qual conversa está aberta agora, para marcá-la na lista. */
   const conversaAtiva = caminho === '/consulta' ? params.get('c') : null
