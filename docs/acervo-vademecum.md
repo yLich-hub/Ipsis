@@ -10,7 +10,7 @@ diferença entre os dois é a diferença entre ler uma lei e citá-la numa peça
 
 ## Por que existe
 
-O recorte do Jesbick é tráfico de drogas, e o corpus curado atende exatamente
+O recorte do Ipsis é tráfico de drogas, e o corpus curado atende exatamente
 isso: Lei 11.343, Código Penal e o subconjunto do CPP. Fora daí não havia onde
 consultar nada — e consulta ampla é o gesto mais comum de quem trabalha com
 direito. O acervo cobre esse gesto sem alargar o recorte, porque não participa

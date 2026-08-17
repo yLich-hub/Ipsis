@@ -119,10 +119,27 @@ type AoVivo = {
   modelo: string | null
 }
 
+/**
+ * Com que parâmetros esta resposta foi buscada.
+ *
+ * Fica na mensagem, e não no estado da tela, porque "Gerar de novo" tem de
+ * repetir a busca que produziu AQUELA resposta. Lendo o estado atual, quem
+ * trocasse a pílula de escopo ou o botão de resultados depois de perguntar veria
+ * a regeneração responder outra coisa — e ela se apresenta como a mesma resposta,
+ * refeita.
+ *
+ * `qtd` é anulável porque conversa reaberta do histórico não guarda o número
+ * pedido, só os itens que voltaram. Nulo é "o padrão do servidor", que é o que
+ * essa rota já fazia antes de a tela mandar qualquer coisa.
+ */
+type Parametros = { lei: string | null; qtd: number | null }
+
 type MsgAssistente = {
   papel: 'assistente'
   /** A pergunta que a originou. O cartão de dosimetria lê os fatos dela. */
   pergunta: string
+  /** Escopo e quantidade com que ela foi buscada. Ver `Parametros`. */
+  params: Parametros
   comp: RespostaComposta | null
   achados: Achado[]
   passos: { t: string; meta: string }[]
@@ -135,9 +152,10 @@ type MsgAssistente = {
 
 type Msg = MsgUsuario | MsgAssistente
 
-const vazia = (pergunta: string): MsgAssistente => ({
+const vazia = (pergunta: string, params: Parametros): MsgAssistente => ({
   papel: 'assistente',
   pergunta,
+  params,
   comp: null,
   achados: [],
   passos: PASSOS_PROVISORIOS,
@@ -261,7 +279,10 @@ export function Consulta({
         const r = await fetch('/api/consulta/aovivo', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ q: alvo.pergunta }),
+          // Escopo e quantidade saem da mensagem, não do estado da tela: esta é
+          // a mesma pergunta sendo refeita, e refazê-la com outro filtro
+          // devolveria outra resposta no lugar da que o usuário mandou repetir.
+          body: JSON.stringify({ q: alvo.pergunta, lei: alvo.params.lei, qtd: alvo.params.qtd }),
         })
 
         if (!r.ok || !r.body) {
@@ -356,7 +377,9 @@ export function Consulta({
       setRascunho('')
       setOcupado(true)
       setPainel(null)
-      setMsgs((ms) => ms.concat([{ papel: 'usuario', texto: q }, vazia(q)]))
+      setMsgs((ms) =>
+        ms.concat([{ papel: 'usuario', texto: q }, vazia(q, { lei: escopo, qtd })]),
+      )
 
       // O relógio dos passos anda sozinho; ele para no último passo e espera a
       // resposta, em vez de correr até o fim e deixar a tela parada.
@@ -382,7 +405,7 @@ export function Consulta({
         const res = await fetch('/api/consulta/aovivo', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ q, lei: escopo }),
+          body: JSON.stringify({ q, lei: escopo, qtd }),
         })
 
         if (!res.ok || !res.body) {
@@ -560,6 +583,11 @@ export function Consulta({
             {
               papel: 'assistente',
               pergunta: t.pergunta,
+              // O escopo está gravado na busca crua; a quantidade pedida não —
+              // o histórico guarda os itens que voltaram, que podem ser menos.
+              // Nulo devolve a regeneração ao padrão do servidor, em vez de
+              // inventar um número a partir do tamanho da lista.
+              params: { lei: t.bruta.lei, qtd: null },
               comp,
               achados: t.bruta.itens,
               passos: comp.passos,
@@ -1236,7 +1264,7 @@ function Entrada({
             <button
               type="button"
               onClick={() => aoTrocarQtd(qtd === 4 ? 8 : qtd === 8 ? 12 : 4)}
-              title="Quantos dispositivos a busca devolve"
+              title="Quantos dispositivos a busca devolve ao modelo — a resposta cita no máximo quatro"
               className="tgb rounded-full bg-tg-preenche px-[11px] py-1.5 text-[11.5px] text-tg-suave hover:bg-tg-preenche-alto"
             >
               {qtd} resultados

@@ -173,9 +173,32 @@ async function cookieDeSessao() {
 
 // --- captura ------------------------------------------------------------------
 
-const BRIEF = `
+/**
+ * O nome do produto, lido de `src/lib/toga/marca.ts`.
+ *
+ * Não é preciosismo: `marca.ts` existe para o nome estar escrito num lugar só, e
+ * digitá-lo aqui criaria mais um ponto para ficar para trás na próxima troca de
+ * marca — que é o defeito que aquele arquivo existe para impedir, e que esta
+ * captura já teve, saindo com "TOGA v2" no título muito depois de o produto ter
+ * outro nome.
+ *
+ * **Ler o `<title>` da página capturada foi tentado e não serve**, e a razão é
+ * instrutiva: `titulo()` monta `Jurisprudência — Ipsis`, com a marca no fim, mas
+ * tela sem `metadata` própria herda a do layout raiz, que é
+ * `Ipsis — consulta e peças…`, com a marca no começo. Nenhum lado do travessão é
+ * a marca sempre. Este arquivo é `.mjs` e não importa TypeScript; a regex sobre o
+ * literal é o caminho curto até a mesma verdade, e aborta se ele mudar de forma.
+ */
+function marcaDoProjeto() {
+  const fonte = path.join(RAIZ, 'src', 'lib', 'toga', 'marca.ts')
+  const nome = fs.readFileSync(fonte, 'utf8').match(/\bnome:\s*'([^']+)'/)?.[1]
+  if (!nome) throw new Error(`não achei o nome da marca em ${path.relative(RAIZ, fonte)}`)
+  return nome
+}
+
+const brief = (marca) => `
 <section class="brief">
-  <h1>TOGA v2 — estado atual das sete telas</h1>
+  <h1>${marca} — estado atual das sete telas</h1>
   <p class="sub">
     Captura do HTML que o servidor de fato produz, com o CSS compilado do projeto.
     Não é o protótipo de origem: é o que está no ar hoje, depois das divergências
@@ -221,6 +244,14 @@ const BRIEF = `
     em que abrem, com os dados reais do banco. Larguras fixadas em 1440px, que é a medida
     do desenho.
   </p>
+  <p>
+    <b>Os links internos das telas não navegam</b>, e isso é decisão desta captura, não
+    defeito dela. Não há aplicação por trás de um arquivo aberto do disco: cada
+    <code>/artigo/…</code> ou <code>/consulta</code> daria 404, e link que não abre nada é
+    pior que link nenhum. O endereço de cada um continua legível no atributo
+    <code>data-rota</code>, para quem for conferir o destino. Os links para fora — Planalto,
+    STJ — continuam clicáveis, porque esses existem.
+  </p>
 </section>`
 
 const CASCA = `
@@ -258,6 +289,10 @@ const CASCA = `
   .moldura .fixed { position: absolute !important; }
   footer { text-align: center; padding: 48px 0 64px; color: #8b8f9a; font-size: 12.5px; }`
 
+// Lido antes de subir o servidor: erro de marca deve aparecer em meio segundo,
+// não depois de um minuto de `next dev`.
+const marca = marcaDoProjeto()
+
 async function main() {
   const servidor = await sobeServidor()
   try {
@@ -266,6 +301,8 @@ async function main() {
 
     const primeiro = await (await pega('/consulta')).text()
     if (primeiro.length < 5000) throw new Error('a sessão não pegou: /consulta veio vazia')
+
+    console.log(`· marca lida de marca.ts: ${marca}`)
 
     let css = ''
     const folhas = [...primeiro.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"/g)]
@@ -283,6 +320,10 @@ async function main() {
         .replace(/<script[\s\S]*?<\/script>/g, '')
         .replace(/<template[\s\S]*?<\/template>/g, '')
         .replace(/<next-route-announcer[\s\S]*?<\/next-route-announcer>/g, '')
+        // Link de rota interna vira atributo inerte: fora do app não há o que
+        // ele abra. Só o que começa com `/` — `https://` é endereço de verdade,
+        // e o Planalto continua a um clique. Ver o brief.
+        .replace(/\shref="(\/[^"]*)"/g, ' data-rota="$1"')
       secoes.push({ rota, nome, nota, corpo })
       console.log(`  ${rota.padEnd(18)} ${(corpo.length / 1024).toFixed(0)} KB`)
     }
@@ -291,7 +332,7 @@ async function main() {
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<title>TOGA v2 — estado atual</title>
+<title>${marca} — estado atual</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -302,7 +343,7 @@ ${css}
 </style>
 </head>
 <body>
-${BRIEF}
+${brief(marca)}
 ${secoes
   .map(
     (s) => `

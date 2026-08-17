@@ -1,6 +1,6 @@
 # O corpus: da extração do PDF ao banco
 
-Este é o documento mais importante do projeto. A parte difícil do Jesbick não é
+Este é o documento mais importante do projeto. A parte difícil do Ipsis não é
 o RAG — é garantir que o texto legal que sai na peça seja o texto legal.
 
 O corpus vem de um Vade Mecum em PDF de duas colunas com rubricas na margem.

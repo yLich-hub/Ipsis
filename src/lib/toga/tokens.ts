@@ -1,5 +1,5 @@
 // =============================================================================
-// LJ — os tokens que precisam existir em TypeScript
+// Ipsis — os tokens que precisam existir em TypeScript
 //
 // A paleta canônica está em `src/app/globals.css`, no bloco `@theme`, e é de lá
 // que sai `bg-tg-acento`, `text-tg-fraco-2` e companhia. Este arquivo NÃO é uma

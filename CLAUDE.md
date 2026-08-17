@@ -1,4 +1,4 @@
-# Jesbick — consulta e geração de peças para advocacia criminal (tráfico de drogas)
+# Ipsis — consulta e geração de peças para advocacia criminal (tráfico de drogas)
 
 Projeto de portfólio. Não é produto comercial: sem cobrança, sem multiusuário.
 O critério de sucesso é que um recrutador técnico entenda em 90 segundos que o
@@ -804,7 +804,7 @@ cor escolhida por índice, valor calculado em runtime e cor dentro de gradiente.
 Cor nova que possa ser classe **tem** que ser classe.
 
 **O acento divergiu do protótipo, e é a prova de que o token valeu a pena.** O
-`TOGA v2` desenha em roxo `#3a3960`; o produto é `LJ` e o acento saiu da logo,
+`TOGA v2` desenha em roxo `#3a3960`; o produto é `Ipsis` e o acento saiu da logo,
 vermelho `#b3141f`. A troca mexeu em **um** bloco `@theme` e em três gradientes
 de `tokens.ts` — as ~200 ocorrências de `bg-tg-acento` e `text-tg-acento-txt`
 seguiram intactas, porque o que mudou foi o valor e não o nome. É exatamente o
@@ -827,6 +827,16 @@ o título da aba. O argumento é o do `@theme`: o nome estava escrito em 27 pont
 assim que uma tela fica com o nome antigo depois de uma troca de marca. Não é
 arquivo de configuração: não se lê de variável de ambiente e não há tela para
 editar, porque marca é decisão de produto, muda em commit e se revisa em diff.
+
+**O arquivo já pagou o preço dele duas vezes.** O nome passou de `Toga` para
+`LJ` e de `LJ` para `Ipsis`, e nas duas o diff da interface foi de duas linhas —
+`nome` e `inicial`. O que sobrou de trabalho em cada rebranding foi o que mora
+fora do alcance dele e não deve entrar: o nome do pacote, a URL do deploy, o
+`AGENTE` que a vigília apresenta ao Planalto e a prosa dos documentos. Chave de
+`localStorage` é o caso limite — carrega prefixo de marca morta (`toga:`,
+`jesbick:`) e **não se renomeia**: é identificador de dado guardado, como
+`dispositivos.id`, e trocá-lo apagaria em silêncio favorito e preferência de
+quem já usava o produto.
 
 ### O movimento
 

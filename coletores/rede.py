@@ -48,7 +48,7 @@ CACHE = RAIZ / "data" / "vigilia" / ".cache"
 # filtro de prefixo e continua dizendo quem é e para quê. Conferido: 200 em
 # 0,5 s. Um coletor que se disfarça de navegador é o que merece bloqueio; um que
 # se identifica dentro da convenção que o servidor aceita, não.
-AGENTE = "Mozilla/5.0 (compatible; LJ-vigilia/1.0; coletor de alteracoes legislativas do corpus)"
+AGENTE = "Mozilla/5.0 (compatible; Ipsis-vigilia/1.0; coletor de alteracoes legislativas do corpus)"
 
 # Segundos entre duas requisições ao mesmo host.
 INTERVALO = {
