@@ -30,8 +30,38 @@ import { passosDa } from '@/lib/toga/resposta'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-/** Quantos dispositivos entram no contexto do modelo. */
-const QTD = 8
+/**
+ * Quantos dispositivos entram no contexto do modelo.
+ *
+ * `QTD_PADRAO` era o número fixo desta rota, e o botão de 4/8/12 da Consulta não
+ * o alcançava: a tela mandava `qtd` só na chamada de `/api/busca`, que é a rede
+ * de segurança. No caminho padrão — este — o botão não mudava nada, e o chip
+ * "12 resultados" na caixa afirmava algo que o servidor ignorava.
+ *
+ * O teto é baixo de propósito, e não é o mesmo de `/api/busca`: lá o custo de um
+ * `qtd` grande é uma lista comprida na tela; aqui cada dispositivo a mais é
+ * texto de lei inteiro dentro de uma chamada paga. A tela não oferece mais que
+ * 12, então acima disso é chamada montada à mão — e ela é aparada, não obedecida.
+ */
+const QTD_PADRAO = 8
+const QTD_MAX = 12
+
+/**
+ * Mesma regra de `/api/busca`, e pelo mesmo motivo: `Number('abc')` é `NaN`, e
+ * `NaN` atravessa `Math.min` e `Array.slice` sem reclamar — `slice(0, NaN)`
+ * devolve lista vazia. Contexto vazio faz `gerarAoVivo` recusar e a Consulta
+ * cair para a resposta composta, que é uma queda silenciosa por entrada malformada.
+ *
+ * Ausente é diferente de inválido, e os dois querem o padrão: `Number(null)` e
+ * `Number('')` são 0, não NaN, e sem o primeiro teste uma chamada sem `qtd`
+ * mandaria um dispositivo só ao modelo.
+ */
+function saneiaQtd(bruto: unknown): number {
+  if (bruto === null || bruto === undefined || bruto === '') return QTD_PADRAO
+  const n = Math.trunc(Number(bruto))
+  if (!Number.isFinite(n) || n <= 0) return QTD_PADRAO
+  return Math.min(n, QTD_MAX)
+}
 
 /**
  * Limite por IP, na memória do processo.
@@ -70,9 +100,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: 'OPENAI_API_KEY ausente no servidor' }, { status: 503 })
   }
 
-  let corpo: { q?: unknown; lei?: unknown }
+  let corpo: { q?: unknown; lei?: unknown; qtd?: unknown }
   try {
-    corpo = (await req.json()) as { q?: unknown; lei?: unknown }
+    corpo = (await req.json()) as { q?: unknown; lei?: unknown; qtd?: unknown }
   } catch {
     return NextResponse.json({ erro: 'corpo inválido' }, { status: 400 })
   }
@@ -83,6 +113,10 @@ export async function POST(req: Request) {
   // O escopo escolhido nas pílulas da tela. Vale a mesma lista de leis do
   // corpus; qualquer outra coisa vira busca sem filtro.
   const lei = typeof corpo.lei === 'string' && corpo.lei ? corpo.lei : null
+
+  // Quantos dispositivos a busca devolve, escolhido no botão da caixa de
+  // consulta. Saneado aqui porque isto é entrada de usuário como qualquer outra.
+  const qtd = saneiaQtd(corpo.qtd)
 
   const ip =
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -120,7 +154,7 @@ export async function POST(req: Request) {
         // porque é o que de fato acontece primeiro.
         manda({ tipo: 'passo', t: 'Classificando a intenção da consulta', meta: 'regra em TS' })
 
-        const busca = await consultar({ q, lei, qtd: QTD })
+        const busca = await consultar({ q, lei, qtd })
 
         // A busca crua vai para a tela antes da geração: é o que alimenta o
         // painel de fonte, o histórico e — se a geração falhar daqui em diante —
