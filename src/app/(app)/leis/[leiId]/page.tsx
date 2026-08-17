@@ -80,6 +80,7 @@ export default async function LeiPage({
       <Cabecalho
         titulo={lei.apelido}
         sub={`${numeroBR(lei.total_artigos)} artigos · redação vigente em ${dataBR(lei.vigencia_ate)}`}
+        voltar={{ href: '/leis', rotulo: 'Legislação' }}
       >
         {lei.cobertura === 'parcial' ? (
           <Selo tom="ambar" title={lei.cobertura_nota ?? undefined}>

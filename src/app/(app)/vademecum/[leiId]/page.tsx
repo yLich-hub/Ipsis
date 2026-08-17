@@ -16,7 +16,6 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
 import { Cabecalho } from '@/components/casca/cabecalho'
-import { Icone } from '@/components/icones'
 import { Selo } from '@/components/ui'
 import { BarraLeitura } from '@/components/vademecum/barra-leitura'
 import { BotaoFavorito } from '@/components/vademecum/favoritos'
@@ -59,6 +58,7 @@ export default async function LeiDoAcervoPage({
       <Cabecalho
         titulo={lei.apelido}
         sub={`${numeroBR(lei.artigos)} artigos · ${lei.num_lei ?? lei.titulo}`}
+        voltar={{ href: '/vademecum', rotulo: 'Acervo' }}
       >
         <Selo tom="ambar" title="Espelho de leitura, sem data de vigência conferida">
           acervo
@@ -75,15 +75,12 @@ export default async function LeiDoAcervoPage({
 
         <div id={ID_ROLAGEM} className="min-w-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
-            <div className="flex items-center gap-2">
-              <Link
-                href="/vademecum"
-                className="flex shrink-0 items-center gap-1.5 text-[12.5px] text-tg-fraco-3 transition-colors hover:text-tg-tinta-2"
-              >
-                <Icone nome="seta_esquerda" className="size-3.5" />
-                Acervo
-              </Link>
-              <span className="ml-auto" />
+            {/* O "← Acervo" que morava aqui subiu para o `Cabecalho`. Aqui ele
+                rolava para fora da tela no primeiro gesto e não voltava mais —
+                num código de centenas de KB numa página só, isso é a diferença
+                entre ter voltar e não ter. Ficou o favorito, que é ação sobre a
+                lei e pertence ao texto. */}
+            <div className="flex items-center justify-end gap-2">
               <BotaoFavorito id={lei.id} rotulo={lei.apelido} />
             </div>
 
