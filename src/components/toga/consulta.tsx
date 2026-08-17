@@ -213,6 +213,10 @@ export function Consulta({
   const vivo = useRef(true)
   /** A consulta em curso, para o botão de parar. `null` quando não há nenhuma. */
   const aborto = useRef<AbortController | null>(null)
+  /** Ligada por `parar`: quem estiver no meio do fluxo desiste sem tocar na tela. */
+  const cancelado = useRef(false)
+  /** A pergunta em curso, para o `parar` devolvê-la à caixa. */
+  const perguntaEmCurso = useRef('')
 
   const pararRelogios = useCallback(() => {
     if (passoT.current) clearInterval(passoT.current)
@@ -382,14 +386,37 @@ export function Consulta({
   /**
    * Desiste da consulta em curso.
    *
-   * `abort()` derruba o `fetch`, e o `catch` do envio cuida do resto: tira a
-   * mensagem vazia da tela, para os relógios e anuncia. Não há caminho de
-   * "cancelou e mesmo assim respondeu" — a rede de segurança da resposta
-   * composta é pulada de propósito lá.
+   * Faz as duas coisas aqui, e não espera o `fetch` reclamar: derruba a
+   * requisição E arruma a tela na hora.
+   *
+   * A primeira versão só chamava `abort()` e deixava o `catch` do envio cuidar
+   * do resto, esperando um `AbortError`. Medido no navegador: a requisição
+   * morre mesmo — `net::ERR_ABORTED` no painel de rede —, mas o
+   * `await leitor.read()` do laço de streaming fica pendurado sem resolver nem
+   * rejeitar, então o `catch` nunca roda e a tela congelava com "Consultando o
+   * corpus curado…" para sempre. Botão de parar que não para é pior que botão
+   * nenhum.
+   *
+   * `cancelado` é o mesmo desenho de `vivo.current`, que este arquivo já usa
+   * para o desmonte: quem estiver no meio do fluxo confere a bandeira e sai sem
+   * tocar em estado nenhum.
    */
   const parar = useCallback(() => {
+    cancelado.current = true
     aborto.current?.abort()
-  }, [])
+    aborto.current = null
+    pararRelogios()
+    // As DUAS mensagens: a pergunta e a resposta que ia respondê-la. Tirar só a
+    // resposta deixaria a pergunta na tela para sempre sem nada embaixo, que é
+    // pior que o estado anterior a ela.
+    setMsgs((ms) => ms.slice(0, -2))
+    // E a pergunta volta para a caixa. Quem cancela quase sempre cancela porque
+    // perguntou errado; devolver o texto é a diferença entre corrigir uma
+    // palavra e digitar tudo de novo.
+    setRascunho(perguntaEmCurso.current)
+    setOcupado(false)
+    setAnuncio('Consulta cancelada. A pergunta voltou para a caixa.')
+  }, [pararRelogios])
 
   const digitar = useCallback(() => {
     if (!vivo.current) return
@@ -406,7 +433,7 @@ export function Consulta({
       }
       mutar((x) => ({ digitado: Math.min(x.total, x.digitado + CHARS_POR_QUADRO) }))
     }, MS_POR_QUADRO)
-  }, [mutar, pararRelogios])
+  }, [anunciarPronto, mutar, pararRelogios])
 
   const enviar = useCallback(
     async (texto: string) => {
@@ -418,6 +445,8 @@ export function Consulta({
       setOcupado(true)
       setPainel(null)
       setAnuncio('Consultando o corpus curado…')
+      cancelado.current = false
+      perguntaEmCurso.current = q
       setMsgs((ms) =>
         ms.concat([{ papel: 'usuario', texto: q }, vazia(q, { lei: escopo, qtd })]),
       )
@@ -486,7 +515,10 @@ export function Consulta({
               } catch {
                 continue
               }
-              if (!vivo.current) return
+              // A mesma guarda do desmonte, agora também para a desistência:
+              // `parar` já arrumou a tela, e qualquer escrita daqui a
+              // desarrumaria de novo.
+              if (!vivo.current || cancelado.current) return
 
               if (e.tipo === 'passo') {
                 // O PRIMEIRO passo real substitui a lista provisória; os
@@ -501,15 +533,28 @@ export function Consulta({
                 //
                 // Os provisórios existem para a tela não ficar parada até o
                 // servidor falar. Assim que ele fala, quem manda é ele.
-                mutar((m) => {
-                  const novo = { t: e.t, meta: e.meta }
-                  if (reais) return { passos: [...m.passos, novo] }
-                  reais = true
-                  // `passo: 1` junto: sem isso o contador ficaria adiantado em
-                  // relação à lista nova e os passos reais apareceriam todos de
-                  // uma vez, sem o encadeamento que eles existem para mostrar.
-                  return { passos: [novo], passo: 1 }
-                })
+                //
+                // A decisão é tomada AQUI, fora do updater, e não dentro dele.
+                // Escrever `reais = true` lá dentro parece natural e está
+                // errado: updater de estado tem de ser puro, o StrictMode do
+                // desenvolvimento o invoca duas vezes de propósito para expor
+                // exatamente isso, e a segunda passagem já encontrava
+                // `reais = true` — voltando a concatenar, que é o defeito que
+                // este trecho existe para consertar. Conferido no navegador:
+                // com o efeito colateral dentro, os quatro provisórios e o
+                // primeiro real continuavam aparecendo juntos.
+                const primeiro = !reais
+                reais = true
+                const novo = { t: e.t, meta: e.meta }
+                mutar((m) =>
+                  primeiro
+                    ? // `passo: 1` junto: sem isso o contador ficaria adiantado
+                      // em relação à lista nova e os passos reais apareceriam
+                      // todos de uma vez, sem o encadeamento que eles existem
+                      // para mostrar.
+                      { passos: [novo], passo: 1 }
+                    : { passos: [...m.passos, novo] },
+                )
               } else if (e.tipo === 'busca') {
                 bruta = e.bruta
                 mutar(() => ({ achados: e.bruta.itens }))
@@ -536,20 +581,19 @@ export function Consulta({
           }
         }
       } catch (e) {
-        // Desistência não é falha, e não pode cair na rede de segurança: seguir
-        // para `/api/busca` e compor uma resposta seria entregar exatamente o
-        // que quem cancelou disse não querer mais.
-        if (e instanceof Error && e.name === 'AbortError') {
-          pararRelogios()
-          setMsgs((ms) => ms.slice(0, -1))
-          setOcupado(false)
-          setAnuncio('Consulta cancelada.')
-          return
-        }
+        // Se foi desistência, a tela já foi arrumada por `parar` e não há nada a
+        // relatar. O `catch` continua existindo para a falha de verdade.
+        if (cancelado.current) return
         motivo = e instanceof Error ? e.message : 'falha de rede'
       } finally {
         aborto.current = null
       }
+
+      // Desistência não pode cair na rede de segurança logo abaixo: ir buscar e
+      // compor uma resposta seria entregar exatamente o que quem cancelou disse
+      // não querer mais. E o laço de streaming pode nem ter reclamado — ver o
+      // comentário de `parar`.
+      if (cancelado.current) return
 
       // --- rede de segurança: a resposta composta ----------------------------
       //
@@ -639,7 +683,7 @@ export function Consulta({
         digitar()
       }, restantes * MS_POR_PASSO)
     },
-    [digitar, escopo, mutar, ocupado, pararRelogios, qtd],
+    [anunciarPronto, digitar, escopo, mutar, ocupado, pararRelogios, qtd],
   )
 
   // Conversa que veio na URL (?c=…) — é como a lateral devolve o usuário a um
