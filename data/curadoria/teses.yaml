@@ -22,14 +22,21 @@
 #    ausente onde o endereço oficial não foi verificado, em vez de ser montado
 #    pelo número (mesmo motivo do acervo Vade Mecum).
 #
-# --- limitação conhecida, e por que ela aparece aqui -------------------------
+# --- a limitação do CPP acabou, e este bloco registra que acabou -------------
 #
-# A peça é a resposta à acusação do art. 396-A do CPP, mas o CPP NÃO está
-# semeado: `data/cpp_subconjunto.json` não existe e o banco tem só duas leis.
-# Consequência prática: nenhum `fundamentos` nem nenhum `{{cite:}}` abaixo
-# aponta para o CPP, porque apontar quebraria o seed — corretamente. As teses
-# são todas de direito material. As de rito entram quando o subconjunto do CPP
-# for digitado e normalizado.
+# Aqui se lia que o CPP não estava semeado, que o banco tinha só duas leis e que
+# as teses de rito entrariam "quando o subconjunto do CPP for digitado". Nada
+# disso vale: o CPP entrou INTEIRO, extraído pelo mesmo parser validado, e
+# digitar subconjunto à mão foi recusado por produzir texto legal fora da fonte.
+#
+# A consequência é o contrário da que estava escrita — `fundamentos` e
+# `{{cite:}}` PODEM apontar para o CPP, e as teses de rito e de prova são hoje
+# as mais fortes numa resposta à acusação, que é peça de admissibilidade antes
+# de ser peça de mérito.
+#
+# O aviso ficou de pé por meses depois de deixar de ser verdade, e é o defeito
+# que este projeto trata como grave em outro lugar: documento e código dizendo
+# coisas diferentes sobre o mesmo fato.
 #
 # `gatilho` é avaliado por igualdade direta contra `casos.fatos`: mesma chave,
 # mesmo valor. Não é heurística, e `tests/citacao.test.ts` falha se uma chave de
@@ -43,6 +50,7 @@
     Preenchidos os quatro requisitos cumulativos, a redução de um sexto a dois
     terços é direito subjetivo, não faculdade do julgador.
   gatilho:
+    trafico_imputado: true
     primario: true
     bons_antecedentes: true
     integra_organizacao: false
@@ -88,6 +96,7 @@
     Quando os critérios do § 2º do art. 28 apontam para consumo próprio, a
     conduta não é a do art. 33.
   gatilho:
+    trafico_imputado: true
     quantidade_pequena: true
     apreendido_com_apetrechos_de_venda: false
     flagrante_de_venda: false
@@ -131,6 +140,7 @@
     O art. 35 exige vínculo associativo estável e permanente; concurso eventual
     de agentes no tráfico não o configura.
   gatilho:
+    trafico_imputado: true
     associacao_imputada: true
     vinculo_estavel_demonstrado: false
   fundamentos:
@@ -164,6 +174,7 @@
     A majorante depende de prova da destinação internacional da droga, e não da
     mera origem estrangeira da substância.
   gatilho:
+    trafico_imputado: true
     transnacional_imputado: true
     prova_de_destinacao_internacional: false
   fundamentos:
@@ -203,6 +214,7 @@
     Exige-se demonstração inequívoca da intenção de pulverizar a droga em mais
     de um Estado.
   gatilho:
+    trafico_imputado: true
     interestadual_imputado: true
     prova_de_intencao_interestadual: false
   fundamentos:
@@ -233,6 +245,7 @@
     A quantidade e a natureza da droga podem pesar na primeira fase ou na
     terceira, nunca nas duas.
   gatilho:
+    trafico_imputado: true
     quantidade_usada_na_pena_base: true
     quantidade_usada_na_fracao_do_privilegio: true
   fundamentos:
@@ -356,6 +369,7 @@
     Aplicado o § 4º, a pena costuma cair dentro do teto de quatro anos; a
     vedação legal específica do tráfico foi afastada pelo STF.
   gatilho:
+    trafico_imputado: true
     primario: true
     integra_organizacao: false
     violencia_ou_grave_ameaca: false
@@ -393,6 +407,7 @@
     Fixada a pena-base no mínimo, é vedado regime mais severo do que o
     correspondente à pena aplicada.
   gatilho:
+    pena_provavel_superior_a_oito_anos: false
     primario: true
     bons_antecedentes: true
     violencia_ou_grave_ameaca: false
@@ -433,6 +448,7 @@
     Quem apenas avisa da chegada da polícia não pratica nenhum dos verbos do
     art. 33.
   gatilho:
+    trafico_imputado: true
     apenas_vigilancia: true
     apreensao_de_droga_com_o_acusado: false
   fundamentos:
@@ -461,6 +477,7 @@
     Suprimida a capacidade de entendimento ao tempo do fato, há isenção de pena;
     reduzida sem supressão, cabe a diminuição do art. 46.
   gatilho:
+    trafico_imputado: true
     dependente_quimico: true
   fundamentos:
     - lei_11343_2006_art45_caput
@@ -583,3 +600,192 @@
     necessidade de instrução: tomada como verdadeira toda a imputação, ainda
     assim não há conduta que se subsuma a nenhum dos verbos do tipo. Não se pede
     valoração de prova — pede-se a leitura do que foi narrado.
+
+# --- fora do recorte de tráfico, por pedido explícito -------------------------
+#
+# As cinco abaixo servem os casos de roubo e de estupro de vulnerável. Três
+# observações, porque elas mudam o que se pode esperar deste bloco:
+#
+# 1. NENHUMA tem `jurisprudencia`. A regra 3 do topo diz que entendimento
+#    consolidado não se infere — súmula sem número conferido não entra, e não
+#    houve como conferir. Melhor tese sem precedente que tese com precedente
+#    inventado, que é o dado plausível e falso que este projeto recusa.
+#
+# 2. Quatro delas são de RITO e de PROVA, não de direito material, e é o CPP que
+#    as sustenta. Isso deixou de ser impossível quando o CPP entrou integral no
+#    corpus — a limitação descrita no cabeçalho deste arquivo não existe mais.
+#
+# 3. Não há tese sobre a vulnerabilidade do art. 217-A, e a ausência é
+#    deliberada. O § 4º-A diz, com todas as letras, que a presunção é absoluta e
+#    a relativização inadmissível. Escrever argumento contra texto expresso seria
+#    pôr numa peça protocolada uma alegação que a lei rejeita em termos.
+
+- id: afastamento_majorante_concurso
+  nome: Afastamento da majorante do concurso de pessoas — art. 157, § 2º, II
+  ordem: 17
+  resumo: >-
+    A causa de aumento não se satisfaz com a pluralidade física de agentes:
+    exige liame subjetivo e participação descrita na execução.
+  gatilho:
+    majorante_concurso_imputada: true
+    liame_subjetivo_descrito: false
+  fundamentos:
+    - dl_2848_1940_art157_p2_inc2
+    - dl_2848_1940_art29_caput
+  template_md: |
+    A denúncia imputa a causa de aumento do concurso de pessoas:
+
+    {{cite:dl_2848_1940_art157_p2_inc2}}
+
+    A majorante não se satisfaz com a presença física de mais de uma pessoa no
+    local dos fatos. Reclama o liame subjetivo — o ajuste prévio ou, ao menos, a
+    adesão consciente à conduta alheia — e a participação efetiva na execução.
+    São elementos que a peça acusatória tem de descrever, não de presumir a
+    partir da companhia.
+
+    {{cite:dl_2848_1940_art29_caput}}
+
+    O art. 29 manda medir a pena pela culpabilidade de cada concorrente. Uma
+    imputação que não individualiza o que cada um fez impede essa medida e, com
+    ela, o próprio exercício da defesa: não se defende de conduta que não foi
+    narrada.
+
+    A denúncia, no ponto, não descreve ajuste anterior, divisão de tarefas nem
+    distribuição de papéis na execução. Requer-se o afastamento da causa de
+    aumento.
+
+- id: participacao_de_menor_importancia
+  nome: Participação de menor importância — art. 29, § 1º
+  ordem: 18
+  resumo: >-
+    Contribuição material secundária, que não domina o curso causal, autoriza a
+    redução de um sexto a um terço.
+  gatilho:
+    participacao_material_secundaria: true
+  fundamentos:
+    - dl_2848_1940_art29_p1
+    - dl_2848_1940_art29_caput
+  template_md: |
+    {{cite:dl_2848_1940_art29_caput}}
+
+    A regra é a da medida: cada concorrente responde na proporção da própria
+    culpabilidade, e não pelo todo indistinto. É desse princípio que o parágrafo
+    seguinte extrai a consequência.
+
+    {{cite:dl_2848_1940_art29_p1}}
+
+    A conduta atribuída ao acusado é acessória em relação ao núcleo do tipo. Ele
+    não executou o verbo, não deteve o domínio do curso causal e não decidiu se
+    o crime aconteceria ou não — sua contribuição, suprimida, não impediria o
+    resultado. É exatamente a hipótese do § 1º.
+
+    Requer-se, subsidiariamente ao pedido principal, o reconhecimento da
+    participação de menor importância, com a redução no patamar máximo.
+
+- id: afastamento_majorante_arma_de_fogo
+  nome: Afastamento da majorante do emprego de arma de fogo — art. 157, § 2º-A, I
+  ordem: 19
+  resumo: >-
+    O aumento de dois terços depende da demonstração da natureza do objeto; sem
+    apreensão nem perícia, falta base para a exasperação.
+  gatilho:
+    majorante_arma_de_fogo_imputada: true
+    arma_apreendida_e_periciada: false
+  fundamentos:
+    - dl_2848_1940_art157_p2-a_inc1
+    - dl_2848_1940_art157_p2-a
+    - dl_3689_1941_art155_caput
+  template_md: |
+    A denúncia imputa o aumento de dois terços pelo emprego de arma de fogo:
+
+    {{cite:dl_2848_1940_art157_p2-a}}
+
+    {{cite:dl_2848_1940_art157_p2-a_inc1}}
+
+    O patamar é o mais severo do artigo, e a razão dele é material: a arma de
+    fogo tem potencial lesivo próprio, distinto do da ameaça. Daí a exasperação
+    depender da demonstração de que o objeto empregado era, de fato, arma de
+    fogo — questão de prova, não de qualificação retórica da conduta.
+
+    Nos autos não há apreensão nem perícia. Resta o relato sobre a aparência de
+    um objeto, produzido em circunstâncias de tensão e sem contraditório.
+
+    {{cite:dl_3689_1941_art155_caput}}
+
+    Requer-se o afastamento da causa de aumento do § 2º-A, mantida, no que
+    couber, a imputação do caput.
+
+- id: nulidade_do_reconhecimento
+  nome: Nulidade do reconhecimento pessoal — art. 226 do CPP
+  ordem: 20
+  resumo: >-
+    O rito do art. 226 é procedimento de produção de prova, não sugestão de
+    forma; o reconhecimento por fotografia única não o observa.
+  gatilho:
+    reconhecimento_por_fotografia: true
+    reconhecimento_seguiu_o_rito_do_art_226: false
+  fundamentos:
+    - dl_3689_1941_art226_caput
+    - dl_3689_1941_art226_inc1
+    - dl_3689_1941_art226_inc2
+    - dl_3689_1941_art155_caput
+  template_md: |
+    O Código de Processo Penal descreve como o reconhecimento de pessoa se faz:
+
+    {{cite:dl_3689_1941_art226_caput}}
+
+    {{cite:dl_3689_1941_art226_inc1}}
+
+    A descrição prévia não é formalidade: é o que permite confrontar depois a
+    memória declarada com a pessoa apontada. Sem ela, não há como saber se o
+    reconhecimento confirmou uma lembrança ou apenas ratificou a única imagem
+    que foi mostrada.
+
+    {{cite:dl_3689_1941_art226_inc2}}
+
+    A colocação ao lado de pessoas semelhantes existe pela mesma razão. Exibir
+    uma fotografia isolada inverte o ato: em vez de pedir que a vítima reconheça
+    entre alternativas, apresenta-lhe uma resposta e pede confirmação.
+
+    O ato dos autos não observou nenhum dos dois passos, e o auto pormenorizado
+    do inciso IV não foi lavrado.
+
+    {{cite:dl_3689_1941_art155_caput}}
+
+    Requer-se o reconhecimento da nulidade do ato e o desentranhamento, com a
+    consequência de não poder ele fundamentar, sozinho, juízo condenatório.
+
+- id: resultado_agravador_sem_pericia
+  nome: Afastamento do resultado qualificador não submetido a perícia — art. 158 do CPP
+  ordem: 21
+  resumo: >-
+    Qualificadora que se define por resultado material depende de exame de corpo
+    de delito; sua ausência, não justificada, impede a exasperação.
+  gatilho:
+    resultado_agravador_imputado: true
+    laudo_pericial_do_resultado_juntado: false
+  fundamentos:
+    - dl_3689_1941_art158_caput
+    - dl_3689_1941_art159_caput
+    - dl_3689_1941_art155_caput
+  template_md: |
+    A imputação agrava a pena por um resultado material — e resultado material
+    deixa vestígio.
+
+    {{cite:dl_3689_1941_art158_caput}}
+
+    A palavra do Código é "indispensável", e ela não se dirige à existência do
+    crime apenas: alcança cada elemento que dependa de constatação técnica. A
+    natureza de uma lesão — se leve, se grave — é conclusão pericial, não
+    impressão de quem a descreve.
+
+    {{cite:dl_3689_1941_art159_caput}}
+
+    Os autos não trazem o exame, e a ausência não vem justificada. O que há é
+    registro de atendimento, que documenta queixa e conduta, sem conclusão sobre
+    a natureza do resultado.
+
+    {{cite:dl_3689_1941_art155_caput}}
+
+    Requer-se o afastamento da forma qualificada, subsistindo a imputação na
+    modalidade do caput, e, subsidiariamente, a realização da perícia.

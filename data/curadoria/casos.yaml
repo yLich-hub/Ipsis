@@ -57,6 +57,17 @@
     busca_domiciliar_sem_mandado: false
     consentimento_do_morador_comprovado: false
     prova_apenas_de_policiais: true
+    trafico_imputado: true
+    majorante_concurso_imputada: false
+    liame_subjetivo_descrito: false
+    participacao_material_secundaria: false
+    majorante_arma_de_fogo_imputada: false
+    arma_apreendida_e_periciada: false
+    reconhecimento_por_fotografia: false
+    reconhecimento_seguiu_o_rito_do_art_226: false
+    resultado_agravador_imputado: false
+    laudo_pericial_do_resultado_juntado: false
+    pena_provavel_superior_a_oito_anos: false
 
 - id: caso_rodovia_interestadual
   ordem: 2
@@ -103,6 +114,17 @@
     busca_domiciliar_sem_mandado: false
     consentimento_do_morador_comprovado: false
     prova_apenas_de_policiais: false
+    trafico_imputado: true
+    majorante_concurso_imputada: false
+    liame_subjetivo_descrito: false
+    participacao_material_secundaria: false
+    majorante_arma_de_fogo_imputada: false
+    arma_apreendida_e_periciada: false
+    reconhecimento_por_fotografia: false
+    reconhecimento_seguiu_o_rito_do_art_226: false
+    resultado_agravador_imputado: false
+    laudo_pericial_do_resultado_juntado: false
+    pena_provavel_superior_a_oito_anos: false
 
 - id: caso_vigilancia_sem_apreensao
   ordem: 3
@@ -144,6 +166,17 @@
     busca_domiciliar_sem_mandado: false
     consentimento_do_morador_comprovado: false
     prova_apenas_de_policiais: true
+    trafico_imputado: true
+    majorante_concurso_imputada: false
+    liame_subjetivo_descrito: false
+    participacao_material_secundaria: false
+    majorante_arma_de_fogo_imputada: false
+    arma_apreendida_e_periciada: false
+    reconhecimento_por_fotografia: false
+    reconhecimento_seguiu_o_rito_do_art_226: false
+    resultado_agravador_imputado: false
+    laudo_pericial_do_resultado_juntado: false
+    pena_provavel_superior_a_oito_anos: false
 
 - id: caso_entrada_em_residencia
   ordem: 4
@@ -184,3 +217,133 @@
     busca_domiciliar_sem_mandado: true
     consentimento_do_morador_comprovado: false
     prova_apenas_de_policiais: true
+    trafico_imputado: true
+    majorante_concurso_imputada: false
+    liame_subjetivo_descrito: false
+    participacao_material_secundaria: false
+    majorante_arma_de_fogo_imputada: false
+    arma_apreendida_e_periciada: false
+    reconhecimento_por_fotografia: false
+    reconhecimento_seguiu_o_rito_do_art_226: false
+    resultado_agravador_imputado: false
+    laudo_pericial_do_resultado_juntado: false
+    pena_provavel_superior_a_oito_anos: false
+
+# --- fora do recorte de tráfico, por pedido explícito -------------------------
+#
+# Os dois casos abaixo não são de tráfico. Entraram junto com as teses de roubo
+# e de estupro de vulnerável, e trazem `trafico_imputado: false` — a chave que
+# impede o checklist de oferecer tráfico privilegiado a quem responde por roubo.
+# Continuam valendo as duas regras do topo: nenhum reproduz processo real, e
+# todos carregam TODAS as chaves de gatilho, inclusive as desfavoráveis.
+
+- id: caso_roubo_reconhecimento_fotografico
+  ordem: 5
+  titulo: Roubo majorado, reconhecimento por fotografia e arma não apreendida
+  imputacao:
+    - dl_2848_1940_art157_caput
+    - dl_2848_1940_art157_p2_inc2
+    - dl_2848_1940_art157_p2-a_inc1
+  narrativa: >-
+    Subtração de um telefone celular e de uma mochila em via pública, à noite,
+    praticada por dois indivíduos. A vítima descreveu os agentes de forma
+    genérica na primeira oitiva e, três dias depois, apontou o acusado a partir
+    de uma única fotografia exibida pela autoridade policial em tela de
+    computador, sem que outras imagens semelhantes fossem apresentadas e sem
+    auto pormenorizado do ato. Nenhuma arma foi apreendida ou periciada; a
+    imputação do emprego de arma de fogo apoia-se apenas no relato da vítima. A
+    denúncia atribui ao acusado a permanência no veículo utilizado na fuga e não
+    descreve ajuste anterior, divisão de tarefas ou distribuição de papéis entre
+    os dois agentes. Acusado primário, sem antecedentes, com residência fixa.
+  fatos:
+    trafico_imputado: false
+    primario: true
+    bons_antecedentes: true
+    integra_organizacao: false
+    dedica_se_a_atividades_criminosas: false
+    quantidade_pequena: false
+    apreendido_com_apetrechos_de_venda: false
+    flagrante_de_venda: false
+    associacao_imputada: false
+    vinculo_estavel_demonstrado: false
+    transnacional_imputado: false
+    prova_de_destinacao_internacional: false
+    interestadual_imputado: false
+    prova_de_intencao_interestadual: false
+    quantidade_usada_na_pena_base: false
+    quantidade_usada_na_fracao_do_privilegio: false
+    confessou: false
+    menor_de_21_na_data_do_fato: false
+    violencia_ou_grave_ameaca: true
+    apenas_vigilancia: false
+    apreensao_de_droga_com_o_acusado: false
+    dependente_quimico: false
+    busca_domiciliar_sem_mandado: false
+    consentimento_do_morador_comprovado: false
+    prova_apenas_de_policiais: false
+    majorante_concurso_imputada: true
+    liame_subjetivo_descrito: false
+    participacao_material_secundaria: true
+    majorante_arma_de_fogo_imputada: true
+    arma_apreendida_e_periciada: false
+    reconhecimento_por_fotografia: true
+    reconhecimento_seguiu_o_rito_do_art_226: false
+    resultado_agravador_imputado: false
+    laudo_pericial_do_resultado_juntado: false
+    pena_provavel_superior_a_oito_anos: true
+
+- id: caso_vulneravel_resultado_sem_laudo
+  ordem: 6
+  titulo: Estupro de vulnerável na forma qualificada pelo resultado, sem laudo pericial
+  imputacao:
+    - dl_2848_1940_art217-a_caput
+    - dl_2848_1940_art217-a_p3
+  narrativa: >-
+    A denúncia imputa a conduta do art. 217-A na forma qualificada pelo
+    resultado do § 3º — lesão corporal de natureza grave —, elevando a pena
+    mínima de oito para doze anos. Os autos não trazem exame de corpo de delito
+    nem laudo pericial que ateste o resultado; a qualificadora apoia-se em
+    relatório de atendimento que registra queixa, sem conclusão pericial sobre a
+    natureza da lesão. Não há requerimento de perícia complementar nem
+    justificativa para a ausência. O acusado é primário, sem antecedentes, e
+    nega os fatos.
+  # A vulnerabilidade em si NÃO é objeto de tese, e a razão é o texto expresso:
+  # o § 4º-A do art. 217-A diz que a presunção é absoluta e a relativização,
+  # inadmissível. A defesa aqui é sobre o RESULTADO qualificador, que depende de
+  # perícia como qualquer outro — não sobre a idade da vítima.
+  fatos:
+    trafico_imputado: false
+    primario: true
+    bons_antecedentes: true
+    integra_organizacao: false
+    dedica_se_a_atividades_criminosas: false
+    quantidade_pequena: false
+    apreendido_com_apetrechos_de_venda: false
+    flagrante_de_venda: false
+    associacao_imputada: false
+    vinculo_estavel_demonstrado: false
+    transnacional_imputado: false
+    prova_de_destinacao_internacional: false
+    interestadual_imputado: false
+    prova_de_intencao_interestadual: false
+    quantidade_usada_na_pena_base: false
+    quantidade_usada_na_fracao_do_privilegio: false
+    confessou: false
+    menor_de_21_na_data_do_fato: false
+    violencia_ou_grave_ameaca: false
+    apenas_vigilancia: false
+    apreensao_de_droga_com_o_acusado: false
+    dependente_quimico: false
+    busca_domiciliar_sem_mandado: false
+    consentimento_do_morador_comprovado: false
+    prova_apenas_de_policiais: false
+    majorante_concurso_imputada: false
+    liame_subjetivo_descrito: false
+    participacao_material_secundaria: false
+    majorante_arma_de_fogo_imputada: false
+    arma_apreendida_e_periciada: false
+    reconhecimento_por_fotografia: false
+    reconhecimento_seguiu_o_rito_do_art_226: false
+    resultado_agravador_imputado: true
+    laudo_pericial_do_resultado_juntado: false
+    pena_provavel_superior_a_oito_anos: true
