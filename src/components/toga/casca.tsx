@@ -270,6 +270,58 @@ export function Lateral({
     return () => window.removeEventListener('keydown', aoTeclar)
   }, [novaConsulta])
 
+  // Gaveta aberta é diálogo modal, e diálogo modal tem quatro obrigações que
+  // esta lateral não cumpria nenhuma: fechar no Esc, levar o foco para dentro,
+  // não deixar o Tab escapar para a tela de trás e devolver o foco a quem a
+  // abriu. As três primeiras estão aqui; a devolução mora na `Casca`, que é
+  // quem tem o botão em mãos.
+  //
+  // O que se media antes, num celular: abrir a gaveta não movia o foco, e eram
+  // ONZE paradas de Tab pelo conteúdo coberto pelo véu antes de alcançar o
+  // primeiro item do menu. Esc não fazia nada. Fechar deixava o foco no
+  // `<body>`.
+  //
+  // O foco vai para a própria `aside`, e não para o primeiro link: assim o
+  // leitor de tela anuncia o rótulo do diálogo antes da primeira parada, e
+  // quem entrou pelo Tab não começa já dentro de "Nova consulta".
+  //
+  // O menu da conta e a paleta do ⌘K já faziam tudo isto — o que faltava era
+  // a gaveta, que é justamente a única das três que só aparece no toque.
+  useEffect(() => {
+    const caixa = gaveta.current
+    if (!modal || !caixa) return
+
+    caixa.focus()
+
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        aoFechar()
+        return
+      }
+      if (e.key !== 'Tab') return
+
+      const fim = paradas(caixa)
+      const primeiro = fim[0]
+      const ultimo = fim[fim.length - 1]
+      if (!primeiro || !ultimo) return
+
+      const ativo = document.activeElement
+
+      // A `aside` conta como "antes do primeiro": é onde o foco começa, e um
+      // Shift+Tab dali tem de dar a volta para o fim, não sair pela frente.
+      if (e.shiftKey && (ativo === primeiro || ativo === caixa)) {
+        e.preventDefault()
+        ultimo.focus()
+      } else if (!e.shiftKey && ativo === ultimo) {
+        e.preventDefault()
+        primeiro.focus()
+      }
+    }
+
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [modal, aoFechar])
+
   return (
     <>
       {/* Véu do modo estreito. Em `lg` a lateral é fixa e o véu não existe. */}
@@ -292,7 +344,21 @@ export function Lateral({
         muda é a largura, e abaixo dela é a posição.
       */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[246px] shrink-0 flex-col border-r border-tg-linha bg-tg-lateral pb-3.5 pt-[18px] transition-[transform,width,padding] duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:static lg:translate-x-0 ${
+        ref={gaveta}
+        id="lateral"
+        // Fechada no modo estreito, a lateral continua montada e apenas
+        // deslizada para fora por `-translate-x-full` — que esconde do olho e
+        // não do Tab. Eram dez e tantas paradas de foco em `x = -234`, fora da
+        // tela, antes de o conteúdo começar. `inert` é o que a tira do caminho
+        // sem desmontá-la, e é a mesma peça que o cartão de dosimetria usa; o
+        // que faltava aqui era a pergunta `estreito`, porque em `lg` esta mesma
+        // `aside` é a moldura do app e inertizá-la desligaria a navegação.
+        inert={estreito && !aberta}
+        tabIndex={modal ? -1 : undefined}
+        role={modal ? 'dialog' : undefined}
+        aria-modal={modal ? true : undefined}
+        aria-label={modal ? 'Menu' : undefined}
+        className={`fixed inset-y-0 left-0 z-40 flex w-[246px] shrink-0 flex-col border-r border-tg-linha bg-tg-lateral pb-3.5 pt-[18px] outline-none transition-[transform,width,padding] duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:static lg:translate-x-0 ${
           aberta ? 'translate-x-0' : '-translate-x-full'
         } ${colapsada ? 'px-3 lg:w-[64px] lg:px-2' : 'px-3'}`}
       >
@@ -612,7 +678,16 @@ function MenuOutras({ caminho, aoFechar }: { caminho: string; aoFechar: () => vo
 
 // --- topo --------------------------------------------------------------------
 
-export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
+export function Topo({
+  aoAbrirMenu,
+  menuAberto,
+  botaoMenu,
+}: {
+  aoAbrirMenu: () => void
+  /** Para o botão dizer o que fez, e para o ⌘K não abrir atrás da gaveta. */
+  menuAberto: boolean
+  botaoMenu: React.RefObject<HTMLButtonElement | null>
+}) {
   const caminho = usePathname()
   const [busca, setBusca] = useState(false)
 
@@ -623,7 +698,13 @@ export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
     return prefixo ? CABECALHOS[prefixo]! : [MARCA.nome, '']
   }, [caminho])
 
+  // Com a gaveta aberta o topo inteiro está `inert`, e o atalho continuaria
+  // funcionando — ouvinte de janela não é interação de usuário e o `inert` não
+  // o alcança. Abriria uma paleta dentro da região inerte: visível, sem foco e
+  // sem clique. Dois diálogos abertos ao mesmo tempo também não é estado que
+  // esta casca queira ter.
   useEffect(() => {
+    if (menuAberto) return
     const aoTeclar = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
@@ -632,7 +713,7 @@ export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
     }
     window.addEventListener('keydown', aoTeclar)
     return () => window.removeEventListener('keydown', aoTeclar)
-  }, [])
+  }, [menuAberto])
 
   return (
     // `relative z-20` não é enfeite: `backdrop-blur` cria contexto de
@@ -646,11 +727,18 @@ export function Topo({ aoAbrirMenu }: { aoAbrirMenu: () => void }) {
     // da gaveta (30), da própria gaveta (40) e da paleta de busca (50), que
     // precisam continuar cobrindo o topo.
     <header className="relative z-20 flex h-[60px] shrink-0 items-center gap-3 border-b border-tg-linha-media bg-white/70 px-4 backdrop-blur-[14px] sm:px-[22px]">
+      {/* O quadrado pintado continua com os 32px do desenho. Quem cresce é só
+          a área que recebe o toque, por um `::after` de `-inset-1.5`: 32 + 6 de
+          cada lado = 44, que é o alvo mínimo. Crescer o botão em vez do pseudo
+          levaria o `hover:bg` junto e pintaria um quadrado de 44. */}
       <button
+        ref={botaoMenu}
         type="button"
         onClick={aoAbrirMenu}
         aria-label="Abrir menu"
-        className="tgb -ml-1 grid size-8 shrink-0 place-items-center rounded-lg text-tg-fraco-3 hover:bg-tg-campo lg:hidden"
+        aria-expanded={menuAberto}
+        aria-controls="lateral"
+        className="tgb relative -ml-1 grid size-8 shrink-0 place-items-center rounded-lg text-tg-fraco-3 after:absolute after:-inset-1.5 after:content-[''] hover:bg-tg-campo lg:hidden"
       >
         <span aria-hidden="true" className="flex flex-col gap-[3px]">
           <span className="block h-[1.5px] w-[15px] rounded-full bg-current" />
@@ -924,10 +1012,44 @@ export function Casca({ children }: { children: React.ReactNode }) {
   const [menu, setMenu] = useState(false)
   const [colapsada, setColapsada] = useState(false)
   const caminho = usePathname()
+  const estreito = useEstreito()
+  const botaoMenu = useRef<HTMLButtonElement>(null)
+  const abriu = useRef(false)
+
+  /** A gaveta está por cima do conteúdo — ver `modal`, na `Lateral`. */
+  const gavetaModal = menu && estreito
 
   // Navegou: fecha a lateral do modo estreito. Sem isto ela fica por cima da
   // tela que acabou de abrir.
   useEffect(() => setMenu(false), [caminho])
+
+  // Alargar a janela com a gaveta aberta a transforma na moldura fixa do
+  // desktop — e deixaria o conteúdo inerte, sem véu e sem nada por perto para
+  // fechar. Estado de gaveta só existe enquanto existe gaveta.
+  useEffect(() => {
+    if (!estreito) setMenu(false)
+  }, [estreito])
+
+  // Devolve o foco a quem abriu. Fica aqui, e não na `Lateral`, porque o botão
+  // é do topo — e é do topo que ele tem de continuar sendo: mandar o foco para
+  // o `<body>`, que era o que acontecia, custa ao teclado percorrer a tela
+  // inteira de novo depois de cada abre-e-fecha.
+  //
+  // O `inert` do conteúdo sai no mesmo commit que fecha a gaveta, e efeito roda
+  // depois do commit: quando esta linha executa, o botão já é focável.
+  //
+  // Vale também quando quem fechou foi a navegação por um item do menu. O foco
+  // no botão é lugar previsível e é a mesma tecla de volta ao menu; o que não
+  // pode é ele se perder, que é o estado de hoje.
+  useEffect(() => {
+    if (gavetaModal) {
+      abriu.current = true
+      return
+    }
+    if (!abriu.current) return
+    abriu.current = false
+    botaoMenu.current?.focus()
+  }, [gavetaModal])
 
   // As preferências são lidas depois de montar: `localStorage` não existe no
   // servidor, e usá-las no primeiro render faria o HTML divergir. O custo é a
@@ -962,6 +1084,11 @@ export function Casca({ children }: { children: React.ReactNode }) {
   // da mesma preferência.
   const alternar = useCallback(() => gravaColapso(!leColapso()), [])
 
+  // Estável de propósito: a `Lateral` usa este callback na dependência do efeito
+  // que prende o foco, e uma função nova a cada render faria o efeito remontar
+  // sempre — devolvendo o foco à `aside` no meio de quem estivesse tabulando.
+  const fecharMenu = useCallback(() => setMenu(false), [])
+
   // ⌘B / Ctrl+B, como em qualquer editor. Fica aqui e não na `Lateral` porque o
   // atalho tem de funcionar com o foco em qualquer lugar da tela.
   useEffect(() => {
@@ -979,12 +1106,28 @@ export function Casca({ children }: { children: React.ReactNode }) {
     <div className="flex h-dvh overflow-hidden bg-tg-fundo text-tg-tinta">
       <Lateral
         aberta={menu}
-        aoFechar={() => setMenu(false)}
+        aoFechar={fecharMenu}
         colapsada={colapsada}
         aoAlternar={alternar}
+        estreito={estreito}
       />
-      <div className="flex min-w-0 flex-1 flex-col bg-tg-fundo">
-        <Topo aoAbrirMenu={() => setMenu(true)} />
+      {/*
+        Com a gaveta por cima, a tela de trás sai do caminho de verdade: `inert`
+        tira do Tab, do clique e da árvore de acessibilidade de uma vez. O véu já
+        cobria o olho e não cobria nada disso — dava para tabular por onze
+        paradas atrás dele.
+
+        A coluna inteira, incluindo o topo: é o topo que tem o botão da gaveta, e
+        deixá-lo fora daria um caminho de foco de volta para o que está coberto.
+        O botão volta a ser focável quando a gaveta fecha, e é para ele que o
+        foco é devolvido, no efeito acima.
+      */}
+      <div className="flex min-w-0 flex-1 flex-col bg-tg-fundo" inert={gavetaModal}>
+        <Topo
+          aoAbrirMenu={() => setMenu(true)}
+          menuAberto={gavetaModal}
+          botaoMenu={botaoMenu}
+        />
         {/*
           A `key` no caminho é o que faz a entrada tocar a cada navegação: sem
           ela o elemento sobrevive à troca de rota, e uma animação só toca quando
