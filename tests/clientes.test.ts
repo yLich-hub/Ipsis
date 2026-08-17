@@ -73,7 +73,7 @@ describe('formataCpf', () => {
 
 describe('critica do rascunho', () => {
   it('exige o nome, e só o nome', () => {
-    expect(critica(com({ nome: '   ' }))).toMatch(/nome/i)
+    expect(critica(com({ nome: '   ' }))?.mensagem).toMatch(/nome/i)
     expect(critica(com({}))).toBeNull()
   })
 
@@ -82,26 +82,55 @@ describe('critica do rascunho', () => {
   })
 
   it('recusa CPF inválido, mas aceita o campo vazio', () => {
-    expect(critica(com({ cpf: '11111111111' }))).toMatch(/CPF inválido/)
-    expect(critica(com({ cpf: '123' }))).toMatch(/11 dígitos/)
+    expect(critica(com({ cpf: '11111111111' }))?.mensagem).toMatch(/CPF inválido/)
+    expect(critica(com({ cpf: '123' }))?.mensagem).toMatch(/11 dígitos/)
     expect(critica(com({ cpf: '' }))).toBeNull()
     expect(critica(com({ cpf: '529.982.247-25' }))).toBeNull()
   })
 
   it('recusa e-mail malformado', () => {
-    expect(critica(com({ email: 'fulano@' }))).toMatch(/E-mail/)
+    expect(critica(com({ email: 'fulano@' }))?.mensagem).toMatch(/E-mail/)
     expect(critica(com({ email: 'fulano@exemplo.com' }))).toBeNull()
   })
 
   it('recusa telefone curto demais e nome longo demais', () => {
-    expect(critica(com({ telefone: '1234' }))).toMatch(/telefone/i)
-    expect(critica(com({ nome: 'a'.repeat(121) }))).toMatch(/120/)
+    expect(critica(com({ telefone: '1234' }))?.mensagem).toMatch(/telefone/i)
+    expect(critica(com({ nome: 'a'.repeat(121) }))?.mensagem).toMatch(/120/)
   })
 
   // Os tetos daqui têm de bater com os checks de 0009: um teto maior aqui
   // transforma erro de formulário em erro do Postgres na cara do usuário.
   it('recusa anotação acima do teto do banco', () => {
-    expect(critica(com({ nota: 'a'.repeat(2001) }))).toMatch(/2000/)
+    expect(critica(com({ nota: 'a'.repeat(2001) }))?.mensagem).toMatch(/2000/)
     expect(critica(com({ nota: 'a'.repeat(2000) }))).toBeNull()
+  })
+
+  // A mensagem já nomeava o campo na prosa; o que faltava era o campo como
+  // VALOR, que é o que a tela usa para marcar `aria-invalid` e mandar o foco.
+  // Frase apontando um campo e foco indo para outro é pior que não apontar
+  // nenhum — daí conferir os dois lados da mesma crítica, e não só o texto.
+  it('aponta em qual campo está o defeito', () => {
+    expect(critica(com({ nome: '   ' }))?.campo).toBe('nome')
+    expect(critica(com({ nome: 'a'.repeat(121) }))?.campo).toBe('nome')
+    expect(critica(com({ cpf: '11111111111' }))?.campo).toBe('cpf')
+    expect(critica(com({ cpf: '123' }))?.campo).toBe('cpf')
+    expect(critica(com({ telefone: '1234' }))?.campo).toBe('telefone')
+    expect(critica(com({ email: 'fulano@' }))?.campo).toBe('email')
+    expect(critica(com({ nota: 'a'.repeat(2001) }))?.campo).toBe('nota')
+  })
+
+  // O campo apontado tem de ser um do rascunho: um `campo` que não casa com
+  // entrada nenhuma da tela manda o foco para `undefined` em silêncio, e o
+  // erro volta a ser o que era antes — visível e inalcançável.
+  it('só aponta campo que existe no rascunho', () => {
+    const chaves = Object.keys(RASCUNHO_VAZIO)
+    const defeitos = [
+      com({ nome: '   ' }),
+      com({ cpf: '123' }),
+      com({ telefone: '1234' }),
+      com({ email: 'fulano@' }),
+      com({ nota: 'a'.repeat(2001) }),
+    ]
+    for (const d of defeitos) expect(chaves).toContain(critica(d)?.campo)
   })
 })
