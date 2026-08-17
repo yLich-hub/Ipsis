@@ -25,6 +25,14 @@
 // e é o argumento do topo medido em campo: o nome trocou duas vezes sem que
 // nenhuma tela ficasse para trás, porque só existe um lugar onde ele está
 // escrito. `nome` e `inicial` mudam juntos e por decisão, não por configuração.
+//
+// **Há UMA exceção, e ela está anotada aqui para não ser descoberta tarde:**
+// `src/app/icon.svg` desenha a mesma inicial no mesmo gradiente, e um arquivo
+// SVG não importa TypeScript. Trocar `inicial` exige abrir aquele arquivo junto,
+// senão a aba do navegador fica com a marca antiga — que é exatamente o defeito
+// que este módulo existe para impedir, sobrevivendo no único lugar fora do
+// alcance dele. A alternativa era gerar o ícone por `ImageResponse`, que traz
+// runtime e fonte para dentro do build; para duas letras, não compensa.
 // =============================================================================
 
 export const MARCA = {
