@@ -17,15 +17,21 @@
 //   npm run e2e            # os testes
 //   npm run e2e -- --ui    # o modo interativo, para depurar um seletor
 //
-// A porta é 3100 e é fixa de propósito. `next dev` pula para a próxima porta
-// livre quando a 3000 está ocupada, e um `baseURL` que aponta para uma porta que
-// o servidor não pegou falha com "connection refused" — erro que não diz nada
-// sobre o teste.
+// A porta é fixa de propósito. `next dev` pula para a próxima porta livre quando
+// a 3000 está ocupada, e um `baseURL` que aponta para uma porta que o servidor
+// não pegou falha com "connection refused" — erro que não diz nada sobre o teste.
+//
+// **`PORTA_E2E` existe porque "fixa" + `reuseExistingServer` mente quando há mais
+// de uma cópia do repositório.** Com dois `git worktree`, um servidor da outra
+// pasta já ouvindo na 3100 é reaproveitado sem aviso, e a suíte passa a exercitar
+// código que não é o desta árvore. Custou uma investigação inteira: o teste dizia
+// que um botão novo não existia, e ele existia — o servidor é que era outro. Quem
+// roda em worktree paralelo define `PORTA_E2E` e volta a testar o próprio código.
 // =============================================================================
 
 import { defineConfig, devices } from '@playwright/test'
 
-const PORTA = 3100
+const PORTA = Number(process.env.PORTA_E2E ?? 3100)
 
 export default defineConfig({
   testDir: './e2e',
