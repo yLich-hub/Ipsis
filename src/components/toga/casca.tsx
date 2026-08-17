@@ -30,6 +30,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useUsuario, marcarSaidaDeliberada } from '@/components/casca/sessao'
+import { Icone } from '@/components/icones'
 import { Ponto, Selo } from '@/components/toga/base'
 import { supabaseNavegador } from '@/lib/auth/navegador'
 import { dataBR } from '@/lib/formato'
@@ -678,6 +679,35 @@ function MenuOutras({ caminho, aoFechar }: { caminho: string; aoFechar: () => vo
 
 // --- topo --------------------------------------------------------------------
 
+/**
+ * Dá para voltar sem sair do produto?
+ *
+ * **É voltar HISTÓRICO, não hierárquico, e a diferença decide o desenho.** O
+ * "← Acervo" do `Cabecalho` sobe um nível, para um pai fixo — só existe onde há
+ * pai. As sete telas da lateral são irmãs: `/consulta` não fica "dentro" de
+ * nada, e um voltar hierárquico ali não teria destino. O que serve para todas é
+ * devolver o usuário de onde ele veio.
+ *
+ * A regra é comparar com o ponto de entrada, e não contar passos. Contador
+ * precisa acertar a conta no `popstate` — o botão do navegador, que dispara sem
+ * dizer se foi para trás ou para frente — e errar a conta ali significa oferecer
+ * um voltar que **sai do produto**, caindo no site anterior ou na tela de login.
+ *
+ * Comparando com a entrada isso não pode acontecer: enquanto o caminho for
+ * diferente daquele em que a casca montou, existe ao menos uma navegação interna
+ * atrás. Quem abre uma URL direto no navegador não vê botão nenhum, que é o
+ * correto — não há para onde voltar dentro do sistema.
+ *
+ * O preço é conhecido e barato: em A → B → A o botão some no segundo A, embora
+ * houvesse história. Ele erra escondendo, nunca oferecendo saída para fora.
+ */
+function usePodeVoltar(caminho: string): boolean {
+  // A casca é layout do App Router: não remonta a cada navegação, então este ref
+  // guarda de fato a primeira tela da sessão de navegação.
+  const entrada = useRef(caminho)
+  return caminho !== entrada.current
+}
+
 export function Topo({
   aoAbrirMenu,
   menuAberto,
@@ -689,6 +719,8 @@ export function Topo({
   botaoMenu: React.RefObject<HTMLButtonElement | null>
 }) {
   const caminho = usePathname()
+  const router = useRouter()
+  const podeVoltar = usePodeVoltar(caminho)
   const [busca, setBusca] = useState(false)
 
   const [titulo, sub] = useMemo(() => {
@@ -746,6 +778,22 @@ export function Topo({
           <span className="block h-[1.5px] w-[15px] rounded-full bg-current" />
         </span>
       </button>
+
+      {/* Voltar. Some quando não há navegação interna atrás — ver
+          `usePodeVoltar`. A área de toque cresce pelo `::after`, como no botão
+          do menu ao lado: o alvo vai a 44px sem o `hover:bg` pintar um quadrado
+          desse tamanho. */}
+      {podeVoltar && (
+        <button
+          type="button"
+          onClick={() => router.back()}
+          aria-label="Voltar"
+          title="Voltar"
+          className="tgb relative -ml-0.5 grid size-8 shrink-0 place-items-center rounded-lg text-tg-fraco-3 after:absolute after:-inset-1.5 after:content-[''] hover:bg-tg-campo hover:text-tg-tinta-2"
+        >
+          <Icone nome="seta_esquerda" className="size-[17px]" />
+        </button>
+      )}
 
       <h2 className="shrink-0 text-[15px] font-semibold -tracking-[0.01em] text-tg-tinta">
         {titulo}
