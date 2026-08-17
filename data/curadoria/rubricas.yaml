@@ -640,3 +640,100 @@
     - juiz não pode produzir prova
   dispositivos:
     - { id: dl_3689_1941_art3-a_caput, papel: principal, peso: 100 }
+
+# --- fora do recorte de tráfico, por pedido explícito -------------------------
+#
+# Os três institutos abaixo são de crimes que o recorte do projeto NÃO cobre:
+# roubo (art. 157) e estupro de vulnerável (art. 217-A). Entraram a pedido, e o
+# CLAUDE.md prevê exatamente isto — "não expandir sem pedido explícito" é uma
+# tranca com chave, não uma porta murada.
+#
+# Eles cabem sem forçar nada porque o Código Penal está no corpus em cobertura
+# integral: os dispositivos já existem, já têm vetor e já são citáveis. O que
+# faltava era a camada de apelido, que é o que este arquivo é.
+#
+# **Não são doutrina, e a diferença importa.** `explicacao` continua sendo texto
+# autoral próprio dizendo o que o dispositivo FAZ — não resumo de obra de
+# terceiro, que a "Restrição de doutrina" do CLAUDE.md proíbe em qualquer forma.
+# Quem quiser entendimento consolidado tem o caminho legítimo do projeto:
+# jurisprudência, que não tem essa proteção, em `precedentes_stj` e em
+# `teses.jurisprudencia`.
+
+- termo: roubo majorado
+  slug: roubo-majorado
+  tipo: tema
+  explicacao: >-
+    As causas de aumento do roubo, em três patamares que não se confundem: o
+    § 2º aumenta de um terço até metade, o § 2º-A aumenta de dois terços e o
+    § 2º-B manda aplicar em dobro. O caput entra no cluster porque é ele que
+    define o tipo sobre o qual o aumento incide — majorante não é crime
+    autônomo.
+  # "roubo qualificado" ficou DE FORA das variantes de propósito. É como muita
+  # gente chama o § 2º, mas no Código Penal a qualificadora do roubo é o § 3º —
+  # lesão grave e latrocínio, outro patamar e outra pena. Aceitar o apelido aqui
+  # mandaria quem procura latrocínio para as majorantes, que é o erro de
+  # atribuição que esta camada inteira existe para evitar.
+  variantes:
+    - roubo circunstanciado
+    - causas de aumento do roubo
+    - majorantes do roubo
+    - aumento de pena no roubo
+    - roubo com arma de fogo
+    - roubo com arma branca
+    - roubo com emprego de arma
+  dispositivos:
+    - { id: dl_2848_1940_art157_p2, papel: principal, peso: 100, nota: o patamar de 1/3 até metade — é onde mora o concurso de agentes, no inciso II }
+    - { id: dl_2848_1940_art157_p2-a, papel: correlato, peso: 90, nota: dois terços — arma de fogo e explosivo }
+    - { id: dl_2848_1940_art157_p2-b, papel: correlato, peso: 80, nota: arma de fogo de uso restrito ou proibido }
+    - { id: dl_2848_1940_art157_caput, papel: requisito, peso: 70 }
+
+- termo: concurso de agentes
+  slug: concurso-de-agentes
+  tipo: tema
+  explicacao: >-
+    A regra geral está no art. 29: quem concorre para o crime responde por ele,
+    na medida da própria culpabilidade. Daí o instituto reaparece como causa de
+    aumento em tipos específicos — no roubo, pelo inciso II do § 2º do art. 157;
+    nos crimes contra a dignidade sexual, pelo art. 226. O art. 62 é o outro
+    lado: agrava a pena de quem organiza, coage ou dirige os demais.
+  variantes:
+    - concurso de pessoas
+    - coautoria
+    - participação no crime
+    - duas ou mais pessoas
+    - crime praticado em concurso de pessoas
+    - concurso de agentes no roubo
+    - participação de menor importância
+  dispositivos:
+    - { id: dl_2848_1940_art29_caput, papel: principal, peso: 100, nota: a regra geral — cada concorrente responde na medida da sua culpabilidade }
+    - { id: dl_2848_1940_art157_p2_inc2, papel: correlato, peso: 90, nota: a majorante do roubo }
+    - { id: dl_2848_1940_art226_inc1, papel: correlato, peso: 80, nota: o mesmo instituto nos crimes contra a dignidade sexual }
+    - { id: dl_2848_1940_art62_caput, papel: correlato, peso: 70 }
+    - { id: dl_2848_1940_art29_p1, papel: requisito, peso: 60, nota: participação de menor importância — a redução de um sexto a um terço }
+
+- termo: presunção de vulnerabilidade
+  slug: presuncao-de-vulnerabilidade
+  tipo: tema
+  explicacao: >-
+    O núcleo do art. 217-A não é a violência, é a idade: com menor de 14 anos o
+    tipo se consuma independentemente de consentimento, e o § 4º-A diz que a
+    presunção é absoluta e a relativização, inadmissível. O § 1º estende a
+    proteção a quem não pode oferecer resistência por enfermidade ou deficiência
+    mental, e o § 5º afasta as circunstâncias que costumavam ser invocadas
+    contra ela — experiência sexual anterior e relação prévia com o agente.
+  # O termo "estupro de vulnerável" NÃO entra aqui: já é rubrica `oficial`, vinda
+  # da margem impressa do Vade Mecum, e o seed aborta quando uma curada usa slug
+  # de oficial. Esta rubrica é o que a oficial não faz — o cluster e o apelido
+  # coloquial, em vez de um artigo sozinho.
+  variantes:
+    - presunção de violência
+    - vulnerabilidade absoluta
+    - relativização da vulnerabilidade
+    - menor de 14 anos
+    - consentimento de menor de 14 anos
+    - vítima vulnerável
+  dispositivos:
+    - { id: dl_2848_1940_art217-a_p4-a, papel: principal, peso: 100, nota: presunção absoluta, relativização inadmissível }
+    - { id: dl_2848_1940_art217-a_caput, papel: requisito, peso: 90, nota: o tipo — conjunção carnal ou outro ato libidinoso com menor de 14 }
+    - { id: dl_2848_1940_art217-a_p1, papel: correlato, peso: 80, nota: vulnerável por enfermidade ou deficiência mental }
+    - { id: dl_2848_1940_art217-a_p5, papel: correlato, peso: 70, nota: independe de experiência sexual anterior ou de relação prévia }
