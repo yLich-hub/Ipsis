@@ -714,7 +714,17 @@ export function Consulta({
 
   // Rolagem acompanha a digitação. `block: 'end'` e não `scrollIntoView()` seco:
   // o segundo centraliza e faz a conversa pular para o meio da tela.
+  //
+  // Só com conversa na tela. Sem a guarda, a tela de abertura também era rolada
+  // até o fim ao abrir: numa janela de 320px ela é mais alta que a área, e a
+  // Consulta nascia com `scrollTop = 315` de 321 — o "Boa tarde." em
+  // `top: -161`, fora da vista, e as sugestões de primeira pergunta com ele.
+  // Quem abria o produto no celular pequeno chegava no rodapé da tela inicial.
+  //
+  // Reabrir conversa pelo `?c=` continua descendo, que é o certo: ali o fim é
+  // onde a leitura para.
   useEffect(() => {
+    if (msgs.length === 0) return
     fim.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [msgs])
 
