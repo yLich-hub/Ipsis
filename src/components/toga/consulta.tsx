@@ -33,7 +33,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Girador, Selo, Visto } from '@/components/toga/base'
 import { EVENTO_NOVA } from '@/components/toga/casca'
 import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
+import { classifica } from '@/lib/busca/intencao'
 import type { EventoAoVivo } from '@/lib/consulta/contrato'
+import { fontesDeDoutrina } from '@/lib/consulta/doutrina'
 import { dataBR } from '@/lib/formato'
 import { calcula, leDaConversa, meses } from '@/lib/toga/dosimetria'
 import { busca, registra } from '@/lib/toga/historico'
@@ -831,10 +833,25 @@ function Resposta({
           */}
           {m.aoVivo?.estado === 'gerando' && (
             <div className="tg-entra">
+              {/*
+                Sem o nome do modelo, e é a mesma decisão que já tinha tirado o
+                nome fixo do aviso de origem — aplicada onde ela não tinha
+                chegado. Esta linha dizia `claude-opus-5` escrito à mão, e
+                continuou dizendo depois da troca de provedor: durante os nove
+                segundos de geração a tela nomeava um modelo enquanto quem
+                redigia era o de `OPENAI_MODEL`. Quem nomeia é o aviso do fim,
+                com o valor que veio no evento `fim`.
+
+                Nomear aqui exigiria o servidor mandar o modelo num evento
+                anterior — `aoVivo.modelo` só existe em `pronto`, de propósito,
+                porque é o fim que sabe qual modelo respondeu. Não vale um
+                evento novo: o passo já diz o que está acontecendo, e a resposta
+                inteira leva o nome logo abaixo.
+              */}
               <div className="mb-2 flex items-center gap-2">
                 <Girador tamanho={11} />
                 <span className="text-[11.5px] font-medium text-tg-acento-txt">
-                  Redigindo com o contexto recuperado · claude-opus-5
+                  Redigindo com o contexto recuperado
                 </span>
               </div>
               {m.aoVivo.previa
@@ -912,6 +929,57 @@ function Resposta({
  * Os chips mostram o que foi reconhecido no texto — e o que não foi reconhecido
  * não vira suposição: fica no padrão, e o rodapé diz que é estimativa.
  */
+/**
+ * Onde ler a doutrina, quando a pergunta pede doutrina.
+ *
+ * O molde vem de `classifica()`, chamado aqui sobre a pergunta — a mesma função
+ * que o servidor usa, e pela mesma razão que `CartaoDosimetria` lê os fatos da
+ * conversa: é regra pura em TS, determinística, e roda igual dos dois lados.
+ * Guardar o molde na mensagem seria um segundo estado para divergir do primeiro.
+ *
+ * Aparece SÓ no molde `doutrina`, e não é enfeite: é a metade da regra do
+ * projeto que nunca tinha sido implementada — recusar a reprodução e **apontar a
+ * fonte**. O link não colhe nem guarda nada; abre a busca no repositório.
+ */
+function PainelDeDoutrina({ pergunta }: { pergunta: string }) {
+  const fontes = useMemo(() => {
+    if (classifica(pergunta).molde !== 'doutrina') return []
+    return fontesDeDoutrina(pergunta)
+  }, [pergunta])
+
+  if (fontes.length === 0) return null
+
+  return (
+    <div className="mt-4 overflow-hidden rounded-[14px] border border-tg-linha bg-white">
+      <div className="flex items-center gap-2.5 px-4 pb-2 pt-3">
+        <span className="text-[13px] font-medium text-tg-tinta">Onde ler a doutrina</span>
+        <Selo tom="neutro">fora do acervo</Selo>
+      </div>
+      <p className="px-4 pb-3 text-[12px] leading-[1.55] text-tg-fraco-2">
+        Livro e artigo são obra protegida, e este produto não os hospeda nem os resume. O
+        endereço abaixo abre a busca pelo seu termo no repositório, na fonte.
+      </p>
+      <ul className="border-t border-tg-linha-tenue">
+        {fontes.map((f) => (
+          <li key={f.url} className="border-b border-tg-linha-tenue last:border-0">
+            <a
+              href={f.url}
+              target="_blank"
+              rel="noreferrer"
+              className="tgb flex flex-col gap-0.5 px-4 py-3 hover:bg-tg-preenche"
+            >
+              <span className="text-[13px] font-medium text-tg-acento-txt underline decoration-tg-acento-palido underline-offset-2">
+                {f.nome} ↗
+              </span>
+              <span className="text-[11.5px] text-tg-fraco-2">{f.nota}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function CartaoDosimetria({ pergunta }: { pergunta: string }) {
   const [aberto, setAberto] = useState(false)
   const { entrada, chips } = useMemo(() => leDaConversa(pergunta), [pergunta])
@@ -1040,6 +1108,7 @@ function Rodape({
       )}
 
       <CartaoDosimetria pergunta={m.pergunta} />
+      <PainelDeDoutrina pergunta={m.pergunta} />
 
       <div className="mt-3.5 flex flex-wrap items-center gap-3">
         <Confianca n={comp.primarias} />

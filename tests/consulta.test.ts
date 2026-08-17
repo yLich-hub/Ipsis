@@ -20,12 +20,15 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { classifica } from '@/lib/busca/intencao'
+
 import {
   LeitorDeTexto,
   PISO_DE_FUSAO,
   filtraContexto,
   montarPrecedentes,
 } from '@/lib/consulta/aovivo'
+import { fontesDeDoutrina } from '@/lib/consulta/doutrina'
 import { enriquece } from '@/lib/consulta/enriquece'
 import { recado, transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
 
@@ -483,5 +486,50 @@ describe('precedentes no contexto', () => {
     )
 
     expect(comp.vigencia).toBe('28/02/2025')
+  })
+})
+
+// --- doutrina: referência com origem -----------------------------------------
+//
+// A regra do projeto sempre teve duas metades — recusar a reprodução E apontar a
+// fonte legítima. Por muito tempo só a primeira estava no código. Estas
+// asserções trancam a segunda, e trancam sobretudo o que ela NÃO pode virar:
+// um endereço montado por dedução, que é o que o acervo Vade Mecum proíbe.
+describe('fontesDeDoutrina', () => {
+  it('devolve o endereço de busca com o termo consultado', () => {
+    const f = fontesDeDoutrina('tráfico privilegiado segundo a doutrina')
+    expect(f).toHaveLength(1)
+    expect(f[0]!.url).toContain('bdjur.stj.jus.br')
+    expect(f[0]!.url).toContain(encodeURIComponent('tráfico privilegiado segundo a doutrina'))
+  })
+
+  it('mantém o escopo na coleção de Doutrina, não na base inteira', () => {
+    // O uuid foi conferido contra a API de comunidades do BDJur. Sem ele a busca
+    // devolve jurisprudência e legislação junto, que é o que o produto já tem.
+    expect(fontesDeDoutrina('dolo eventual')[0]!.url).toContain(
+      'scope=cdb150cd-70f0-497e-a395-ca7e869309de',
+    )
+  })
+
+  it('consulta vazia não produz link', () => {
+    // Link para uma busca sem termo abre uma página inútil. Vazio é resposta.
+    expect(fontesDeDoutrina('   ')).toEqual([])
+    expect(fontesDeDoutrina('')).toEqual([])
+  })
+
+  it('escapa o que quebraria a URL', () => {
+    const url = fontesDeDoutrina('art. 33 & "tráfico" #1')[0]!.url
+    expect(url).not.toContain(' ')
+    expect(url).not.toContain('"')
+    expect(url).not.toContain('#')
+  })
+
+  it('a classificação de doutrina é o que aciona o painel', () => {
+    // A tela chama `classifica()` sobre a pergunta e só desenha o painel no
+    // molde `doutrina`. Se a classificação deixar de reconhecer o termo, o
+    // painel some sem nenhum erro — daí a asserção morar aqui junto.
+    expect(classifica('o que diz a doutrina sobre o art. 33').molde).toBe('doutrina')
+    expect(classifica('segundo Nucci, o tráfico privilegiado').molde).toBe('doutrina')
+    expect(classifica('requisitos do tráfico privilegiado').molde).not.toBe('doutrina')
   })
 })
