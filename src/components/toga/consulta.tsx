@@ -30,7 +30,7 @@
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { Girador, Selo, Visto } from '@/components/toga/base'
+import { Esqueleto, Girador, Selo, Visto } from '@/components/toga/base'
 import { EVENTO_NOVA } from '@/components/toga/casca'
 import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
 import { classifica } from '@/lib/busca/intencao'
@@ -857,6 +857,54 @@ function Abertura({ saudacao }: { saudacao: string }) {
   )
 }
 
+/**
+ * Esqueleto da resposta, enquanto os passos correm.
+ *
+ * Vale a regra da tela de Fontes — esqueleto só onde a espera existe —, e aqui
+ * ela existe: entre a pergunta e o primeiro parágrafo há a busca, e no caminho
+ * ao vivo há a geração inteira. Os passos já diziam o que estava acontecendo,
+ * mas ocupavam a altura de cinco linhas e deixavam o resto da coluna em branco:
+ * o olho não tinha onde pousar, e branco parado passa por travado.
+ *
+ * A forma é a da resposta que vem, como em `Esqueletos` da Jurisprudência — as
+ * quatro barras têm a altura de linha do parágrafo em serifa, e os dois blocos
+ * de baixo têm o raio, o fundo e a sombra do cartão de fonte. É essa imitação
+ * que faz o texto parecer chegando em vez de barras cinzas piscando.
+ *
+ * **Não promete quantidade.** Duas fontes desenhadas não são previsão de duas
+ * fontes recuperadas — quem conta é o passo "Lendo o texto dos dispositivos",
+ * com o número que a busca devolveu. `aria-hidden` porque não há o que ler
+ * aqui: quem anuncia a chegada é a região viva fixa, que sobrevive às duas
+ * pontas da espera.
+ */
+function EsqueletoDaResposta() {
+  return (
+    <div aria-hidden="true" className="tg-entra mt-[18px]">
+      <div className="flex flex-col gap-[9px]">
+        <Esqueleto className="h-[13px]" />
+        <Esqueleto className="h-[13px] w-[95%]" />
+        <Esqueleto className="h-[13px] w-[88%]" />
+        <Esqueleto className="h-[13px] w-[54%]" />
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2">
+        {[0, 1].map((i) => (
+          <div
+            key={i}
+            className="flex items-center gap-[11px] rounded-[14px] bg-white px-[13px] py-[11px] shadow-[var(--tg-elev-1)]"
+          >
+            <Esqueleto className="size-[19px] shrink-0 rounded-[7px]" />
+            <Esqueleto className="h-[11px] w-[92px] shrink-0" />
+            <Esqueleto className="h-[11px] w-[136px]" />
+            <span className="flex-1" />
+            <Esqueleto className="h-[17px] w-[58px] shrink-0 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // --- resposta ----------------------------------------------------------------
 
 function Resposta({
@@ -952,6 +1000,11 @@ function Resposta({
                   )
                 })}
               </div>
+
+              {/* Some no primeiro token do caminho ao vivo: dali em diante quem
+                  ocupa a coluna é a prévia de verdade, logo abaixo, e esqueleto
+                  ao lado de texto que já chegou é espera anunciada duas vezes. */}
+              {!m.aoVivo?.previa && <EsqueletoDaResposta />}
             </div>
           )}
 
