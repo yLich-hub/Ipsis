@@ -54,6 +54,16 @@ const PUBLICAS = [
   '/api/health',
   '/api/busca',
   '/api/vigilia/coletar',
+  // A imagem do cartão de compartilhamento. Ela existe para ser buscada por
+  // quem NÃO tem sessão — o rastreador do LinkedIn, do WhatsApp, do Slack — e
+  // protegida ela devolvia 307 para `/login`, deixando o cartão sem imagem
+  // exatamente no único momento em que ele importa. Não vaza nada: é a marca,
+  // a descrição do produto e a data de corte, tudo já público na tela de login.
+  //
+  // O favicon não precisa estar aqui porque o `matcher` do middleware já
+  // dispensa qualquer caminho terminado em `.svg`; `/opengraph-image` não tem
+  // extensão e passa pelo filtro.
+  '/opengraph-image',
 ]
 
 export function ehPublica(caminho: string): boolean {

@@ -207,7 +207,7 @@ function PrimeiraFase({
         <button
           type="button"
           onClick={aoZerar}
-          className="tgb shrink-0 rounded-full bg-tg-acento-fraco px-[11px] py-1.5 text-[11.5px] font-medium text-tg-acento-txt"
+          className="tgb shrink-0 rounded-full bg-tg-acento-fraco px-[11px] py-1.5 text-[11.5px] font-medium text-tg-acento-txt max-sm:inline-flex max-sm:min-h-[38px] max-sm:items-center max-sm:px-3.5"
         >
           Zerar
         </button>
@@ -257,7 +257,7 @@ function PrimeiraFase({
           </p>
           <Link
             href="/consulta?p=Dosimetria%20da%20pena%20na%20Lei%20de%20Drogas"
-            className="tgb shrink-0 whitespace-nowrap rounded-full bg-tg-preenche px-3 py-1.5 text-[11.5px] font-medium text-tg-corpo hover:bg-tg-preenche-alto"
+            className="tgb shrink-0 whitespace-nowrap rounded-full bg-tg-preenche px-3 py-1.5 text-[11.5px] font-medium text-tg-corpo hover:bg-tg-preenche-alto max-sm:inline-flex max-sm:min-h-[38px] max-sm:items-center"
           >
             Ver os dispositivos
           </Link>

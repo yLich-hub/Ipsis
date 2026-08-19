@@ -63,7 +63,11 @@ export function Cabecalho({
         <h1 className="font-tg-serif text-[26px] leading-[1.2] -tracking-[0.01em] text-tg-tinta">
           {titulo}
         </h1>
-        {sub && <p className="mt-1.5 text-[13px] text-tg-fraco-2">{sub}</p>}
+        {/* `corpo-2` e não `fraco-2`: esta linha diz o que a tela é — "resposta
+            à acusação · art. 396-A do CPP", "vigília sobre a data de corte" — e
+            estava em 2.76:1, ilegível para quem enxerga pouco. Ela é conteúdo,
+            não decoração de cabeçalho. */}
+        {sub && <p className="mt-1.5 text-[13px] text-tg-corpo-2">{sub}</p>}
       </div>
       <span className="flex-1" />
       {children && <div className="flex shrink-0 items-center gap-2">{children}</div>}

@@ -54,11 +54,20 @@ export default async function PecasPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
           {cs.dados.length === 0 ? (
-            <Vazio icone="documento" titulo="Incremento 4 ainda não semeado">
-              O schema das <code>teses</code>, dos <code>casos</code> e da{' '}
-              <code>argumentacao</code> já está no banco, com os gatilhos que recusam citação
-              órfã. O que falta é a curadoria: 10 a 15 teses escritas à mão e três casos
-              anonimizados.
+            /*
+              O texto anterior era um recado de desenvolvedor para si mesmo —
+              "Incremento 4 ainda não semeado", schema, gatilho, curadoria — e
+              descrevia um estado que não existe mais: os casos e as teses estão
+              no banco desde então. Estado vazio errado é pior que estado vazio
+              feio, porque afirma alguma coisa.
+
+              Hoje esta tela só fica vazia se o banco não devolver os casos, e é
+              isso que ela diz.
+            */
+            <Vazio icone="documento" titulo="Nenhum caso disponível agora">
+              Os casos de demonstração vêm do banco, e ele não devolveu nenhum. Se o projeto
+              estiver hospedado no plano gratuito do Supabase, a base pode ter sido pausada por
+              inatividade — a primeira visita costuma acordá-la.
             </Vazio>
           ) : (
             <ul className="space-y-3">

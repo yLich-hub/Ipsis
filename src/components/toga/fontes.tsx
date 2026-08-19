@@ -203,7 +203,7 @@ export function Fontes({
                     type="button"
                     onClick={() => setFiltro(k)}
                     aria-pressed={filtro === k}
-                    className={`tgb rounded-full px-3 py-1.5 text-[11.5px] font-medium ${
+                    className={`tgb rounded-full px-3 py-1.5 text-[11.5px] font-medium max-sm:inline-flex max-sm:min-h-[38px] max-sm:items-center ${
                       filtro === k
                         ? 'bg-tg-acento-fraco text-tg-acento-txt'
                         : 'bg-tg-preenche text-tg-corpo hover:bg-tg-preenche-alto'
@@ -228,7 +228,7 @@ export function Fontes({
                   key={a.leiId}
                   type="button"
                   onClick={() => setLeis((l) => ({ ...l, [a.leiId]: !l[a.leiId] }))}
-                  className="tgb flex shrink-0 items-center gap-1.5 rounded-full bg-tg-preenche px-2.5 py-1.5 text-[11.5px] text-tg-corpo hover:bg-tg-preenche-alto"
+                  className="tgb flex shrink-0 items-center gap-1.5 rounded-full bg-tg-preenche px-2.5 py-1.5 text-[11.5px] text-tg-corpo hover:bg-tg-preenche-alto max-sm:min-h-[38px] max-sm:px-3.5"
                 >
                   <Caixinha marcada={Boolean(leis[a.leiId])} />
                   {a.rotulo}
@@ -304,7 +304,7 @@ function CartaoColetor({
             atualiza de manhã e outro à tarde, e porque scraping no runtime que
             serve a página seria uma decisão ruim que ninguém veria. */}
         <span
-          className="shrink-0 text-[10px] text-tg-tenue"
+          className="shrink-0 text-[10px] text-tg-suave"
           title={
             f.motor === 'python'
               ? `${f.origem} · coletado por coletores/ (Python, GitHub Actions)`
@@ -344,7 +344,7 @@ function CartaoColetor({
             </span>
           </>
         ) : (
-          <span className="text-tg-tenue">nunca rodou — o cron ainda não passou por aqui</span>
+          <span className="text-tg-suave">nunca rodou — o cron ainda não passou por aqui</span>
         )}
       </div>
 
@@ -478,7 +478,8 @@ function Linha({
           </Selo>
         )}
         <span className="flex-1" />
-        <span className="text-[11px] text-tg-tenue">{dataBR(a.apresentadoEm)}</span>
+        {/* Data de apresentação da proposição: é o dado da linha, não enfeite. */}
+        <span className="text-[11px] text-tg-suave">{dataBR(a.apresentadoEm)}</span>
       </div>
 
       {/* Ementa em serifada: é texto legislativo citado, não voz da interface. */}
@@ -489,7 +490,7 @@ function Linha({
           <Link
             key={l}
             href={`/leis/${l}`}
-            className="text-[11px] font-medium text-tg-acento-txt underline decoration-tg-acento-palido underline-offset-2"
+            className="text-[11px] font-medium text-tg-acento-txt underline decoration-tg-acento-palido underline-offset-2 max-sm:-my-2 max-sm:inline-block max-sm:py-2"
           >
             {ROTULO_DA_LEI[l] ?? l}
           </Link>
@@ -503,7 +504,7 @@ function Linha({
                 <Link
                   key={art}
                   href={`/artigo/${art}`}
-                  className="rounded-full bg-tg-preenche px-2 py-0.5 text-[10.5px] text-tg-corpo hover:bg-tg-preenche-alto"
+                  className="rounded-full bg-tg-preenche px-2 py-0.5 text-[10.5px] text-tg-corpo hover:bg-tg-preenche-alto max-sm:inline-flex max-sm:min-h-[34px] max-sm:items-center max-sm:px-3"
                 >
                   art. {art.split('_art')[1]}
                 </Link>
@@ -531,7 +532,12 @@ function Linha({
             href={a.url}
             target="_blank"
             rel="noreferrer"
-            className="text-[11px] text-tg-fraco-2 underline decoration-tg-linha underline-offset-2 hover:text-tg-tinta"
+            // `py-2 -my-2` no toque: a área tocável cresce de 17 para 33px e o
+            // layout não se mexe, porque a margem negativa devolve o que o
+            // padding tomou. Link em linha de texto é isento do alvo mínimo
+            // (WCAG 2.5.8), mas 11px sublinhado num celular é difícil de
+            // acertar de qualquer jeito, e isto não custa um pixel de desenho.
+            className="text-[11px] text-tg-fraco-2 underline decoration-tg-linha underline-offset-2 hover:text-tg-tinta max-sm:-my-2 max-sm:inline-block max-sm:py-2"
           >
             ver na origem ↗
           </a>
@@ -543,7 +549,7 @@ function Linha({
           <button
             type="button"
             onClick={aoMarcar}
-            className="tgb rounded-full bg-tg-preenche px-2.5 py-1 text-[11px] font-medium text-tg-corpo hover:bg-tg-preenche-alto"
+            className="tgb rounded-full bg-tg-preenche px-2.5 py-1 text-[11px] font-medium text-tg-corpo hover:bg-tg-preenche-alto max-sm:inline-flex max-sm:min-h-[38px] max-sm:items-center max-sm:px-3.5"
           >
             marcar como conferido
           </button>

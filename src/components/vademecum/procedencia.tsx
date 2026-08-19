@@ -60,8 +60,11 @@ export function Procedencia({ lei }: { lei: LeiAcervo }) {
 
 /** Crédito no rodapé do leitor: de onde veio o texto e sob qual licença. */
 export function CreditoAcervo({ origem }: { origem: IndiceAcervo['origem'] }) {
+  // `suave` e não `tenue-2`: estava em 1.92:1. Este parágrafo é a obrigação
+  // para com o espelho de terceiro — licença e commit fixado —, e o CLAUDE.md
+  // diz que ele não deve ser removido. Ilegível é uma forma de remover.
   return (
-    <p className="mt-8 border-t border-tg-linha pt-4 text-[11.5px] leading-relaxed text-tg-tenue-2">
+    <p className="mt-8 border-t border-tg-linha pt-4 text-[11.5px] leading-relaxed text-tg-suave">
       Texto de lei federal é de domínio público (art. 8º, I da Lei 9.610/1998). O espelho vem de{' '}
       <a
         href={`${origem.url}/tree/${origem.sha}`}

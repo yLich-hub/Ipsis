@@ -237,7 +237,12 @@ export function Segmentado<T extends string>({
             role="radio"
             aria-checked={ativa}
             onClick={() => aoTrocar(o.v)}
-            className={`tgb flex-1 rounded-full px-1 py-1.5 text-center text-[11.5px] font-medium ${
+            // No toque, cada opção ganha 38px de altura em vez de 29, e a
+            // fileira respira. Não é conforto: são três alvos colados dividindo
+            // 390px de tela, e errar um deles aqui MUDA A PENA que a tela
+            // mostra. `max-sm` porque no desktop o ponteiro acerta 29px e a
+            // densidade do TOGA v2 é parte do desenho.
+            className={`tgb flex flex-1 items-center justify-center rounded-full px-1 py-1.5 text-center text-[11.5px] font-medium max-sm:min-h-[38px] ${
               ativa
                 ? 'bg-white text-tg-tinta shadow-[0_1px_3px_rgb(18_20_30_/_0.16)]'
                 : 'text-tg-fraco-2 hover:text-tg-corpo'
