@@ -150,8 +150,8 @@ export function Clientes({ casos }: { casos: Pick<CasoCurado, 'id' | 'titulo'>[]
                 <>Nenhum cliente para “{busca}”.</>
               ) : (
                 <>
-                  Nenhum cliente cadastrado ainda. O cadastro fica no seu banco, sob RLS por sessão
-                  — ninguém além desta conta enxerga.
+                  Nenhum cliente cadastrado ainda. O que você cadastrar aqui fica visível só para
+                  esta conta.
                 </>
               )}
             </p>
@@ -168,10 +168,9 @@ export function Clientes({ casos }: { casos: Pick<CasoCurado, 'id' | 'titulo'>[]
         </div>
 
         <p className="mt-3.5 px-1 text-[11.5px] leading-[1.55] text-tg-fraco-3">
-          Os dados ficam em <code className="text-[11px]">public.clientes</code>, com policy por{' '}
-          <code className="text-[11px]">auth.uid()</code> — a chave publishable sem sessão não lê
-          nenhuma linha. Numa demonstração pública, prefira dados fictícios: nada aqui é anonimizado
-          pelo produto.
+          A agenda é guardada no banco e amarrada a esta conta: sem entrar, não se lê uma linha —
+          a regra vale no servidor, não na tela. Ainda assim, numa demonstração pública prefira
+          dados fictícios: nada aqui é anonimizado pelo produto.
         </p>
       </div>
     </div>

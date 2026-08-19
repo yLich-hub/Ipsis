@@ -433,10 +433,10 @@ function SecaoPerfil() {
 
         <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] leading-[1.5] text-tg-fraco-3">
           <span>
-            Guardado em <code className="text-[11.5px]">public.perfil</code>, sob RLS por sessão. O
-            nome alimenta as iniciais do avatar; a minuta continua saindo com autos, nome e OAB como
-            campos a preencher — preencher o cabeçalho de uma peça a partir de um ajuste de tela é
-            decisão sobre a peça, não sobre esta tela.
+            Guardado no banco e amarrado a esta conta, não a este navegador — trocar de aparelho
+            não apaga o que está aqui. O nome alimenta as iniciais do avatar; a minuta continua
+            saindo com autos, nome e OAB como campos a preencher, porque preencher o cabeçalho de
+            uma peça a partir de um ajuste de tela é decisão sobre a peça, não sobre esta tela.
           </span>
           {estado !== 'parado' && (
             <span
