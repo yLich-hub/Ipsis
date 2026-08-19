@@ -610,7 +610,10 @@ export function Lateral({
             <Ponto pulsa />
             <span className="text-[11.5px] font-medium text-tg-verde-txt">Base conferida</span>
           </span>
-          <span className="block text-[11.5px] leading-[1.45] text-tg-fraco-2">
+          {/* O cartão da decisão nº 3. `fraco-2` sobre a lateral dá 2.89:1 —
+              a data de corte é a informação que este projeto mais preza, e
+              estava no tom mais apagado da tela. */}
+          <span className="block text-[11.5px] leading-[1.45] text-tg-suave">
             Vade Mecum do Senado, 1ª ed. · redação de{' '}
             <strong className="font-medium text-tg-corpo">{dataBR(DATA_DE_CORTE)}</strong>
           </span>

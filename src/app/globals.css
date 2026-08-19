@@ -37,7 +37,19 @@
   --color-tg-tinta-5: #3a3d45;
   --color-tg-corpo: #4c515c;
   --color-tg-corpo-2: #5b6068;
-  --color-tg-suave: #6b7079;
+  /* Escurecido de #6b7079. Ele é o tom mais claro que ainda pinta texto de
+     conteúdo — metadado de cartão, linha de apoio, rótulo de seção —, e ficava
+     em 4.45 sobre a lateral e 3.99 sobre a caixa, isto é, abaixo do mínimo
+     legível justamente nos dois fundos em que mais aparece. Agora passa de 4.5
+     em todos os quatro fundos do sistema, incluindo o mais escuro.
+
+     Os tons abaixo dele (`fraco`, `tenue`) NÃO subiram, e é decisão: são quatro
+     degraus entre 3.5 e 2.6, e levar todos a 4.5 os transformaria no mesmo
+     cinza — a hierarquia de ênfase do TOGA v2 desapareceria para resolver um
+     problema que ela não tem, porque ali eles pintam dica, placeholder e seta.
+     Onde esses tons estavam pintando informação de verdade, quem mudou foi o
+     uso, não o token. */
+  --color-tg-suave: #63686f;
   --color-tg-fraco: #7c818c;
   --color-tg-fraco-2: #8b8f9a;
   --color-tg-fraco-3: #9297a2;
