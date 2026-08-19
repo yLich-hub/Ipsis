@@ -1526,8 +1526,24 @@ function Entrada({
               curso continua sendo o "consultando…" ao lado e os passos acima.
             */}
             <button
-              type={ocupado ? 'button' : 'submit'}
-              onClick={ocupado ? aoParar : undefined}
+              // `type="button"` SEMPRE, e o envio por clique passa a ser
+              // explícito. Alternar para `submit` quando ocioso parece natural e
+              // é uma armadilha: o clique em "parar" muda `ocupado` para falso,
+              // o React reescreve o `type` para `submit` ainda dentro do
+              // despacho do evento, e o navegador então executa a ação padrão do
+              // botão que encontra AGORA — submetendo o formulário. Como `parar`
+              // acabou de devolver a pergunta à caixa, ele reenviava exatamente
+              // a consulta que o usuário mandou cancelar.
+              //
+              // Medido com sonda no render: depois do clique o estado ia para
+              // `ocupado=false, msgs=0` (certo) e voltava para `ocupado=true,
+              // msgs=2` no quadro seguinte. Parecia que o cancelamento não
+              // funcionava; ele funcionava e era desfeito.
+              //
+              // O Enter continua enviando: quem cuida disso é o `onSubmit` do
+              // formulário, que não depende deste botão.
+              type="button"
+              onClick={ocupado ? aoParar : () => aoEnviar(rascunho)}
               aria-label={ocupado ? 'Parar a consulta' : 'Enviar consulta'}
               className="tgb grid size-[34px] shrink-0 place-items-center rounded-full shadow-[var(--tg-elev-acento)]"
               style={{ background: ocupado ? ACENTO_CLARO : GRADIENTE_MARCA }}
