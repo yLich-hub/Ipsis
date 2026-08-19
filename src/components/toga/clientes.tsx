@@ -166,12 +166,6 @@ export function Clientes({ casos }: { casos: Pick<CasoCurado, 'id' | 'titulo'>[]
             ))
           )}
         </div>
-
-        <p className="mt-3.5 px-1 text-[11.5px] leading-[1.55] text-tg-fraco-3">
-          A agenda é guardada no banco e amarrada a esta conta: sem entrar, não se lê uma linha —
-          a regra vale no servidor, não na tela. Ainda assim, numa demonstração pública prefira
-          dados fictícios: nada aqui é anonimizado pelo produto.
-        </p>
       </div>
     </div>
   )

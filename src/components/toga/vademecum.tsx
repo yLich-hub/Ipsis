@@ -251,13 +251,18 @@ export function VadeMecum({
             {leisDoRamo.map((l) => (
               <div
                 key={l.id}
-                className={`tg-sobe rounded-[14px] ${
-                  l.corpus_id ? 'bg-tg-acento-fraco px-[15px] py-3.5' : ''
+                className={`tgc tg-sobe rounded-[14px] border px-[15px] py-3.5 transition-colors ${
+                  l.corpus_id
+                    ? 'border-tg-acento-fraco-3 bg-tg-acento-fraco'
+                    : 'border-tg-acento-fraco-2 bg-white hover:bg-tg-acento-fraco'
                 }`}
               >
+                {/* O cartão inteiro é o alvo: o `after` estica o link por cima da caixa,
+                    e o selo do corpus curado sobe com `z-[1]` para continuar clicável.
+                    Aninhar um <a> dentro do outro seria HTML inválido. */}
                 <Link
                   href={`/vademecum/${l.id}`}
-                  className="tgb block font-tg-serif text-[14px] leading-[1.6] text-tg-tinta-4"
+                  className="tgb block font-tg-serif text-[14px] leading-[1.6] text-tg-tinta-4 after:absolute after:inset-0 after:content-['']"
                 >
                   <span className="font-tg text-[13.5px] font-medium text-tg-tinta-2">
                     {l.apelido}
@@ -279,7 +284,7 @@ export function VadeMecum({
                   {l.corpus_id ? (
                     <Link
                       href={`/leis/${l.corpus_id}`}
-                      className="tgb rounded-full bg-tg-acento-fraco-2 px-2 py-[3px] font-tg text-[10px] font-semibold text-tg-acento-txt"
+                      className="tgb relative z-[1] rounded-full bg-tg-acento-fraco-2 px-2 py-[3px] font-tg text-[10px] font-semibold text-tg-acento-txt"
                     >
                       também no corpus curado →
                     </Link>
@@ -292,6 +297,12 @@ export function VadeMecum({
                       sem link oficial
                     </span>
                   )}
+                  <span
+                    aria-hidden="true"
+                    className="ml-auto font-tg text-[11px] font-semibold text-tg-acento-txt"
+                  >
+                    abrir →
+                  </span>
                 </div>
               </div>
             ))}
