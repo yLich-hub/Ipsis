@@ -546,14 +546,18 @@ export function Consulta({
                 const primeiro = !reais
                 reais = true
                 const novo = { t: e.t, meta: e.meta }
+                // O contador anda junto com a lista, e é o mesmo que o outro
+                // caminho ao vivo deste arquivo já faz. Passo real é evento que
+                // aconteceu: ele aparece quando chega, sem esperar relógio.
+                //
+                // Deixar o contador parado em 1 escondia tudo menos o primeiro
+                // passo — o relógio dos provisórios é desligado no evento
+                // `busca`, e nada mais o avançava. O e2e pegou: "Fundindo
+                // rubrica, léxico e vetor" nunca chegava à tela.
                 mutar((m) =>
                   primeiro
-                    ? // `passo: 1` junto: sem isso o contador ficaria adiantado
-                      // em relação à lista nova e os passos reais apareceriam
-                      // todos de uma vez, sem o encadeamento que eles existem
-                      // para mostrar.
-                      { passos: [novo], passo: 1 }
-                    : { passos: [...m.passos, novo] },
+                    ? { passos: [novo], passo: 1 }
+                    : { passos: [...m.passos, novo], passo: m.passos.length + 1 },
                 )
               } else if (e.tipo === 'busca') {
                 bruta = e.bruta
