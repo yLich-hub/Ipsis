@@ -80,6 +80,7 @@ def colhe(sessao: Sessao, cfg: dict[str, Any] | None = None) -> Colheita:
     drogas = re.compile(cfg["drogas"], re.IGNORECASE)
     codigo_penal = re.compile(cfg["codigo_penal"], re.IGNORECASE)
     parte_geral = {int(n) for n in cfg["parte_geral_cp"]}
+    parte_especial = {int(n) for n in cfg.get("parte_especial_cp", [])}
 
     for t in linhas:
         texto = " ".join(str(t.get(c) or "") for c in _CAMPOS)
@@ -90,6 +91,13 @@ def colhe(sessao: Sessao, cfg: dict[str, Any] | None = None) -> Colheita:
             int(n) in parte_geral for n in _ART.findall(texto)
         ):
             escopo = "parte_geral"
+        # A parte especial vem DEPOIS da parte geral de propósito: uma tese que
+        # fale do art. 68 aplicado ao art. 157 é, antes de tudo, dosimetria — e
+        # é como dosimetria que ela serve a qualquer defesa, não só à de roubo.
+        elif codigo_penal.search(texto) and any(
+            int(n) in parte_especial for n in _ART.findall(texto)
+        ):
+            escopo = "parte_especial"
         else:
             continue
 

@@ -256,6 +256,13 @@
     Cluster de três dispositivos, em ordem de aplicação no tráfico: o art. 42 da
     Lei de Drogas manda a natureza e a quantidade da droga PREPONDERAREM sobre as
     circunstâncias do art. 59 do Código Penal; o art. 68 dá o método trifásico.
+  # As variantes com 12+ caracteres são as que casam CONTIDAS na frase (CTE `rub`,
+  # migration 0011), e é por elas que uma pergunta inteira alcança o cluster.
+  # "pena-base" foi o buraco mais caro deste arquivo: medido na busca, a consulta
+  # `pena-base no tráfico` devolvia o art. 57 do CP e o art. 689 do CPP — nada a
+  # ver com dosimetria, nada a ver com drogas. Nenhuma variante daqui aparecia na
+  # frase, a perna de rubrica não disparava, e sobravam léxico e vetor, que erram
+  # feio justamente onde o apelido é o que identifica o instituto.
   variantes:
     - dosimetria
     - dosimetria do tráfico
@@ -264,6 +271,14 @@
     - método trifásico
     - três fases da pena
     - como calcular a pena do tráfico
+    - pena-base
+    - pena base
+    - pena-base no tráfico
+    - pena base no tráfico
+    - fixação da pena-base
+    - primeira fase da dosimetria
+    - circunstâncias judiciais
+    - cálculo da pena no tráfico
   dispositivos:
     - { id: lei_11343_2006_art42_caput, papel: principal, peso: 100, nota: preponderância sobre o art. 59 — é o que distingue a dosimetria do tráfico }
     - { id: dl_2848_1940_art59_caput, papel: correlato, peso: 80 }
@@ -436,12 +451,22 @@
     O § 2º do art. 28 dá os critérios que separam as duas condutas: natureza e
     quantidade da droga, local e condições da ação, circunstâncias sociais e
     pessoais, conduta e antecedentes. É a mesma pergunta vista dos dois lados.
+  # A ordem das palavras importa, e é fácil esquecer disso: o match contido
+  # procura a variante DENTRO da frase, então "distinção entre tráfico e uso" não
+  # casa com quem escreveu "distinção entre uso e tráfico". Medido: a consulta na
+  # ordem invertida devolvia o art. 180 do CP — receptação — em primeiro lugar.
+  # Toda variante com duas pontas precisa das duas ordens.
   variantes:
     - tráfico ou uso
     - usuário ou traficante
     - diferença entre tráfico e uso
     - era para uso ou para vender
     - desclassificação para uso
+    - distinção entre uso e tráfico
+    - diferença entre uso e tráfico
+    - uso ou tráfico
+    - porte para uso ou tráfico
+    - se é uso ou tráfico
   dispositivos:
     - { id: lei_11343_2006_art28_p2, papel: principal, peso: 100 }
     - { id: lei_11343_2006_art33_caput, papel: correlato, peso: 70 }
