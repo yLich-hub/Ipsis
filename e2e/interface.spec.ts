@@ -193,21 +193,67 @@ test.describe('consulta', () => {
 
   test('a conversa entra no histórico da lateral', async ({ page }) => {
     await page.goto('/consulta')
+
+    // Só o link de conversa, pelo `?c=`. Sem esse recorte a sugestão de partida
+    // "Dosimetria da pena na Lei de Drogas" também casaria.
+    const conversas = page.locator('a[href*="/consulta?c="]')
+    const enderecos = () => conversas.evaluateAll((ns) => ns.map((n) => n.getAttribute('href')!))
+
+    // O histórico de ANTES. É o que permite reconhecer, depois, qual linha é
+    // desta execução.
+    //
+    // A versão anterior apagava a primeira da lista e exigia `toHaveCount(0)` —
+    // isto é, que o histórico inteiro ficasse vazio no fim. Isso não testa o
+    // histórico: testa que a conta estava zerada antes de começar. Qualquer
+    // conversa preexistente derrubava o teste sem nada estar quebrado, e falha
+    // vermelha que não é defeito do código é o jeito mais rápido de ensinar
+    // todo mundo a ignorar o CI. Pior: com resíduo na conta, ele APAGAVA uma
+    // conversa que não era dele.
+    // Esperar o histórico assentar antes de fotografar: a lateral o carrega
+    // depois de montar, e fotografar cedo demais devolvia lista vazia — aí toda
+    // conversa preexistente contava como "nova" (medido: 10).
+    //
+    // Duas leituras iguais seguidas, e não "espere aparecer alguma": em conta
+    // sem histórico nenhum a segunda forma esperaria para sempre.
+    let ultima = -1
+    await expect
+      .poll(
+        async () => {
+          const n = (await enderecos()).length
+          const estavel = n === ultima
+          ultima = n
+          return estavel
+        },
+        { timeout: 20_000, intervals: [400] },
+      )
+      .toBe(true)
+
+    const antes = await enderecos()
+
     await page.getByLabel('Sua consulta').fill('dosimetria da pena')
     await page.getByRole('button', { name: 'Enviar consulta' }).click()
 
-    // Só o link de conversa, pelo `?c=`. Sem esse recorte a sugestão de partida
-    // "Dosimetria da pena na Lei de Drogas" também casaria — e ela **volta** à
-    // lateral assim que o histórico fica vazio, que é justamente o estado que
-    // este teste verifica no fim.
-    const conversa = page.locator('a[href*="/consulta?c="]')
-    await expect(conversa.first()).toBeVisible({ timeout: 25_000 })
+    // A linha nova, e exatamente uma.
+    await expect
+      .poll(async () => (await enderecos()).filter((h) => !antes.includes(h)).length, {
+        timeout: 30_000,
+      })
+      .toBe(1)
+
+    const novo = (await enderecos()).find((h) => !antes.includes(h))!
+    const minha = page.locator(`a[href="${novo}"]`)
 
     // Limpa o que o teste criou: o histórico não tem teto, e uma execução por
-    // dia deixaria a lateral cheia de "dosimetria da pena".
-    await conversa.first().hover()
-    await page.getByRole('button', { name: /Apagar conversa/ }).first().click()
-    await expect(conversa).toHaveCount(0)
+    // dia deixaria a lateral cheia de "dosimetria da pena". O botão de apagar
+    // é o da MESMA linha — `..` sobe para a `div.group` que embrulha o link e o
+    // botão. `getByRole(...).first()` pegaria o de outra conversa.
+    await minha.hover()
+    await minha.locator('..').getByRole('button', { name: /Apagar conversa/ }).click()
+
+    await expect(minha).toHaveCount(0)
+    // E o resto do histórico continua onde estava: apagar a linha do teste não
+    // pode levar junto o que já existia.
+    await expect.poll(async () => (await enderecos()).length).toBe(antes.length)
   })
 })
 
