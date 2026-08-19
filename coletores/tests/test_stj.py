@@ -86,6 +86,24 @@ class TestOQueEntra:
         assert len(c.precedentes) == 1
         assert c.precedentes[0].escopo == "parte_geral"
 
+    def test_parte_especial_entra_pelos_institutos_acolhidos(self):
+        # A tese que este projeto precisa: perícia da arma para a majorante do
+        # § 2º do art. 157 — exatamente o caso de roubo que está em casos.yaml.
+        c = recorta(
+            [tema(teseFirmada="Perícia da arma para a majorante do art. 157, § 2º, do Código Penal.")]
+        )
+        assert len(c.precedentes) == 1
+        assert c.precedentes[0].escopo == "parte_especial"
+
+    def test_dosimetria_aplicada_a_roubo_conta_como_parte_geral(self):
+        # A ordem das cláusulas no coletor é decisão: uma tese sobre o art. 68
+        # aplicado ao art. 157 é, antes de tudo, dosimetria — e é como
+        # dosimetria que ela serve a qualquer defesa, não só à de roubo.
+        c = recorta(
+            [tema(teseFirmada="O art. 68 do Código Penal na dosimetria do art. 157.")]
+        )
+        assert c.precedentes[0].escopo == "parte_geral"
+
     def test_apelido_da_lei_sem_numero(self):
         c = recorta([tema(questaoSubmetidaAJulgamento="Discute-se o alcance da Lei de Drogas.")])
         assert len(c.precedentes) == 1
@@ -99,12 +117,13 @@ class TestOQueEntra:
 
 class TestOQueFicaDeFora:
     def test_crime_fora_do_recorte_nao_entra(self):
-        # Homicídio e roubo são Código Penal, mas parte especial: nenhuma tese
-        # deste projeto os alcança, e eles encheriam a tela.
+        # Homicídio, estelionato e receptação são parte especial e nenhuma tese
+        # deste projeto os alcança — encheriam a tela sem sustentar nada.
         c = recorta(
             [
                 tema(teseFirmada="Qualificadora do art. 121, § 2º, I, do Código Penal, na pronúncia."),
-                tema(teseFirmada="Perícia da arma para a majorante do art. 157, § 2º, do Código Penal."),
+                tema(teseFirmada="O art. 171 do Código Penal e a representação da vítima."),
+                tema(teseFirmada="Receptação qualificada do art. 180, § 1º, do Código Penal."),
             ]
         )
         assert c.precedentes == []
@@ -174,7 +193,21 @@ class TestCuradoria:
         assert 68 in geral, "o critério trifásico é o coração da dosimetria"
         assert 65 in geral, "a confissão espontânea aparece em quase toda defesa"
         assert 121 not in geral, "homicídio é parte especial e está fora do recorte"
-        assert 157 not in geral, "roubo é parte especial e está fora do recorte"
+        assert 157 not in geral, "roubo não é parte geral — ele entra pela outra lista"
+
+    def test_a_parte_especial_espelha_os_institutos_acolhidos(self):
+        # A lista existe porque roubo majorado e a vulnerabilidade do art. 217-A
+        # entraram no projeto por pedido explícito, com rubrica e tese. Ela é
+        # fechada pelo mesmo motivo da parte geral: aceitar qualquer artigo
+        # traria homicídio e estelionato, que nenhuma tese alcança.
+        especial = set(CFG["parte_especial_cp"])
+        assert 157 in especial, "roubo majorado tem rubrica curada, caso e tese"
+        assert 217 in especial, "captura o art. 217-A — estupro de vulnerável"
+        assert 121 not in especial, "homicídio continua fora"
+        assert 171 not in especial, "estelionato continua fora"
+        # Nenhum artigo em duas listas: o escopo do tema ficaria indefinido, e a
+        # ordem das cláusulas no coletor decidiria em silêncio.
+        assert not (especial & set(CFG["parte_geral_cp"])), "artigo em duas listas"
 
     def test_situacoes_de_alerta_cobrem_o_que_nao_vale(self):
         alerta = {s.lower() for s in CFG["situacoes_de_alerta"]}

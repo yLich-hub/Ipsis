@@ -76,6 +76,30 @@ parte_geral_cp:
   - 115   # redução do prazo por idade
   - 117   # interrupção da prescrição
 
+# 3. Parte especial do Código Penal — dois institutos, e só eles.
+#
+# **Isto não afrouxa o recorte; ele espelha o recorte que já existe.** O roubo
+# majorado com concurso de agentes (art. 157) e a presunção de vulnerabilidade
+# do art. 217-A entraram na busca e na peça por pedido explícito, com rubrica
+# curada e tese escrita à mão. O que faltava era a terceira camada: como o STJ
+# LÊ esses artigos. Um tema sobre a perícia da arma para a majorante do § 2º
+# vale exatamente para o caso de roubo que já está em `casos.yaml`.
+#
+# **Continua fechada, e pelo mesmo motivo da lista acima.** Aceitar qualquer
+# artigo da parte especial traz homicídio, estelionato e receptação — crimes que
+# nenhuma tese deste projeto alcança. Artigo entra aqui quando o instituto já
+# tiver rubrica e tese; antes disso, o tema apareceria na tela sem nada para
+# sustentar.
+#
+# `_ART` captura só os dígitos (`\d{1,3}`), então `217` é o que casa uma tese
+# escrita sobre o art. 217-A. O 217 puro está revogado e não traz tema próprio.
+parte_especial_cp:
+  - 155   # furto — já tem rubrica curada; entra pelo mesmo par furto/roubo
+  - 157   # roubo, e as majorantes do § 2º
+  - 213   # estupro
+  - 217   # captura "art. 217-A" — estupro de vulnerável
+  - 226   # aumento de pena nos crimes sexuais, inclusive concurso de agentes
+
 # Reconhece a menção ao Código Penal, para os artigos acima não casarem quando
 # a frase fala de artigo de outra lei. `(?!\s+militar)` pelo mesmo motivo da
 # vigília: o CPM é o Decreto-Lei 1.001/1969, que o banco não tem.

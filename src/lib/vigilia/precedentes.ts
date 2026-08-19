@@ -19,6 +19,15 @@ import { soArtigo } from '@/lib/vigilia/alvos'
 
 export type Resultado<T> = { ok: true; dados: T } | { ok: false; erro: string }
 
+/**
+ * Como o escopo aparece na tela quando o tema não traz a casa legislativa.
+ *
+ * `parte_especial` entrou com os dois institutos que o projeto acolheu por
+ * pedido — roubo majorado e a vulnerabilidade do art. 217-A. O rótulo diz
+ * "artigo do Código Penal" e não "parte especial" porque a distinção entre
+ * parte geral e especial é vocabulário de quem estuda o Código, não de quem
+ * procura o precedente.
+ */
 export type Precedente = {
   id: string
   tipo: string
@@ -28,8 +37,14 @@ export type Precedente = {
   questao: string | null
   entendimentoAnterior: string | null
   julgadoEm: string | null
-  escopo: 'drogas' | 'parte_geral'
+  escopo: 'drogas' | 'parte_geral' | 'parte_especial'
   artigosTocados: string[]
+}
+
+const ROTULO_ESCOPO: Record<Precedente['escopo'], string> = {
+  drogas: 'Lei de Drogas',
+  parte_geral: 'Parte geral do Código Penal',
+  parte_especial: 'Artigo do Código Penal',
 }
 
 const daLinha = (l: Record<string, unknown>): Precedente => ({
@@ -41,7 +56,7 @@ const daLinha = (l: Record<string, unknown>): Precedente => ({
   questao: (l.questao as string | null) ?? null,
   entendimentoAnterior: (l.entendimento_anterior as string | null) ?? null,
   julgadoEm: (l.julgado_em as string | null) ?? null,
-  escopo: (l.escopo as 'drogas' | 'parte_geral') ?? 'drogas',
+  escopo: (l.escopo as Precedente['escopo']) ?? 'drogas',
   artigosTocados: (l.artigos_tocados as string[]) ?? [],
 })
 
@@ -184,7 +199,7 @@ export function agrupaPorTese(
     const casa = p.artigosTocados.map((a) => porArtigo.get(a)).find(Boolean)
     return {
       precedente: p,
-      origem: casa?.nome ?? (p.escopo === 'drogas' ? 'Lei de Drogas' : 'Parte geral do Código Penal'),
+      origem: casa?.nome ?? ROTULO_ESCOPO[p.escopo],
       origemId: casa?.id ?? p.escopo,
     }
   })

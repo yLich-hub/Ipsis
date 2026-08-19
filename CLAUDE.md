@@ -73,7 +73,7 @@ doutrina" abaixo, que segue valendo palavra por palavra.
 Toda citação na minuta resolve para um `dispositivos.id` no banco. Os templates
 de tese contêm marcadores `{{cite:lei_11343_2006_art33_p4}}`; o renderizador
 substitui pelo texto **lido do banco** e por um link para `/dispositivo/[id]`.
-O modelo escreve apenas a argumentação *entre* as citações.
+O modelo escreve apenas a argumentação _entre_ as citações.
 
 `tests/citacao.test.ts` (16 asserções) varre todos os `{{cite:}}` e todos os ids
 de `fundamentos` e `imputacao` da curadoria e falha se algum não existir.
@@ -98,6 +98,7 @@ acha o que o usuário procura** — daí a tabela `rubricas` com match exato e p
 dominante na fusão.
 
 Rubricas têm duas origens (`rubricas.origem`):
+
 - `oficial` — extraídas do artefato de extração do PDF (ver Limpeza, abaixo).
   414 rubricas marginais do CP, texto do próprio Vade Mecum.
 - `curada` — 38 termos coloquiais escritos à mão, em
@@ -108,8 +109,8 @@ imprime rubrica marginal quase só no Código Penal (414 lá, 0 na Lei de Drogas
 no CPP). Logo, tudo que o recorte do projeto precisa vem da
 curadoria, e sem ela a busca erra de forma silenciosa e grave. Medido no banco
 antes de a curadoria existir: `tráfico privilegiado` devolvia o art. 332 do CP
-(tráfico de *influência*) e `associação para o tráfico` devolvia o art. 149-A
-(tráfico de *pessoas*).
+(tráfico de _influência_) e `associação para o tráfico` devolvia o art. 149-A
+(tráfico de _pessoas_).
 
 O match é por **igualdade exata da consulta inteira** contra `termo` ou uma
 entrada de `variantes`, **ou pelo termo contido na frase** quando ele tem 12 ou
@@ -181,11 +182,11 @@ data velha é exatamente o que esta decisão existe para impedir.
 
 ## Fontes de dados
 
-| Arquivo | Lei | id | Cobertura | Origem |
-|---|---|---|---|---|
-| `data/lei11343.json` | Lei Antidrogas 11.343/2006 | `lei_11343_2006` | integral (94 arts) | `vade_parser.py` + Planalto |
-| `data/codigo_penal.json` | Código Penal (DL 2.848/1940) | `dl_2848_1940` | integral (421 arts) | `vade_parser.py` + Planalto |
-| `data/codigo_processo_penal.json` | CPP (DL 3.689/1941) | `dl_3689_1941` | integral (825 arts) | `vade_parser.py` + Planalto |
+| Arquivo                           | Lei                          | id               | Cobertura           | Origem                      |
+| --------------------------------- | ---------------------------- | ---------------- | ------------------- | --------------------------- |
+| `data/lei11343.json`              | Lei Antidrogas 11.343/2006   | `lei_11343_2006` | integral (94 arts)  | `vade_parser.py` + Planalto |
+| `data/codigo_penal.json`          | Código Penal (DL 2.848/1940) | `dl_2848_1940`   | integral (421 arts) | `vade_parser.py` + Planalto |
+| `data/codigo_processo_penal.json` | CPP (DL 3.689/1941)          | `dl_3689_1941`   | integral (825 arts) | `vade_parser.py` + Planalto |
 
 **`vade_parser.py` está validado. Não reescrever.** Trate os JSONs como fonte de
 dados imutável — a limpeza acontece em `scripts/normalize.ts`, nunca editando os
@@ -223,7 +224,7 @@ parcial` continua no schema e nas telas, sem nenhuma lei a usar por enquanto.
   "artigo": "33",
   "contexto": { "titulo": "...", "capitulo": "CAPÍTULO II – Dos Crimes" },
   "caput": "Importar, exportar, remeter, ...",
-  "paragrafos": [ { "numero": "4", "texto": "...", "incisos": [] } ],
+  "paragrafos": [{ "numero": "4", "texto": "...", "incisos": [] }],
   "incisos": []
 }
 ```
@@ -250,11 +251,11 @@ O Vade Mecum imprime a rubrica do dispositivo na margem; o parser a absorve no
   (rubrica do art. 2º); o §1º do art. 13 termina com `"Relevância da omissão"`
   (rubrica do §2º).
 
-**Regra determinística:** o fragmento no fim do dispositivo *i*, na ordem do
-documento, é a rubrica do dispositivo *i+1* — inclusive quando o *i+1* é um
+**Regra determinística:** o fragmento no fim do dispositivo _i_, na ordem do
+documento, é a rubrica do dispositivo _i+1_ — inclusive quando o _i+1_ é um
 parágrafo/inciso do mesmo artigo. Verificado ao longo da cadeia inicial do CP.
 
-Isso torna a limpeza uma *feature*: as rubricas removidas viram `rubricas` com
+Isso torna a limpeza uma _feature_: as rubricas removidas viram `rubricas` com
 `origem = 'oficial'`, já ligadas ao dispositivo exato. São 379 extraídas do fim
 de bloco; somadas às que vêm dos 115 headings, dão as 414 rubricas oficiais no
 banco.
@@ -434,7 +435,7 @@ então não tem como divergir sozinho.
 ## Busca
 
 Função RPC única no Postgres (uma chamada de rede, não três), fundindo por
-*Reciprocal Rank Fusion*:
+_Reciprocal Rank Fusion_:
 
 1. **Rubrica** — match exato em `termo` ou `variantes`. Peso dominante: quando
    bate, encabeça o resultado.
@@ -452,12 +453,12 @@ sustenta sozinho.
 
 Por regras em TS, **sem chamada de modelo** — é determinístico e precisa ser rápido.
 
-| Molde | Sinal | Resposta |
-|---|---|---|
-| `dispositivo` | padrão `art\.?\s*\d+`, sigla de lei | texto legal direto |
-| `tema` | match em rubrica com `tipo = 'tema'` | cluster ordenado por `papel`/`peso` |
-| `processual` | sigla CPP, termos de rito | dispositivos processuais |
-| `doutrina` | "doutrina", "segundo", nome de autor | ver restrição abaixo |
+| Molde         | Sinal                                | Resposta                            |
+| ------------- | ------------------------------------ | ----------------------------------- |
+| `dispositivo` | padrão `art\.?\s*\d+`, sigla de lei  | texto legal direto                  |
+| `tema`        | match em rubrica com `tipo = 'tema'` | cluster ordenado por `papel`/`peso` |
+| `processual`  | sigla CPP, termos de rito            | dispositivos processuais            |
+| `doutrina`    | "doutrina", "segundo", nome de autor | ver restrição abaixo                |
 
 ### Restrição de doutrina (não negociável)
 
@@ -683,14 +684,14 @@ mesma extração ao modelo criaria um segundo extrator para divergir do primeiro
 
 **As seis recusas de `valida()`**, todas no servidor, todas testadas offline:
 
-| Recusa | Por quê |
-|---|---|
-| `doc_id` fora do contexto recuperado | id que não veio da busca é alucinação, mesmo existindo no banco |
-| citação para `sources[].id` inexistente | marcador que não abre nada é pior que nenhum |
-| forma diferente do esquema | segunda camada, para o dia em que o esquema mudar |
-| **transcrição de lei** | doze palavras seguidas iguais às de um dispositivo do contexto e a resposta cai: a decisão nº 1 diz que texto legal nunca é gerado, e "gerar" inclui copiar do contexto para a prosa |
-| **parágrafo sem âncora** | todo parágrafo tem de citar ao menos uma fonte — ver abaixo |
-| **letra fora do alfabeto latino** | observado numa geração real: `"não é um अपराधo autônomo"`, devanágari no lugar de "crime". Nenhuma das outras alcança — o parágrafo cita, não transcreve e tem a forma certa. A regra é allowlist por escrita e só sobre letras, então `ã`, `§`, `⅔` e aspas tipográficas passam |
+| Recusa                                  | Por quê                                                                                                                                                                                                                                                                          |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `doc_id` fora do contexto recuperado    | id que não veio da busca é alucinação, mesmo existindo no banco                                                                                                                                                                                                                  |
+| citação para `sources[].id` inexistente | marcador que não abre nada é pior que nenhum                                                                                                                                                                                                                                     |
+| forma diferente do esquema              | segunda camada, para o dia em que o esquema mudar                                                                                                                                                                                                                                |
+| **transcrição de lei**                  | doze palavras seguidas iguais às de um dispositivo do contexto e a resposta cai: a decisão nº 1 diz que texto legal nunca é gerado, e "gerar" inclui copiar do contexto para a prosa                                                                                             |
+| **parágrafo sem âncora**                | todo parágrafo tem de citar ao menos uma fonte — ver abaixo                                                                                                                                                                                                                      |
+| **letra fora do alfabeto latino**       | observado numa geração real: `"não é um अपराधo autônomo"`, devanágari no lugar de "crime". Nenhuma das outras alcança — o parágrafo cita, não transcreve e tem a forma certa. A regra é allowlist por escrita e só sobre letras, então `ã`, `§`, `⅔` e aspas tipográficas passam |
 
 **A quinta entrou por último, e fecha a fresta que as outras quatro deixavam.**
 Elas garantem que o que o modelo CITA veio da busca; nenhuma obrigava a citar.
@@ -923,12 +924,12 @@ classes são `tg-sobe`, `tg-entra`, `tg-desliza`, `tg-pipoca`, mais `.tgb` e
 `.tgc` para o toque de botão e de cartão. Quatro peças foram acrescentadas onde a
 tela mudava sem avisar:
 
-| Classe | Onde | Por quê |
-|---|---|---|
-| `tg-tela` | `Casca`, com `key` no caminho | uma navegação trocava o conteúdo sem nenhum sinal de que trocou |
-| `tg-lista` | achados da vigília, cartões de jurisprudência, índice de artigos, dispositivos | o olho lê de cima para baixo em vez de topar com um bloco pronto |
-| `tg-abre` | cartão de dosimetria no chat | ele saltava de 48 px para 300 px num quadro e empurrava a conversa |
-| `tg-realce` | dispositivo em destaque | toda citação abre o artigo inteiro, e num artigo de trinta blocos o fundo estático não diz onde olhar |
+| Classe      | Onde                                                                           | Por quê                                                                                               |
+| ----------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `tg-tela`   | `Casca`, com `key` no caminho                                                  | uma navegação trocava o conteúdo sem nenhum sinal de que trocou                                       |
+| `tg-lista`  | achados da vigília, cartões de jurisprudência, índice de artigos, dispositivos | o olho lê de cima para baixo em vez de topar com um bloco pronto                                      |
+| `tg-abre`   | cartão de dosimetria no chat                                                   | ele saltava de 48 px para 300 px num quadro e empurrava a conversa                                    |
+| `tg-realce` | dispositivo em destaque                                                        | toda citação abre o artigo inteiro, e num artigo de trinta blocos o fundo estático não diz onde olhar |
 
 Três decisões dentro disso:
 
@@ -939,7 +940,7 @@ Três decisões dentro disso:
   até "a altura que o conteúdo tiver" sem medir em JavaScript — e o conteúdo
   fechado leva `inert`, senão trocar desmontagem por animação viraria um defeito
   de acesso: o que está escondido continuaria no caminho do Tab.
-- **As regras de movimento reduzido passaram a zerar o *atraso* também.** Duração
+- **As regras de movimento reduzido passaram a zerar o _atraso_ também.** Duração
   0,01 ms com atraso intacto não é "sem movimento": é o conteúdo chegando 234 ms
   depois e piscando. Valia para as duas portas — a media query e o
   `data-movimento="reduzido"` das Configurações.
@@ -950,15 +951,15 @@ chega a 100% antes do resultado, e esqueleto só onde a espera existe.
 
 ### As sete telas
 
-| Rota | Tela | De onde vêm os dados |
-|---|---|---|
-| `/consulta` | chat, painel de fonte, dosimetria e histórico | `/api/busca` + `conversas` |
-| `/jurisprudencia` | entendimento consolidado + precedentes do STJ | `teses.jurisprudencia` + `precedentes_stj` |
-| `/dosimetria` | cálculo trifásico ao vivo | aritmética local, sem banco |
-| `/vademecum` | grade de ramos + leitor | índice do acervo, em disco |
-| `/clientes` | cadastro do escritório | `clientes` (RLS por sessão) |
-| `/fontes` | vigília sobre a data de corte | `vigilia_*` (migration 0012) |
-| `/configuracoes` | perfil, garantias, fontes, aparência, segurança | `perfil` + `leis` do banco |
+| Rota              | Tela                                            | De onde vêm os dados                       |
+| ----------------- | ----------------------------------------------- | ------------------------------------------ |
+| `/consulta`       | chat, painel de fonte, dosimetria e histórico   | `/api/busca` + `conversas`                 |
+| `/jurisprudencia` | entendimento consolidado + precedentes do STJ   | `teses.jurisprudencia` + `precedentes_stj` |
+| `/dosimetria`     | cálculo trifásico ao vivo                       | aritmética local, sem banco                |
+| `/vademecum`      | grade de ramos + leitor                         | índice do acervo, em disco                 |
+| `/clientes`       | cadastro do escritório                          | `clientes` (RLS por sessão)                |
+| `/fontes`         | vigília sobre a data de corte                   | `vigilia_*` (migration 0012)               |
+| `/configuracoes`  | perfil, garantias, fontes, aparência, segurança | `perfil` + `leis` do banco                 |
 
 **A lateral colapsa** para uma trilha de 64px, por `⌘B` ou pelo botão ao lado da
 marca, com a preferência guardada em `localStorage`. Não contradiz a largura
@@ -997,14 +998,14 @@ assentos de escritório, fatura de R$ 2.390/mês, cinco coletores em Python,
 sincronização do DOU a cada 30 minutos —, e desenhar isso encheria a tela do
 dado plausível e falso que a decisão nº 3 existe para impedir.
 
-| Seção do documento | Aqui | Por quê |
-|---|---|---|
-| Perfil e OAB | Perfil e OAB | igual; guardado no navegador |
-| IA e citações | IA e citações | vira o que já é garantido, sem interruptor |
-| Fontes e sincronização | Fontes e data de corte | não há coletor; há corpus |
-| Alertas | Aparência | nada notifica; a interface tem duas preferências reais |
-| Segurança | Segurança | sessão, senha, encerrar em todos os aparelhos |
-| Escritório e cobrança | — | multiusuário e billing são fora de escopo |
+| Seção do documento     | Aqui                   | Por quê                                                |
+| ---------------------- | ---------------------- | ------------------------------------------------------ |
+| Perfil e OAB           | Perfil e OAB           | igual; guardado no navegador                           |
+| IA e citações          | IA e citações          | vira o que já é garantido, sem interruptor             |
+| Fontes e sincronização | Fontes e data de corte | não há coletor; há corpus                              |
+| Alertas                | Aparência              | nada notifica; a interface tem duas preferências reais |
+| Segurança              | Segurança              | sessão, senha, encerrar em todos os aparelhos          |
+| Escritório e cobrança  | —                      | multiusuário e billing são fora de escopo              |
 
 **Nenhum interruptor da tela é decorativo.** Existem dois, e os dois mexem em
 coisa visível na hora: "lateral recolhida" (a mesma preferência do `⌘B`) e
@@ -1036,8 +1037,8 @@ gravado antes da migration não o perde — sem linha no banco e com cache cheio
 `carrega()` sobe o que estava no navegador.
 
 **O perfil não entra na minuta.** Ele alimenta as iniciais do avatar e o menu da
-conta, e para aí: o `.docx` continua saindo com "Autos nº ____" e "Advogado(a) —
-OAB/__ nº ______" como campos a preencher. Preencher o cabeçalho de uma peça a
+conta, e para aí: o `.docx` continua saindo com "Autos nº __**" e "Advogado(a) —
+OAB/** nº ______" como campos a preencher. Preencher o cabeçalho de uma peça a
 partir de um ajuste de tela é decisão sobre a peça, não sobre a tela de ajustes.
 Só há campo de nome, OAB e telefone — nada de foto: não há upload nem
 armazenamento de imagem, e o botão "Trocar foto" do documento seria um botão que
@@ -1095,14 +1096,14 @@ pode errar sem estragar nada, e é o que permite que o filtro seja heurístico.
 **As cinco fontes do desenho existem, e entrou uma sexta.** Quatro rodam em
 Python, em `coletores/` — detalhe completo em `coletores/README.md`.
 
-| Fonte | O que entrega | Onde roda |
-|---|---|---|
-| **Planalto** | texto compilado; alteração **já em vigor**, por artigo | Python (scraping) |
-| Câmara | proposições e situação da tramitação | Vercel (TS) |
-| Senado | processos e `normaGerada`, com data de publicação no DOU | Vercel (TS) |
-| DOU | confirma publicação da norma e guarda o endereço oficial | Python |
-| DataJud | contagem de processos por assunto | Python |
-| **STJ** | precedentes qualificados, com a situação de cada tema | Python |
+| Fonte        | O que entrega                                            | Onde roda         |
+| ------------ | -------------------------------------------------------- | ----------------- |
+| **Planalto** | texto compilado; alteração **já em vigor**, por artigo   | Python (scraping) |
+| Câmara       | proposições e situação da tramitação                     | Vercel (TS)       |
+| Senado       | processos e `normaGerada`, com data de publicação no DOU | Vercel (TS)       |
+| DOU          | confirma publicação da norma e guarda o endereço oficial | Python            |
+| DataJud      | contagem de processos por assunto                        | Python            |
+| **STJ**      | precedentes qualificados, com a situação de cada tema    | Python            |
 
 **A coleta é de dois andares, e isso é decisão.** O Vercel Cron roda o andar
 leve — Câmara e Senado, duas APIs REST que cabem numa função serverless e
@@ -1120,8 +1121,8 @@ outra falhar, a divergência aparece na hora. É a escolha de `tests/citacao.tes
 não eliminar a duplicação, trancá-la.
 
 **O Planalto é o coletor mais importante dos cinco, e a razão é estrutural.**
-Câmara e Senado contam o que foi *proposto*; só o texto compilado mostra o que
-*está em vigor*. Na primeira execução ele encontrou **63 alterações posteriores à
+Câmara e Senado contam o que foi _proposto_; só o texto compilado mostra o que
+_está em vigor_. Na primeira execução ele encontrou **63 alterações posteriores à
 data de corte**, entre elas a Lei 15.581/2025 (art. 23 da Lei de Drogas) e a Lei
 15.358/2026 (art. 40-A) — duas que nenhuma API de proposição reportaria como
 alteração consumada. **A fotografia de 28/02/2025 já está furada, e o projeto não
@@ -1244,8 +1245,8 @@ dos fundos, com acórdão no lugar de lei. O dataset de temas tem `situacao`,
 `entendimentoAnterior` e o histórico de mudança: é o análogo honesto de
 `leis.vigencia_ate`.
 
-**O caso que fixou as regras é o Tema 600** — *"o tráfico privilegiado não é
-equiparado a hediondo"*. É a resposta mais procurada do recorte e está
+**O caso que fixou as regras é o Tema 600** — _"o tráfico privilegiado não é
+equiparado a hediondo"_. É a resposta mais procurada do recorte e está
 `Revisado`. Dos 61 temas, 14 estão cancelados ou sobrestados.
 
 **O recorte foi medido, não estimado.** Só drogas dá 34 temas; aceitar qualquer
@@ -1589,9 +1590,9 @@ e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 > Medido escondendo `data/normalizado/` e rodando o vitest: 8 arquivos passam, 1
 > é pulado inteiro (`peca`), zero falham. É o que permite o CI existir sem
 > segredo — ver `.github/workflows/verificacao.yml`. `consulta`
-é a que tranca o contrato da geração ao vivo — validação e leitura incremental —
-sem chamar modelo nenhum. O que fala com o Supabase é verificado contra o banco
-de verdade, não em teste offline.
+> é a que tranca o contrato da geração ao vivo — validação e leitura incremental —
+> sem chamar modelo nenhum. O que fala com o Supabase é verificado contra o banco
+> de verdade, não em teste offline.
 
 `npm run verificar` **não roda o lado Python**, e a separação é proposital: o
 vitest não deve depender de um venv que pode não existir na máquina de quem só
@@ -1665,3 +1666,20 @@ está no `ls` da pasta.
 - **Leitor de tela real nunca foi usado.** O ARIA desta seção foi conferido no
   DOM e no navegador; como ele soa no NVDA ou no VoiceOver é conferência que
   ainda não aconteceu.
+- **21 dos 72 precedentes do STJ carregam id de artigo que não existe**, cinco
+  deles citáveis. São números do CPC lidos como se fossem do Código Penal —
+  `dl_2848_1940_art543-c`, `art1030`, `art1036`. `artigos_de` recusa atribuir
+  quando a frase numera dois diplomas, e não recusa quando o segundo é apenas
+  NOMEADO ("art. 543-C do CPC"). Id inexistente é inerte na recuperação — ele
+  nunca cruza com dispositivo nenhum —, mas é ruído, e o Tema 991 chegou a
+  produzir `dl_2848_1940_art1`, que existe e está errado. O conserto pede uma
+  decisão antes: filtrar contra o corpus exige `data/normalizado/`, que é
+  ignorado pelo git e não existe no GitHub Actions, onde a coleta roda. Filtrar
+  só onde o arquivo existe faria o coletor se comportar diferente em dois
+  ambientes, que é pior que o ruído.
+- **A Lei de Execução Penal não está no projeto, e trazê-la é decisão de
+  procedência, não de trabalho.** Ela não está no corpus, não está no acervo de
+  75 e não está no PDF do Vade Mecum — as quatro ocorrências no PDF são
+  referências feitas por outras leis. O levantamento completo, com as três
+  origens possíveis e o que cada uma cobra da decisão nº 1, está em
+  `docs/lep-levantamento.md`.
