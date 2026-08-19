@@ -562,7 +562,7 @@ Autos, nome e OAB ficam como campos a preencher. Os casos são anonimizados, e
 inventar número de processo seria o dado plausível e falso que este projeto
 existe para não produzir.
 
-`tests/peca.test.ts` (9 asserções, offline) monta a minuta de **todos** os casos
+`tests/peca.test.ts` (10 asserções, offline) monta a minuta de **todos** os casos
 contra `data/normalizado/` e confere que: nenhum caso fica sem citação, todo
 dispositivo citado tem texto e rótulo não vazios, nenhum marcador cru sobrevive,
 citação órfã e fundamento órfão derrubam a montagem com o id nomeado, o `.docx`
@@ -1046,7 +1046,7 @@ ou conversa do próprio usuário. Daí três regras que as outras telas não tê
   digitar qualquer coisa, e CPF inventado é pior que campo vazio porque parece
   conferido. O que é digitado, porém, é conferido: `cpfValido()` calcula os dois
   dígitos verificadores e recusa os onze repetidos. O banco só olha o formato —
-  dígito verificador é conta, e `tests/clientes.test.ts` (14 asserções, offline)
+  dígito verificador é conta, e `tests/clientes.test.ts` (16 asserções, offline)
   a tranca junto com os tetos, que têm de bater com os checks de 0009.
 
 CPF é guardado como 11 dígitos crus: máscara é assunto da tela, e gravar
@@ -1144,7 +1144,7 @@ porque o próprio texto do Planalto contém `\r\n\t` no meio da anotação. As t
 estão anotadas no código e cobertas por `coletores/tests/test_planalto.py`.
 
 **O filtro é a peça que pode errar em silêncio**, e por isso mora inteiro em
-`lib/vigilia/alvos.ts`, puro e offline, com 31 asserções em `tests/vigilia.test.ts`
+`lib/vigilia/alvos.ts`, puro e offline, com 35 asserções em `tests/vigilia.test.ts`
 sobre ementas reais colhidas das duas APIs. Três regras:
 
 1. **Verbo de alteração obrigatório.** Metade das ementas que citam a Lei 11.343
@@ -1401,6 +1401,99 @@ pixel; o conteúdo foi trocado pelo verdadeiro.
 `prefers-reduced-motion` desliga todo o movimento. O documento não trata disso —
 protótipo não precisa; produto precisa.
 
+### Acesso: o que o protótipo não desenha e o produto precisa ter
+
+Uma auditoria no navegador (Chromium com sessão real, em 1440, 1024, 390 e 320)
+mediu o que nenhuma suíte alcançava. O documento de design não trata de nada
+disto, pela mesma razão de `prefers-reduced-motion`: protótipo não tem foco,
+não tem teclado e não tem dedo.
+
+**A regra que organiza esta seção:** movimento e forma vieram do documento;
+acesso não veio de lugar nenhum, e por isso cada item aqui carrega o número que
+o motivou. Sem número, "melhorar a acessibilidade" vira lista de desejos.
+
+**Gaveta aberta é diálogo modal.** O menu da conta e a paleta do ⌘K já eram —
+`aria-expanded`, `role`, Esc, foco que volta ao gatilho. A gaveta da lateral não
+tinha nada disso, e é a única das três que só existe no toque. Medido antes:
+abrir não movia o foco e eram **onze paradas de Tab pelo conteúdo coberto pelo
+véu**; Esc não fazia nada; fechar largava o foco no `<body>`; e com ela FECHADA
+sobravam dez e tantas paradas em `x = -234`, porque `-translate-x-full` esconde
+do olho e não do Tab.
+
+`useEstreito()` é a peça que faltava, e ela **precisa ser JavaScript**: `inert`,
+`role="dialog"` e armadilha de foco não existem em CSS, e a `aside` é o MESMO
+elemento nos dois modos — sem essa pergunta, inertizar a gaveta fechada
+desligaria a navegação do desktop. O foco vai para a própria `aside` e não para
+o primeiro link: assim o leitor de tela anuncia o rótulo antes da primeira
+parada.
+
+**Link de pular para o conteúdo.** A moldura é a mesma em toda tela e o teclado
+a percorria inteira a cada navegação: **29 paradas até o campo de pergunta, 8
+com o atalho**. `tabIndex={-1}` no `<main>` é o que faz o salto pousar — sem ele
+o link move o scroll e não o foco, e a tecla seguinte continua na lateral.
+
+**Uma região viva, montada sempre.** A que existia dizia "Consultando o corpus
+curado" e vivia DENTRO do bloco de espera, desmontando com ele — região viva que
+nasce e morre com o estado que anuncia não anuncia nada, porque o navegador
+precisa dela já presente para notar a mudança. A chegada da resposta passava em
+silêncio. Ela anuncia quantos parágrafos e quantas fontes, não o texto: a
+resposta está ali para ser lida no ritmo de quem lê.
+
+**Erro de formulário aponta, marca e leva o foco.** `/clientes` recusava com uma
+caixa vermelha e nada mais — zero `role="alert"`, zero `aria-invalid`, foco no
+`<body>`. Por isso `critica()` devolve `Critica` e não `string`: a mensagem já
+nomeava o campo na prosa, o que serve para quem lê a tela e não serve para a
+tela. Um segundo mapa de mensagem para campo seria duas cópias da mesma regra
+divergindo na primeira correção, então as duas metades saem juntas de onde a
+regra mora. Sem campo apontado — rede, sessão — o foco não é roubado de ninguém.
+
+**Contraste: subiu o que carrega significado.** O pior par media 1.92:1. O ramo
+inteiro NÃO subiu, e é decisão: são quatro degraus entre 3.5 e 2.6, e levar
+todos a 4.5 os transformaria no mesmo cinza — a hierarquia de ênfase do TOGA v2
+desapareceria para resolver um problema que ela não tem, porque ali embaixo
+moram dica, placeholder e seta. Subiu `tg-suave` (o tom mais claro que ainda
+pinta conteúdo) e, onde um tom decorativo pintava informação, mudou o **uso**: o
+cartão "Base conferida", o subtítulo de todo cabeçalho, o crédito de procedência
+do acervo e o status de `/fontes`.
+
+**Alvo de toque cresce sem o desenho crescer.** Hambúrguer e avatar continuam
+com os 32px do documento e recebem 44 de área por um `::after` de `-inset-1.5`;
+crescer o botão levaria o `hover:bg` junto e pintaria um quadrado de 44. Onde o
+controle é uma pílula, o `max-sm` folga de verdade — no desktop o ponteiro
+acerta 29px e a densidade é parte do desenho. O caso que mais dói é o segmentado
+da dosimetria: três alvos colados de 29px em 390px de tela, e errar um deles
+**muda a pena que a tela mostra**.
+
+**Duas armadilhas que custaram caro, anotadas onde aconteceram:**
+
+1. **Efeito colateral dentro de updater de estado** produz um sintoma idêntico
+   ao defeito que se está consertando. O StrictMode invoca o updater duas vezes
+   de propósito, e a segunda passagem já encontra a bandeira ligada. Foi assim
+   que o passo repetido "continuou repetindo" depois de consertado.
+2. **Botão que troca de `type` dentro do próprio clique.** O de parar a consulta
+   alternava entre `button` e `submit`; clicar mudava `ocupado` para falso, o
+   React reescrevia o `type` ainda dentro do despacho, e o navegador executava a
+   ação padrão do botão que encontrava ENTÃO — submetendo o formulário e
+   reenviando a consulta que o usuário mandou cancelar. O cancelamento nunca
+   falhou; ele era desfeito. `type="button"` sempre, e o Enter continua no
+   `onSubmit`, que não depende do botão.
+
+**Parar a consulta age na hora, e não espera o `fetch` reclamar.** A requisição
+morre mesmo — `net::ERR_ABORTED` —, mas o `await leitor.read()` do laço de
+streaming fica pendurado sem resolver nem rejeitar, então um `catch` esperando
+`AbortError` nunca roda. `cancelado` é o mesmo desenho de `vivo.current`, que o
+arquivo já usava para o desmonte. Desistência não cai na rede de segurança:
+compor uma resposta ali seria entregar o que quem cancelou disse não querer.
+
+**O cartão de compartilhamento é gerado, não é um PNG no repositório.** É o
+argumento de `marca.ts`: nome, inicial e descrição moram num lugar só, e um PNG
+os traria desenhados dentro dele — a próxima troca de marca deixaria o cartão
+com o nome antigo, que é o mais silencioso dos defeitos de rebranding, porque
+ninguém revisa uma imagem em diff. Sem fonte baixada, pela mesma restrição que
+recusou o `next/font`. `/opengraph-image` está em `PUBLICAS`, e isso é o desenho
+funcionando: rota nova nasce fechada, e esta existe para ser buscada por quem
+não tem sessão — protegida, devolvia 307 e o cartão saía sem imagem.
+
 ## Convenções
 
 - Ids textuais estáveis em toda parte: `lei_11343_2006_art33_p4`,
@@ -1460,7 +1553,7 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As nove suítes (164 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As nove suítes (166 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
 e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 
@@ -1477,7 +1570,7 @@ e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 > impresso (`exige_corpus`, em `coletores/tests/test_filtro.py`); as do filtro,
 > que são as que podem errar em silêncio, continuam rodando sempre. **O lado
 > vitest recebeu o mesmo conserto** (`seComCorpus`, em `citacao`, `peca`,
-> `redacao` e `vigilia`): num clone sem corpus são 133 asserções passando e 26
+> `redacao` e `vigilia`): num clone sem corpus são 140 asserções passando e 26
 > anunciadas como puladas, em vez de nove suítes vermelhas.
 >
 > Medido escondendo `data/normalizado/` e rodando o vitest: 8 arquivos passam, 1
@@ -1540,3 +1633,20 @@ está no `ls` da pasta.
   — é a vigília do corpus, e tem seção própria acima; o que não voltou foi o
   painel de diagnóstico do normalize, cuja fonte segue em
   `data/normalizado/relatorio.json`, fora da tela.
+- **Nenhuma rota dinâmica tem `loading.tsx`, e só uma precisaria.** Tudo sob
+  `(app)` é renderizado sob demanda desde a autenticação, e oito telas fazem
+  `await` no Supabase no servidor — `/fontes` dispara seis consultas em
+  `Promise.all`. Medido com o `.next` quente: a troca leva 166 a 444 ms, e nesse
+  intervalo nada na tela diz que há espera. Fica na lista porque o número muda
+  com o banco frio, que é justamente o estado em que um portfólio é aberto.
+  `/jurisprudencia` é a única com esqueleto.
+- **Contraste: o ramo abaixo de `tg-suave` continua abaixo de 4.5:1.** É
+  deliberado — ver "Acesso", acima —, e vale enquanto esses tons pintarem dica,
+  placeholder e seta. Uso novo que ponha informação em `tg-fraco-*` ou
+  `tg-tenue*` reabre o problema, e nenhum teste pega isso.
+- **`/fontes` ainda tem três alvos abaixo de 32px no toque**, contra 304 antes.
+  Os que sobraram são links de 11px dentro de linha de texto, isentos pela WCAG
+  2.5.8 e já com a área ampliada por `py-2 -my-2`.
+- **Leitor de tela real nunca foi usado.** O ARIA desta seção foi conferido no
+  DOM e no navegador; como ele soa no NVDA ou no VoiceOver é conferência que
+  ainda não aconteceu.
