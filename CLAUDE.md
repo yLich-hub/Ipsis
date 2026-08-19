@@ -606,9 +606,22 @@ Claude é superfície de gasto anônima — e a autenticação, quando entrou, n
 apagou a regra: apagou o motivo de ela ser absoluta.
 
 **A minuta continua sem modelo nenhum**: a argumentação da peça está escrita à
-mão em `teses.yaml`, e não há chamada a modelo em `/api/peca/[casoId]`. Cada
-frase do `.docx` passou por revisão humana, que é padrão profissional real para
-peça jurídica.
+mão em `teses.yaml`, e não há chamada a modelo em `/api/peca/[casoId]`.
+
+**"Cada frase passou por revisão humana" era afirmação sem registro, e virou
+dado.** O texto legal tem três camadas de conferência; a argumentação entre as
+citações não tinha nenhuma, e a garantia vivia só na prosa de cinco documentos —
+até que cinco teses entraram escritas por modelo e não havia onde anotar isso.
+`teses.revisao` (migration 0016) guarda `pendente`; o checklist de `/pecas` põe
+selo âmbar na tese, e o rodapé do `.docx` diz quantas teses daquela minuta
+aguardam revisão, nomeando-as. Provado por mutação: trocar a frase do rodapé
+derruba `tests/peca.test.ts`.
+
+**NULL é "sem registro", nunca "conferida".** As dezesseis teses anteriores à
+coluna não recebem carimbo retroativo: escrever uma data que ninguém anotou
+seria inventar o registro para fazê-lo parecer completo — o mesmo dado plausível
+e falso que `jurisprudencia` recusa quando não há número de súmula conferido. Só
+a marca explícita é contada, e quem revisar apaga a linha do YAML.
 
 **A resposta do chat, essa, é gerada** — `/api/consulta/aovivo` é o caminho
 padrão da Consulta desde que a prosa composta se mostrou o que era: verdadeira e
@@ -1625,8 +1638,10 @@ está no `ls` da pasta.
   é o teto mensal do botão "gerar ao vivo", ver "Nenhuma chamada a LLM no
   caminho padrão".
 - **A geração ao vivo só existe na Consulta.** A minuta continua sem modelo
-  nenhum, e não é lacuna a preencher sem pedido: cada frase do `.docx` passou por
-  revisão humana, que é padrão profissional real para peça jurídica.
+  nenhum, e não é lacuna a preencher sem pedido. **Cinco das 21 teses aguardam
+  revisão de advogado** — marcadas em `teses.revisao`, com selo no checklist e
+  aviso no rodapé do `.docx`. As outras dezesseis não têm registro de revisão,
+  que não é o mesmo que ter sido conferidas.
 - **`/sumulas` foi removida** a pedido, para o sistema ficar só com o que se usa.
   Saiu por inteiro: rota, componente e módulo de dados (`lib/toga/sumulas.ts`).
   Nada mais a importava. O `/fontes` que saiu junto **voltou com outro trabalho**
