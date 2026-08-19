@@ -687,15 +687,49 @@ export function Consulta({
   // chat anterior. Reconstrói as mensagens a partir das trocas gravadas, já
   // "prontas": reanimar a digitação de uma resposta que o usuário já leu seria
   // fazê-lo esperar de novo por algo que ele veio reler.
-  const jaCarregou = useRef(false)
+  //
+  // **O guarda é o id pedido, e não um booleano.** Era `jaCarregou`, ligado na
+  // primeira leitura e nunca mais desligado — e trocar de conversa na lateral
+  // navega de `?c=A` para `?c=B` sem desmontar esta tela: o prop muda, o efeito
+  // roda de novo e caía fora na primeira linha. O usuário clicava em qualquer
+  // item do histórico e continuava lendo o primeiro que abriu, sem erro nenhum
+  // na tela dizendo o contrário.
+  const carregada = useRef<string | null>(null)
   useEffect(() => {
-    if (jaCarregou.current || !conversaInicial) return
-    jaCarregou.current = true
+    // "Nova consulta" tira o `?c=` da URL. Soltar o guarda aqui é o que permite
+    // reabrir depois a MESMA conversa que estava aberta antes.
+    if (!conversaInicial) {
+      carregada.current = null
+      return
+    }
+    if (carregada.current === conversaInicial) return
+    carregada.current = conversaInicial
+
+    // Trocar de conversa no meio de uma resposta: derruba a requisição e os
+    // relógios antes de trocar a tela, senão a digitação da conversa velha
+    // segue correndo sobre as mensagens da nova. Não é `parar()`: aquele
+    // devolve a pergunta à caixa e tira as duas últimas mensagens, que é o
+    // certo para quem desiste e o errado para quem só mudou de conversa.
+    cancelado.current = true
+    aborto.current?.abort()
+    aborto.current = null
+    pararRelogios()
+    setOcupado(false)
+    setPainel(null)
+    // A tela esvazia agora, e não quando a leitura voltar: se ela falhar, o que
+    // fica é um chat vazio, e não a conversa anterior fingindo ser a pedida.
+    setMsgs([])
+    // Solto também, pelo mesmo motivo: com o id velho aqui, a próxima pergunta
+    // seria gravada como continuação da conversa que o usuário acabou de deixar.
+    conversaRef.current = null
 
     void busca(conversaInicial).then((c) => {
       // Conversa apagada, de outro usuário, ou banco fora: começa vazia. Não é
       // erro de tela — é o histórico não estar disponível.
       if (!c || !vivo.current) return
+      // Dois cliques seguidos no histórico: a leitura que volta por último pode
+      // ser a da conversa que já não é a pedida. Quem manda é o guarda.
+      if (carregada.current !== conversaInicial) return
 
       conversaRef.current = c.id
       setMsgs(
@@ -725,14 +759,18 @@ export function Consulta({
         }),
       )
     })
-  }, [conversaInicial])
+  }, [conversaInicial, pararRelogios])
 
   // Pergunta que veio na URL (?p=…) — é como a lateral, a paleta do ⌘K e os
   // atalhos de outras telas chegam aqui. Dispara uma vez só.
-  const jaDisparou = useRef(false)
+  // Guarda pela pergunta, pelo mesmo motivo do `?c=` acima: com um booleano,
+  // ir de `?p=furto` para `?p=roubo` — dois cliques em rubricas diferentes —
+  // não disparava a segunda.
+  const disparada = useRef<string | null>(null)
   useEffect(() => {
-    if (jaDisparou.current || !perguntaInicial || conversaInicial) return
-    jaDisparou.current = true
+    if (!perguntaInicial || conversaInicial) return
+    if (disparada.current === perguntaInicial) return
+    disparada.current = perguntaInicial
     void enviar(perguntaInicial)
   }, [conversaInicial, enviar, perguntaInicial])
 
