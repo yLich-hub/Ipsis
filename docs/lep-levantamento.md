@@ -94,6 +94,58 @@ avisaria bastante, já que a fotografia da LEP nasceria com três anos.
 Recusada quando o CPP entrou, e a decisão está escrita: digitar à mão seria
 produzir texto legal fora da fonte, que é o que a decisão nº 1 proíbe.
 
+## A auditoria do PDF da Câmara
+
+Feita antes de decidir o tamanho do extrator, medindo com as **mesmas expressões
+regulares do `vade_parser.py`** — mesma régua, não uma parecida.
+
+A LEP ocupa as **páginas 241 a 272** (32 páginas), com **206 blocos de artigo**,
+numeração de 1 a 195 mais 11 com sufixo, e **nenhuma lacuna na sequência**. A
+extração cobriria a lei inteira.
+
+### Quatro das cinco classes de artefato não existem aqui
+
+| Classe do Vade Mecum         | Ocorrências na Câmara |
+| ---------------------------- | --------------------- |
+| B. Marcador de rodapé colado | **0**                 |
+| C. Ordinal como letra `o`    | **0** — usa `º`       |
+| D. Nota do editor no texto   | **0**                 |
+| E. Parágrafo fantasma        | **0**                 |
+| A. Rubrica marginal colada   | **0** reais           |
+
+A classe A merece nota: a varredura apontou 18, e todas eram **cabeçalhos de
+seção**, não rubricas. A causa é outra e está abaixo.
+
+### Três coisas novas, e só uma é trabalho
+
+1. **Hifenização no fim da linha — 177 ocorrências.** O Vade Mecum não hifeniza;
+   a Câmara justifica coluna única e quebra palavra. As amostras são separações
+   comuns: `crimi-` + `nal`, `iden-` + `tificação`. **A checagem de composto
+   legítimo no fim de linha deu zero** — existem 115 hífens de composto dentro do
+   texto, e nenhum na quebra. A regra de junção é segura como medido, e mesmo
+   assim deve relatar em vez de presumir, no estilo do resto do pipeline.
+2. **Divisores em caixa mista.** O Vade Mecum imprime `SEÇÃO II`; a Câmara
+   imprime `Seção II – Da Assistência Material`. `STRUCT_RE` é sensível à caixa e
+   não casa, então o cabeçalho gruda no bloco anterior — foi isso que a classe A
+   apontou. O conserto é `re.IGNORECASE`, e ele é seguro porque a expressão já
+   exige romano ou dígito logo depois: `seção para gestante` e `título executivo
+judicial`, que aparecem em texto corrido, continuam recusados.
+3. **Anotações entre parênteses — 11**, sendo 10 `(Vetado)` e uma
+   `(Revogado pela Lei nº 9.268, de 1º/4/1996)`. **Isto já é regra do projeto**:
+   artigo vetado ou revogado entra com `artigos.revogado = true`. A Câmara ainda
+   informa a lei revogadora, que é mais do que o Vade Mecum dá.
+
+### O que a auditoria mudou na estimativa
+
+Antes dela, "revalidar as cinco classes do zero" parecia o grosso do trabalho.
+**É quase nada.** Somado a coluna única não ter detecção de coluna nem
+reconstrução de ordem de leitura — que são a parte difícil do parser atual —, o
+extrator novo é **uma regra nova (des-hifenização), um flag (`re.IGNORECASE`) e o
+mesmo contrato de saída**.
+
+A ressalva: o que foi auditado é o trecho da LEP. Apontar o mesmo extrator para
+as outras partes do volume da Câmara pediria auditoria própria.
+
 ## A condição, traduzida em requisitos
 
 "A data vira um dado explícito do corpus" tem quatro consequências concretas. As
@@ -128,11 +180,11 @@ corpus fica exatamente com a inconsistência silenciosa que a decisão recusa.
    propósito: se vier depois, existe uma janela em que o corpus está inconsistente
    e a tela não diz.
 2. **`DATA_DE_CORTE` deixa de ser afirmação única** — ver requisito 3.
-3. **Extração.** Segundo extrator, para coluna única, ou `vade_parser.py`
-   parametrizado. O layout da Câmara é mais simples que o do Vade Mecum, mas os
-   artefatos precisam ser revalidados do zero: rubrica marginal, marcador de
-   rodapé, ordinais, parágrafo fantasma. Nenhuma das cinco classes conhecidas
-   pode ser presumida igual.
+3. **Extração.** Arquivo separado, **nunca parametrizar o `vade_parser.py`** —
+   enfiar um segundo layout dentro dele é reescrevê-lo com outro nome, e o ativo
+   real é o contrato de saída, que qualquer extrator pode emitir. Com a
+   auditoria feita, é pequeno: sem detecção de coluna, sem ordem de leitura,
+   quatro das cinco classes ausentes, uma regra nova e um flag.
 4. **Normalização**, com o diff de `npm run audit` revisado à mão.
 5. **Curadoria de rubricas — a parte que ninguém estima direito.** A Câmara
    também não imprime rubrica marginal. "Agravo em execução", "progressão de
