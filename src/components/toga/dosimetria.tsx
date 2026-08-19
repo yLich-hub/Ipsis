@@ -305,7 +305,7 @@ function OutrasFases({
               role="switch"
               aria-checked={ligada}
               onClick={() => aoAlternar(d.k)}
-              className="tgb -mx-2.5 flex w-[calc(100%+20px)] items-center gap-3.5 rounded-xl border-b border-tg-linha-tenue px-2.5 py-3 text-left hover:bg-tg-fundo"
+              className="tgb -mx-2.5 flex w-[calc(100%+20px)] items-center gap-3.5 rounded-xl border-b border-tg-linha-tenue px-2.5 py-3 text-left transition-[background-color,box-shadow] duration-200 hover:bg-tg-acento-fraco hover:shadow-[inset_0_0_0_1px_var(--color-tg-acento-palido)]"
             >
               <Chave ligada={ligada} />
               <span className="min-w-0 flex-1">
@@ -462,7 +462,7 @@ function Resultado({
             key={l.n}
             type="button"
             onClick={() => aoIrPara(l.fase)}
-            className="tgb -mx-2.5 flex w-[calc(100%+20px)] items-start gap-3 rounded-xl px-2.5 py-3 text-left hover:bg-tg-fundo"
+            className="tgb -mx-2.5 flex w-[calc(100%+20px)] items-start gap-3 rounded-xl px-2.5 py-3 text-left transition-[background-color,box-shadow] duration-200 hover:bg-tg-acento-fraco hover:shadow-[inset_0_0_0_1px_var(--color-tg-acento-palido)]"
           >
             <span className="grid size-5 shrink-0 place-items-center rounded-full bg-tg-acento-fraco text-[10.5px] font-semibold text-tg-acento-txt">
               {l.n}

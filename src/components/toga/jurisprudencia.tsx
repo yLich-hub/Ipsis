@@ -167,7 +167,7 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
                     type="button"
                     onClick={() => setLigados((l) => ({ ...l, [i.chave]: !l[i.chave] }))}
                     aria-pressed={on}
-                    className={`tgb flex items-center gap-[9px] rounded-[10px] px-[9px] py-1.5 text-left hover:bg-tg-campo ${
+                    className={`tgb flex items-center gap-[9px] rounded-[10px] px-[9px] py-1.5 text-left transition-[background-color,box-shadow] duration-200 hover:bg-tg-acento-fraco hover:shadow-[inset_0_0_0_1px_var(--color-tg-acento-palido)] ${
                       on ? 'bg-tg-preenche' : ''
                     }`}
                   >

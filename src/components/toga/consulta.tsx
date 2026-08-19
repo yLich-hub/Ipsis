@@ -94,13 +94,6 @@ const ESCOPOS = [
   { id: 'dl_3689_1941', t: 'CPP', nota: 'DL 3.689/1941 · cobertura integral' },
 ] as const
 
-const ATALHOS = [
-  { tag: 'Rubrica', t: 'O que caracteriza o tráfico privilegiado do art. 33, §4º?' },
-  { tag: 'Dosimetria', t: 'Como a natureza e a quantidade da droga entram na fixação da pena?' },
-  { tag: 'Processual', t: 'Requisitos da busca domiciliar sem mandado judicial' },
-  { tag: 'Penal', t: 'Associação para o tráfico e concurso de pessoas: qual a diferença?' },
-]
-
 // --- modelo da conversa ------------------------------------------------------
 
 type MsgUsuario = { papel: 'usuario'; texto: string }
@@ -799,7 +792,7 @@ export function Consulta({
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 overflow-auto px-5 pb-1.5 pt-[30px] sm:px-[34px]">
           <div className="mx-auto flex max-w-[690px] flex-col gap-[26px]">
-            {msgs.length === 0 && <Abertura saudacao={saudacao} aoEscolher={enviar} />}
+            {msgs.length === 0 && <Abertura saudacao={saudacao} />}
 
             {msgs.map((m, i) =>
               m.papel === 'usuario' ? (
@@ -850,13 +843,7 @@ export function Consulta({
 
 // --- abertura ----------------------------------------------------------------
 
-function Abertura({
-  saudacao,
-  aoEscolher,
-}: {
-  saudacao: string
-  aoEscolher: (t: string) => void
-}) {
+function Abertura({ saudacao }: { saudacao: string }) {
   return (
     <div className="tg-sobe-lento pb-[18px] pt-16">
       <h1 className="font-tg-serif text-[30px] leading-[1.25] -tracking-[0.01em] text-tg-tinta">
@@ -866,21 +853,6 @@ function Abertura({
         Pergunte em linguagem natural. Eu leio o corpus curado — Lei 11.343, Código Penal e Código
         de Processo Penal —, mostro de onde tirei cada citação e digo a data da redação.
       </p>
-      <div className="mt-[26px] grid gap-2.5 sm:grid-cols-2">
-        {ATALHOS.map((a) => (
-          <button
-            key={a.t}
-            type="button"
-            onClick={() => aoEscolher(a.t)}
-            className="tgb tgc rounded-2xl bg-white px-4 py-3.5 text-left shadow-[var(--tg-elev-1)]"
-          >
-            <span className="mb-1.5 block text-[10.5px] font-medium text-tg-acento-claro">
-              {a.tag}
-            </span>
-            <span className="block text-[13.5px] leading-[1.5] text-tg-tinta-3">{a.t}</span>
-          </button>
-        ))}
-      </div>
     </div>
   )
 }
