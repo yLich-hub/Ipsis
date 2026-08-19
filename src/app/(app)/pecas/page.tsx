@@ -125,7 +125,25 @@ export default async function PecasPage() {
                                 strokeWidth={2.4}
                               />
                               <span className="min-w-0">
-                                <span className="block text-[13px] text-tg-tinta-2">{t.nome}</span>
+                                <span className="block text-[13px] text-tg-tinta-2">
+                                  {t.nome}
+                                  {/* O texto legal desta tese é conferido em três
+                                      camadas; a argumentação entre as citações,
+                                      não. Enquanto ninguém a tiver lido, quem vai
+                                      baixar a minuta precisa saber ANTES de
+                                      baixar — o rodapé do .docx repete o aviso,
+                                      mas ali já é tarde para escolher. */}
+                                  {t.revisao === 'pendente' && (
+                                    <span className="ml-2 align-middle">
+                                      <Selo
+                                        tom="ambar"
+                                        title="Argumentação ainda não lida por advogado — o texto legal citado continua conferido"
+                                      >
+                                        revisão pendente
+                                      </Selo>
+                                    </span>
+                                  )}
+                                </span>
                                 <span className="block text-[12px] leading-relaxed text-tg-fraco-3">
                                   {t.resumo}
                                 </span>

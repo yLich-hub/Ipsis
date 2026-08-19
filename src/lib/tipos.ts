@@ -127,6 +127,12 @@ export type TeseCurada = {
   fundamentos: string[]
   jurisprudencia?: { tribunal?: string; classe?: string; numero?: string; tese?: string; url?: string }[]
   template_md: string
+  /**
+   * `'pendente'` enquanto a argumentação não tiver sido lida por quem assina a
+   * peça. Ausente é "sem registro", NUNCA "conferida" — ver o cabeçalho de
+   * `teses.yaml` e a migration 0016.
+   */
+  revisao?: 'pendente'
 }
 
 /** Uma entrada de `data/curadoria/casos.yaml`. */
