@@ -737,3 +737,106 @@
     - { id: dl_2848_1940_art217-a_caput, papel: requisito, peso: 90, nota: o tipo — conjunção carnal ou outro ato libidinoso com menor de 14 }
     - { id: dl_2848_1940_art217-a_p1, papel: correlato, peso: 80, nota: vulnerável por enfermidade ou deficiência mental }
     - { id: dl_2848_1940_art217-a_p5, papel: correlato, peso: 70, nota: independe de experiência sexual anterior ou de relação prévia }
+
+# --- patrimônio: o que a rubrica oficial não alcança ----------------------------
+#
+# O Código Penal já está no corpus inteiro, e o Vade Mecum imprime rubrica
+# marginal nele — "Furto", "Furto qualificado", "Roubo" e "Extorsão" são
+# `oficial` e já existem. O que falta é o mesmo de sempre: o APELIDO. Nenhum dos
+# termos abaixo aparece no texto da lei, e é por eles que se procura.
+
+- termo: furto privilegiado
+  slug: furto-privilegiado
+  tipo: tema
+  explicacao: >-
+    O § 2º do art. 155 permite ao juiz substituir a reclusão por detenção,
+    diminuí-la de um a dois terços ou aplicar só a multa, quando o réu é primário
+    e a coisa furtada é de pequeno valor. São dois requisitos cumulativos, e o
+    "pequeno valor" é aferido no momento do crime — não se confunde com o
+    princípio da insignificância, que é construção jurisprudencial e não tem
+    dispositivo no Código.
+  variantes:
+    - privilégio no furto
+    - furto de pequeno valor
+    - furto mínimo
+    - primário e pequeno valor
+    - redução de pena no furto
+    - substituição da pena no furto
+  dispositivos:
+    - { id: dl_2848_1940_art155_p2, papel: principal, peso: 100, nota: primário + coisa de pequeno valor — substituição, redução de 1/3 a 2/3 ou só multa }
+    - { id: dl_2848_1940_art155_caput, papel: requisito, peso: 90, nota: o tipo sobre o qual o privilégio incide }
+    - { id: dl_2848_1940_art155_p4, papel: correlato, peso: 60, nota: o qualificado, para separar o que reduz do que agrava }
+
+- termo: repouso noturno
+  slug: repouso-noturno
+  tipo: tema
+  explicacao: >-
+    Causa de aumento de metade, no § 1º do art. 155. Não é qualificadora e não
+    entra no § 4º: incide na terceira fase, sobre a pena já fixada, e o Código
+    não define que horas começa o repouso noturno — quem delimita é o caso
+    concreto.
+  variantes:
+    - furto noturno
+    - furto durante o repouso noturno
+    - aumento pelo repouso noturno
+    - furto de madrugada
+  dispositivos:
+    - { id: dl_2848_1940_art155_p1, papel: principal, peso: 100, nota: aumento de metade }
+    - { id: dl_2848_1940_art155_caput, papel: requisito, peso: 80 }
+
+- termo: furto de energia
+  slug: furto-de-energia
+  tipo: tema
+  explicacao: >-
+    O § 3º equipara a coisa móvel a energia elétrica e qualquer outra que tenha
+    valor econômico. É o dispositivo que sustenta o furto de energia — a
+    subtração de algo que não é coisa no sentido comum.
+  variantes:
+    - gato de energia
+    - furto de energia elétrica
+    - desvio de energia
+    - subtração de energia elétrica
+    - furto de sinal
+  dispositivos:
+    - { id: dl_2848_1940_art155_p3, papel: principal, peso: 100, nota: equiparação da energia a coisa móvel }
+    - { id: dl_2848_1940_art155_caput, papel: requisito, peso: 80 }
+
+- termo: latrocínio
+  slug: latrocinio
+  tipo: tema
+  explicacao: >-
+    O apelido do roubo com resultado morte, no inciso II do § 3º do art. 157 —
+    e a palavra "latrocínio" não aparece em lugar nenhum do Código. É outro
+    patamar de pena, não uma majorante: reclusão de 20 a 30 anos, contra o
+    aumento de um terço até metade do § 2º.
+  # Não se confunde com "roubo qualificado", que também é o § 3º e que as
+  # variantes de `roubo majorado` recusam de propósito — ver aquele comentário.
+  variantes:
+    - roubo seguido de morte
+    - roubo com resultado morte
+    - roubo com morte
+    - latrocinio tentado
+    - roubo qualificado pelo resultado
+  dispositivos:
+    - { id: dl_2848_1940_art157_p3_inc2, papel: principal, peso: 100, nota: resultado morte — reclusão de 20 a 30 anos }
+    - { id: dl_2848_1940_art157_p3_inc1, papel: correlato, peso: 90, nota: o outro resultado do § 3º — lesão corporal grave }
+    - { id: dl_2848_1940_art157_caput, papel: requisito, peso: 70 }
+
+- termo: roubo impróprio
+  slug: roubo-improprio
+  tipo: tema
+  explicacao: >-
+    O § 1º do art. 157: a violência ou a grave ameaça vem DEPOIS da subtração,
+    para garantir a posse da coisa ou a impunidade. A pena é a mesma do roubo
+    próprio, e o que muda é o momento — no caput a violência é o meio de
+    subtrair, aqui ela é o meio de assegurar o que já foi subtraído.
+  # "roubo improprio" sem acento não entra: o match normaliza a consulta antes de
+  # comparar, então ela já casa com o próprio termo. Variante redundante é ruído
+  # no arquivo e o teste de citação a recusa.
+  variantes:
+    - violência depois da subtração
+    - violência para assegurar a posse
+    - art. 157 § 1º
+  dispositivos:
+    - { id: dl_2848_1940_art157_p1, papel: principal, peso: 100 }
+    - { id: dl_2848_1940_art157_caput, papel: requisito, peso: 80, nota: o roubo próprio, para contraste }
