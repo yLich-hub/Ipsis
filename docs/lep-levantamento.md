@@ -1,162 +1,176 @@
 # Trazer a Lei de Execução Penal para o corpus — levantamento
 
-Documento de decisão, não plano de execução. Ele responde três perguntas: o que
-existe hoje, o que a LEP exigiria, e qual pergunta de fundo precisa ser
-respondida antes de qualquer linha de código.
+Documento de decisão. Ele responde o que existe hoje, quais fontes foram
+verificadas, o que a LEP exigiria, e sob qual condição ela entra.
 
 Escrito em 19/08/2026, a pedido, depois de um pedido de contexto sobre "artigos
-da LEP, agravo em execução penal".
+da LEP, agravo em execução penal". **Revisado no mesmo dia**, depois de baixar e
+abrir as fontes candidatas — a primeira versão dizia "não trazer agora" porque a
+origem coerente dependia de um PDF que ninguém tinha verificado existir. Ele
+existe. O que mudou não foi a análise: foi o fato.
 
 ---
 
+## A decisão
+
+> **O corpus aceita uma lei com fotografia de agosto de 2023 ao lado de três com
+> fotografia de fevereiro de 2025 — desde que a data vire um dado explícito do
+> corpus, e não uma inconsistência silenciosa.**
+
+É a condição inteira, e ela é mais exigente do que parece: não basta gravar a
+data certa em `leis.vigencia_ate`, que o schema já suporta. O que a condição
+cobra está na seção "A condição, traduzida em requisitos", mais abaixo.
+
 ## O que existe hoje
 
-**A LEP não está em lugar nenhum do projeto.** Três verificações:
+A LEP não está em lugar nenhum do projeto. Três verificações:
 
-| Onde                                             | Resultado                                                                                                                                                                                         |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Corpus citável (`leis`)                          | Três leis: 11.343/2006, CP e CPP. **Sem LEP.**                                                                                                                                                    |
-| Acervo de leitura (`/vademecum`, 75 legislações) | Tem CP, CPP, Código Penal **Militar** e Lei das Execuções **Fiscais**. **Sem LEP.**                                                                                                               |
-| PDF do Vade Mecum do Senado (801 páginas)        | Quatro ocorrências de "Lei de Execução Penal", **todas referências feitas por outras leis** — o CPP citando-a, a Lei Maria da Penha alterando o art. 152 dela. **A lei em si não está impressa.** |
+| Onde                                             | Resultado                                                                                                                   |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Corpus citável (`leis`)                          | Três leis: 11.343/2006, CP e CPP. **Sem LEP.**                                                                              |
+| Acervo de leitura (`/vademecum`, 75 legislações) | Tem CP, CPP, Código Penal **Militar** e Lei das Execuções **Fiscais**. **Sem LEP.**                                         |
+| PDF do Vade Mecum, 1ª ed. (801 páginas)          | Quatro ocorrências de "Lei de Execução Penal", **todas referências feitas por outras leis**. A lei em si não está impressa. |
 
-A terceira linha é a que decide, e é o motivo de este documento existir. O
-`vade_parser.py` extrai de um PDF; se o texto não está no PDF, não há o que
-extrair.
+O `vade_parser.py` extrai de um PDF; se o texto não está no PDF, não há o que
+extrair. Daí a pergunta que este documento passou a responder: **existe um PDF
+que sirva?**
 
-## Por que isso não é "rodar o parser mais uma vez"
+## As fontes verificadas
 
-O CPP entrou no corpus barato porque **já estava no mesmo PDF** — bastou apontar
-o parser para as páginas 366 a 422. É o precedente que torna tentador achar que
-a LEP é igual. Não é: ali havia fonte auditada e datada; aqui não há fonte
-nenhuma.
+Não por reputação — cada uma foi baixada e aberta.
 
-A LEP precisaria vir de outro lugar, e é aí que ela encosta na **decisão nº 1**
-do projeto — o texto legal nunca é gerado, ele é lido de uma fonte conferida.
+### Vade Mecum do Senado, 2ª edição (junho/2025) — não serve
 
-## As três origens possíveis, e o que cada uma custa
+Baixada pelo navegador (o repositório do Senado está atrás de verificação por
+JavaScript, o mesmo obstáculo que tirou o LexML dos coletores). Varridas as 801
+páginas: **sete ocorrências de "Lei de Execução Penal", todas referências feitas
+por outras leis** — o CPP citando-a, a Lei Maria da Penha alterando o art. 152
+dela. Idêntico à 1ª edição.
 
-### A. Uma segunda fotografia (outro PDF do Vade Mecum, ou edição mais nova)
+O sumário anunciado da 3ª edição (janeiro/2026) também não a lista. **Trocar de
+edição do Vade Mecum não resolve.**
 
-**A mais barata e a mais coerente.** Se a LEP estiver numa edição do Vade Mecum
-do Senado, o caminho é o mesmo do CPP: achar o intervalo de páginas, rodar o
-parser, normalizar, semear, embutir.
+### Código Penal e de Processo Penal, Edições Câmara — serve
 
-- Preserva a procedência: mesma editora, mesma curadoria, data de corte
-  declarada.
-- **Cria uma segunda data de corte.** Uma edição diferente tem outra data, e o
-  projeto já lida com isso por artigo (`artigos.conferido_em`) — mas hoje
-  `leis.vigencia_ate` é por lei, e a lateral e a tela de entrada leem uma
-  constante única (`DATA_DE_CORTE`). Duas fotografias diferentes tornam essa
-  constante uma meia-verdade.
-- Risco baixo, trabalho médio. **Depende de a LEP estar impressa em alguma
-  edição acessível** — isso não foi verificado, porque só há um PDF aqui.
+_Série Legislação n. 12, 4ª edição, atualizada até 1º/8/2023, 351 páginas._
 
-### B. O texto compilado do Planalto
+**A LEP está impressa por inteiro**, a partir da página 241, com texto extraível
+e limpo — título, ementa, data de publicação no DOU e os artigos em sequência.
+Publicação oficial, com edição declarada.
 
-O pipeline existe: `coletores/redacao.py` já lê a página compilada do Planalto,
-com armadilhas de HTML resolvidas e testes cobrindo cada uma.
+Duas coisas que só aparecem abrindo o arquivo:
 
-**Mas ele foi desenhado para atualizar artigo que já passou por olho humano, não
-para importar lei nova.** A diferença não é técnica, é de garantia: hoje toda
-divergência entre o Planalto e o corpus vira **proposta**
-(`data/vigilia/redacoes.propostas.yaml`) e só entra depois de conferência
-registrada em `data/curadoria/redacoes.yaml`, com data e endereço por entrada.
+- **A data anda para trás.** 1º/8/2023 é **anterior** à fotografia do projeto. A
+  LEP entraria como a lei mais velha do corpus. É exatamente a inconsistência
+  que a decisão acima proíbe deixar silenciosa.
+- **O layout é outro.** O Vade Mecum imprime em duas colunas; a Câmara, em
+  coluna única com linhas de largura cheia. O `vade_parser.py` é afinado para o
+  primeiro, e o CLAUDE.md diz para não reescrevê-lo.
 
-Importar a LEP inteira por esse caminho significaria uma de duas coisas:
+### Volume autônomo da LEP, Edições Câmara — não serve
 
-1. **Conferir 204 artigos à mão**, um a um, com registro de conferência — que é
-   o padrão que o projeto aplica a 47 artigos hoje. É trabalho real e não é
-   automatizável, porque a conferência é justamente o que a máquina não faz.
-2. **Aceitar raspagem como origem primária** para uma lei — e aí o corpus passa
-   a ter uma lei cuja procedência é diferente das outras três, sem que nada na
-   tela diga isso.
+A edição mais recente localizada no repositório é a **2ª, de 2009**, com
+menção a uma atualizada até 03/01/2022. Mais velha que a anterior, e a LEP foi
+alterada em 2024, 2025 e 2026 — inclusive pela Lei 15.358/2026.
 
-A opção 2 é a que eu recomendo **recusar**. Ela não quebra nada visível no dia
-seguinte, e é exatamente por isso que é perigosa: o `.docx` continuaria dizendo
-"corpus conferido" sobre um texto que ninguém conferiu.
+### O texto compilado do Planalto — recusado, e continua recusado
 
-### C. Digitar o subconjunto que interessa
+O pipeline existe (`coletores/redacao.py`), mas foi desenhado para **atualizar**
+artigo que já passou por olho humano, não para importar lei nova. Hoje toda
+divergência vira proposta e só entra depois de conferência registrada, com data
+e endereço por entrada.
 
-Já foi tentado e já foi recusado neste projeto, e a decisão está escrita no
-CLAUDE.md a respeito do CPP: _"Digitar à mão seria produzir texto legal fora da
-fonte, que é exatamente o que a decisão nº 1 proíbe."_
+Importar a LEP inteira por aí é conferir 204 artigos à mão — o padrão que o
+projeto aplica a 47 hoje — ou aceitar raspagem como origem primária. A segunda
+não quebra nada visível no dia seguinte, e é por isso que é perigosa: o `.docx`
+continuaria dizendo "conferido" sobre texto que ninguém conferiu.
 
-Não há por que reabrir.
+**Com a origem da Câmara disponível, esta deixou de ser necessária.** O Planalto
+volta ao papel que já tem: a vigília, que avisa quando a fotografia envelhece — e
+avisaria bastante, já que a fotografia da LEP nasceria com três anos.
 
-## O trabalho, se a origem for resolvida
+### Digitar o subconjunto — encerrada
 
-Assumindo a origem A (a única que eu recomendaria), na ordem:
+Recusada quando o CPP entrou, e a decisão está escrita: digitar à mão seria
+produzir texto legal fora da fonte, que é o que a decisão nº 1 proíbe.
 
-1. **Extração** — achar o intervalo de páginas, rodar `vade_parser.py`, conferir
-   os artefatos conhecidos (rubrica marginal colada, nota de rodapé, ordinais,
-   parágrafo fantasma). A LEP tem 204 artigos; é menor que o CPP (825) e maior
-   que a Lei de Drogas (94).
-2. **Normalização** — `scripts/normalize.ts` com as regras existentes, mais o
-   diff de `npm run audit` revisado à mão. As cinco classes de artefato do PDF
-   valem aqui igual.
-3. **Curadoria de rubricas** — e esta é a parte que ninguém estima direito. O
-   Vade Mecum **não imprime rubrica marginal fora do Código Penal**: zero na Lei
-   de Drogas, sete no CPP. A LEP viria com zero, e sem rubrica a busca erra em
-   silêncio. "Agravo em execução", "progressão de regime", "falta grave",
-   "remição", "livramento condicional" não aparecem escritos assim no texto da
-   lei — são exatamente o tipo de apelido que a decisão nº 2 existe para
-   resolver. **Estimo de 15 a 25 rubricas curadas**, escritas à mão, cada uma
-   com variantes e cluster de dispositivos.
-4. **Seed e embeddings** — mecânico.
-5. **Teses e casos** — se a LEP for para chegar na peça. Hoje a peça é uma só,
-   resposta à acusação (art. 396-A do CPP), que é fase de conhecimento. **Agravo
-   em execução é outra peça, em outro momento processual** — e "segunda peça
-   processual" está na lista de fora de escopo do CLAUDE.md. Trazer a LEP para
-   consulta não obriga a trazê-la para a peça, e as duas decisões devem ser
-   tomadas separadas.
-6. **Vigília** — o filtro de `alvos.ts` e `vigilia.yaml` precisa reconhecer a
-   Lei 7.210/1984 nas ementas, nos dois runtimes (TS e Python), com as mesmas
-   ementas reais nos dois testes.
-7. **Precedentes** — a LEP tem muito precedente qualificado do STJ (progressão,
-   falta grave, remição). O filtro de `precedentes.yaml` precisaria de uma
+## A condição, traduzida em requisitos
+
+"A data vira um dado explícito do corpus" tem quatro consequências concretas. As
+duas primeiras o projeto já tem; as duas últimas não existem e são o preço.
+
+1. **Data por lei — já existe.** `leis.vigencia_ate` é por lei, e `/fontes`,
+   `/configuracoes` e a lista de cada lei já a leem do banco. Acompanham
+   sozinhas.
+2. **Data por artigo — já existe.** `artigos.conferido_em`, `alterado_por` e
+   `fonte_redacao` vieram com `redacoes.yaml`, e o rodapé do `.docx` já sabe
+   imprimir mais de uma data, escolhendo a mais antiga entre as citadas.
+3. **`DATA_DE_CORTE` deixa de poder ser uma constante — não existe.** Hoje a
+   lateral, a tela de entrada e a pílula da caixa de consulta imprimem um valor
+   único, de `lib/vigilia/alvos.ts`. Com duas fotografias, esse valor vira
+   meia-verdade em toda tela que não tem dispositivo em mãos. Onde não há
+   dispositivo, o texto tem de deixar de afirmar uma data e passar a afirmar a
+   **mais antiga**, dizendo que é a mais antiga.
+4. **Procedência por lei — não existe.** `leis` guarda cobertura e vigência, e
+   não guarda **de onde o texto veio**. Com três leis do Vade Mecum do Senado e
+   uma das Edições Câmara, a diferença de origem passa a existir e ficaria
+   invisível. Isto é coluna nova, migration nova e um lugar na tela — e é o
+   coração da condição: informação verdadeira que ninguém vê é o mesmo que
+   informação ausente.
+
+O item 4 é o que separa "aceitar a data" de "tornar a data explícita". Sem ele, o
+corpus fica exatamente com a inconsistência silenciosa que a decisão recusa.
+
+## O trabalho, na ordem em que aconteceria
+
+1. **Procedência antes do texto.** Coluna de origem em `leis`, migration,
+   preenchimento das três atuais e exibição — ver requisito 4. Vem primeiro de
+   propósito: se vier depois, existe uma janela em que o corpus está inconsistente
+   e a tela não diz.
+2. **`DATA_DE_CORTE` deixa de ser afirmação única** — ver requisito 3.
+3. **Extração.** Segundo extrator, para coluna única, ou `vade_parser.py`
+   parametrizado. O layout da Câmara é mais simples que o do Vade Mecum, mas os
+   artefatos precisam ser revalidados do zero: rubrica marginal, marcador de
+   rodapé, ordinais, parágrafo fantasma. Nenhuma das cinco classes conhecidas
+   pode ser presumida igual.
+4. **Normalização**, com o diff de `npm run audit` revisado à mão.
+5. **Curadoria de rubricas — a parte que ninguém estima direito.** A Câmara
+   também não imprime rubrica marginal. "Agravo em execução", "progressão de
+   regime", "falta grave", "remição" não aparecem escritos assim no texto da lei.
+   **Estimo de 15 a 25 rubricas curadas**, com variantes e cluster.
+6. **Seed e embeddings.** Mecânico.
+7. **Vigília.** O filtro precisa reconhecer a Lei 7.210/1984 nas ementas, nos
+   dois runtimes, com as mesmas ementas reais nos dois testes. Aqui ela trabalha
+   mais que nas outras leis: a fotografia nasce com três anos.
+8. **Precedentes.** A LEP tem muito precedente qualificado do STJ — progressão,
+   falta grave, remição. O filtro de `precedentes.yaml` precisaria de uma
    terceira regra, ao lado de `drogas` e `parte_geral_cp`.
 
-## O que muda na tela, e é o que menos se lembra
+**Teses e casos ficam fora, e é decisão separada.** A peça do projeto é resposta
+à acusação, fase de conhecimento; agravo em execução é outra peça, em outro
+momento processual, e segunda peça está fora de escopo. Trazer a LEP para
+consulta não obriga a trazê-la para a peça.
 
-- **`leis.cobertura`** — se a extração for parcial, toda tela que mostra
-  dispositivo da LEP exibe o aviso. O mecanismo existe e está sem uso desde que
-  o CPP virou integral.
-- **A data de corte** — ver a ressalva da opção A. Se a origem tiver data
-  diferente, `DATA_DE_CORTE` deixa de ser uma constante honesta e vira "a data
-  de três das quatro leis".
-- **O rodapé do `.docx`** — ele já sabe imprimir mais de uma data (aprendeu
-  quando `redacoes.yaml` entrou). Isso ajuda, mas o rodapé fala da peça, e a
-  peça não cita LEP.
-- **`/fontes` e `/configuracoes`** — leem `leis` do banco, então acompanham
-  sozinhas.
+## Um achado que não é sobre a LEP
 
-## A pergunta de fundo
+A 2ª edição do Vade Mecum (junho/2025) é uma **fotografia mais nova das três leis
+que já estão no corpus**. Ela não resolve execução penal, mas resolveria parte do
+que hoje é consertado à mão em `redacoes.yaml` — e move a data de corte para
+frente em vez de para trás.
 
-Não é "quanto trabalho dá". É esta:
+É outra conversa, e provavelmente mais barata que a LEP. Vale decidir antes:
+atualizar as três primeiro deixa a diferença entre elas e a LEP ainda maior, o
+que torna o requisito 4 mais urgente, não menos.
 
-> **O corpus aceita uma lei cuja procedência é diferente das outras três?**
+## Fontes
 
-Se a resposta for não, a LEP só entra quando houver uma fotografia que a
-contenha — e o projeto continua honesto dizendo que não cobre execução penal.
+- Vade Mecum do Senado Federal, 1ª ed. (fevereiro/2025) — a fotografia atual do
+  projeto.
+- Vade Mecum do Senado Federal, 2ª ed. (junho/2025) —
+  `www2.senado.leg.br/bdsf/bitstream/handle/id/757308/`
+- Código Penal e de Processo Penal, Série Legislação n. 12, 4ª ed., Edições
+  Câmara, atualizada até 1º/8/2023 — `bd.camara.leg.br`
+- Lei de Execução Penal, Edições Câmara, 2ª ed., 2009 — `bd.camara.leg.br`
 
-Se a resposta for sim, o projeto precisa de uma coisa que hoje não tem: **um
-lugar na tela que diga de onde veio cada lei**, artigo por artigo, com a mesma
-firmeza com que hoje diz a data. Sem isso, a diferença de procedência existe e é
-invisível — e informação verdadeira que ninguém vê é o mesmo que informação
-ausente.
-
-## Recomendação
-
-**Não trazer a LEP agora.** Não por preguiça de escopo, mas porque a única
-origem coerente (opção A) depende de um PDF que ninguém verificou existir, e as
-outras duas cobram um preço na decisão nº 1 que o resto do projeto inteiro foi
-construído para não pagar.
-
-**O que dá para fazer sem isso**, e que atende boa parte de quem pergunta sobre
-execução: reconhecer o limite na resposta. A Consulta já sabe dizer que o
-contexto não cobre um assunto — foi conferido com a Súmula 512 do STJ. Uma
-pergunta sobre agravo em execução hoje recebe uma resposta que não inventa; o
-que ela não recebe é um encaminhamento. **Um molde novo em
-`lib/busca/intencao.ts` que reconheça vocabulário de execução penal e diga, em
-uma linha, que o corpus cobre conhecimento e não execução** custa pouco e é
-honesto — e é reversível no dia em que a LEP entrar.
+Os dois PDFs baixados para conferência foram apagados; nada disso entrou no
+repositório.
