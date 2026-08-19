@@ -148,7 +148,8 @@ tabela morta — era a única peça de 0001 que nunca tinha sido usada.
 
 **A minuta continua sem modelo nenhum.** A argumentação da peça está escrita à
 mão em `teses.yaml`; não há chamada a modelo em `/api/peca/[casoId]`. Cada frase
-do `.docx` passou por revisão humana, que é padrão profissional real para peça
+do `.docx` sai de teses curadas à mão, e `teses.revisao` marca as que ainda
+aguardam leitura de advogado — o rodapé do arquivo as declara, para peça
 jurídica.
 
 **A demonstração nunca depende do caminho ao vivo funcionar.** Sem chave, a rota

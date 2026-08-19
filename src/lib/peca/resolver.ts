@@ -48,6 +48,16 @@ export type TeseResolvivel = {
   template_md: string
   fundamentos: string[]
   jurisprudencia?: { tribunal?: string; classe?: string; numero?: string; tese?: string; url?: string }[]
+  /**
+   * `'pendente'` quando a argumentação ainda não foi lida por quem assina a
+   * peça. Ausente significa "sem registro", NUNCA "conferida": as teses
+   * anteriores ao campo não recebem carimbo retroativo, porque ninguém anotou
+   * data nem nome. Ver o cabeçalho de `teses.yaml`.
+   *
+   * Aceita `null` porque é assim que a coluna chega do banco — e ausência e
+   * `null` significam a mesma coisa aqui: sem registro.
+   */
+  revisao?: 'pendente' | null
 }
 
 /** E o mínimo que precisa de um caso. */
@@ -65,6 +75,8 @@ export type TeseMontada = {
   trechos: Trecho[]
   fundamentos: Citado[]
   jurisprudencia: NonNullable<TeseResolvivel['jurisprudencia']>
+  /** Ver `TeseResolvivel.revisao`. Viaja até o rodapé do `.docx`. */
+  revisao?: 'pendente' | null
 }
 
 export type PecaMontada = {
@@ -80,6 +92,14 @@ export type PecaMontada = {
   conferidos: { id: string; citacao: string; conferidoEm: string; alteradoPor: string[] }[]
   /** Ids citados, na ordem em que aparecem. Serve de conferência na tela. */
   citados: string[]
+  /**
+   * Nomes das teses desta minuta que ainda não foram lidas por quem assina.
+   *
+   * Vazio é o estado saudável, e é o que o rodapé espera na maioria das peças.
+   * Não vazio, o rodapé diz quantas são — porque uma peça protocolada não pode
+   * carregar argumentação não revisada sem que isso esteja escrito nela.
+   */
+  pendentes: string[]
 }
 
 export class CitacaoOrfa extends Error {
@@ -153,6 +173,7 @@ export function resolvePeca(
       trechos,
       fundamentos: fundamentos.filter((d): d is Citado => Boolean(d)),
       jurisprudencia: t.jurisprudencia ?? [],
+      ...(t.revisao ? { revisao: t.revisao } : {}),
     }
   })
 
@@ -178,5 +199,10 @@ export function resolvePeca(
       alteradoPor: d.alteradoPor ?? [],
     }))
 
-  return { caso, teses: montadas, vigenciaAte: vigencia, citados, conferidos }
+  // Só conta a marca explícita. Ausência é "sem registro", e somá-la aqui
+  // transformaria dezesseis teses antigas em pendentes de um dia para o outro,
+  // afirmando sobre elas algo que ninguém apurou.
+  const pendentes = montadas.filter((t) => t.revisao === 'pendente').map((t) => t.nome)
+
+  return { caso, teses: montadas, vigenciaAte: vigencia, citados, conferidos, pendentes }
 }

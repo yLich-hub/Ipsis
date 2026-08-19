@@ -367,11 +367,16 @@ try {
           template_md: t.template_md,
           ordem: t.ordem,
           ativo: t.ativo ?? true,
+          // Ausente no YAML vira NULL, que é "sem registro". O `on conflict`
+          // abaixo o sobrescreve de propósito: apagar a linha do arquivo depois
+          // de revisar de verdade tem de limpar a pendência no banco. Sem isso,
+          // revisar uma tese não surtiria efeito até alguém mexer em SQL à mão.
+          revisao: t.revisao ?? null,
         })),
         (lote) => tx`
           insert into public.teses ${tx(lote,
             'id', 'nome', 'resumo', 'gatilho', 'fundamentos', 'jurisprudencia',
-            'template_md', 'ordem', 'ativo')}
+            'template_md', 'ordem', 'ativo', 'revisao')}
           on conflict (id) do update set
             nome           = excluded.nome,
             resumo         = excluded.resumo,
@@ -380,7 +385,8 @@ try {
             jurisprudencia = excluded.jurisprudencia,
             template_md    = excluded.template_md,
             ordem          = excluded.ordem,
-            ativo          = excluded.ativo
+            ativo          = excluded.ativo,
+            revisao        = excluded.revisao
         `,
       )
 

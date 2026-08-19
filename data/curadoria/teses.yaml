@@ -22,6 +22,23 @@
 #    ausente onde o endereço oficial não foi verificado, em vez de ser montado
 #    pelo número (mesmo motivo do acervo Vade Mecum).
 #
+# 4. `revisao: pendente` marca tese que ainda NÃO foi lida por quem assina a
+#    peça. O projeto afirma, em cinco documentos, que "cada frase do .docx
+#    passou por revisão humana" — e essa garantia não existia em lugar nenhum:
+#    até aqui não havia campo que a registrasse, então a afirmação era prosa
+#    sobre um dado que o sistema não tinha.
+#
+#    **As dezesseis teses sem a marca não recebem carimbo de "conferida", e a
+#    ausência é deliberada.** Elas antecedem este campo, e escrever
+#    `conferido_em` com uma data que ninguém anotou seria inventar o registro
+#    para fazê-lo parecer completo — exatamente o dado plausível e falso que
+#    este arquivo recusa em `jurisprudencia`. Ausência aqui significa "sem
+#    registro", não "conferida".
+#
+#    Só a marca explícita é contada. A peça e o checklist somam `pendente`, e
+#    nada mais: o produto passa a dizer o que sabe, em vez de afirmar o que
+#    gostaria. Quem revisar uma tese apaga a linha.
+#
 # --- a limitação do CPP acabou, e este bloco registra que acabou -------------
 #
 # Aqui se lia que o CPP não estava semeado, que o banco tinha só duas leis e que
@@ -621,6 +638,7 @@
 #    pôr numa peça protocolada uma alegação que a lei rejeita em termos.
 
 - id: afastamento_majorante_concurso
+  revisao: pendente
   nome: Afastamento da majorante do concurso de pessoas — art. 157, § 2º, II
   ordem: 17
   resumo: >-
@@ -655,6 +673,7 @@
     aumento.
 
 - id: participacao_de_menor_importancia
+  revisao: pendente
   nome: Participação de menor importância — art. 29, § 1º
   ordem: 18
   resumo: >-
@@ -683,6 +702,7 @@
     participação de menor importância, com a redução no patamar máximo.
 
 - id: afastamento_majorante_arma_de_fogo
+  revisao: pendente
   nome: Afastamento da majorante do emprego de arma de fogo — art. 157, § 2º-A, I
   ordem: 19
   resumo: >-
@@ -716,6 +736,7 @@
     couber, a imputação do caput.
 
 - id: nulidade_do_reconhecimento
+  revisao: pendente
   nome: Nulidade do reconhecimento pessoal — art. 226 do CPP
   ordem: 20
   resumo: >-
@@ -756,6 +777,7 @@
     consequência de não poder ele fundamentar, sozinho, juízo condenatório.
 
 - id: resultado_agravador_sem_pericia
+  revisao: pendente
   nome: Afastamento do resultado qualificador não submetido a perícia — art. 158 do CPP
   ordem: 21
   resumo: >-

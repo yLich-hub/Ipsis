@@ -135,7 +135,7 @@ modelo"**. Sob ela, duas escolhas opostas convivem:
 
 | | Modelo em runtime? | Por quê |
 |---|---|---|
-| **Minuta** (`/api/peca/[casoId]`) | **não** | a argumentação está escrita à mão em `teses.yaml`; cada frase do `.docx` passou por revisão humana |
+| **Minuta** (`/api/peca/[casoId]`) | **não** | a argumentação está escrita à mão em `teses.yaml`; `teses.revisao` marca as que aguardam revisão, e o rodapé do `.docx` as declara |
 | **Chat** (`/api/consulta/aovivo`) | **sim** | a prosa composta respondia a mesma coisa para toda pergunta |
 
 **Por que a minuta continua sem modelo.** Não é economia: é que não há frase na

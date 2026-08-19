@@ -239,6 +239,18 @@ export async function pecaEmDocx(peca: PecaMontada): Promise<Buffer> {
                           `conferida contra o texto compilado do Planalto em ${conferenciaMaisAntiga(peca)} ` +
                           `(${[...new Set(peca.conferidos.flatMap((c) => c.alteradoPor))].join(', ')}).`
                         : '') +
+                      // O texto legal é conferido; a ARGUMENTAÇÃO entre as
+                      // citações é escrita à mão, e o projeto afirma em cinco
+                      // documentos que cada frase passou por revisão humana.
+                      // Enquanto isso não for verdade de alguma tese, quem abre
+                      // o arquivo precisa saber — inclusive o juízo, se ele for
+                      // protocolado assim. Calar aqui deixaria a garantia como
+                      // prosa em README, que é justamente onde ela estava quando
+                      // deixou de ser verdade.
+                      (peca.pendentes.length
+                        ? ` ${peca.pendentes.length} das ${peca.teses.length} teses desta minuta ` +
+                          `aguardam revisão de advogado: ${peca.pendentes.join('; ')}.`
+                        : '') +
                       ' — ',
                     size: 16,
                     font: 'Times New Roman',

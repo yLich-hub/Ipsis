@@ -242,13 +242,15 @@ export type Tese = {
   /** Condições objetivas. Mesmas chaves de `casos.fatos` — ver `aplicaA`. */
   gatilho: Record<string, ValorDeFato>
   ordem: number
+  /** Ver `TeseCurada.revisao`. NULL/ausente = sem registro, nunca "conferida". */
+  revisao?: 'pendente' | null
 }
 
 export const teses = () =>
   tenta<Tese[]>(
     supabase
       .from('teses')
-      .select('id,nome,resumo,fundamentos,jurisprudencia,gatilho,ordem')
+      .select('id,nome,resumo,fundamentos,jurisprudencia,gatilho,ordem,revisao')
       .eq('ativo', true)
       .order('ordem'),
   )
@@ -265,7 +267,7 @@ export const tesesComTemplate = () =>
   tenta<TeseComTemplate[]>(
     supabase
       .from('teses')
-      .select('id,nome,resumo,fundamentos,jurisprudencia,gatilho,ordem,template_md')
+      .select('id,nome,resumo,fundamentos,jurisprudencia,gatilho,ordem,revisao,template_md')
       .eq('ativo', true)
       .order('ordem'),
   )

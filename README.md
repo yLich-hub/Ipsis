@@ -160,7 +160,8 @@ Hoje **a resposta do chat é gerada**, em `/api/consulta/aovivo`, com três frei
 em camadas: a rota exige sessão, há limite por IP na memória do processo, e há
 teto mensal no banco (`consome_uso_llm`, que decide e escreve na mesma
 instrução). **A minuta continua sem modelo nenhum** — a argumentação está escrita
-à mão em `teses.yaml`, e cada frase do `.docx` passou por revisão humana. Sem
+à mão em `teses.yaml`. Cinco das 21 teses aguardam revisão de advogado, e o
+rodapé do `.docx` as declara — ver `teses.revisao`. Sem
 chave configurada, o chat cai para uma resposta composta por função pura, que
 não custa nada e não pode falhar.
 

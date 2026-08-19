@@ -261,4 +261,61 @@ describe('.docx gerado', () => {
     const xml = textoDoDocx(await pecaEmDocx(peca))
     expect(xml).toContain('Nenhuma das teses curadas foi acionada')
   })
+
+  // --- revisão da argumentação ---------------------------------------------
+  //
+  // O texto legal da minuta tem três camadas de conferência. A ARGUMENTAÇÃO
+  // entre as citações não tinha nenhuma: o projeto afirmava, em cinco
+  // documentos, que cada frase do `.docx` passou por revisão humana, e não
+  // existia campo que registrasse isso. Era garantia em prosa sobre um dado que
+  // o sistema não guardava.
+
+  seComCorpus('`revisao` só admite ausência ou "pendente"', () => {
+    // Ausência significa "sem registro", NUNCA "conferida". Um valor novo
+    // inventado aqui — 'ok', 'conferida' — passaria despercebido e viraria
+    // carimbo de aprovação que ninguém deu.
+    for (const t of TESES) {
+      expect(
+        t.revisao === undefined || t.revisao === 'pendente',
+        `${t.id}: 'revisao' aceita só ausência ou 'pendente'`,
+      ).toBe(true)
+    }
+  })
+
+  seComCorpus('o rodapé declara as teses que aguardam revisão', async () => {
+    const comPendencia = CASOS.map((c) =>
+      resolvePeca(c, TESES.filter((t) => aplicaA(t, c)), CORPUS),
+    ).find((p) => p.pendentes.length > 0)
+
+    if (!comPendencia) {
+      // Todas revisadas: o aviso não tem o que dizer, e é o estado saudável.
+      // A asserção volta a morder no dia em que uma tese nova entrar sem leitura.
+      expect(true).toBe(true)
+      return
+    }
+
+    // O que a peça declara é exatamente o que as teses dela marcam — nem a
+    // mais, que assustaria à toa, nem a menos, que é o defeito grave.
+    expect(comPendencia.pendentes).toEqual(
+      comPendencia.teses.filter((t) => t.revisao === 'pendente').map((t) => t.nome),
+    )
+
+    const rodape = parteDoDocx(await pecaEmDocx(comPendencia), 'word/footer1.xml')
+    expect(rodape, 'a pendência de revisão não sobreviveu ao download').toContain(
+      'aguardam revisão de advogado',
+    )
+    expect(rodape).toContain(String(comPendencia.pendentes.length))
+    expect(rodape).toContain(comPendencia.pendentes[0]!)
+  })
+
+  seComCorpus('minuta sem pendência não imprime o aviso', async () => {
+    const semPendencia = CASOS.map((c) =>
+      resolvePeca(c, TESES.filter((t) => aplicaA(t, c)), CORPUS),
+    ).find((p) => p.pendentes.length === 0)
+
+    if (!semPendencia) return expect(true).toBe(true)
+
+    const rodape = parteDoDocx(await pecaEmDocx(semPendencia), 'word/footer1.xml')
+    expect(rodape).not.toContain('aguardam revisão')
+  })
 })
