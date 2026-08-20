@@ -47,16 +47,48 @@ export type Crime = {
   multaMinima: number
   multaMaxima: number
   /**
-   * O § 4º alcança este crime?
+   * De onde sai a faixa de multa.
    *
-   * Só o art. 33 — o próprio § 4º diz "nos delitos definidos no **caput** e no
-   * § 1º **deste artigo**". Associação, financiamento, maquinário e informante
-   * ficam de fora, e o STJ não os alcança por analogia. Enquanto a calculadora
-   * dosava um crime só, a redução de 2/3 era sempre oferecível; com cinco, ela
-   * passa a ser recusada onde a lei a recusa. É a mesma trava que
-   * `trafico_imputado` faz nas teses.
+   * Os crimes da Lei de Drogas trazem a sua no próprio preceito secundário —
+   * "700 (setecentos) a 1.200 (mil e duzentos) dias-multa". Os do Código Penal
+   * dizem só "e multa", e quem dá o intervalo é a regra geral do art. 49 do CP:
+   * 10 a 360 dias-multa. Não é outro número, é outra origem — e o memorial, que
+   * vai para dentro de uma peça, precisa dizer qual.
    */
-  privilegio: boolean
+  multaOrigem: string
+  /**
+   * O nono vetor, do art. 42 da Lei de Drogas, entra na primeira fase?
+   *
+   * "Natureza e quantidade da droga" não existe num furto. Enquanto a
+   * calculadora dosava só crimes de droga, o vetor era fixo; com o Código Penal
+   * dentro, ele é do mesmo tipo de trava que a lista de causas.
+   */
+  preponderante: boolean
+  /**
+   * Quais causas da terceira fase alcançam este crime.
+   *
+   * É a trava que impede a calculadora de oferecer benefício de um crime a
+   * outro. O caso que a fundou é o § 4º: ele diz "nos delitos definidos no
+   * **caput** e no § 1º **deste artigo**", então associação, financiamento,
+   * maquinário e informante ficam de fora, e o STJ não os alcança por analogia.
+   * Com o Código Penal dentro, a mesma trava passou a valer nos dois sentidos —
+   * a proximidade de escola do art. 40 não alcança um roubo, e o concurso de
+   * agentes do art. 157 não alcança um tráfico. É a mesma ideia que
+   * `trafico_imputado` faz nas teses.
+   *
+   * Só a tentativa está em todas: é da parte geral.
+   */
+  causas: readonly ChaveCausa[]
+}
+
+/** O crime é da Lei 11.343? Sai do id do artigo, que já carrega a lei. */
+export function daLeiDeDrogas(crime: Crime): boolean {
+  return crime.artigo.startsWith('lei_11343_2006')
+}
+
+/** A causa alcança o crime? Ver `Crime.causas`. */
+export function admite(crime: Crime, k: ChaveCausa): boolean {
+  return crime.causas.includes(k)
 }
 
 /**
@@ -73,8 +105,20 @@ const TRAFICO_ART33: Crime = {
   maximo: 180,
   multaMinima: 500,
   multaMaxima: 1500,
-  privilegio: true,
+  multaOrigem: 'no próprio artigo',
+  preponderante: true,
+  causas: ['privilegiado', 'proximidade', 'tentativa'],
 }
+
+/** Faixa de dias-multa da regra geral, art. 49 do CP. */
+const MULTA_CP = {
+  multaMinima: 10,
+  multaMaxima: 360,
+  multaOrigem: 'art. 49 do CP',
+}
+
+/** As causas que a Lei de Drogas dá aos arts. 34 a 37: só o art. 40. */
+const CAUSAS_DROGA_SEM_PRIVILEGIO = ['proximidade', 'tentativa'] as const
 
 export const CRIMES: readonly Crime[] = [
   TRAFICO_ART33,
@@ -87,7 +131,9 @@ export const CRIMES: readonly Crime[] = [
     maximo: 120,
     multaMinima: 1200,
     multaMaxima: 2000,
-    privilegio: false,
+    multaOrigem: 'no próprio artigo',
+    preponderante: true,
+    causas: CAUSAS_DROGA_SEM_PRIVILEGIO,
   },
   {
     artigo: 'lei_11343_2006_art35',
@@ -98,7 +144,9 @@ export const CRIMES: readonly Crime[] = [
     maximo: 120,
     multaMinima: 700,
     multaMaxima: 1200,
-    privilegio: false,
+    multaOrigem: 'no próprio artigo',
+    preponderante: true,
+    causas: CAUSAS_DROGA_SEM_PRIVILEGIO,
   },
   {
     artigo: 'lei_11343_2006_art36',
@@ -109,7 +157,9 @@ export const CRIMES: readonly Crime[] = [
     maximo: 240,
     multaMinima: 1500,
     multaMaxima: 4000,
-    privilegio: false,
+    multaOrigem: 'no próprio artigo',
+    preponderante: true,
+    causas: CAUSAS_DROGA_SEM_PRIVILEGIO,
   },
   {
     artigo: 'lei_11343_2006_art37',
@@ -120,9 +170,56 @@ export const CRIMES: readonly Crime[] = [
     maximo: 72,
     multaMinima: 300,
     multaMaxima: 700,
-    privilegio: false,
+    multaOrigem: 'no próprio artigo',
+    preponderante: true,
+    causas: CAUSAS_DROGA_SEM_PRIVILEGIO,
   },
-] as const
+  // --- Código Penal ---------------------------------------------------------
+  //
+  // Os três que já vivem neste projeto fora do tráfico: furto e roubo estão no
+  // corpus em cobertura integral, e roubo majorado e art. 217-A entraram na
+  // busca e na peça por pedido explícito. Nenhum outro entra sem o mesmo
+  // pedido — calculadora que aceita qualquer artigo e ignora metade da terceira
+  // fase é larga por fora e vazia por dentro.
+  {
+    artigo: 'dl_2848_1940_art155',
+    rotulo: 'Furto',
+    citacao: 'art. 155',
+    citacaoPeca: 'Art. 155, caput,',
+    minimo: 12,
+    maximo: 72,
+    ...MULTA_CP,
+    preponderante: false,
+    causas: ['repousoNoturno', 'furtoPrivilegiado', 'tentativa'],
+  },
+  {
+    artigo: 'dl_2848_1940_art157',
+    rotulo: 'Roubo',
+    citacao: 'art. 157',
+    citacaoPeca: 'Art. 157, caput,',
+    minimo: 72,
+    maximo: 120,
+    ...MULTA_CP,
+    preponderante: false,
+    causas: ['concurso', 'armaDeFogo', 'tentativa'],
+  },
+  {
+    artigo: 'dl_2848_1940_art217-a',
+    rotulo: 'Estupro de vulnerável',
+    citacao: 'art. 217-A',
+    citacaoPeca: 'Art. 217-A, caput,',
+    minimo: 120,
+    maximo: 216,
+    ...MULTA_CP,
+    preponderante: false,
+    // Sem majorante nenhuma, e é decisão: o que os §§ 3º e 4º trazem são
+    // QUALIFICADORAS — outras faixas de pena (12 a 24, 20 a 40), não frações
+    // sobre a provisória. Modelar qualificadora como causa de aumento daria um
+    // número plausível e errado, que é o defeito que esta calculadora existe
+    // para não ter.
+    causas: ['tentativa'],
+  },
+]
 
 /** O crime central do recorte, e o que a ferramenta e o cartão assumem. */
 export const CRIME_PADRAO: Crime = TRAFICO_ART33
@@ -175,15 +272,106 @@ export const VETORES = [
 export const PREPONDERANTE = 8
 
 export const AGRAVANTES = [
-  { k: 'menoridade', nome: 'Menoridade relativa (art. 65, I)', base: 'réu com menos de 21 anos na data do fato', nota: 'atenuante preponderante', fr: '− 1/6' },
-  { k: 'confissao', nome: 'Confissão espontânea (art. 65, III, d)', base: 'confissão usada na fundamentação', nota: 'Súmula 545/STJ', fr: '− 1/6' },
-  { k: 'reincidencia', nome: 'Reincidência (art. 61, I)', base: 'condenação anterior transitada em julgado', nota: 'agravante preponderante', fr: '+ 1/6' },
+  {
+    k: 'menoridade',
+    nome: 'Menoridade relativa (art. 65, I)',
+    base: 'réu com menos de 21 anos na data do fato',
+    nota: 'atenuante preponderante',
+    fr: '− 1/6',
+  },
+  {
+    k: 'confissao',
+    nome: 'Confissão espontânea (art. 65, III, d)',
+    base: 'confissão usada na fundamentação',
+    nota: 'Súmula 545/STJ',
+    fr: '− 1/6',
+  },
+  {
+    k: 'reincidencia',
+    nome: 'Reincidência (art. 61, I)',
+    base: 'condenação anterior transitada em julgado',
+    nota: 'agravante preponderante',
+    fr: '+ 1/6',
+  },
 ] as const
 
+/**
+ * As causas de aumento e de diminuição, com o fator que cada uma aplica.
+ *
+ * `fator` é o multiplicador da pena provisória e `tipo` diz a ordem: aumentos
+ * antes de diminuições, como a jurisprudência aplica. Antes a sequência estava
+ * escrita à mão dentro de `calcula` — com três causas dava para ler, com sete
+ * viraria um encadeado de `if` cuja ordem ninguém confere.
+ *
+ * **Nem toda causa serve a todo crime**, e é `Crime.causas` que diz quais. A
+ * proximidade de escola é do art. 40 da Lei de Drogas, que alcança os arts. 33
+ * a 37 e mais nada; o concurso de agentes é do art. 157, § 2º, II. Só a
+ * tentativa é da parte geral e vale para todos.
+ */
 export const CAUSAS = [
-  { k: 'privilegiado', nome: 'Tráfico privilegiado (art. 33, §4º)', base: 'primário, bons antecedentes, sem organização nem dedicação', nota: 'redução de 1/6 a 2/3 — aqui, 2/3', fr: '− 2/3' },
-  { k: 'proximidade', nome: 'Proximidade de escola (art. 40, III)', base: 'nas imediações de estabelecimento de ensino', nota: 'aumento de 1/6 a 2/3 — aqui, o mínimo', fr: '+ 1/6' },
-  { k: 'tentativa', nome: 'Tentativa (art. 14, II)', base: 'execução iniciada e não consumada', nota: 'redução de 1/3 a 2/3 — aqui, 1/3', fr: '− 1/3' },
+  {
+    k: 'privilegiado',
+    nome: 'Tráfico privilegiado (art. 33, § 4º)',
+    base: 'primário, bons antecedentes, sem organização nem dedicação',
+    nota: 'redução de 1/6 a 2/3 — aqui, 2/3',
+    fr: '− 2/3',
+    tipo: 'diminuicao',
+    fator: 1 / 3,
+  },
+  {
+    k: 'proximidade',
+    nome: 'Proximidade de escola (art. 40, III)',
+    base: 'nas imediações de estabelecimento de ensino',
+    nota: 'aumento de 1/6 a 2/3 — aqui, o mínimo',
+    fr: '+ 1/6',
+    tipo: 'aumento',
+    fator: 7 / 6,
+  },
+  {
+    k: 'concurso',
+    nome: 'Concurso de agentes (art. 157, § 2º, II)',
+    base: 'duas ou mais pessoas no roubo',
+    nota: 'aumento de 1/3 até metade — aqui, o mínimo',
+    fr: '+ 1/3',
+    tipo: 'aumento',
+    fator: 4 / 3,
+  },
+  {
+    k: 'armaDeFogo',
+    nome: 'Arma de fogo (art. 157, § 2º-A, I)',
+    base: 'violência ou ameaça com emprego de arma de fogo',
+    nota: 'fração fixa, não intervalo',
+    fr: '+ 2/3',
+    tipo: 'aumento',
+    fator: 5 / 3,
+  },
+  {
+    k: 'repousoNoturno',
+    nome: 'Repouso noturno (art. 155, § 1º)',
+    base: 'furto praticado durante o repouso noturno',
+    nota: 'a lei diz "de metade", sem intervalo',
+    fr: '+ 1/2',
+    tipo: 'aumento',
+    fator: 3 / 2,
+  },
+  {
+    k: 'furtoPrivilegiado',
+    nome: 'Furto privilegiado (art. 155, § 2º)',
+    base: 'primário e coisa de pequeno valor',
+    nota: 'faculdade do juiz — aqui, a redução máxima',
+    fr: '− 2/3',
+    tipo: 'diminuicao',
+    fator: 1 / 3,
+  },
+  {
+    k: 'tentativa',
+    nome: 'Tentativa (art. 14, II)',
+    base: 'execução iniciada e não consumada',
+    nota: 'redução de 1/3 a 2/3 — aqui, 1/3',
+    fr: '− 1/3',
+    tipo: 'diminuicao',
+    fator: 2 / 3,
+  },
 ] as const
 
 export type ChaveAgravante = (typeof AGRAVANTES)[number]['k']
@@ -208,6 +396,18 @@ export type Calculo = {
 }
 
 /**
+ * Todas as causas desligadas.
+ *
+ * Montado da lista e não escrito à mão: com sete causas, um objeto literal em
+ * dois lugares esquece uma chave na primeira vez que a lista crescer — e chave
+ * ausente vira `undefined`, que é "não apurado" passando por "não ocorreu". É a
+ * mesma razão de todo caso de `casos.yaml` carregar todas as chaves de gatilho.
+ */
+function causasDesligadas(): Record<ChaveCausa, boolean> {
+  return Object.fromEntries(CAUSAS.map((c) => [c.k, false])) as Record<ChaveCausa, boolean>
+}
+
+/**
  * Estado inicial **da ferramenta**, em `/dosimetria`.
  *
  * Traz confissão e privilégio ligados de propósito: ali as duas aparecem como
@@ -217,7 +417,7 @@ export type Calculo = {
 export const ENTRADA_PADRAO: EntradaDosimetria = {
   vetores: Array(VETORES.length).fill('neutra') as Peso[],
   agravantes: { menoridade: false, confissao: true, reincidencia: false },
-  causas: { privilegiado: true, proximidade: false, tentativa: false },
+  causas: { ...causasDesligadas(), privilegiado: true },
 }
 
 /**
@@ -236,7 +436,7 @@ export const ENTRADA_PADRAO: EntradaDosimetria = {
 export const ENTRADA_NEUTRA: EntradaDosimetria = {
   vetores: Array(VETORES.length).fill('neutra') as Peso[],
   agravantes: { menoridade: false, confissao: false, reincidencia: false },
-  causas: { privilegiado: false, proximidade: false, tentativa: false },
+  causas: causasDesligadas(),
 }
 
 /**
@@ -256,11 +456,13 @@ export function calcula(
   { vetores, agravantes, causas }: EntradaDosimetria,
   crime: Crime = CRIME_PADRAO,
 ): Calculo {
-  const negativos = vetores.filter((v) => v === 'desf').length
-  const peso = vetores.reduce(
-    (a, v, i) => a + (v === 'desf' ? (i === PREPONDERANTE ? 2 : 1) : 0),
-    0,
-  )
+  // O nono vetor só conta onde existe. Fora da Lei de Drogas ele é ignorado até
+  // se vier marcado na entrada — a tela nem o desenha, mas entrada montada em
+  // código passaria direto, e aí um furto ganharia meses de pena por "natureza e
+  // quantidade da droga".
+  const conta = (i: number) => (i === PREPONDERANTE ? (crime.preponderante ? 2 : 0) : 1)
+  const negativos = vetores.filter((v, i) => v === 'desf' && conta(i) > 0).length
+  const peso = vetores.reduce((a, v, i) => a + (v === 'desf' ? conta(i) : 0), 0)
   const base = Math.min(crime.maximo, crime.minimo + peso * porVetor(crime))
 
   let provisoria = base
@@ -276,13 +478,22 @@ export function calcula(
   // não é atenuante, e a Súmula 231 não a alcança — é exatamente o que faz o
   // § 4º valer a pena no tráfico.
   //
-  // `crime.privilegio` é a trava, e ela mora aqui e não só na tela: a tela pode
-  // esconder a chave, e uma entrada montada em código — que é como o cartão do
-  // chat monta a dele — passaria direto. O § 4º alcança o art. 33 e mais nada.
+  // `admite()` é a trava, e ela mora aqui e não só na tela: a tela pode esconder
+  // a chave, e uma entrada montada em código — que é como o cartão do chat monta
+  // a dele — passaria direto. O § 4º alcança o art. 33 e mais nada, e a
+  // proximidade de escola do art. 40 não alcança um roubo.
+  //
+  // Aumentos antes de diminuições, e a sequência sai da lista em vez de estar
+  // escrita à mão: com três causas dava para ler três `if`; com sete, a ordem
+  // vira algo que ninguém confere.
   let definitiva = provisoria
-  if (causas.proximidade) definitiva *= 7 / 6
-  if (causas.privilegiado && crime.privilegio) definitiva *= 1 / 3
-  if (causas.tentativa) definitiva *= 2 / 3
+  for (const tipo of ['aumento', 'diminuicao'] as const) {
+    for (const causa of CAUSAS) {
+      if (causa.tipo !== tipo) continue
+      if (!causas[causa.k] || !admite(crime, causa.k)) continue
+      definitiva *= causa.fator
+    }
+  }
 
   const arredondada = Math.round(definitiva)
 
@@ -365,11 +576,15 @@ export function memorialDe(
     // sai do CRIME e não da chave marcada: é afirmação sobre o artigo dosado,
     // verdadeira mesmo que ninguém tenha tentado aplicar a redução. Numa conta
     // de associação, é a primeira pergunta de quem lê.
-    crime.privilegio
-      ? ''
-      : `A redução do art. 33, § 4º, não incide sobre o ${crime.citacao}: o dispositivo a ` +
-        'restringe aos delitos do caput e do § 1º do art. 33.',
-    `Pena definitiva: ${meses(c.definitiva)} de reclusão e ${c.multa} dias-multa.`,
+    //
+    // Só dentro da Lei de Drogas: num furto, falar do § 4º do art. 33 seria
+    // responder a uma pergunta que ninguém fez.
+    daLeiDeDrogas(crime) && !admite(crime, 'privilegiado')
+      ? `A redução do art. 33, § 4º, não incide sobre o ${crime.citacao}: o dispositivo a ` +
+        'restringe aos delitos do caput e do § 1º do art. 33.'
+      : '',
+    `Pena definitiva: ${meses(c.definitiva)} de reclusão e ${c.multa} dias-multa ` +
+      `(faixa ${crime.multaOrigem}: ${milhar(crime.multaMinima)} a ${milhar(crime.multaMaxima)}).`,
     c.abaixoDoMinimo
       ? `A pena definitiva ficou abaixo do mínimo legal de ${anos(crime.minimo)} anos, o que é ` +
         'válido: a redução veio de causa de diminuição na terceira fase, onde a Súmula 231 não ' +
@@ -413,107 +628,114 @@ export function meses(m: number): string {
  * — fica no padrão, e o cartão mostra em cima de que fatos calculou, para o
  * usuário ver o que foi lido e o que não foi.
  */
-const GATILHOS: { re: RegExp; rotulo: string; aplica: (e: EntradaDosimetria) => void }[] = [
+const GATILHOS: {
+  re: RegExp
+  rotulo: string
+  /** Que causa da terceira fase o termo liga, quando liga uma. */
+  causa?: ChaveCausa
+  aplica: (e: EntradaDosimetria) => void
+}[] = [
   {
     re: /\bprivilegiad|33,?\s*§\s*4|art\.?\s*33\s*§\s*4|minorante/i,
     rotulo: 'Tráfico privilegiado · § 4º',
-    aplica: (e) => { e.causas.privilegiado = true },
+    causa: 'privilegiado',
+    aplica: (e) => {
+      e.causas.privilegiado = true
+    },
   },
   {
     re: /\breincid/i,
     rotulo: 'Reincidente',
-    aplica: (e) => { e.agravantes.reincidencia = true; e.causas.privilegiado = false },
+    aplica: (e) => {
+      e.agravantes.reincidencia = true
+      e.causas.privilegiado = false
+    },
   },
   {
     re: /\bprim[áa]ri/i,
     rotulo: 'Réu primário',
-    aplica: (e) => { e.agravantes.reincidencia = false },
+    aplica: (e) => {
+      e.agravantes.reincidencia = false
+    },
   },
   {
     re: /\bconfess|confiss[ãa]o/i,
     rotulo: 'Confissão espontânea',
-    aplica: (e) => { e.agravantes.confissao = true },
+    aplica: (e) => {
+      e.agravantes.confissao = true
+    },
   },
   {
     re: /\bmenor de 21|menoridade/i,
     rotulo: 'Menor de 21 anos',
-    aplica: (e) => { e.agravantes.menoridade = true },
+    aplica: (e) => {
+      e.agravantes.menoridade = true
+    },
   },
   {
     re: /\bescola|ensino|col[ée]gio|imedia[çc][õo]es/i,
     rotulo: 'Imediações de escola · art. 40, III',
-    aplica: (e) => { e.causas.proximidade = true },
+    causa: 'proximidade',
+    aplica: (e) => {
+      e.causas.proximidade = true
+    },
   },
   {
     re: /\btentativ|tentad[ao]/i,
     rotulo: 'Tentativa · art. 14, II',
-    aplica: (e) => { e.causas.tentativa = true },
+    causa: 'tentativa',
+    aplica: (e) => {
+      e.causas.tentativa = true
+    },
   },
   {
     re: /\bgrande quantidade|muita droga|quantidade expressiva|\bkg\b|quilos?\b/i,
     rotulo: 'Quantidade expressiva · art. 42',
-    aplica: (e) => { e.vetores[PREPONDERANTE] = 'desf' },
+    aplica: (e) => {
+      e.vetores[PREPONDERANTE] = 'desf'
+    },
   },
   {
     re: /\bmaus antecedentes|antecedentes desfavor/i,
     rotulo: 'Maus antecedentes',
-    aplica: (e) => { e.vetores[1] = 'desf' },
+    aplica: (e) => {
+      e.vetores[1] = 'desf'
+    },
+  },
+  // --- os do Código Penal ---------------------------------------------------
+  {
+    re: /concurso de (agentes|duas|pessoas)|duas ou mais pessoas|em concurso|com um c[úu]mplice/i,
+    rotulo: 'Concurso de agentes · art. 157, § 2º, II',
+    causa: 'concurso',
+    aplica: (e) => {
+      e.causas.concurso = true
+    },
+  },
+  {
+    re: /arma de fogo|rev[óo]lver|pistola|espingarda/i,
+    rotulo: 'Arma de fogo · art. 157, § 2º-A, I',
+    causa: 'armaDeFogo',
+    aplica: (e) => {
+      e.causas.armaDeFogo = true
+    },
+  },
+  {
+    re: /repouso noturno|durante a (madrugada|noite)|de madrugada/i,
+    rotulo: 'Repouso noturno · art. 155, § 1º',
+    causa: 'repousoNoturno',
+    aplica: (e) => {
+      e.causas.repousoNoturno = true
+    },
+  },
+  {
+    re: /pequeno valor|coisa de pouco valor|res f[úu]rtiva de pequeno/i,
+    rotulo: 'Pequeno valor · art. 155, § 2º',
+    causa: 'furtoPrivilegiado',
+    aplica: (e) => {
+      e.causas.furtoPrivilegiado = true
+    },
   },
 ]
-
-/**
- * A calculadora dosa **um** crime: o art. 33, caput, da Lei 11.343/2006.
- *
- * Tudo aqui é dele — o intervalo de 5 a 15 anos, os dias-multa, o vetor
- * preponderante do art. 42, o § 4º da terceira fase. Isso não era problema
- * enquanto o produto inteiro era tráfico; hoje a busca alcança roubo majorado e
- * o art. 217-A, e o cartão aparecia igual sob a resposta sobre eles, com o selo
- * "art. 33 · 5 a 15 anos" e uma pena que não é a do crime perguntado. Pena
- * plausível e falsa é o que este projeto existe para não produzir.
- *
- * **A pergunta é quem decide, e não os dispositivos recuperados.** Medido
- * contra a busca de verdade: "pena para porte de muitas armas" traz o art. 28
- * da Lei de Drogas entre os dez primeiros, então olhar a lei do contexto
- * manteria o cartão justamente no caso que motivou o conserto. É também a
- * pergunta que `leDaConversa` lê — as duas leem a mesma coisa.
- *
- * Segue valendo o motivo de ele não depender de palavra de dosimetria: advogado
- * pergunta pelo § 4º, não por "calcule a pena". O que se exige é que a pergunta
- * seja de droga, não que seja de cálculo.
- *
- * O peso e a porção entram na lista porque caso de tráfico se descreve por
- * quantidade — "réu com 3 kg apreendidos" é pergunta de tráfico sem a palavra
- * tráfico, e sem eles o caso mais típico do recorte ficava de fora.
- *
- * **O erro é enviesado para esconder**, ao contrário do filtro da vigília. Lá um
- * achado a mais custa uma linha que se lê e descarta; aqui um cartão a mais é
- * a pena de um crime exibida sob a resposta de outro.
- */
-const TRAFICO =
-  /\btr[áa]fic|traficant|entorpecent|\bdrogas?\b|11\.?\s?343|maconha|coca[íi]na|\bcrack\b|33,?\s*§\s*4|\bprivilegiad|minorante|\bkg\b|\bquilos?\b|\bgramas?\b|porç(ão|ões)|trouxinha/i
-
-/**
- * Crime de outra lei nomeado na pergunta.
- *
- * `privilegiad` entrou na lista acima porque "cabe o privilegiado?" é pergunta
- * de tráfico sem a palavra tráfico — e o furto tem o seu, no art. 155, § 2º.
- * Sem esta guarda, a palavra que consertou um caso estragaria outro.
- */
-const OUTRO_CRIME =
-  /\bfurto|\broubo|estelionato|receptaç|homic[íi]d|estupro|217-A|arma de fogo|10\.?\s?826/i
-
-/**
- * Porte para consumo é o art. 28, que não tem pena de prisão — dosar 5 a 15
- * anos sobre ele seria errar mais feio do que sobre um crime de outra lei.
- */
-const CONSUMO = /consumo pessoal|uso pr[óo]prio|porte para consumo|art\.?\s*28\b/i
-
-export function dosavel(pergunta: string): boolean {
-  const traficoExpresso = /\btr[áa]fic/i.test(pergunta)
-  if (CONSUMO.test(pergunta) && !traficoExpresso) return false
-  if (OUTRO_CRIME.test(pergunta) && !traficoExpresso) return false
-  return TRAFICO.test(pergunta)
-}
 
 /**
  * Negação antes do termo.
@@ -533,32 +755,82 @@ function negado(pergunta: string, indice: number): boolean {
 }
 
 /**
- * Qual dos cinco crimes a pergunta descreve.
+ * Qual dos oito crimes a pergunta descreve — ou nenhum.
  *
- * Vocabulário próprio de cada artigo, e nada de adivinhação: sem sinal, é o
- * art. 33 — o crime central do recorte, e o único que o selo do cartão já
- * nomeava. Errar para o art. 33 é errar para o conhecido, com o artigo escrito
- * na tela; errar para um artigo deduzido seria a pena de um crime exibida com
- * o nome de outro.
+ * Devolve `null` quando a pergunta não é de crime que esta calculadora dosa, e
+ * é isso que decide se o cartão da Consulta aparece. Antes o cartão saía em
+ * TODA resposta com o selo "art. 33 · 5 a 15 anos": era verdade enquanto o
+ * produto inteiro era tráfico, e virou a pena de um crime exibida sob a
+ * resposta de outro assim que a busca alcançou o art. 157 e o art. 217-A.
  *
- * "Olheiro" e "fogueteiro" estão aqui pelo mesmo motivo de estarem nas
- * variantes da rubrica do art. 37: é como o caso chega falado.
+ * **Quem decide é a pergunta, não os dispositivos recuperados.** Medido contra
+ * a busca de verdade: "pena para porte de muitas armas" traz o art. 28 da Lei
+ * de Drogas entre os dez primeiros, então olhar a lei do contexto manteria o
+ * cartão justamente no caso que motivou o conserto. É também a pergunta que
+ * `leDaConversa` lê — as duas leem a mesma coisa.
+ *
+ * A ordem importa: o específico antes do geral. "Furto privilegiado" é furto, e
+ * só cai no § 4º do tráfico quem não nomeou outro crime antes.
+ *
+ * **O erro é enviesado para esconder**, ao contrário do filtro da vigília. Lá um
+ * achado a mais custa uma linha que se lê e descarta; aqui um cartão a mais é a
+ * pena de um crime exibida sob a resposta de outro.
  */
 const CRIME_NA_PERGUNTA: { re: RegExp; artigo: string }[] = [
-  { re: /\bassocia[çc]|\bassociar-se|art\.?\s*35\b/i, artigo: 'lei_11343_2006_art35' },
+  // Latrocínio é o § 3º, II — 24 a 30 anos, outra faixa. Cai fora antes de
+  // "roubo" casar, senão a tela mostraria 6 a 10 sobre um crime hediondo.
+  { re: /latroc[íi]nio|roubo seguido de morte/i, artigo: '' },
+  // "Estupro" sozinho é o art. 213, que esta calculadora não dosa. Só entra o
+  // 217-A quando a pergunta diz de qual se trata.
+  {
+    re: /estupro de vulner|vulner[áa]vel|217[-\s]?a\b|menor de 14|menor de catorze/i,
+    artigo: 'dl_2848_1940_art217-a',
+  },
+  { re: /\broubo|roubar|roubad|assalt/i, artigo: 'dl_2848_1940_art157' },
+  { re: /\bfurto|furtar|furtad/i, artigo: 'dl_2848_1940_art155' },
+  {
+    re: /\bassocia[çc]|associar-se|art\.?\s*35\b/i,
+    artigo: 'lei_11343_2006_art35',
+  },
   { re: /financia|custei|art\.?\s*36\b/i, artigo: 'lei_11343_2006_art36' },
-  { re: /informante|olheiro|fogueteir|art\.?\s*37\b/i, artigo: 'lei_11343_2006_art37' },
-  { re: /maquin[áa]ri|petrech|apetrech|art\.?\s*34\b/i, artigo: 'lei_11343_2006_art34' },
+  {
+    re: /informante|olheiro|fogueteir|art\.?\s*37\b/i,
+    artigo: 'lei_11343_2006_art37',
+  },
+  {
+    re: /maquin[áa]ri|petrech|apetrech|art\.?\s*34\b/i,
+    artigo: 'lei_11343_2006_art34',
+  },
+  {
+    re: /\btr[áa]fic|traficant|entorpecent|\bdrogas?\b|11\.?\s?343|maconha|coca[íi]na|\bcrack\b|33,?\s*§\s*4|\bprivilegiad|minorante|\bkg\b|\bquilos?\b|\bgramas?\b|porç(ão|ões)|trouxinha/i,
+    artigo: 'lei_11343_2006_art33',
+  },
 ]
 
-export function crimeDaPergunta(pergunta: string): Crime {
+/**
+ * Porte para consumo é o art. 28, que não tem pena de prisão — dosar 5 a 15
+ * anos sobre ele seria errar mais feio do que sobre um crime de outra lei.
+ */
+const CONSUMO = /consumo pessoal|uso pr[óo]prio|porte para consumo|art\.?\s*28\b/i
+
+export function crimeDaPergunta(pergunta: string): Crime | null {
+  if (CONSUMO.test(pergunta) && !/\btr[áa]fic/i.test(pergunta)) return null
+
   for (const { re, artigo } of CRIME_NA_PERGUNTA) {
     const achado = re.exec(pergunta)
     if (!achado || negado(pergunta, achado.index)) continue
-    const crime = CRIMES.find((c) => c.artigo === artigo)
-    if (crime) return crime
+    // Entrada sem artigo é veto: o termo identifica um crime que esta
+    // calculadora não dosa, e reconhecê-lo é justamente o que impede a regra
+    // seguinte, mais genérica, de dosá-lo errado.
+    if (!artigo) return null
+    return CRIMES.find((c) => c.artigo === artigo) ?? null
   }
-  return CRIME_PADRAO
+  return null
+}
+
+/** A calculadora dosa esta pergunta? Ver `crimeDaPergunta`. */
+export function dosavel(pergunta: string): boolean {
+  return crimeDaPergunta(pergunta) !== null
 }
 
 export type LeituraDaConversa = {
@@ -588,15 +860,28 @@ export function leDaConversa(pergunta: string): LeituraDaConversa {
     chips.push(g.rotulo)
   }
 
-  const crime = crimeDaPergunta(pergunta)
+  // Sem crime reconhecido a leitura ainda vale — a Consulta não desenha o
+  // cartão, mas quem chamar `leDaConversa` direto recebe os fatos lidos sobre o
+  // crime central do recorte, e não `null` para tratar em toda chamada.
+  const crime = crimeDaPergunta(pergunta) ?? CRIME_PADRAO
 
-  // O § 4º não alcança os outros quatro, então nem como fato lido ele entra: o
-  // cartão mostra os chips como "o que eu li da sua pergunta", e deixar
-  // "Tráfico privilegiado" ali sob uma pena de associação diria que a redução
-  // foi considerada e não foi. `calcula` já recusaria; aqui a tela também.
-  if (!crime.privilegio && entrada.causas.privilegiado) {
-    entrada.causas.privilegiado = false
-    const i = chips.indexOf('Tráfico privilegiado · § 4º')
+  // Causa que o crime não admite não entra nem como fato lido: o cartão mostra
+  // os chips como "o que eu li da sua pergunta", e deixar "Tráfico
+  // privilegiado" sob uma pena de associação diria que a redução foi
+  // considerada e não foi. `calcula` já recusaria; aqui a tela também.
+  for (const g of GATILHOS) {
+    if (!g.causa || !entrada.causas[g.causa] || admite(crime, g.causa)) continue
+    entrada.causas[g.causa] = false
+    const i = chips.indexOf(g.rotulo)
+    if (i >= 0) chips.splice(i, 1)
+  }
+
+  // O nono vetor é o art. 42 da Lei de Drogas. Num furto ele não existe, e uma
+  // pergunta que fale em "grande quantidade" não pode agravar a pena-base por
+  // um dispositivo que não alcança o crime.
+  if (!crime.preponderante && entrada.vetores[PREPONDERANTE] === 'desf') {
+    entrada.vetores[PREPONDERANTE] = 'neutra'
+    const i = chips.indexOf('Quantidade expressiva · art. 42')
     if (i >= 0) chips.splice(i, 1)
   }
 

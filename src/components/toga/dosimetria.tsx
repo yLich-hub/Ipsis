@@ -17,7 +17,7 @@
 // =============================================================================
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 
 import { Chave, Segmentado } from '@/components/toga/base'
 import {
@@ -25,6 +25,8 @@ import {
   CAUSAS,
   CRIMES,
   CRIME_PADRAO,
+  admite,
+  daLeiDeDrogas,
   ENTRADA_NEUTRA,
   ENTRADA_PADRAO,
   PREPONDERANTE,
@@ -104,9 +106,8 @@ export function Dosimetria() {
             Dosimetria trifásica
           </h1>
           <p className="mt-1.5 text-[13px] text-tg-fraco-2">
-            {crime.rotulo} · {crime.citacao} da Lei 11.343/2006 · reclusão de{' '}
-            {crime.minimo / 12} a {crime.maximo / 12} anos e{' '}
-            {crime.multaMinima.toLocaleString('pt-BR')} a{' '}
+            {crime.rotulo} · {crime.citacao} da Lei 11.343/2006 · reclusão de {crime.minimo / 12} a{' '}
+            {crime.maximo / 12} anos e {crime.multaMinima.toLocaleString('pt-BR')} a{' '}
             {crime.multaMaxima.toLocaleString('pt-BR')} dias-multa
           </p>
 
@@ -119,35 +120,56 @@ export function Dosimetria() {
           <div
             role="radiogroup"
             aria-label="Crime imputado"
-            className="mb-5 mt-3.5 flex flex-wrap gap-1.5"
+            className="mb-5 mt-3.5 flex flex-wrap items-center gap-1.5"
           >
-            {CRIMES.map((x) => {
+            {CRIMES.map((x, i) => {
               const ativo = x.artigo === crime.artigo
+              // A separação por lei é informação, não enfeite: o art. 42 e o
+              // § 4º valem de um lado e não do outro, e é isso que muda a conta
+              // quando se atravessa a linha.
+              const abreLei = i === 0 || daLeiDeDrogas(x) !== daLeiDeDrogas(CRIMES[i - 1]!)
               return (
-                <button
-                  key={x.artigo}
-                  type="button"
-                  role="radio"
-                  aria-checked={ativo}
-                  onClick={() => {
-                    setCrime(x)
-                    // A chave sai da tela nos crimes sem § 4º; deixá-la ligada
-                    // no estado faria a marca reaparecer ao voltar para o art.
-                    // 33, sem que ninguém a tivesse marcado de novo.
-                    if (!x.privilegio) setCausas((a) => ({ ...a, privilegiado: false }))
-                  }}
-                  title={`${x.citacao} — ${x.minimo / 12} a ${x.maximo / 12} anos`}
-                  className={`tgb rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors max-sm:min-h-[38px] ${
-                    ativo
-                      ? 'bg-tg-acento text-white shadow-[var(--tg-elev-acento)]'
-                      : 'bg-tg-preenche text-tg-corpo hover:bg-tg-acento-fraco hover:text-tg-acento-txt'
-                  }`}
-                >
-                  {x.rotulo}
-                  <span className={`ml-1.5 text-[11px] ${ativo ? 'text-white/70' : 'text-tg-fraco-3'}`}>
-                    {x.citacao}
-                  </span>
-                </button>
+                <Fragment key={x.artigo}>
+                  {abreLei && (
+                    <span
+                      className={`text-[11px] font-medium text-tg-fraco-3 ${i === 0 ? '' : 'ml-2'}`}
+                    >
+                      {daLeiDeDrogas(x) ? 'Lei 11.343' : 'Código Penal'}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={ativo}
+                    onClick={() => {
+                      setCrime(x)
+                      // As causas que o crime novo não admite saem do estado, e
+                      // não só da tela: deixá-las ligadas faria a marca
+                      // reaparecer ao voltar para o crime anterior, sem que
+                      // ninguém tivesse marcado de novo.
+                      setCausas((a) => {
+                        const limpo = { ...a }
+                        for (const causa of CAUSAS) {
+                          if (!admite(x, causa.k)) limpo[causa.k] = false
+                        }
+                        return limpo
+                      })
+                    }}
+                    title={`${x.citacao} — ${x.minimo / 12} a ${x.maximo / 12} anos`}
+                    className={`tgb rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors max-sm:min-h-[38px] ${
+                      ativo
+                        ? 'bg-tg-acento text-white shadow-[var(--tg-elev-acento)]'
+                        : 'bg-tg-preenche text-tg-corpo hover:bg-tg-acento-fraco hover:text-tg-acento-txt'
+                    }`}
+                  >
+                    {x.rotulo}
+                    <span
+                      className={`ml-1.5 text-[11px] ${ativo ? 'text-white/70' : 'text-tg-fraco-3'}`}
+                    >
+                      {x.citacao}
+                    </span>
+                  </button>
+                </Fragment>
               )
             })}
           </div>
@@ -191,6 +213,7 @@ export function Dosimetria() {
               vetores={vetores}
               negativos={c.negativos}
               porVetor={porVetor(crime)}
+              preponderante={crime.preponderante}
               aoTrocar={(i, v) =>
                 setVetores((vs) => {
                   const copia = vs.slice()
@@ -211,7 +234,7 @@ export function Dosimetria() {
                   : // O § 4º alcança só o art. 33: oferecer a chave nos outros
                     // quatro seria pôr na tela uma redução que a lei recusa, e
                     // `calcula` a recusa de qualquer jeito.
-                    CAUSAS.filter((x) => crime.privilegio || x.k !== 'privilegiado')
+                    CAUSAS.filter((x) => admite(crime, x.k))
               }
               ligadas={fase === 2 ? agravantes : causas}
               aoAlternar={(k) =>
@@ -220,7 +243,10 @@ export function Dosimetria() {
                       ...a,
                       [k as ChaveAgravante]: !a[k as ChaveAgravante],
                     }))
-                  : setCausas((a) => ({ ...a, [k as ChaveCausa]: !a[k as ChaveCausa] }))
+                  : setCausas((a) => ({
+                      ...a,
+                      [k as ChaveCausa]: !a[k as ChaveCausa],
+                    }))
               }
               aoZerar={() =>
                 fase === 2
@@ -260,6 +286,7 @@ function PrimeiraFase({
   vetores,
   negativos,
   porVetor: fracao,
+  preponderante,
   aoTrocar,
   aoZerar,
 }: {
@@ -267,6 +294,8 @@ function PrimeiraFase({
   negativos: number
   /** 1/8 do intervalo DESTE crime — 15 meses no art. 33, 6 no art. 37. */
   porVetor: number
+  /** O nono vetor, do art. 42, entra? Só nos crimes da Lei de Drogas. */
+  preponderante: boolean
   aoTrocar: (i: number, v: Peso) => void
   aoZerar: () => void
 }) {
@@ -288,15 +317,15 @@ function PrimeiraFase({
           aoZerar={aoZerar}
           desligado={nadaAZerar}
           titulo={
-            nadaAZerar
-              ? 'Os nove vetores já estão neutros'
-              : 'Devolve os nove vetores a neutro'
+            nadaAZerar ? 'Os nove vetores já estão neutros' : 'Devolve os nove vetores a neutro'
           }
         />
       </header>
 
       <div className="px-5 pb-4 pt-1">
-        {VETORES.map((v, i) => {
+        {/* Fora da Lei de Drogas o nono vetor não existe: "natureza e
+            quantidade da droga" não é circunstância de um furto. */}
+        {(preponderante ? VETORES : VETORES.slice(0, PREPONDERANTE)).map((v, i) => {
           const desfavoravel = vetores[i] === 'desf'
           const dobrado = i === PREPONDERANTE
           return (
@@ -333,9 +362,11 @@ function PrimeiraFase({
 
         <div className="flex items-center gap-3 pb-0.5 pt-3.5">
           <p className="flex-1 text-[12px] leading-[1.5] text-tg-fraco-2">
-            Fração de 1/8 do intervalo ({Math.round(fracao)} meses neste crime) por vetor negativo
-            — critério majoritário do STJ. O art. 42 da Lei de Drogas entra com peso dobrado, por
-            preponderar sobre o art. 59. Súmula 444: inquéritos em curso não agravam a pena-base.
+            Fração de 1/8 do intervalo ({Math.round(fracao)} meses neste crime) por vetor negativo —
+            critério majoritário do STJ.{' '}
+            {preponderante &&
+              'O art. 42 da Lei de Drogas entra com peso dobrado, por preponderar sobre o art. 59. '}
+            Súmula 444: inquéritos em curso não agravam a pena-base.
           </p>
           <Link
             href="/consulta?p=Dosimetria%20da%20pena%20na%20Lei%20de%20Drogas"
@@ -397,7 +428,13 @@ function OutrasFases({
   fase: 2 | 3
   entra: number
   sai: number
-  itens: readonly { k: string; nome: string; base: string; nota: string; fr: string }[]
+  itens: readonly {
+    k: string
+    nome: string
+    base: string
+    nota: string
+    fr: string
+  }[]
   ligadas: Record<string, boolean>
   aoAlternar: (k: string) => void
   aoZerar: () => void
@@ -412,7 +449,9 @@ function OutrasFases({
     <section className="tg-sobe overflow-hidden rounded-[20px] bg-white shadow-[var(--tg-elev-1)]">
       <header className="flex items-center gap-2.5 border-b border-tg-linha-fraca px-5 pb-3.5 pt-4">
         <h2 className="text-[14px] font-medium">
-          {fase === 2 ? 'Agravantes e atenuantes · arts. 61 a 66' : 'Causas de aumento e diminuição'}
+          {fase === 2
+            ? 'Agravantes e atenuantes · arts. 61 a 66'
+            : 'Causas de aumento e diminuição'}
         </h2>
         <span className="text-[12px] text-tg-fraco-3">
           entra em {meses(entra)} · sai em {meses(sai)}
@@ -421,11 +460,7 @@ function OutrasFases({
         <BotaoZerar
           aoZerar={aoZerar}
           desligado={nadaAZerar}
-          titulo={
-            nadaAZerar
-              ? 'Nenhuma marcada nesta fase'
-              : 'Desmarca todas as desta fase'
-          }
+          titulo={nadaAZerar ? 'Nenhuma marcada nesta fase' : 'Desmarca todas as desta fase'}
         />
       </header>
 
@@ -509,7 +544,15 @@ function Resultado({
 
   // Art. 109 do CP, pela pena concreta.
   const prescricao =
-    anos > 12 ? '20 anos' : anos > 8 ? '16 anos' : anos > 4 ? '12 anos' : anos > 2 ? '8 anos' : '4 anos'
+    anos > 12
+      ? '20 anos'
+      : anos > 8
+        ? '16 anos'
+        : anos > 4
+          ? '12 anos'
+          : anos > 2
+            ? '8 anos'
+            : '4 anos'
 
   const linhas = [
     {
@@ -584,8 +627,8 @@ function Resultado({
 
       {abaixoDoMinimo && (
         <p className="tg-sobe mt-3 rounded-[14px] bg-tg-ambar-fundo px-3.5 py-2.5 text-[11.5px] leading-[1.5] text-tg-ambar-txt">
-          A pena ficou <strong className="font-semibold">abaixo do mínimo legal</strong> de 5 anos. É
-          válido: a redução veio de causa de diminuição na terceira fase, onde a Súmula 231 não
+          A pena ficou <strong className="font-semibold">abaixo do mínimo legal</strong> de 5 anos.
+          É válido: a redução veio de causa de diminuição na terceira fase, onde a Súmula 231 não
           incide.
         </p>
       )}
