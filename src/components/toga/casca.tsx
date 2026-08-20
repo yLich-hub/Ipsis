@@ -98,13 +98,17 @@ const CABECALHOS: Record<string, [string, string]> = {
 }
 
 /**
- * As duas telas de apoio, atrás do `⌄` ao lado da marca.
+ * As duas telas de apoio, hoje só na paleta do ⌘K.
  *
  * Legislação e Peças ficam fora da lateral por serem destino, não ponto de
- * partida: chega-se a elas por uma citação ou pelo fim de um fluxo. As demais
- * que viviam aqui — Painel, Busca, Como funciona e Diagnóstico — foram
- * removidas por duplicarem o que a Consulta já faz ou por serem diagnóstico de
- * desenvolvimento.
+ * partida: chega-se a elas por uma citação ou pelo fim de um fluxo. Elas moravam
+ * também atrás de um `⌄` ao lado da marca, e o `⌄` saiu a pedido — um menu de
+ * dois itens que ninguém abria, ocupando o canto mais nobre da lateral.
+ *
+ * **Nenhuma das duas ficou órfã:** conferido antes de remover, `/leis` é
+ * alcançável pela migalha do artigo, por `/fontes`, pelas Configurações, pelo
+ * link cruzado do Vade Mecum e pela página de 404; `/pecas`, pelo rodapé de toda
+ * resposta da Consulta. A paleta continua listando as duas.
  */
 const OUTRAS = [
   { href: '/leis', rotulo: 'Legislação curada', nota: 'Lei 11.343, Código Penal e CPP' },
@@ -200,7 +204,6 @@ export function Lateral({
 }) {
   const caminho = usePathname()
   const params = useSearchParams()
-  const [menu, setMenu] = useState(false)
   const [conversas, setConversas] = useState<Conversa[]>([])
   const [busca, setBusca] = useState('')
   const router = useRouter()
@@ -397,23 +400,6 @@ export function Lateral({
 
           <span className={`flex-1 ${colapsada ? 'lg:hidden' : ''}`} />
 
-          {/* O `⌄` das outras telas não cabe na trilha — some junto com os
-              rótulos, e as duas telas de apoio continuam alcançáveis por link. */}
-          <button
-            type="button"
-            onClick={() => setMenu((m) => !m)}
-            aria-expanded={menu}
-            aria-haspopup="menu"
-            aria-label="Outras telas"
-            className={`tgb grid size-6 shrink-0 place-items-center rounded-lg text-tg-fraco-2 hover:bg-tg-caixa ${
-              colapsada ? 'lg:hidden' : ''
-            }`}
-          >
-            <span aria-hidden="true" className="-mt-1 text-[13px] leading-none">
-              ⌄
-            </span>
-          </button>
-
           {/* Recolher/expandir. Só existe a partir de `lg`: abaixo disso a
               lateral é uma gaveta, e recolher uma gaveta não quer dizer nada. */}
           <button
@@ -433,7 +419,6 @@ export function Lateral({
             </span>
           </button>
 
-          {menu && <MenuOutras caminho={caminho} aoFechar={() => setMenu(false)} />}
         </div>
 
         {/* nova consulta */}
@@ -634,48 +619,6 @@ export function Lateral({
           </div>
         )}
       </aside>
-    </>
-  )
-}
-
-/** Menu do `⌄`: as telas do produto que não estão na lateral. */
-function MenuOutras({ caminho, aoFechar }: { caminho: string; aoFechar: () => void }) {
-  useEffect(() => {
-    const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && aoFechar()
-    window.addEventListener('keydown', aoTeclar)
-    return () => window.removeEventListener('keydown', aoTeclar)
-  }, [aoFechar])
-
-  return (
-    <>
-      <button
-        type="button"
-        aria-label="Fechar menu"
-        onClick={aoFechar}
-        className="fixed inset-0 z-10 cursor-default"
-      />
-      <div
-        role="menu"
-        className="absolute left-0 right-0 top-full z-20 overflow-hidden rounded-[14px] bg-white p-1 shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_18px_40px_-16px_rgb(18_20_30_/_0.4)]"
-      >
-        <p className="px-3 pb-1 pt-2 text-[10.5px] font-medium text-tg-fraco-3">
-          Outras telas do produto
-        </p>
-        {OUTRAS.map((o) => (
-          <Link
-            key={o.href}
-            href={o.href}
-            role="menuitem"
-            onClick={aoFechar}
-            className={`block rounded-[10px] px-3 py-2 transition-colors hover:bg-tg-preenche ${
-              ativoEm(caminho, o.href) ? 'bg-tg-preenche' : ''
-            }`}
-          >
-            <span className="block text-[12.5px] font-medium text-tg-tinta-2">{o.rotulo}</span>
-            <span className="block text-[11px] text-tg-fraco-3">{o.nota}</span>
-          </Link>
-        ))}
-      </div>
     </>
   )
 }
