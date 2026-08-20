@@ -99,8 +99,16 @@ export function Dosimetria() {
   ]
 
   return (
-    <div className="tg-sobe flex min-h-0 flex-1 flex-col xl:flex-row">
-      <div className="min-h-0 flex-1 overflow-auto px-5 pb-[30px] pt-6 sm:px-7">
+    <div className="tg-sobe flex min-h-0 flex-1 flex-col overflow-y-auto xl:flex-row xl:overflow-hidden">
+      {/*
+        Abaixo de `xl` quem rola é esta coluna, e não cada painel por dentro.
+        A casca é `h-dvh overflow-hidden`, então num flex de coluna com altura
+        travada o `aside` — que é `shrink-0` e tem conteúdo alto — espremia o
+        painel principal até sobrarem 54px de altura: no celular a tela abria
+        direto no resultado e as três fases eram inalcançáveis. Medido em 390px,
+        antes: `alturaVisivel: 54`, `escondido: 1986`.
+      */}
+      <div className="px-5 pb-[30px] pt-6 sm:px-7 xl:min-h-0 xl:flex-1 xl:overflow-auto">
         <div className="max-w-[690px]">
           <h1 className="font-tg-serif text-[26px] leading-[1.2] -tracking-[0.01em] text-tg-tinta">
             Dosimetria trifásica
@@ -305,14 +313,17 @@ function PrimeiraFase({
   const nadaAZerar = vetores.every((v) => v === 'neutra')
   return (
     <section className="tg-sobe overflow-hidden rounded-[20px] bg-white shadow-[var(--tg-elev-1)]">
-      <header className="flex items-center gap-2.5 border-b border-tg-linha-fraca px-5 pb-3.5 pt-4">
+      {/* Envolve no celular: em 390px as três partes — título, estado e "Zerar" —
+          disputavam a mesma linha e viravam três colunas estreitas, cada uma
+          quebrando no meio das palavras. */}
+      <header className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 border-b border-tg-linha-fraca px-5 pb-3.5 pt-4">
         <h2 className="text-[14px] font-medium">Circunstâncias judiciais · art. 59 e art. 42</h2>
         <span className="text-[12px] text-tg-fraco-3">
           {negativos === 0
             ? 'nenhum vetor negativo · pena no mínimo'
             : `${negativos} ${negativos > 1 ? 'vetores negativos' : 'vetor negativo'}`}
         </span>
-        <span className="flex-1" />
+        <span className="hidden flex-1 sm:block" />
         <BotaoZerar
           aoZerar={aoZerar}
           desligado={nadaAZerar}
@@ -447,7 +458,10 @@ function OutrasFases({
   const nadaAZerar = itens.every((d) => !ligadas[d.k])
   return (
     <section className="tg-sobe overflow-hidden rounded-[20px] bg-white shadow-[var(--tg-elev-1)]">
-      <header className="flex items-center gap-2.5 border-b border-tg-linha-fraca px-5 pb-3.5 pt-4">
+      {/* Envolve no celular: em 390px as três partes — título, estado e "Zerar" —
+          disputavam a mesma linha e viravam três colunas estreitas, cada uma
+          quebrando no meio das palavras. */}
+      <header className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 border-b border-tg-linha-fraca px-5 pb-3.5 pt-4">
         <h2 className="text-[14px] font-medium">
           {fase === 2
             ? 'Agravantes e atenuantes · arts. 61 a 66'
@@ -456,7 +470,7 @@ function OutrasFases({
         <span className="text-[12px] text-tg-fraco-3">
           entra em {meses(entra)} · sai em {meses(sai)}
         </span>
-        <span className="flex-1" />
+        <span className="hidden flex-1 sm:block" />
         <BotaoZerar
           aoZerar={aoZerar}
           desligado={nadaAZerar}
@@ -591,7 +605,7 @@ function Resultado({
   ]
 
   return (
-    <aside className="w-full shrink-0 overflow-auto border-t border-tg-linha-media bg-white px-[22px] py-6 xl:w-[352px] xl:border-l xl:border-t-0">
+    <aside className="w-full shrink-0 border-t border-tg-linha-media bg-white px-[22px] py-6 xl:w-[352px] xl:overflow-auto xl:border-l xl:border-t-0">
       <p className="mb-3.5 text-[12px] font-medium text-tg-fraco-3">Resultado ao vivo</p>
 
       <div

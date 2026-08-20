@@ -179,7 +179,14 @@ export function Fontes({
           ))}
         </div>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        {/*
+          A coluna única do celular precisa ser `minmax(0,1fr)` escrita, e não
+          o padrão: item de grade nasce com `min-width: auto`, então a trilha
+          crescia até caber o conteúdo mais largo de dentro — a linha de filtros
+          com o campo de `min-w-[180px]`. Medido em 390px: os dois cartões
+          ficavam com 466px e a página inteira rolava para o lado.
+        */}
+        <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
           {/* --- alterações captadas -------------------------------------- */}
           <Cartao className="overflow-hidden">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-tg-linha-fraca px-4 py-3.5 sm:px-5">
