@@ -33,9 +33,11 @@
 // =============================================================================
 
 /** @type {import('prettier').Config} */
-export default {
+const config = {
   semi: false,
   singleQuote: true,
   printWidth: 100,
   endOfLine: 'lf',
 }
+
+export default config
