@@ -29,6 +29,7 @@ import type { Achado } from '@/lib/busca/consultar'
 import type { Citavel } from '@/lib/vigilia/precedentes'
 import { ESQUEMA, INSTRUCOES, type EventoAoVivo, type RespostaIA } from '@/lib/consulta/contrato'
 import { enriquece } from '@/lib/consulta/enriquece'
+import { montarFio, type Troca } from '@/lib/consulta/fio'
 import { recado, valida, type Recuperado } from '@/lib/consulta/valida'
 import type { Passo } from '@/lib/toga/resposta'
 
@@ -161,8 +162,15 @@ export class LeitorDeTexto {
  * Texto integral do dispositivo, com o id de citação ao lado. É este bloco que
  * define o universo do que pode ser citado — `valida.ts` recusa qualquer
  * `doc_id` que não esteja aqui.
+ *
+ * `herdados` são os que vieram do fio da conversa, não da busca desta pergunta
+ * (ver `lib/consulta/fio.ts`). Entram com `origem` declarada, e a distinção não
+ * é decorativa: o modelo precisa saber que aquele dispositivo é o assunto que
+ * se arrastou da troca anterior, e não algo que o acervo devolveu para o que se
+ * acabou de perguntar. Sem a marca, uma pergunta que mudou de assunto receberia
+ * o dispositivo antigo com o mesmo peso do recém-recuperado.
  */
-export function montarContexto(achados: Achado[]): string {
+export function montarContexto(achados: Achado[], herdados = new Set<string>()): string {
   return achados
     .map((a) =>
       [
@@ -170,6 +178,9 @@ export function montarContexto(achados: Achado[]): string {
         `citação: ${a.citacao.replace(/\s+/g, ' ').trim()}`,
         a.artigo_rubrica ? `rubrica: ${a.artigo_rubrica}` : null,
         a.rubrica_termo ? `tema: ${a.rubrica_termo}${a.papel ? ` (${a.papel})` : ''}` : null,
+        herdados.has(a.dispositivo_id)
+          ? 'origem: citado numa pergunta anterior desta conversa, não recuperado por esta'
+          : null,
         `texto: ${a.texto}`,
         '</dispositivo>',
       ]
@@ -255,13 +266,23 @@ export type Contexto = { itens: Achado[]; fraco: boolean }
  * léxica com a palavra "ilegal". O modelo então construía um parágrafo em cima
  * dele. A busca errou e a prosa deu verniz ao erro.
  *
- * **Por que um piso absoluto e não relativo.** Medido em 14/08/2026, sobre dez
- * consultas: dentro do recorte o topo fica entre 0,021 e 0,028; fora, as quatro
- * consultas deram o MESMO topo, 0,0164 — que é exatamente `1/61`, a assinatura
- * de uma perna sozinha sem ninguém concordando. Já a razão entre o último e o
- * primeiro é 0,90 fora do corpus e 0,53–0,73 dentro: um piso relativo cortaria
- * justamente as consultas boas e deixaria as ruins passar inteiras. Seria o
- * critério ao contrário.
+ * **Por que um piso absoluto e não relativo.** Remedido em 20/08/2026, depois de
+ * `0017_peso_da_rubrica.sql`, sobre dez consultas:
+ *
+ *   consulta com rubrica  topo 0,060–0,064   razão último/topo 0,24–0,26   3–4/8 acima
+ *   duas pernas de acordo topo 0,030         razão 0,84                    8/8 acima
+ *   fora do corpus        topo 0,0164        razão 0,90                    0/8 acima
+ *
+ * As quatro consultas de fora deram o MESMO topo, exatamente `1/61` — a
+ * assinatura de uma perna sozinha sem ninguém concordando. A razão entre o
+ * último e o primeiro anda na direção contrária da qualidade: 0,90 fora do
+ * corpus e 0,24 dentro. Um piso relativo cortaria justamente as consultas boas
+ * e deixaria as ruins passar inteiras.
+ *
+ * **Os números de antes eram 0,021–0,028 no topo, e eram o defeito.** A perna de
+ * rubrica valia 3/259 em vez de 3/61 — ver `0017_peso_da_rubrica.sql`. Com ela
+ * consertada a separação triplicou, e a consulta mais central do projeto
+ * ("tráfico privilegiado") deixou de ser marcada `fraco`.
  *
  * **`direta` desliga o piso, e essa é a parte que quase quebrou tudo.**
  * `resolveDireto` responde "art. 33 da Lei de Drogas" lendo o artigo pelo id,
@@ -387,6 +408,8 @@ export async function* gerarAoVivo({
   achados,
   direta = false,
   precedentes = [],
+  fio = [],
+  herdados = [],
   passos,
 }: {
   pergunta: string
@@ -398,24 +421,45 @@ export async function* gerarAoVivo({
    * em julgado — ver `lib/vigilia/precedentes.ts`. Vazio é o normal.
    */
   precedentes?: Citavel[]
+  /**
+   * As trocas anteriores desta conversa — perguntas e ids, nunca a prosa. Ver
+   * `lib/consulta/fio.ts`. Vazio é o normal: primeira pergunta.
+   */
+  fio?: Troca[]
+  /**
+   * Os dispositivos que as respostas anteriores citaram, já lidos do banco.
+   * Entram no contexto DEPOIS do piso, porque não passaram pela fusão desta
+   * pergunta e o piso os cortaria inteiros.
+   */
+  herdados?: Achado[]
   passos: Passo[]
 }): AsyncGenerator<EventoAoVivo> {
-  if (achados.length === 0) {
+  // O modelo argumenta sobre o que sobreviveu ao piso; a tela continua
+  // mostrando a busca inteira, pelo evento `busca`.
+  const { itens, fraco } = filtraContexto(achados, direta)
+
+  // A herança vai para o fim: o que a busca desta pergunta trouxe vem primeiro,
+  // e o assunto que se arrastou da troca anterior fica atrás. Ordem é sinal
+  // barato e o modelo lê de cima para baixo.
+  const doContexto = [...itens, ...herdados]
+  const idsHerdados = new Set(herdados.map((h) => h.dispositivo_id))
+
+  // A guarda olha o contexto montado, não a busca crua: com fio, uma pergunta
+  // puramente anafórica ("e nesse caso?") pode não recuperar nada sozinha e
+  // ainda assim ter o que citar.
+  if (doContexto.length === 0) {
     yield { tipo: 'erro', motivo: 'a busca não recuperou nenhum dispositivo para citar' }
     return
   }
 
-  // O modelo argumenta sobre o que sobreviveu ao piso; a tela continua
-  // mostrando a busca inteira, pelo evento `busca`.
-  const { itens, fraco } = filtraContexto(achados, direta)
-  const contexto = montarContexto(itens) + montarPrecedentes(precedentes)
+  const contexto = montarContexto(doContexto, idsHerdados) + montarPrecedentes(precedentes)
 
   // O universo do que pode ser citado. Precedente entra aqui para `valida()`
   // aceitar o `doc_id` dele — e entra COM o texto da tese, o que faz a recusa
   // de transcrição valer para ele também: o modelo argumenta sobre a tese, não
   // a copia. A tela mostra o texto no cartão, como faz com o dispositivo.
   const recuperados = [
-    ...recuperadosDe(itens),
+    ...recuperadosDe(doContexto),
     ...precedentes.map((p) => ({ docId: p.docId, texto: p.tese })),
   ]
 
@@ -427,18 +471,42 @@ export async function* gerarAoVivo({
    * dele. Nomear a fraqueza é o que transforma "cite o que der" em "diga que
    * não tem".
    */
-  const aviso = fraco
-    ? '\n\nATENÇÃO: nenhum dispositivo recuperado teve concordância entre as pernas da busca — ' +
-      'é sinal forte de que o acervo não cobre esta pergunta. Diga isso na primeira frase, ' +
-      'use confidence "baixa" e não construa tese sobre os dispositivos abaixo; eles servem ' +
-      'apenas para mostrar o que o acervo de fato alcança.'
-    : ''
+  const semFio =
+    '\n\nATENÇÃO: nenhum dispositivo recuperado teve concordância entre as pernas da busca — ' +
+    'é sinal forte de que o acervo não cobre esta pergunta. Diga isso na primeira frase, ' +
+    'use confidence "baixa" e não construa tese sobre os dispositivos abaixo; eles servem ' +
+    'apenas para mostrar o que o acervo de fato alcança.'
+
+  /**
+   * Com fio, a recuperação fraca tem uma segunda explicação — e quem pode
+   * distinguir as duas é o modelo, não este arquivo.
+   *
+   * `fraco` mede uma coisa só: os TERMOS desta pergunta não acharam concordância
+   * no corpus. Sem conversa atrás, isso quer dizer "o acervo não cobre o
+   * assunto". Com conversa atrás, quer dizer isso OU que a pergunta não tem
+   * termo próprio para casar — "e nesse caso?" não tem o que achar em lugar
+   * nenhum, e ainda assim é respondível. Afirmar a primeira leitura nos dois
+   * casos faria o chat negar um assunto que ele acabou de cobrir; suprimir o
+   * aviso faria o contrário, que é pior. Diz-se então o que de fato se mediu, e
+   * a decisão fica com quem tem as duas metades na frente.
+   */
+  const comFio =
+    '\n\nATENÇÃO: a busca feita com o texto desta pergunta sozinha não teve concordância entre ' +
+    'as pernas — o que acontece tanto quando o acervo não cobre o assunto quanto quando a pergunta ' +
+    'se apoia na anterior ("e nesse caso?", "e se ele for reincidente?"). Os dispositivos com ' +
+    '`origem` declarada vieram das perguntas anteriores e provavelmente são o assunto. Se eles ' +
+    'responderem, responda a partir deles; se não responderem, diga que o acervo não cobre esta ' +
+    'pergunta e use confidence "baixa".'
+
+  const aviso = !fraco ? '' : fio.length > 0 ? comFio : semFio
 
   const mensagens: Mensagem[] = [
     { role: 'system', content: INSTRUCOES },
     {
       role: 'user',
-      content: `Contexto recuperado do corpus curado (única fonte citável):\n\n${contexto}${aviso}\n\nPergunta do advogado: ${pergunta}`,
+      content:
+        `Contexto recuperado do corpus curado (única fonte citável):\n\n${contexto}` +
+        `${montarFio(fio)}${aviso}\n\nPergunta do advogado: ${pergunta}`,
     },
   ]
 
@@ -492,7 +560,14 @@ export async function* gerarAoVivo({
     if (veredito.ok) {
       yield {
         tipo: 'fim',
-        comp: enriquece(veredito.dados, achados, passos, precedentes),
+        herdados,
+        // `doContexto`, e não `achados`: o herdado tem de estar aqui ou some do
+        // cartão sem erro nenhum. `valida()` já o aceitou (ele está em
+        // `recuperados`), então a citação é legítima — e `enriquece` a
+        // descartaria por não achar o id, deixando o parágrafo ancorado nos
+        // dados e órfão na tela. É o mesmo modo de falha do corte de fontes
+        // pelo fim, que o comentário de `enriquece` descreve.
+        comp: enriquece(veredito.dados, doContexto, passos, precedentes),
         modelo: MODELO,
       }
       return

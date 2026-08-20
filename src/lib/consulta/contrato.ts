@@ -30,7 +30,7 @@
 // uma pena e o cartão dizer outra.
 // =============================================================================
 
-import type { RespostaBusca } from '@/lib/busca/consultar'
+import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
 import type { RespostaComposta } from '@/lib/toga/resposta'
 
 /**
@@ -47,8 +47,18 @@ export type EventoAoVivo =
   | { tipo: 'busca'; bruta: RespostaBusca }
   /** Prévia: texto revelado enquanto o JSON do modelo ainda está aberto. */
   | { tipo: 'texto'; delta: string }
-  /** O JSON fechou e passou na validação. Substitui a prévia. */
-  | { tipo: 'fim'; comp: RespostaComposta; modelo: string }
+  /**
+   * O JSON fechou e passou na validação. Substitui a prévia.
+   *
+   * `herdados` são os dispositivos que entraram no contexto pelo fio da conversa
+   * e não pela busca desta pergunta (ver `lib/consulta/fio.ts`). Vão junto porque
+   * a tela precisa deles para abrir o painel de fonte: o cartão de uma fonte
+   * herdada procura o id em `achados`, e sem isto a busca por id falharia e o
+   * painel cairia no primeiro achado — abrindo, em silêncio, o dispositivo
+   * errado. Fora do `busca`, de propósito: aquele evento é a resposta crua da
+   * busca, e é ele que vai para o histórico.
+   */
+  | { tipo: 'fim'; comp: RespostaComposta; modelo: string; herdados: Achado[] }
   | { tipo: 'erro'; motivo: string }
 
 export type ParagrafoIA = {

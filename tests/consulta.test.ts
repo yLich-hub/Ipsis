@@ -26,8 +26,16 @@ import {
   LeitorDeTexto,
   PISO_DE_FUSAO,
   filtraContexto,
+  montarContexto,
   montarPrecedentes,
 } from '@/lib/consulta/aovivo'
+import {
+  MAX_HERDADOS,
+  idsHerdados,
+  montarFio,
+  religaHerdados,
+  saneiaFio,
+} from '@/lib/consulta/fio'
 import { fontesDeDoutrina } from '@/lib/consulta/doutrina'
 import { enriquece } from '@/lib/consulta/enriquece'
 import { recado, transcreveuLei, valida, type Recuperado } from '@/lib/consulta/valida'
@@ -315,17 +323,21 @@ describe('piso de fusão — o que o modelo pode citar', () => {
   const oito = (scores: number[]) => scores.map((s, i) => ach(`d${i}`, s))
 
   it('corta o rabo quando a fusão concordou em alguns itens', () => {
-    // Perfil real de consulta dentro do recorte, medido em 14/08/2026: topo em
-    // 0,025 e cauda abaixo do piso.
-    const r = filtraContexto(oito([0.025, 0.022, 0.019, 0.017, 0.0159, 0.0155, 0.0152, 0.0149]))
-    expect(r.itens).toHaveLength(4)
+    // Perfil real medido em 20/08/2026, DEPOIS de 0017: "tráfico privilegiado"
+    // devolve o cluster de rubrica bem acima do piso e uma cauda em 1/61 e
+    // abaixo. Os números de antes (topo em 0,025) eram os da rubrica valendo um
+    // quarto do peso — ver o cabeçalho de `0017_peso_da_rubrica.sql`.
+    const r = filtraContexto(oito([0.0569, 0.0599, 0.0476, 1 / 61, 0.0161, 0.0159, 0.0156, 0.0154]))
+    expect(r.itens).toHaveLength(3)
     expect(r.fraco).toBe(false)
   })
 
   it('marca como fraca a recuperação em que nenhuma perna concordou', () => {
-    // Perfil real de consulta FORA do corpus: todas as quatro medidas deram o
-    // mesmo topo, 1/61 — a assinatura de uma perna sozinha.
-    const r = filtraContexto(oito([0.0164, 0.0161, 0.0159, 0.0156, 0.0154, 0.0152, 0.0149, 0.0147]))
+    // Perfil real de consulta FORA do corpus, remedido em 20/08/2026: as quatro
+    // deram o MESMO topo, exatamente 1/61 — a assinatura de uma perna sozinha.
+    // Este perfil não mudou com 0017, e não devia mesmo: sem rubrica que case,
+    // o peso da rubrica é irrelevante.
+    const r = filtraContexto(oito([1 / 61, 0.0161, 0.0159, 0.0156, 0.0154, 0.0152, 0.0149, 0.0147]))
     expect(r.fraco).toBe(true)
     // Não zera: a resposta gerada para pergunta fora do corpus é boa, e ela
     // precisa de algo para apontar ao dizer o que o acervo cobre.
@@ -345,6 +357,22 @@ describe('piso de fusão — o que o modelo pode citar', () => {
     // `p_k = 60`, menor peso 1.0 → 1/61. Se a migration mudar, isto tem de
     // mudar junto, e é por isso que o número não mora solto no código.
     expect(PISO_DE_FUSAO).toBeCloseTo(1 / 61, 10)
+  })
+
+  it('o cluster de rubrica passa folgado, e a cauda de uma perna só não passa', () => {
+    // A distância entre os dois é o que 0017 devolveu. Com a rubrica valendo
+    // 3/259 em vez de 3/61, "tráfico privilegiado" juntava DOIS itens acima do
+    // piso, caía em `fraco`, e o modelo era instruído a dizer que o acervo não
+    // cobre a pergunta mais central do projeto.
+    //
+    // **Nenhum teste desta suíte pega aquela regressão**, e é honesto dizer:
+    // ela mora no SQL da RPC e só aparece contra o banco. O que se tranca aqui
+    // é o outro lado — que o piso separa os dois perfis quando os scores
+    // chegam certos. Para o lado do banco existe `npm run contexto`.
+    const comRubrica = filtraContexto(oito([0.0569, 0.0599, 0.0476, 1 / 61, 0.0161, 0.0159, 0.0156, 0.0154]))
+    const semNada = filtraContexto(oito([1 / 61, 0.0161, 0.0159, 0.0156, 0.0154, 0.0152, 0.0149, 0.0147]))
+    expect(comRubrica.fraco).toBe(false)
+    expect(semNada.fraco).toBe(true)
   })
 
   it('não mexe em recuperação já curta', () => {
@@ -531,5 +559,210 @@ describe('fontesDeDoutrina', () => {
     expect(classifica('o que diz a doutrina sobre o art. 33').molde).toBe('doutrina')
     expect(classifica('segundo Nucci, o tráfico privilegiado').molde).toBe('doutrina')
     expect(classifica('requisitos do tráfico privilegiado').molde).not.toBe('doutrina')
+  })
+})
+
+describe('o fio da conversa', () => {
+  const troca = (pergunta: string, ids: string[]) => ({ pergunta, ids })
+
+  describe('saneamento do que a tela mandou', () => {
+    it('entrada que não é lista vira fio vazio', () => {
+      // Fio é conforto. Recusar a requisição por causa dele custaria a resposta,
+      // que é o que o usuário veio buscar.
+      expect(saneiaFio(undefined)).toEqual([])
+      expect(saneiaFio('tráfico')).toEqual([])
+      expect(saneiaFio({ pergunta: 'x' })).toEqual([])
+    })
+
+    it('guarda no máximo três trocas, e são as últimas', () => {
+      const fio = saneiaFio([
+        troca('primeira', []),
+        troca('segunda', []),
+        troca('terceira', []),
+        troca('quarta', []),
+      ])
+      expect(fio.map((t) => t.pergunta)).toEqual(['segunda', 'terceira', 'quarta'])
+    })
+
+    it('descarta id que não tem forma de id', () => {
+      // Isto vem do navegador. Um `id` com aspas, espaço ou barra não chega a
+      // virar consulta ao banco — e o que sobra da troca continua valendo.
+      const [t] = saneiaFio([
+        troca('e o § 4º?', [
+          'lei_11343_2006_art33_p4',
+          'DROP TABLE dispositivos',
+          '../../etc/passwd',
+          'stj:4200',
+        ]),
+      ])
+      expect(t?.ids).toEqual(['lei_11343_2006_art33_p4'])
+    })
+
+    it('não repete id dentro da mesma troca', () => {
+      const [t] = saneiaFio([troca('x', ['dl_2848_1940_art59', 'dl_2848_1940_art59'])])
+      expect(t?.ids).toHaveLength(1)
+    })
+
+    it('troca sem pergunta não entra, mesmo trazendo ids', () => {
+      // Sem a pergunta o fio não resolve referência nenhuma, e os ids sozinhos
+      // seriam herança sem motivo declarado.
+      expect(saneiaFio([troca('   ', ['lei_11343_2006_art33'])])).toEqual([])
+    })
+  })
+
+  describe('herança de id', () => {
+    it('não repete o que a busca desta pergunta já trouxe', () => {
+      const fio = [troca('o que é tráfico privilegiado', ['lei_11343_2006_art33_p4'])]
+      expect(idsHerdados(fio, ['lei_11343_2006_art33_p4'])).toEqual([])
+    })
+
+    it('devolve o dispositivo que o piso cortou e a troca anterior citou', () => {
+      // A dedução é contra o contexto JÁ FILTRADO, de propósito: se a fusão
+      // desta pergunta empurrou para a cauda um artigo que a conversa já tratou
+      // como assunto, ele volta. Herança existe justamente para isso.
+      const fio = [troca('e os requisitos?', ['lei_11343_2006_art33_p4'])]
+      expect(idsHerdados(fio, ['dl_2848_1940_art59'])).toEqual(['lei_11343_2006_art33_p4'])
+    })
+
+    it('começa pela troca mais recente', () => {
+      const fio = [troca('antiga', ['a1']), troca('recente', ['b1'])]
+      expect(idsHerdados(fio, [])).toEqual(['b1', 'a1'])
+    })
+
+    it('para no teto, para a herança não dominar o contexto', () => {
+      // Herdado não passou pela fusão desta pergunta: é aposta, não recuperação.
+      const fio = [
+        troca('t1', ['a1', 'a2', 'a3', 'a4']),
+        troca('t2', ['b1', 'b2', 'b3', 'b4']),
+      ]
+      expect(idsHerdados(fio, [])).toHaveLength(MAX_HERDADOS)
+    })
+  })
+
+  describe('o bloco que o modelo lê', () => {
+    it('sem fio, não acrescenta nada à mensagem', () => {
+      expect(montarFio([])).toBe('')
+    })
+
+    it('diz com todas as letras que pergunta anterior não é fonte', () => {
+      // Sem isto o modelo se apoia no que ele mesmo respondeu antes — a memória
+      // do modelo com um passo a mais, e igualmente não conferível na tela.
+      const b = montarFio([troca('o que é tráfico privilegiado', [])])
+      expect(b).toContain('o que é tráfico privilegiado')
+      expect(b).toContain('NÃO são fonte')
+    })
+
+    it('a prosa da resposta anterior nunca atravessa', () => {
+      // A garantia de verdade é de tipo — `Troca` só tem pergunta e ids —, e
+      // esta asserção é o lembrete de por quê: prosa gerada não passa por
+      // `valida()` de novo.
+      const fio = saneiaFio([
+        { pergunta: 'e se ele for reincidente?', ids: ['lei_11343_2006_art33_p4'], resposta: 'A reincidência afasta o § 4º.' },
+      ])
+      expect(JSON.stringify(fio)).not.toContain('afasta')
+    })
+  })
+
+  describe('o herdado tem de chegar inteiro à tela', () => {
+    const achado = (id: string) =>
+      ({
+        dispositivo_id: id,
+        citacao: `art. de ${id}`,
+        texto: 'texto do dispositivo',
+        revogado: false,
+        cobertura: 'integral',
+        vigencia_ate: '2025-02-28',
+        lei_apelido: 'Lei 11.343',
+        artigo_rubrica: null,
+        rubrica_termo: null,
+        papel: null,
+      }) as never
+
+    const dados = {
+      paragraphs: [{ text: 'A reincidência afasta o benefício.', citations: [1] }],
+      sources: [{ id: 1, doc_id: 'lei_11343_2006_art33_p4' }],
+      confidence: 'alta' as const,
+      followups: [],
+    }
+
+    it('fonte que não está na lista de achados some do cartão, sem erro', () => {
+      // Esta é a armadilha, e ela está aqui como aviso: `valida()` aceita o
+      // herdado (ele está em `recuperados`), e `enriquece` o descartaria por não
+      // achar o id — deixando o parágrafo ancorado nos dados e órfão na tela.
+      // É por isso que `gerarAoVivo` passa o CONTEXTO, herança incluída, e não
+      // os achados crus da busca.
+      const comp = enriquece(dados, [], [], [])
+      expect(comp.fontes).toHaveLength(0)
+      expect(comp.paras[0]!.cite).toBeNull()
+    })
+
+    it('com o herdado no contexto, o cartão e o superíndice aparecem', () => {
+      const comp = enriquece(dados, [achado('lei_11343_2006_art33_p4')], [], [])
+      expect(comp.fontes).toHaveLength(1)
+      expect(comp.paras[0]!.cite).toBe('1')
+    })
+  })
+
+  describe('a conversa reaberta reata o herdado', () => {
+    const d = (id: string) => ({ dispositivo_id: id, texto: id })
+
+    it('devolve a fonte citada que a busca daquela pergunta não trouxe', () => {
+      // O histórico guarda só `bruta` de cada troca. A troca 2 citou o § 4º, que
+      // veio por herança; o pool da conversa o tem, porque a troca 1 o buscou.
+      const pool = [d('lei_11343_2006_art33_p4'), d('dl_2848_1940_art44')]
+      const daTroca2 = [d('dl_2848_1940_art44')]
+      const r = religaHerdados(pool, daTroca2, ['dl_2848_1940_art44', 'lei_11343_2006_art33_p4'])
+      expect(r.map((x) => x.dispositivo_id)).toEqual(['lei_11343_2006_art33_p4'])
+    })
+
+    it('não devolve o que a troca já tem', () => {
+      const pool = [d('a'), d('b')]
+      expect(religaHerdados(pool, [d('a'), d('b')], ['a', 'b'])).toEqual([])
+    })
+
+    it('não repete quando o pool traz o mesmo dispositivo em várias trocas', () => {
+      // Duas perguntas seguidas sobre o mesmo assunto recuperam o mesmo artigo,
+      // e o pool é a concatenação das buscas.
+      const pool = [d('a'), d('a'), d('a')]
+      expect(religaHerdados(pool, [], ['a'])).toHaveLength(1)
+    })
+
+    it('id de precedente não resolve, e não estraga o resto', () => {
+      // `comp.fontes` mistura dispositivo e tema do STJ; o tema nunca esteve em
+      // `bruta.itens` e não tem por que estar.
+      const pool = [d('lei_11343_2006_art33_p4')]
+      const r = religaHerdados(pool, [], ['stj:4200', 'lei_11343_2006_art33_p4'])
+      expect(r.map((x) => x.dispositivo_id)).toEqual(['lei_11343_2006_art33_p4'])
+    })
+  })
+
+  describe('o herdado se declara no contexto', () => {
+    const ach = (id: string) =>
+      ({
+        dispositivo_id: id,
+        citacao: `Citação de ${id}`,
+        texto: 'texto do dispositivo',
+        artigo_rubrica: null,
+        rubrica_termo: null,
+        papel: null,
+      }) as never
+
+    it('marca a origem só no que veio do fio', () => {
+      // O modelo precisa saber que aquele dispositivo é o assunto arrastado da
+      // troca anterior, e não algo que o acervo devolveu para o que se acabou
+      // de perguntar. Sem a marca, uma pergunta que mudou de assunto receberia
+      // os dois com o mesmo peso.
+      const bloco = montarContexto(
+        [ach('novo'), ach('velho')],
+        new Set(['velho']),
+      )
+      const [primeiro, segundo] = bloco.split('\n\n')
+      expect(primeiro).not.toContain('origem:')
+      expect(segundo).toContain('pergunta anterior desta conversa')
+    })
+
+    it('sem herança, o contexto sai como sempre saiu', () => {
+      expect(montarContexto([ach('novo')])).not.toContain('origem:')
+    })
   })
 })

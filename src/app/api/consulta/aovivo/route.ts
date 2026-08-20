@@ -20,8 +20,9 @@
 
 import { NextResponse } from 'next/server'
 
-import { consultar } from '@/lib/busca/consultar'
+import { consultar, lerDispositivos } from '@/lib/busca/consultar'
 import { filtraContexto, gerarAoVivo, temChave, type EventoAoVivo } from '@/lib/consulta/aovivo'
+import { idsHerdados, saneiaFio } from '@/lib/consulta/fio'
 import { precedentesPara } from '@/lib/vigilia/precedentes'
 import { soArtigo } from '@/lib/vigilia/alvos'
 import { supabase } from '@/lib/supabase'
@@ -102,9 +103,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: 'OPENAI_API_KEY ausente no servidor' }, { status: 503 })
   }
 
-  let corpo: { q?: unknown; lei?: unknown; qtd?: unknown }
+  let corpo: { q?: unknown; lei?: unknown; qtd?: unknown; fio?: unknown }
   try {
-    corpo = (await req.json()) as { q?: unknown; lei?: unknown; qtd?: unknown }
+    corpo = (await req.json()) as { q?: unknown; lei?: unknown; qtd?: unknown; fio?: unknown }
   } catch {
     return NextResponse.json({ erro: 'corpo inválido' }, { status: 400 })
   }
@@ -119,6 +120,12 @@ export async function POST(req: Request) {
   // Quantos dispositivos a busca devolve, escolhido no botão da caixa de
   // consulta. Saneado aqui porque isto é entrada de usuário como qualquer outra.
   const qtd = saneiaQtd(corpo.qtd)
+
+  // As trocas anteriores desta conversa, mandadas pela tela — que é quem as tem.
+  // O servidor não pode lê-las do banco: `conversas` tem RLS por `auth.uid()` e
+  // o cliente desta rota não carrega a sessão do usuário. Entrada de usuário
+  // como qualquer outra, e `saneiaFio` a trata assim.
+  const fio = saneiaFio(corpo.fio)
 
   const ip =
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -184,14 +191,29 @@ export async function POST(req: Request) {
         // inteira faria um dispositivo de cauda arrastar um precedente para a
         // resposta, que é o mesmo ruído que o piso existe para cortar.
         const { itens } = filtraContexto(busca.itens, busca.direta)
+
+        // O que a resposta anterior citou e esta busca não trouxe. A dedução é
+        // contra `itens` (o contexto já filtrado) e não contra a busca crua: um
+        // dispositivo que o piso cortou e a troca anterior citou VOLTA por aqui,
+        // e volta com razão — a conversa já o tratou como assunto.
+        const herdados = await lerDispositivos(
+          idsHerdados(fio, itens.map((i) => i.dispositivo_id)),
+        )
+
+        // Os precedentes olham os artigos do contexto inteiro, herança incluída:
+        // numa pergunta de seguimento o artigo em discussão vem pelo fio, e sem
+        // isto a segunda troca sobre o mesmo assunto perderia o tema do STJ que
+        // a primeira teve.
         const precedentes = await precedentesPara([
-          ...new Set(itens.map((i) => soArtigo(i.dispositivo_id))),
+          ...new Set([...itens, ...herdados].map((i) => soArtigo(i.dispositivo_id))),
         ])
 
         for await (const evento of gerarAoVivo({
           pergunta: q,
           achados: busca.itens,
           precedentes,
+          fio,
+          herdados,
           // Endereço explícito não passou pela fusão e tem score 0 — o piso de
           // contexto tem de saber disso, ou zeraria a consulta mais literal.
           direta: busca.direta,
