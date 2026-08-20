@@ -628,11 +628,56 @@ export function meses(m: number): string {
  * — fica no padrão, e o cartão mostra em cima de que fatos calculou, para o
  * usuário ver o que foi lido e o que não foi.
  */
+/**
+ * O peso que esta calculadora trata como quantidade expressiva, em gramas.
+ *
+ * **O número não está na lei**, e nem podia estar: o art. 42 manda considerar
+ * "a natureza e a quantidade" sem fixar medida, e o STJ não firmou piso. É
+ * convenção desta calculadora, do mesmo tipo que o 1/8 por vetor negativo —
+ * escolha explícita, não descuido.
+ *
+ * E ela já existia: a regra anterior ligava o vetor em qualquer menção a `kg`,
+ * o que é dizer "um quilo basta" sem escrever. O que muda aqui não é o critério,
+ * é a unidade — "500 gramas" não ligava nada e "0,5 kg" ligava, sobre a mesma
+ * apreensão. Incoerência de unidade, não de critério.
+ */
+export const EXPRESSIVA = 1000
+
+/**
+ * A quantidade que a pergunta declara, normalizada em gramas.
+ *
+ * `null` quando não há número com unidade — e `null` não é zero: é "não
+ * apurado", e quem chama decide o que fazer com isso. Vírgula e ponto valem os
+ * dois: "1,5 kg" e "1.5 kg" chegam das duas formas.
+ *
+ * Fica com a MAIOR das quantidades citadas. "300 g de cocaína e 2 kg de
+ * maconha" é apreensão de 2,3 kg, e o que interessa ao art. 42 é o porte do
+ * conjunto, não a primeira droga que a frase nomeia.
+ */
+export function emGramas(pergunta: string): number | null {
+  const re = /(\d+(?:[.,]\d+)?)\s*(kg\b|quilos?\b|gramas?\b|g\b)/gi
+  let maior: number | null = null
+  for (const [, valor, unidade] of pergunta.matchAll(re)) {
+    const n = Number((valor ?? '').replace(',', '.'))
+    if (!Number.isFinite(n)) continue
+    const emG = /^(kg|quilo)/i.test(unidade ?? '') ? n * 1000 : n
+    maior = maior === null ? emG : Math.max(maior, emG)
+  }
+  return maior
+}
+
 const GATILHOS: {
   re: RegExp
   rotulo: string
   /** Que causa da terceira fase o termo liga, quando liga uma. */
   causa?: ChaveCausa
+  /**
+   * Segunda pergunta, quando casar o termo não basta.
+   *
+   * Só a quantidade precisa: "3 kg" e "2 gramas" casam a mesma regra e não
+   * dizem a mesma coisa.
+   */
+  confere?: (pergunta: string) => boolean
   aplica: (e: EntradaDosimetria) => void
 }[] = [
   {
@@ -689,8 +734,15 @@ const GATILHOS: {
     },
   },
   {
-    re: /\bgrande quantidade|muita droga|quantidade expressiva|\bkg\b|quilos?\b/i,
+    re: /\bgrande quantidade|muita droga|quantidade expressiva|\bkg\b|\bquilos?\b|\bgramas?\b|\b\d+\s*g\b/i,
     rotulo: 'Quantidade expressiva · art. 42',
+    confere: (p) => {
+      const g = emGramas(p)
+      // Sem número na frase, quem casou foi termo qualitativo — "grande
+      // quantidade", "muita droga" —, e aí a própria pergunta já afirmou o que
+      // o vetor registra.
+      return g === null || g >= EXPRESSIVA
+    },
     aplica: (e) => {
       e.vetores[PREPONDERANTE] = 'desf'
     },
@@ -856,6 +908,7 @@ export function leDaConversa(pergunta: string): LeituraDaConversa {
     // exibir "Reincidente" para quem escreveu "não é reincidente" seria o
     // próprio erro anunciado como leitura.
     if (negado(pergunta, achado.index)) continue
+    if (g.confere && !g.confere(pergunta)) continue
     g.aplica(entrada)
     chips.push(g.rotulo)
   }
