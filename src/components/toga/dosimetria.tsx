@@ -90,8 +90,6 @@ export function Dosimetria() {
   // transferência tem o cálculo novo, quando ela tem o antigo.
   useEffect(() => setMemorial('parado'), [vetores, agravantes, causas, crime])
 
-  const abaixoDoMinimo = c.abaixoDoMinimo
-
   const fases = [
     { k: '1ª fase', nome: 'Pena-base', res: meses(c.base) },
     { k: '2ª fase', nome: 'Pena provisória', res: meses(c.provisoria) },
@@ -270,7 +268,6 @@ export function Dosimetria() {
       <Resultado
         c={c}
         crime={crime}
-        abaixoDoMinimo={abaixoDoMinimo}
         agravantes={agravantes}
         causas={causas}
         aoIrPara={setFase}
@@ -542,7 +539,6 @@ function OutrasFases({
 function Resultado({
   c,
   crime,
-  abaixoDoMinimo,
   agravantes,
   causas,
   aoIrPara,
@@ -558,7 +554,6 @@ function Resultado({
     multa: number
   }
   crime: Crime
-  abaixoDoMinimo: boolean
   agravantes: Record<ChaveAgravante, boolean>
   causas: Record<ChaveCausa, boolean>
   aoIrPara: (f: 1 | 2 | 3) => void
@@ -664,14 +659,6 @@ function Resultado({
           ))}
         </div>
       </div>
-
-      {abaixoDoMinimo && (
-        <p className="tg-sobe mt-3 rounded-[14px] bg-tg-ambar-fundo px-3.5 py-2.5 text-[11.5px] leading-[1.5] text-tg-ambar-txt">
-          A pena ficou <strong className="font-semibold">abaixo do mínimo legal</strong> de{' '}
-          {emAnos(crime.minimo)}. É válido: a redução veio de causa de diminuição na terceira
-          fase, onde a Súmula 231 não incide.
-        </p>
-      )}
 
       <div className="mt-4">
         {linhas.map((l) => (

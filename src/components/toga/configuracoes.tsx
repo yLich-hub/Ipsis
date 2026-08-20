@@ -18,12 +18,20 @@
 //   documento              aqui                     por quê
 //   ─────────────────────  ───────────────────────  ──────────────────────────
 //   Perfil e OAB           Perfil e OAB             igual, em `public.perfil`
-//   IA e citações          IA e citações            vira o que já é garantido
 //   Fontes e sincronização Fontes e data de corte   não há coletor; há corpus
 //   Alertas                Aparência                nada notifica; a interface
 //                                                   tem duas preferências reais
 //   Segurança              Segurança                sessão, senha, dispositivos
+//   IA e citações          —                        removida a pedido
 //   Escritório e cobrança  —                        fora de escopo, sem farsa
+//
+// A seção "IA e citações" listava as garantias do projeto sem chave de desligar.
+// Saiu a pedido, com outros três blocos que só se liam — o "Recorte do produto"
+// do Perfil, a linha de atalhos e a nota de rodapé da Aparência. O que elas
+// afirmavam continua valendo: quem segura é `tests/citacao.test.ts`, os triggers
+// e a recusa de montar peça com citação órfã, e nenhum precisava de vitrine.
+// Uma das garantias, aliás, já havia envelhecido: dizia "nenhuma chamada a
+// modelo em runtime", o que deixou de valer quando a Consulta passou a gerar.
 //
 // **Nenhum interruptor desta tela é decorativo.** Os dois que existem mexem em
 // coisa que se vê na hora; o resto das linhas é leitura, com pílula de estado no
@@ -73,13 +81,6 @@ const SECOES = [
     matiz: MATIZ.lavanda,
     titulo: 'Perfil e OAB',
     sub: 'Como você aparece dentro do produto.',
-  },
-  {
-    k: 'ia',
-    t: 'IA e citações',
-    matiz: MATIZ.sabia,
-    titulo: 'IA e citações',
-    sub: 'O que o modelo escreve e o que ele nunca escreve.',
   },
   {
     k: 'fontes',
@@ -237,7 +238,6 @@ export function Configuracoes({
               entrada rodar de novo, como no documento. */}
           <div key={secao} className="tg-sobe flex flex-col gap-3.5">
             {secao === 'perfil' && <SecaoPerfil />}
-            {secao === 'ia' && <SecaoIa />}
             {secao === 'fontes' && <SecaoFontes leis={leis} erro={erroFontes} />}
             {secao === 'aparencia' && <SecaoAparencia />}
             {secao === 'seguranca' && <SecaoSeguranca />}
@@ -271,11 +271,21 @@ function Linha({
   desc,
   fim,
   onClick,
+  ligada,
 }: {
   titulo: string
   desc: ReactNode
   fim: ReactNode
   onClick?: () => void
+  /**
+   * Estado do interruptor, quando a linha é um.
+   *
+   * `Chave` é `aria-hidden` de propósito — é desenho —, então sem isto a linha
+   * chegava ao leitor de tela como botão sem estado: "Lateral recolhida" e nada
+   * mais, sem dizer se está ligada nem anunciar a troca. As linhas equivalentes
+   * de `/dosimetria` já usam `role="switch"`; era esta tela que não usava.
+   */
+  ligada?: boolean
 }) {
   const conteudo = (
     <>
@@ -293,6 +303,7 @@ function Linha({
     <button
       type="button"
       onClick={onClick}
+      {...(ligada === undefined ? {} : { role: 'switch', 'aria-checked': ligada })}
       className="flex w-full items-center gap-[18px] border-b border-tg-linha-tenue px-[22px] py-[18px] text-left transition-colors last:border-b-0 hover:bg-[#f9fafb]"
     >
       {conteudo}
@@ -431,13 +442,10 @@ function SecaoPerfil() {
           </label>
         </div>
 
+        {/* Só o aviso de gravação: o texto que explicava onde o perfil mora saiu a
+            pedido. Este fica — é ele que diz se o que foi digitado chegou ao
+            banco, e sem ele "salvo" viraria suposição do usuário. */}
         <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] leading-[1.5] text-tg-fraco-3">
-          <span>
-            Guardado no banco e amarrado a esta conta, não a este navegador — trocar de aparelho
-            não apaga o que está aqui. O nome alimenta as iniciais do avatar; a minuta continua
-            saindo com autos, nome e OAB como campos a preencher, porque preencher o cabeçalho de
-            uma peça a partir de um ajuste de tela é decisão sobre a peça, não sobre esta tela.
-          </span>
           {estado !== 'parado' && (
             <span
               className={
@@ -453,83 +461,7 @@ function SecaoPerfil() {
           )}
         </p>
       </Cartao>
-
-      <Cartao className="px-[22px] py-5">
-        <p className="mb-1.5 text-[14px] font-medium text-tg-tinta">Recorte do produto</p>
-        <p className="mb-3.5 text-[12.5px] text-tg-fraco-2">
-          Não é preferência: é o escopo do sistema, e está aqui para ser lido antes de alguém
-          esperar dele o que ele não faz.
-        </p>
-        <div className="flex flex-wrap gap-[7px]">
-          {[
-            ['Tráfico de drogas · Lei 11.343/2006', true],
-            ['Código Penal', true],
-            ['Código de Processo Penal', true],
-            ['Vade Mecum · só leitura', false],
-            ['Demais crimes', false],
-            ['Segunda peça processual', false],
-          ].map(([t, dentro]) => (
-            <span
-              key={String(t)}
-              className={`rounded-full px-[13px] py-[7px] text-[12px] font-medium ${
-                dentro
-                  ? 'bg-tg-acento-fraco text-tg-acento-txt'
-                  : 'bg-tg-preenche text-tg-tenue line-through'
-              }`}
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-      </Cartao>
     </>
-  )
-}
-
-// --- IA e citações -----------------------------------------------------------
-
-const GARANTIAS = [
-  {
-    t: 'Citação resolvida no banco',
-    d: 'Todo {{cite:}} da minuta vira texto lido de dispositivos, com link para /dispositivo/[id]. O modelo escreve só o que está entre as citações.',
-    v: 'garantido',
-  },
-  {
-    t: 'Data de corte em toda tela',
-    d: 'A fotografia é de fevereiro/2025. O aviso vai no banner, ao lado de cada dispositivo e no rodapé de toda página da minuta.',
-    v: 'garantido',
-  },
-  {
-    t: 'Nenhuma chamada a modelo em runtime',
-    d: 'A prosa da consulta é composta de fatos sobre a própria busca; a argumentação da peça está escrita e revisada em teses.yaml.',
-    v: 'garantido',
-  },
-  {
-    t: 'Doutrina não é hospedada nem resumida',
-    d: 'Obra autoral protegida. O produto entrega entendimento consolidado de jurisprudência e link para a fonte legítima.',
-    v: 'garantido',
-  },
-  {
-    t: 'Acervo Vade Mecum não é citável',
-    d: 'É espelho de terceiro, sem vigência conferida. Fica separado do corpus curado, sem embedding e fora da busca híbrida.',
-    v: 'separado',
-  },
-]
-
-function SecaoIa() {
-  return (
-    <Cartao className="overflow-hidden">
-      {GARANTIAS.map((g) => (
-        <Linha key={g.t} titulo={g.t} desc={g.d} fim={<Valor tom="verde">{g.v}</Valor>} />
-      ))}
-      <Nota>
-        Nada aqui é interruptor, e é de propósito. O documento de design deixa desligar “citação
-        obrigatória” e “selo de vigência” — neste projeto as duas são a razão de o sistema existir,
-        e a terceira camada que as segura (
-        <code className="text-[11.5px]">tests/citacao.test.ts</code>, os triggers do banco e a
-        recusa de montar peça com citação órfã) não tem chave de desligar.
-      </Nota>
-    </Cartao>
   )
 }
 
@@ -614,23 +546,16 @@ function SecaoAparencia() {
         titulo="Lateral recolhida"
         desc="Reduz o menu a uma trilha de 64px, com a marca, “Nova consulta”, os ícones e o ponto da data de corte. O mesmo que ⌘B faz."
         onClick={() => gravaColapso(!colapsada)}
+        ligada={colapsada}
         fim={<Chave ligada={colapsada} />}
       />
       <Linha
         titulo="Reduzir movimento"
         desc="Desliga a digitação animada da resposta e as transições da interface. Quem já pediu isso ao sistema operacional continua atendido sem precisar marcar aqui."
         onClick={() => gravaMovimentoReduzido(!movimento)}
+        ligada={movimento}
         fim={<Chave ligada={movimento} />}
       />
-      <Linha
-        titulo="Atalhos"
-        desc="⌘K abre a busca, ⌘N começa uma consulta, ⌘B recolhe a lateral. No Windows e no Linux, Ctrl."
-        fim={<Valor>3 atalhos</Valor>}
-      />
-      <Nota>
-        As duas preferências ficam neste navegador. Nada disso vai ao banco: são escolhas do
-        aparelho onde foram feitas, e sincronizá-las pediria uma ida ao servidor a cada toque.
-      </Nota>
     </Cartao>
   )
 }

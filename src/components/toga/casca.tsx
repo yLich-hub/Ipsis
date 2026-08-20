@@ -31,10 +31,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useUsuario, marcarSaidaDeliberada } from '@/components/casca/sessao'
 import { Icone } from '@/components/icones'
-import { Ponto, Selo } from '@/components/toga/base'
+import { Selo } from '@/components/toga/base'
 import { supabaseNavegador } from '@/lib/auth/navegador'
-import { dataBR } from '@/lib/formato'
-import { DATA_DE_CORTE } from '@/lib/vigilia/alvos'
 import {
   EVENTO_HISTORICO,
   type Conversa,
@@ -60,9 +58,10 @@ import { MARCA } from '@/lib/toga/marca'
  * As telas do produto, na ordem do documento. `matiz` é só a cor do quadradinho
  * de 18px que faz as vezes de ícone — ver `lib/toga/tokens.ts`.
  *
- * São sete: as seis do documento mais Fontes, que voltou como vigília.
- * Configurações entra por último, como no documento — é onde se ajusta o
- * produto, não onde se trabalha nele.
+ * São seis: as cinco do documento que sobreviveram mais Fontes, que voltou como
+ * vigília. **Configurações saiu da lateral a pedido** — ela agora se alcança
+ * pelo botão da conta, no rodapé, que é onde se procura por ajuste de conta em
+ * qualquer produto. Continua na paleta do ⌘K, como Legislação e Peças.
  */
 const TELAS = [
   { href: '/consulta', rotulo: 'Consulta em chat', matiz: MATIZ.lavanda },
@@ -75,7 +74,6 @@ const TELAS = [
   // fotografia de 28/02/2025 ainda vale?". Fica antes de Configurações porque é
   // tela de trabalho, não de ajuste.
   { href: '/fontes', rotulo: 'Fontes e atualizações', matiz: MATIZ.areia },
-  { href: '/configuracoes', rotulo: 'Configurações', matiz: MATIZ.ardosia },
 ] as const
 
 /**
@@ -98,17 +96,22 @@ const CABECALHOS: Record<string, [string, string]> = {
 }
 
 /**
- * As duas telas de apoio, atrás do `⌄` ao lado da marca.
+ * As duas telas de apoio, hoje só na paleta do ⌘K.
  *
  * Legislação e Peças ficam fora da lateral por serem destino, não ponto de
- * partida: chega-se a elas por uma citação ou pelo fim de um fluxo. As demais
- * que viviam aqui — Painel, Busca, Como funciona e Diagnóstico — foram
- * removidas por duplicarem o que a Consulta já faz ou por serem diagnóstico de
- * desenvolvimento.
+ * partida: chega-se a elas por uma citação ou pelo fim de um fluxo. Elas moravam
+ * também atrás de um `⌄` ao lado da marca, e o `⌄` saiu a pedido — um menu de
+ * dois itens que ninguém abria, ocupando o canto mais nobre da lateral.
+ *
+ * **Nenhuma das duas ficou órfã:** conferido antes de remover, `/leis` é
+ * alcançável pela migalha do artigo, por `/fontes`, pelas Configurações, pelo
+ * link cruzado do Vade Mecum e pela página de 404; `/pecas`, pelo rodapé de toda
+ * resposta da Consulta. A paleta continua listando as duas.
  */
 const OUTRAS = [
   { href: '/leis', rotulo: 'Legislação curada', nota: 'Lei 11.343, Código Penal e CPP' },
   { href: '/pecas', rotulo: 'Peças', nota: 'resposta à acusação, art. 396-A' },
+  { href: '/configuracoes', rotulo: 'Configurações', nota: 'conta, fontes e aparência' },
 ]
 
 /**
@@ -200,7 +203,6 @@ export function Lateral({
 }) {
   const caminho = usePathname()
   const params = useSearchParams()
-  const [menu, setMenu] = useState(false)
   const [conversas, setConversas] = useState<Conversa[]>([])
   const [busca, setBusca] = useState('')
   const router = useRouter()
@@ -258,6 +260,9 @@ export function Lateral({
     aoFechar()
   }, [router, aoFechar])
 
+  // A etiqueta ⌘N saiu do botão a pedido; o atalho ficou. Quem some é o
+  // anúncio, não o comportamento — e o `title` do modo trilha continua dizendo.
+  //
   // ⌘N / Ctrl+N. O navegador reserva ⌘N para janela nova e não devolve o
   // evento em todos os casos; onde devolve, `preventDefault` segura.
   useEffect(() => {
@@ -359,10 +364,25 @@ export function Lateral({
         role={modal ? 'dialog' : undefined}
         aria-modal={modal ? true : undefined}
         aria-label={modal ? 'Menu' : undefined}
+        // A rolagem é da lateral inteira, e não só da lista de conversas. Antes
+        // o único trecho rolável era o histórico: a roda do mouse sobre os sete
+        // itens de menu não fazia nada, e para alcançar o fim da lista era
+        // preciso encontrar a faixa certa da coluna. Agora marca, navegação,
+        // busca, histórico e o cartão da data de corte andam juntos.
         className={`fixed inset-y-0 left-0 z-40 flex w-[246px] shrink-0 flex-col border-r border-tg-linha bg-tg-lateral pb-3.5 pt-[18px] outline-none transition-[transform,width,padding] duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:static lg:translate-x-0 ${
           aberta ? 'translate-x-0' : '-translate-x-full'
         } ${colapsada ? 'px-3 lg:w-[64px] lg:px-2' : 'px-3'}`}
       >
+        {/*
+          O miolo rola inteiro — marca, "Nova consulta", navegação, busca e
+          histórico andam juntos. Antes o único trecho rolável era a lista de
+          conversas: a roda do mouse sobre os sete itens de menu não fazia nada.
+
+          A rolagem fica AQUI e não na `aside` por causa do rodapé: `overflow-y`
+          recorta também na horizontal, e o menu da conta — 230px — saa cortado
+          na trilha de 64px. Conferido no navegador antes de mover.
+        */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         {/* marca */}
         <div
           className={`relative flex items-center pb-5 pt-0.5 ${
@@ -397,23 +417,6 @@ export function Lateral({
 
           <span className={`flex-1 ${colapsada ? 'lg:hidden' : ''}`} />
 
-          {/* O `⌄` das outras telas não cabe na trilha — some junto com os
-              rótulos, e as duas telas de apoio continuam alcançáveis por link. */}
-          <button
-            type="button"
-            onClick={() => setMenu((m) => !m)}
-            aria-expanded={menu}
-            aria-haspopup="menu"
-            aria-label="Outras telas"
-            className={`tgb grid size-6 shrink-0 place-items-center rounded-lg text-tg-fraco-2 hover:bg-tg-caixa ${
-              colapsada ? 'lg:hidden' : ''
-            }`}
-          >
-            <span aria-hidden="true" className="-mt-1 text-[13px] leading-none">
-              ⌄
-            </span>
-          </button>
-
           {/* Recolher/expandir. Só existe a partir de `lg`: abaixo disso a
               lateral é uma gaveta, e recolher uma gaveta não quer dizer nada. */}
           <button
@@ -433,7 +436,6 @@ export function Lateral({
             </span>
           </button>
 
-          {menu && <MenuOutras caminho={caminho} aoFechar={() => setMenu(false)} />}
         </div>
 
         {/* nova consulta */}
@@ -449,13 +451,6 @@ export function Lateral({
             +
           </span>
           <span className={colapsada ? 'lg:hidden' : ''}>Nova consulta</span>
-          <span className={`flex-1 ${colapsada ? 'lg:hidden' : ''}`} />
-          <span
-            aria-hidden="true"
-            className={`text-[11px] font-normal text-tg-tenue ${colapsada ? 'lg:hidden' : ''}`}
-          >
-            ⌘N
-          </span>
         </button>
 
         {/* as sete telas */}
@@ -496,9 +491,7 @@ export function Lateral({
 
         {/* histórico — não cabe na trilha, e uma lista de títulos truncados a
             64px não seria histórico, seria enfeite. */}
-        <div
-          className={`mt-[22px] flex min-h-0 flex-1 flex-col ${colapsada ? 'lg:hidden' : ''}`}
-        >
+        <div className={`mt-[22px] flex flex-col ${colapsada ? 'lg:hidden' : ''}`}>
           {/* O campo só aparece quando há o que procurar. Uma caixa de busca
               sobre uma lista vazia é convite para o usuário achar que existe
               histórico escondido. */}
@@ -527,7 +520,7 @@ export function Lateral({
             </div>
           )}
 
-          <div className="flex flex-col gap-px overflow-auto">
+          <div className="flex flex-col gap-px">
             {conversas.length === 0 && !busca ? (
               <>
                 <p className="px-3 pb-2 pt-1.5 text-[11px] font-medium text-tg-fraco-3">
@@ -601,81 +594,18 @@ export function Lateral({
           o que importava nele nunca foi o destino, era a data. Link que não
           leva a lugar nenhum seria pior que texto.
         */}
-        <div
-          className={`mt-3 block rounded-[14px] bg-white px-3 py-[11px] shadow-[var(--tg-elev-1)] ${
-            colapsada ? 'lg:hidden' : ''
-          }`}
-        >
-          <span className="mb-1.5 flex items-center gap-[7px]">
-            <Ponto pulsa />
-            <span className="text-[11.5px] font-medium text-tg-verde-txt">Base conferida</span>
-          </span>
-          {/* O cartão da decisão nº 3. `fraco-2` sobre a lateral dá 2.89:1 —
-              a data de corte é a informação que este projeto mais preza, e
-              estava no tom mais apagado da tela. */}
-          <span className="block text-[11.5px] leading-[1.45] text-tg-suave">
-            Vade Mecum do Senado, 1ª ed. · redação de{' '}
-            <strong className="font-medium text-tg-corpo">{dataBR(DATA_DE_CORTE)}</strong>
-          </span>
         </div>
 
         {/*
-          Na trilha o cartão não cabe, mas a data de corte não pode simplesmente
-          sumir — ela é a decisão nº 3 do projeto. Vira o ponto vivo sozinho, com
-          a data no `title`: o sinal continua na tela e a informação continua a
-          um hover de distância.
+          O rodapé da lateral: aqui morava o cartão "Base conferida", e agora
+          mora a conta — a pedido. Fica FORA do miolo rolável: sair da sessão é a
+          única ação que precisa estar sempre alcançável, e um `overflow` em volta
+          dele cortaria o menu de 230px na trilha de 64.
         */}
-        {colapsada && (
-          <div
-            className="mt-auto hidden justify-center py-2 lg:flex"
-            title={`Base conferida · Vade Mecum do Senado, 1ª ed. · redação de ${dataBR(DATA_DE_CORTE)}`}
-          >
-            <Ponto pulsa />
-          </div>
-        )}
+        <div className="shrink-0 pt-2">
+          <Conta rodape colapsada={colapsada} />
+        </div>
       </aside>
-    </>
-  )
-}
-
-/** Menu do `⌄`: as telas do produto que não estão na lateral. */
-function MenuOutras({ caminho, aoFechar }: { caminho: string; aoFechar: () => void }) {
-  useEffect(() => {
-    const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && aoFechar()
-    window.addEventListener('keydown', aoTeclar)
-    return () => window.removeEventListener('keydown', aoTeclar)
-  }, [aoFechar])
-
-  return (
-    <>
-      <button
-        type="button"
-        aria-label="Fechar menu"
-        onClick={aoFechar}
-        className="fixed inset-0 z-10 cursor-default"
-      />
-      <div
-        role="menu"
-        className="absolute left-0 right-0 top-full z-20 overflow-hidden rounded-[14px] bg-white p-1 shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_18px_40px_-16px_rgb(18_20_30_/_0.4)]"
-      >
-        <p className="px-3 pb-1 pt-2 text-[10.5px] font-medium text-tg-fraco-3">
-          Outras telas do produto
-        </p>
-        {OUTRAS.map((o) => (
-          <Link
-            key={o.href}
-            href={o.href}
-            role="menuitem"
-            onClick={aoFechar}
-            className={`block rounded-[10px] px-3 py-2 transition-colors hover:bg-tg-preenche ${
-              ativoEm(caminho, o.href) ? 'bg-tg-preenche' : ''
-            }`}
-          >
-            <span className="block text-[12.5px] font-medium text-tg-tinta-2">{o.rotulo}</span>
-            <span className="block text-[11px] text-tg-fraco-3">{o.nota}</span>
-          </Link>
-        ))}
-      </div>
     </>
   )
 }
@@ -815,12 +745,7 @@ export function Topo({
         />
         <span className="text-[12.5px] text-tg-fraco-3">Buscar leis, rubricas, dispositivos…</span>
         <span className="flex-1" />
-        <span aria-hidden="true" className="text-[11px] text-tg-tenue-2">
-          ⌘K
-        </span>
       </button>
-
-      <Conta />
 
       {busca && <Paleta aoFechar={() => setBusca(false)} />}
     </header>
@@ -832,7 +757,7 @@ export function Topo({
  * sessão, porque sair tem de caber em algum lugar e este é o lugar onde
  * qualquer pessoa vai procurar. O visual é o mesmo círculo de 32px.
  */
-function Conta() {
+function Conta({ rodape = false, colapsada = false }: { rodape?: boolean; colapsada?: boolean }) {
   const usuario = useUsuario()
   const perfil = usePerfil()
   const [aberto, setAberto] = useState(false)
@@ -875,6 +800,20 @@ function Conta() {
     }
   }
 
+  const avatar = (
+    <span
+      aria-hidden="true"
+      // O círculo continua com os 32px do documento; quem cresce para os 44 do
+      // alvo mínimo é o `::after` do botão, como na gaveta. Este é o único
+      // caminho para sair da sessão, e errar o toque nele no celular abre o
+      // menu de outra coisa.
+      className="grid size-8 shrink-0 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(28_26_36_/_0.7)]"
+      style={{ background: GRADIENTE_CONTA }}
+    >
+      {iniciais(perfil.nome, email)}
+    </span>
+  )
+
   return (
     <div ref={caixa} className="relative shrink-0">
       <button
@@ -883,21 +822,33 @@ function Conta() {
         aria-expanded={aberto}
         aria-haspopup="menu"
         title={perfil.nome.trim() ? `${perfil.nome.trim()} · ${email}` : email}
-        // O círculo continua com os 32px do documento; quem cresce para os 44
-        // do alvo mínimo é só o `::after`, como no botão da gaveta. Este é o
-        // único caminho para sair da sessão, e errar o toque nele no celular
-        // abre o menu de outra coisa.
-        className="tgb relative grid size-8 place-items-center rounded-full text-[11.5px] font-semibold text-white shadow-[0_3px_10px_-4px_rgb(28_26_36_/_0.7)] after:absolute after:-inset-1.5 after:content-['']"
-        style={{ background: GRADIENTE_CONTA }}
+        className={
+          rodape
+            ? `tgb flex w-full items-center gap-2.5 rounded-[14px] bg-white px-3 py-2.5 text-left shadow-[var(--tg-elev-1)] ${colapsada ? 'lg:justify-center lg:px-0' : ''}`
+            : "tgb relative after:absolute after:-inset-1.5 after:content-['']"
+        }
       >
-        {iniciais(perfil.nome, email)}
+        {avatar}
+        {rodape && (
+          <span className={`min-w-0 flex-1 ${colapsada ? 'lg:hidden' : ''}`}>
+            <span className="block truncate text-[12px] font-medium text-tg-tinta-2">
+              {perfil.nome.trim() || 'Minha conta'}
+            </span>
+            <span className="block truncate text-[11px] text-tg-fraco-3">{email}</span>
+          </span>
+        )}
         <span className="sr-only">Conta de {email}</span>
       </button>
 
       {aberto && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-20 mt-2 w-64 overflow-hidden rounded-[14px] bg-white p-1 shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_18px_40px_-16px_rgb(18_20_30_/_0.4)]"
+          // No rodapé o menu sobe e acompanha a largura da lateral: `top-full`
+          // o jogaria para fora da tela, e os 256px do `w-64` não cabem numa
+          // coluna de 246 — a rolagem da lateral o cortaria pela direita.
+          className={`absolute z-20 overflow-hidden rounded-[14px] bg-white p-1 shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_18px_40px_-16px_rgb(18_20_30_/_0.4)] ${
+            rodape ? 'bottom-full left-0 mb-2 w-[230px]' : 'right-0 top-full mt-2 w-64'
+          }`}
         >
           <div className="px-3 py-2.5">
             <p className="text-[10.5px] font-medium text-tg-fraco-3">Sessão ativa</p>
@@ -953,12 +904,25 @@ function Paleta({ aoFechar }: { aoFechar: () => void }) {
   const [q, setQ] = useState('')
   const router = useRouter()
   const campo = useRef<HTMLInputElement>(null)
+  const caixa = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     campo.current?.focus()
     const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && aoFechar()
+    // Fechar ao clicar fora é ouvinte no documento, e não a sobreposição
+    // `fixed inset-0` que estava aqui — pelo mesmo motivo já anotado no menu da
+    // conta: o `backdrop-filter` do header faz dele o bloco de contenção dos
+    // descendentes `fixed`, então a sobreposição media o próprio header, 60px
+    // de altura. Clicar em qualquer ponto abaixo do topo não fechava nada.
+    const aoApontar = (e: PointerEvent) => {
+      if (!caixa.current?.contains(e.target as Node)) aoFechar()
+    }
     window.addEventListener('keydown', aoTeclar)
-    return () => window.removeEventListener('keydown', aoTeclar)
+    document.addEventListener('pointerdown', aoApontar)
+    return () => {
+      window.removeEventListener('keydown', aoTeclar)
+      document.removeEventListener('pointerdown', aoApontar)
+    }
   }, [aoFechar])
 
   const alvo = q.trim().toLowerCase()
@@ -970,9 +934,15 @@ function Paleta({ aoFechar }: { aoFechar: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-[rgb(18_20_30_/_0.28)] px-4 pt-[14vh]">
-      <button type="button" aria-label="Fechar busca" onClick={aoFechar} className="fixed inset-0" />
+    // Sem véu cinza: a caixa flutua sobre a tela como ela está. O botão de
+    // fechar continua cobrindo tudo, agora transparente — clicar fora fecha do
+    // mesmo jeito, e essa é a razão de ele não ter saído junto com a cor.
+    //
+    // A sombra da caixa é quem separa do fundo agora, e ela já fazia esse
+    // trabalho: 90px de espalhamento a 50% de opacidade.
+    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-2">
       <div
+        ref={caixa}
         role="dialog"
         aria-label="Busca"
         className="tg-sobe relative w-full max-w-[560px] overflow-hidden rounded-[20px] bg-white shadow-[0_1px_2px_rgb(18_20_30_/_0.06),0_40px_90px_-40px_rgb(18_20_30_/_0.5)]"

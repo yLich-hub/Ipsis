@@ -1092,19 +1092,36 @@ marca, com a preferência guardada em `localStorage`. Não contradiz a largura
 fixa: são dois valores fixos, 246 e 64, e não uma lateral fluida. Só a partir de
 `lg` — abaixo disso ela já é uma gaveta, e recolher gaveta não quer dizer nada.
 
-Na trilha somem rótulos, histórico, busca e o cartão de base; ficam a marca,
-"Nova consulta", os seis quadradinhos com `title` e **o ponto vivo da data de
-corte**, porque a decisão nº 3 diz que a data é visível o tempo todo e "recolhi o
-menu" não é motivo para ela sumir.
+Na trilha somem rótulos, histórico e busca; ficam a marca, "Nova consulta", os
+seis quadradinhos com `title` e o botão da conta, reduzido ao avatar.
 
-A lateral tem sete itens: Consulta, Jurisprudência, Dosimetria, Vade Mecum,
-Clientes, Fontes e atualizações e Configurações. O documento desenha seis; o
-sétimo é a vigília, que voltou a pedido — ver "Vigília do corpus" abaixo.
+A lateral tem seis itens: Consulta, Jurisprudência, Dosimetria, Vade Mecum,
+Clientes e Fontes e atualizações. O documento desenha seis também, mas não os
+mesmos: a vigília voltou a pedido e Configurações saiu, também a pedido — ela
+se alcança pelo botão da conta, que é onde se procura por ajuste de conta em
+qualquer produto.
 
-Atrás do `⌄` sobraram duas, e sobraram por serem **destino, não ponto de
-partida**: `/leis` (o corpus navegável) e `/pecas` (onde a minuta é baixada).
-Com elas ficam `/artigo/[id]` e `/dispositivo/[id]`, que não são navegação —
-são o alvo dos links de citação, e removê-los quebraria a decisão nº 1.
+**O rodapé da lateral é a conta**, e não o cartão "Base conferida" que ficava
+ali. A rolagem é do miolo — marca, navegação, busca e histórico andam juntos —
+e o rodapé fica fora dela: sair da sessão é a única ação que precisa estar
+sempre alcançável, e um `overflow` em volta dele cortaria o menu de 230px na
+trilha de 64. O menu abre para cima e traz Configurações e Sair.
+
+**A data de corte deixou a casca, a pedido, e continua no produto.** Ela está na
+pílula "Corte 28/02/2025" da caixa de consulta, no painel de procedência de cada
+dispositivo, no subtítulo de `/leis` e de `/fontes`, no rodapé de toda página do
+`.docx` e na tela de entrada. O que saiu foi a moldura que a repetia em todas as
+telas — não o dado, que continua saindo de `leis.vigencia_ate` e de
+`artigos.conferido_em`.
+
+**O `⌄` ao lado da marca não existe mais.** Era um menu de dois itens que
+ninguém abria, no canto mais nobre da lateral. `/leis` e `/pecas` continuam fora
+da lateral por serem **destino, não ponto de partida**, e continuam alcançáveis:
+`/leis` pela migalha do artigo, por `/fontes`, pelas Configurações, pelo link
+cruzado do Vade Mecum e pela página de 404; `/pecas` pelo rodapé de toda resposta
+da Consulta. As três — com Configurações — estão na paleta do ⌘K. Com elas
+ficam `/artigo/[id]` e `/dispositivo/[id]`, que não são navegação: são o alvo
+dos links de citação, e removê-los quebraria a decisão nº 1.
 
 Removidas: `/sumulas`, `/painel`, `/busca`, `/suporte`, `/fila`, `/processos` e
 `/relatorios`. As três primeiras duplicavam o que a Consulta já faz ou eram
@@ -1126,11 +1143,11 @@ dado plausível e falso que a decisão nº 3 existe para impedir.
 
 | Seção do documento     | Aqui                   | Por quê                                                |
 | ---------------------- | ---------------------- | ------------------------------------------------------ |
-| Perfil e OAB           | Perfil e OAB           | igual; guardado no navegador                           |
-| IA e citações          | IA e citações          | vira o que já é garantido, sem interruptor             |
+| Perfil e OAB           | Perfil e OAB           | igual; guardado no banco, ancorado na conta            |
 | Fontes e sincronização | Fontes e data de corte | não há coletor; há corpus                              |
 | Alertas                | Aparência              | nada notifica; a interface tem duas preferências reais |
 | Segurança              | Segurança              | sessão, senha, encerrar em todos os aparelhos          |
+| IA e citações          | —                      | removida a pedido; ver abaixo                          |
 | Escritório e cobrança  | —                      | multiusuário e billing são fora de escopo              |
 
 **Nenhum interruptor da tela é decorativo.** Existem dois, e os dois mexem em
@@ -1141,11 +1158,22 @@ coisa visível na hora: "lateral recolhida" (a mesma preferência do `⌘B`) e
 lugar do interruptor — a diferença entre "ajustável" e "garantido" fica na forma,
 não numa nota de rodapé.
 
-A seção "IA e citações" é onde as três decisões do projeto aparecem como
-garantias sem chave de desligar. O documento deixa desligar "citação obrigatória"
-e "selo de vigência"; aqui elas são a razão de o sistema existir, e o que as
-segura (`tests/citacao.test.ts`, os triggers e a recusa de montar peça com
-citação órfã) não tem interruptor.
+**A seção "IA e citações" foi removida a pedido**, e com ela quatro outros blocos
+de texto que só se liam: o "Recorte do produto" do Perfil, a linha de atalhos e a
+nota de rodapé da Aparência, e o parágrafo do `argumentacao.revisado_em` em
+`/pecas`. A tela ficou com o que se ajusta e o que se consulta.
+
+**O que elas afirmavam continua verdadeiro; o que dizia deixou de estar na
+tela** — com duas exceções que já tinham envelhecido e saíram junto. Uma das
+cinco garantias dizia "nenhuma chamada a modelo em runtime — a prosa da consulta
+é composta de fatos sobre a própria busca", e isso deixou de valer quando
+`/api/consulta/aovivo` virou o caminho padrão. O parágrafo de `/pecas` descrevia
+uma costura offline com revisão humana em `argumentacao.revisado_em` que nunca
+existiu — a tabela está vazia e sem uso, e está nas pendências deste documento.
+
+As garantias em si não dependiam da tela: quem as segura é
+`tests/citacao.test.ts`, os triggers do banco e a recusa de montar peça com
+citação órfã — nenhum deles tem interruptor, e nenhum deles precisava de vitrine.
 
 `lib/toga/preferencias.ts` guarda as duas preferências locais — lateral e
 movimento — e emite `toga:preferencias`. O evento é o que faz o ajuste mexer na
@@ -1605,9 +1633,10 @@ pixel; o conteúdo foi trocado pelo verdadeiro.
   anteriores; o painel mostra procedência (data de corte, cobertura, id de
   citação). Inventar três redações seria o dado plausível e falso que a decisão
   nº 3 existe para impedir.
-- **O cartão "Base sincronizada" virou "Base conferida".** Mesma forma — ponto
-  vivo, rótulo, linha de apoio — carregando a data de corte, que é a decisão nº 3
-  e não pode depender de a tela da vez lembrar de mostrá-la.
+- **O cartão "Base sincronizada" virou "Base conferida", e depois saiu.** Ele
+  nunca sincronizou nada — carregava a data de corte, que é a decisão nº 3 —, e
+  desocupou o pé da lateral a pedido, para o botão da conta. A data continua em
+  cinco lugares do produto; ver "As sete telas", acima.
 - **`/dosimetria` abre no tráfico, e não no roubo do documento.** O protótipo dosa
   o art. 157 do CP; o recorte é o art. 33 da Lei 11.343, e é nele que a tela
   abre. Não é troca cosmética: o tráfico tem o art. 42, que manda a natureza e a
@@ -1671,7 +1700,7 @@ todos a 4.5 os transformaria no mesmo cinza — a hierarquia de ênfase do TOGA 
 desapareceria para resolver um problema que ela não tem, porque ali embaixo
 moram dica, placeholder e seta. Subiu `tg-suave` (o tom mais claro que ainda
 pinta conteúdo) e, onde um tom decorativo pintava informação, mudou o **uso**: o
-cartão "Base conferida", o subtítulo de todo cabeçalho, o crédito de procedência
+o subtítulo de todo cabeçalho, o crédito de procedência
 do acervo e o status de `/fontes`.
 
 **Alvo de toque cresce sem o desenho crescer.** Hambúrguer e avatar continuam
