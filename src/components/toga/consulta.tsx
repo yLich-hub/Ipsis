@@ -37,7 +37,7 @@ import { classifica } from '@/lib/busca/intencao'
 import type { EventoAoVivo } from '@/lib/consulta/contrato'
 import { fontesDeDoutrina } from '@/lib/consulta/doutrina'
 import { dataBR } from '@/lib/formato'
-import { calcula, leDaConversa, meses } from '@/lib/toga/dosimetria'
+import { calcula, dosavel, leDaConversa, meses } from '@/lib/toga/dosimetria'
 import { busca, registra } from '@/lib/toga/historico'
 import { MARCA } from '@/lib/toga/marca'
 import { comporResposta, type Fonte, type RespostaComposta } from '@/lib/toga/resposta'
@@ -1202,10 +1202,21 @@ function PainelDeDoutrina({ pergunta }: { pergunta: string }) {
   )
 }
 
+/**
+ * A dosimetria da resposta.
+ *
+ * Aparece em toda pergunta **de tráfico**, e não só nas que pedem cálculo: o
+ * advogado pergunta pelo § 4º e quer ver a pena que sai dali. O que mudou é o
+ * "de tráfico" — a calculadora dosa o art. 33 e mais nada, e sob uma resposta
+ * sobre o art. 217-A ou o art. 157 ela exibia o selo "art. 33 · 5 a 15 anos"
+ * com uma pena que não é a do crime perguntado. Ver `dosavel`.
+ */
 function CartaoDosimetria({ pergunta }: { pergunta: string }) {
   const [aberto, setAberto] = useState(false)
-  const { entrada, chips } = useMemo(() => leDaConversa(pergunta), [pergunta])
-  const c = useMemo(() => calcula(entrada), [entrada])
+  const { entrada, chips, crime } = useMemo(() => leDaConversa(pergunta), [pergunta])
+  const c = useMemo(() => calcula(entrada, crime), [entrada, crime])
+
+  if (!dosavel(pergunta)) return null
 
   const fases = [
     { k: '1ª fase', nome: 'Pena-base', v: meses(c.base), d: `${c.negativos} circunstância${c.negativos === 1 ? '' : 's'} desfavorável${c.negativos === 1 ? '' : 'eis'}` },
@@ -1222,7 +1233,12 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
         className="tgb flex w-full items-center gap-2.5 px-4 py-3 text-left hover:bg-tg-preenche"
       >
         <span className="text-[13px] font-medium text-tg-tinta">Dosimetria estimada</span>
-        <Selo tom="acento">art. 33 · 5 a 15 anos</Selo>
+        {/* O selo sempre nomeou o artigo; o que mudou é ele dizer a verdade
+            quando a pergunta é de associação ou de financiamento, em vez de
+            carimbar o art. 33 sobre a pena de outro crime. */}
+        <Selo tom="acento">
+          {crime.citacao} · {crime.minimo / 12} a {crime.maximo / 12} anos
+        </Selo>
         <span className="flex-1" />
         <span className="text-[12.5px] tabular-nums text-tg-acento-txt">{meses(c.definitiva)}</span>
         <span aria-hidden="true" className={`text-[11px] text-tg-fraco-3 transition-transform ${aberto ? 'rotate-180' : ''}`}>
@@ -1257,9 +1273,9 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
               </div>
             ) : (
               <p className="mb-3 text-[12px] leading-relaxed text-tg-fraco-3">
-                Nada de dosimetria foi reconhecido nesta pergunta — o cálculo abaixo usa o cenário
-                padrão. Escreva fatos como “réu primário”, “confessou”, “reincidente” ou “grande
-                quantidade” para o cartão lê-los.
+                Nada de dosimetria foi reconhecido nesta pergunta — abaixo está o mínimo do caput,
+                sem atenuante nem causa de diminuição suposta. Escreva fatos como “réu primário”,
+                “confessou”, “reincidente” ou “grande quantidade” para o cartão lê-los.
               </p>
             )}
 
