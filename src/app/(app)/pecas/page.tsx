@@ -189,12 +189,6 @@ export default async function PecasPage() {
               build. Uma citação quebrada falha no CI, não em audiência.
             </p>
           </Cartao>
-
-          <p className="mt-4 pb-6 text-[11.5px] leading-relaxed text-tg-tenue-2">
-            Nenhuma frase da minuta é gerada em runtime: a argumentação é produzida offline e só
-            aparece depois de revisão humana (<code>argumentacao.revisado_em</code> não nulo é
-            condição da própria policy de RLS).
-          </p>
         </div>
       </div>
     </>
