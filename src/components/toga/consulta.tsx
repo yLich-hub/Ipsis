@@ -1240,7 +1240,11 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
           {crime.citacao} · {crime.minimo / 12} a {crime.maximo / 12} anos
         </Selo>
         <span className="flex-1" />
-        <span className="text-[12.5px] tabular-nums text-tg-acento-txt">{meses(c.definitiva)}</span>
+        {/* `whitespace-nowrap`: em 390px a pena quebrava em "1a / 8m", duas
+            linhas para um número de cinco caracteres. */}
+        <span className="shrink-0 whitespace-nowrap text-[12.5px] tabular-nums text-tg-acento-txt">
+          {meses(c.definitiva)}
+        </span>
         <span aria-hidden="true" className={`text-[11px] text-tg-fraco-3 transition-transform ${aberto ? 'rotate-180' : ''}`}>
           ⌄
         </span>
@@ -1469,9 +1473,16 @@ function CartaoFonte({ f, aoAbrir }: { f: Fonte; aoAbrir: () => void }) {
       <span className="grid size-[19px] shrink-0 place-items-center rounded-[7px] bg-tg-acento-fraco text-[10px] font-semibold text-tg-acento-txt">
         {f.n}
       </span>
-      <span className="shrink-0 text-[13px] font-medium text-tg-tinta-2">{f.titulo}</span>
-      <span className="truncate text-[12px] text-tg-fraco-2">{f.sub}</span>
-      <span className="flex-1" />
+      {/*
+        Título e subtítulo dividem o que sobra, e os dois truncam. O título era
+        `shrink-0`: com "art. 33, § 4º da Lei nº 11.343/2006" numa tela de 390px
+        ele empurrava o selo de vigência e a seta para FORA da janela — sumia da
+        tela justamente a informação que a decisão nº 3 existe para mostrar.
+      */}
+      <span className="flex min-w-0 flex-1 items-baseline gap-[11px]">
+        <span className="truncate text-[13px] font-medium text-tg-tinta-2">{f.titulo}</span>
+        <span className="truncate text-[12px] text-tg-fraco-2">{f.sub}</span>
+      </span>
       <Selo tom={f.tom}>{f.selo}</Selo>
       <span aria-hidden="true" className="shrink-0 text-[13px] text-tg-tenue-2">
         ›
