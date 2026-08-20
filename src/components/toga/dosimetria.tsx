@@ -261,6 +261,7 @@ export function Dosimetria() {
                   ? setAgravantes({ ...ENTRADA_NEUTRA.agravantes })
                   : setCausas({ ...ENTRADA_NEUTRA.causas })
               }
+              crime={crime}
             />
           )}
         </div>
@@ -268,6 +269,7 @@ export function Dosimetria() {
 
       <Resultado
         c={c}
+        crime={crime}
         abaixoDoMinimo={abaixoDoMinimo}
         agravantes={agravantes}
         causas={causas}
@@ -425,6 +427,12 @@ function BotaoZerar({
   )
 }
 
+/** `60` → `5 anos`; `12` → `1 ano`. O mínimo de cada crime é em anos cheios. */
+function emAnos(meses: number): string {
+  const n = Math.round(meses / 12)
+  return `${n} ${n === 1 ? 'ano' : 'anos'}`
+}
+
 // --- segunda e terceira fases ------------------------------------------------
 
 function OutrasFases({
@@ -435,6 +443,7 @@ function OutrasFases({
   ligadas,
   aoAlternar,
   aoZerar,
+  crime,
 }: {
   fase: 2 | 3
   entra: number
@@ -449,6 +458,7 @@ function OutrasFases({
   ligadas: Record<string, boolean>
   aoAlternar: (k: string) => void
   aoZerar: () => void
+  crime: Crime
 }) {
   // O mesmo botão da primeira fase, e pelo mesmo motivo de ele existir lá: a
   // ferramenta abre com confissão e privilégio marcados, e desmarcar chave por
@@ -509,10 +519,18 @@ function OutrasFases({
           )
         })}
 
+        {/*
+          As duas frases falavam do art. 33 e só dele: o mínimo era "5 anos"
+          escrito à mão, e a nota da terceira fase terminava em "é o que faz o
+          § 4º valer no tráfico" — que aparecia sob um estupro de vulnerável.
+          Regra da tela desde que ela passou a dosar oito crimes: nada afirmado
+          aqui pode valer para um crime e ser exibido sobre outro.
+        */}
         <p className="pt-3.5 text-[12px] leading-[1.5] text-tg-fraco-2">
           {fase === 2
-            ? 'Súmula 231/STJ: a atenuante não reduz a pena abaixo do mínimo legal de 5 anos — a trava está aplicada no cálculo.'
-            : 'Aqui a pena pode ficar abaixo do mínimo: causa de diminuição não é atenuante, e a Súmula 231 não a alcança. É o que faz o §4º valer no tráfico.'}
+            ? `Súmula 231/STJ: a atenuante não reduz a pena abaixo do mínimo legal de ${emAnos(crime.minimo)} — a trava está aplicada no cálculo.`
+            : 'Aqui a pena pode ficar abaixo do mínimo: causa de diminuição não é atenuante, e a Súmula 231 não a alcança.' +
+              (admite(crime, 'privilegiado') ? ' É o que faz o § 4º valer no tráfico.' : '')}
         </p>
       </div>
     </section>
@@ -523,6 +541,7 @@ function OutrasFases({
 
 function Resultado({
   c,
+  crime,
   abaixoDoMinimo,
   agravantes,
   causas,
@@ -538,6 +557,7 @@ function Resultado({
     definitiva: number
     multa: number
   }
+  crime: Crime
   abaixoDoMinimo: boolean
   agravantes: Record<ChaveAgravante, boolean>
   causas: Record<ChaveCausa, boolean>
@@ -598,7 +618,13 @@ function Resultado({
     {
       n: '4',
       rot: 'Causas de aumento e diminuição',
-      det: causas.privilegiado ? 'privilegiado −2/3 (art. 33, §4º)' : 'nenhuma aplicada',
+      // Nomeia as causas ligadas QUE ESTE CRIME ADMITE: escrever "privilegiado
+      // −2/3 (art. 33, § 4º)" sob um roubo seria anunciar uma redução que a
+      // conta recusou.
+      det:
+        CAUSAS.filter((x) => causas[x.k] && admite(crime, x.k))
+          .map((x) => `${x.nome.replace(/ \(.*/, '')} ${x.fr}`)
+          .join(' · ') || 'nenhuma aplicada',
       val: meses(c.definitiva),
       fase: 3 as const,
     },
@@ -641,9 +667,9 @@ function Resultado({
 
       {abaixoDoMinimo && (
         <p className="tg-sobe mt-3 rounded-[14px] bg-tg-ambar-fundo px-3.5 py-2.5 text-[11.5px] leading-[1.5] text-tg-ambar-txt">
-          A pena ficou <strong className="font-semibold">abaixo do mínimo legal</strong> de 5 anos.
-          É válido: a redução veio de causa de diminuição na terceira fase, onde a Súmula 231 não
-          incide.
+          A pena ficou <strong className="font-semibold">abaixo do mínimo legal</strong> de{' '}
+          {emAnos(crime.minimo)}. É válido: a redução veio de causa de diminuição na terceira
+          fase, onde a Súmula 231 não incide.
         </p>
       )}
 

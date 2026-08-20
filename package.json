@@ -12,6 +12,7 @@
     "seed": "tsx scripts/seed.ts",
     "embed": "tsx scripts/embed.ts",
     "busca": "tsx scripts/busca.ts",
+    "contexto": "tsx scripts/contexto.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "vademecum": "tsx scripts/vademecum.ts",

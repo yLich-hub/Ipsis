@@ -164,6 +164,55 @@ async function resolveDireto(
     }))
 }
 
+/**
+ * Lê dispositivos pelo id, na ordem em que foram pedidos.
+ *
+ * Serve à herança do fio da conversa (`lib/consulta/fio.ts`): os dispositivos
+ * que a resposta anterior citou voltam ao contexto da pergunta seguinte, e para
+ * isso precisam do texto e da citação — os mesmos campos que a fusão devolve, e
+ * é por isso que a saída é `Achado` e não uma forma nova.
+ *
+ * `score: 0` é literal, não preenchimento: herdado não passou por fusão nenhuma
+ * nesta pergunta. É o mesmo 0 de `resolveDireto`, e pela mesma razão — nenhum
+ * dos dois foi ranqueado. Quem os protege do piso é o chamador, que os junta
+ * ao contexto DEPOIS de `filtraContexto` ter rodado.
+ *
+ * Id que não existe some sem erro, e isso é desejado: o fio carrega também id
+ * de precedente do STJ, que não mora em `v_dispositivo`. Herança é conforto —
+ * ela não pode derrubar a consulta.
+ */
+export async function lerDispositivos(ids: string[]): Promise<Achado[]> {
+  if (ids.length === 0) return []
+
+  const { data, error } = await supabase
+    .from('v_dispositivo')
+    .select(
+      'id,lei_id,lei_apelido,vigencia_ate,cobertura,cobertura_nota,artigo_numero,artigo_rubrica,' +
+        'capitulo,tipo,rotulo,citacao,texto,revogado',
+    )
+    .in('id', ids)
+
+  if (error || !data?.length) return []
+
+  type Linha = Omit<Achado, 'dispositivo_id' | 'score' | 'via_rubrica' | 'rubrica_termo' | 'papel'> & {
+    id: string
+  }
+
+  const posicao = new Map(ids.map((id, i) => [id, i]))
+
+  return (data as unknown as Linha[])
+    .slice()
+    .sort((a, b) => (posicao.get(a.id) ?? 0) - (posicao.get(b.id) ?? 0))
+    .map((d) => ({
+      ...d,
+      dispositivo_id: d.id,
+      score: 0,
+      via_rubrica: false,
+      rubrica_termo: null,
+      papel: null,
+    }))
+}
+
 export async function consultar({
   q,
   lei = null,

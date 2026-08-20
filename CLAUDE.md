@@ -445,10 +445,49 @@ então não tem como divergir sozinho.
 Função RPC única no Postgres (uma chamada de rede, não três), fundindo por
 _Reciprocal Rank Fusion_:
 
-1. **Rubrica** — match exato em `termo` ou `variantes`. Peso dominante: quando
-   bate, encabeça o resultado.
+1. **Rubrica** — match exato em `termo` ou `variantes`. Peso dominante (3×):
+   quando bate, encabeça o resultado.
 2. **Lexical** — `ts_rank_cd` sobre `dispositivos.busca` (`to_tsvector('portuguese', texto)`).
 3. **Semântica** — `<=>` sobre `dispositivos.embedding`.
+
+**O peso dominante da rubrica não valia nada em produção, e ninguém sabia.**
+`p_peso_rubrica` é 3.0 desde 0003, mas a posição da rubrica na fórmula do RRF
+era calculada por uma janela dentro do CTE de fusão — isto é, sobre o resultado
+do `full outer join` das três pernas. A ordenação abria com
+`(rub.papel = 'principal') desc`, e `desc` no Postgres é NULLS FIRST: as até 400
+linhas que vieram só do léxico ou só do vetor têm `papel` nulo e ficavam todas na
+frente. Medido antes do conserto, com a consulta mais central do projeto:
+
+    "tráfico privilegiado" → art. 33, § 4º
+      sem vetor:  3/61  = 0,049180      (certo — o CTE `sem` fica vazio)
+      com vetor:  3/259 = 0,011583      (row_number = 199)
+
+**Passou anos invisível porque a ORDEM continuava certa:** o `order by` final
+abre com `via_rubrica desc`, então o dispositivo da rubrica encabeça a lista de
+qualquer jeito. A tela sempre pareceu correta. O que estava errado era o score —
+e o score só passou a decidir algo quando `filtraContexto` ganhou o piso de
+fusão. A partir daí, "tráfico privilegiado" não juntava três dispositivos acima
+de 1/61, o contexto era marcado `fraco`, e o modelo recebia instrução de dizer
+que o acervo não cobre a pergunta e usar confidence "baixa" — sobre o instituto
+que este projeto existe para responder.
+
+`0017_peso_da_rubrica.sql` move a posição para dentro do CTE `rub`, que é a
+forma que `lex` e `sem` já tinham. A assimetria era o defeito: agora nenhuma
+perna consegue contar as linhas de outra, e a classe de erro deixa de existir.
+Remedido depois, sobre dez consultas — a separação entre dentro e fora do
+recorte triplicou:
+
+| perfil                | topo          | razão último/topo | acima do piso |
+| --------------------- | ------------- | ----------------- | ------------- |
+| consulta com rubrica  | 0,060–0,064   | 0,24–0,26         | 3–4 de 8      |
+| duas pernas de acordo | 0,030         | 0,84              | 8 de 8        |
+| fora do corpus        | 0,0164 (1/61) | 0,90              | 0 de 8        |
+
+**Nenhum teste offline pega essa regressão, e não há como.** Ela mora no SQL da
+RPC e só aparece contra o banco; a suíte tranca o outro lado, que é o piso
+separar os dois perfis quando os scores chegam certos. Para o lado do banco
+existe `npm run contexto`, que imprime score, piso e o aviso de recuperação
+fraca lado a lado.
 
 O que é embutido é `dispositivos.texto_embed`, não `texto`:
 `capítulo + rubrica + caput do artigo + texto do dispositivo`. Um `§ 4º Nos
@@ -665,12 +704,13 @@ custa fração de centavo por milhão de buscas.
 ### O contrato da geração
 
 Não se pede prosa ao modelo; pede-se **JSON com esquema fechado** (structured
-output), e o servidor valida antes de a tela ver. Quatro arquivos em
+output), e o servidor valida antes de a tela ver. Cinco arquivos em
 `lib/consulta/`, um trabalho cada:
 
 - `contrato.ts` — tipos, o esquema JSON e a instrução do sistema.
 - `valida.ts` — as cinco recusas. Puro, offline.
 - `enriquece.ts` — o banco sobrescreve tudo que não é argumentação. Puro.
+- `fio.ts` — o que uma troca deixa para a próxima. Puro, offline.
 - `aovivo.ts` — a chamada ao modelo, o streaming e a regeneração.
 
 **O esquema é curto de propósito.** O modelo devolve `paragraphs[]` (texto +
@@ -733,6 +773,84 @@ ao modelo daria outro texto, e reabrir uma conversa para encontrar uma resposta
 diferente da que se leu é pior que não ter histórico. `conversa_trocas.resposta`
 passou a guardar `{ bruta, gerada }`; `leResposta()` reconhece as duas formas, e
 linha antiga continua abrindo.
+
+### O fio da conversa
+
+O array de mensagens era `[system, user]` e nada mais: cada pergunta chegava
+sozinha, sem notícia da anterior. **E não era só o modelo que esquecia — a busca
+esquecia junto.** "E se ele for reincidente?" ia crua para `busca_hibrida`, que
+devolvia o que achasse para a palavra "reincidente", e o § 4º da troca anterior
+— o assunto que o advogado tinha na cabeça — não estava em lugar nenhum do
+contexto. A pergunta de seguimento é a forma mais natural de usar um chat, e era
+justamente a que o produto não atendia.
+
+**Só duas coisas atravessam a troca: a pergunta e os ids citados.**
+
+A prosa gerada **não** volta. Ela não passa por `valida()` de novo, e reinjetá-la
+deixaria uma afirmação da troca 1 sobreviver até a troca 3 sem âncora nenhuma —
+a mesma fresta que a recusa de parágrafo sem citação existe para fechar,
+reaberta pela porta do histórico. Id é coisa já conferida contra o contexto
+recuperado; prosa não é.
+
+**A consulta da busca continua intocada, e essa é a decisão que mais custou.** O
+caminho óbvio — concatenar a pergunta anterior e mandar as duas para a RPC —
+envenena a perna de rubrica, que tem peso dominante e casa por termo contido a
+partir de 12 caracteres: depois de uma troca sobre "tráfico privilegiado", TODA
+pergunta seguinte carregaria o termo para dentro da consulta e a rubrica
+encabeçaria o resultado de assuntos que não têm nada com ela. Seria o art. 149-A
+da decisão nº 2 outra vez, agora disparado pela própria conversa.
+
+A continuidade vem então por **herança de id**: os dispositivos que a resposta
+anterior citou entram no contexto da seguinte, lidos do banco por
+`lerDispositivos()` e marcados com `origem` no bloco `<dispositivo>`. A busca da
+pergunta nova segue limpa, e o que ela recupera soma em vez de competir. A
+herança entra **depois** de `filtraContexto`, porque não passou pela fusão desta
+pergunta e o piso a cortaria inteira — e um dispositivo que o piso cortou e a
+troca anterior citou volta por ela, com razão: a conversa já o tratou como
+assunto.
+
+Tetos: três trocas, cinco dispositivos herdados. Herdado é aposta, não
+recuperação, e herança sem teto dominaria o contexto de uma pergunta que mudou
+de assunto.
+
+**Quando a recuperação é fraca, o aviso muda de redação, e não some.** `fraco`
+mede uma coisa só: os termos desta pergunta não acharam concordância no corpus.
+Sem conversa atrás isso quer dizer "o acervo não cobre o assunto"; com conversa
+atrás quer dizer isso **ou** que a pergunta não tem termo próprio para casar. Um
+"e nesse caso?" não acha nada em lugar nenhum e ainda assim é respondível.
+Afirmar a primeira leitura nos dois casos faria o chat negar um assunto que
+acabou de cobrir; suprimir o aviso faria o contrário, que é pior. Diz-se o que
+de fato se mediu, e a decisão fica com quem tem as duas metades na frente.
+
+**O fio sai da tela, não do banco.** `conversas` tem RLS por `auth.uid()` e o
+cliente da rota não carrega sessão do usuário — ler o histórico no servidor não
+funcionaria. Então ele vem no corpo da requisição e é entrada de usuário como
+qualquer outra: `saneiaFio()` descarta em silêncio o que não tem forma de id, e
+troca malformada não pode custar a resposta.
+
+**Três armadilhas silenciosas, achadas ao ligar isto e trancadas por teste.** Nas
+três o herdado é citado, `valida()` o aceita — ele está em `recuperados` — e a
+falha acontece depois, sem erro nenhum:
+
+1. `enriquece()` recebia os achados **crus** da busca. Um `doc_id` herdado não
+   estava na lista, a fonte era descartada e o parágrafo ficava ancorado nos
+   dados e órfão na tela, justamente depois de a âncora virar obrigatória. Passa
+   a receber o contexto inteiro.
+2. `PainelFonte` procura o id em `achados` e, não achando, **caía no primeiro da
+   lista**: clicar em "art. 33, § 4º" abriria outro artigo, com o link "Abrir
+   dispositivo ↗" apontando para o errado junto. Por isso o evento `fim` carrega
+   os herdados — fora do evento `busca`, que é a resposta crua e é ele que vai
+   para o histórico. **A queda para `achados[0]` foi removida**: não achar e não
+   abrir é defeito de conforto; abrir outro artigo é o produto afirmando coisa
+   falsa.
+3. **A conversa reaberta do histórico repetia a armadilha 2**, e por um caminho
+   que o evento `fim` não alcança: a linha guarda `bruta`, e as fontes de uma
+   troca com fio apontam para dispositivo que a busca DAQUELA pergunta não
+   devolveu. `religaHerdados()` reata pelo pool da conversa inteira — e não
+   precisa de nada gravado a mais, porque todo id herdado entrou em alguma troca
+   anterior **pela busca**: a herança só repassa o que já foi recuperado uma vez.
+   Guardar os herdados na linha seria gravar derivado, que é o que
+   `conversa_trocas` evita.
 
 **Streaming.** Os passos animados são os eventos reais do pipeline, emitidos
 enquanto rodam. O texto é revelado token a token por um leitor incremental
@@ -1653,7 +1771,7 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As nove suítes (200 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As nove suítes (221 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
 e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 
@@ -1670,7 +1788,7 @@ e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 > impresso (`exige_corpus`, em `coletores/tests/test_filtro.py`); as do filtro,
 > que são as que podem errar em silêncio, continuam rodando sempre. **O lado
 > vitest recebeu o mesmo conserto** (`seComCorpus`, em `citacao`, `peca`,
-> `redacao` e `vigilia`): num clone sem corpus são 169 asserções passando e 31
+> `redacao` e `vigilia`): num clone sem corpus são 190 asserções passando e 31
 > anunciadas como puladas, em vez de nove suítes vermelhas.
 >
 > Medido escondendo `data/normalizado/` e rodando o vitest: 8 arquivos passam, 1
@@ -1768,6 +1886,28 @@ está no `ls` da pasta.
   contra o corpus e a lista de causas da terceira fase — sem isso a calculadora
   aceitaria o artigo e ignoraria metade da conta. Fora do que a busca e a peça já
   alcançam, nenhum entra sem pedido explícito.
+- **"Porte para consumo pessoal" não alcança o art. 28, e é rubrica faltando.**
+  Medido em 20/08/2026, depois de 0017: a consulta devolve o art. 180-A do CP
+  (receptação de animal), o art. 180, § 2º e o art. 158-D do CPP, e o art. 28 da
+  Lei de Drogas não aparece entre os oito. É o erro de classe que a decisão nº 2
+  descreve — busca por apelido do instituto sem rubrica curada que o case —, e o
+  perfil dela é indistinguível de uma pergunta fora do corpus (topo em 1/61,
+  razão 0,90, nada acima do piso). O piso está fazendo o certo: marca `fraco` e
+  impede o modelo de construir tese sobre receptação. O que falta é entrada em
+  `data/curadoria/rubricas.yaml`, com reseed — não é conserto de código.
+- **O corte de 12 caracteres da rubrica contida foi calibrado contra o peso
+  quebrado, e 0017 mudou o terreno.** A trava de 0011 existe para "tráfico" (7)
+  não casar em toda pergunta; ela foi medida quando a rubrica valia, de fato,
+  0,7× em vez de 3×. Com o peso certo, termo curado curto e genérico domina de
+  verdade: há 236 termos curados com 12+ caracteres, entre eles `reu confessou`,
+  `regime inicial`, `prova ilicita` e `defesa previa`. Medido em 20/08/2026, "o
+  réu confessou o tráfico, mas quero discutir a nulidade da entrada na residência
+  sem mandado" devolve o art. 65, III, d do CP (confissão) nas duas primeiras
+  posições e **nada sobre busca domiciliar** — a frase incidental sequestrou a
+  recuperação. O piso pegou (marcou `fraco`), que é a rede funcionando, mas a
+  resposta certa também não veio. Rever o corte, ou exigir que a rubrica contida
+  tenha alguma concordância de outra perna, é decisão de curadoria e de medida —
+  não se muda o número no escuro.
 - **O piso de quantidade expressiva é convenção, não lei.** `EXPRESSIVA` é um
   quilo, e o art. 42 não fixa medida nenhuma. Está escrito onde mora e vale só
   para a leitura automática da conversa — na ferramenta, quem marca o vetor é o

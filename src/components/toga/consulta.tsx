@@ -36,6 +36,7 @@ import type { Achado, RespostaBusca } from '@/lib/busca/consultar'
 import { classifica } from '@/lib/busca/intencao'
 import type { EventoAoVivo } from '@/lib/consulta/contrato'
 import { fontesDeDoutrina } from '@/lib/consulta/doutrina'
+import { MAX_TROCAS, religaHerdados, type Troca } from '@/lib/consulta/fio'
 import { dataBR } from '@/lib/formato'
 import { calcula, dosavel, leDaConversa, meses } from '@/lib/toga/dosimetria'
 import { busca, registra } from '@/lib/toga/historico'
@@ -146,6 +147,54 @@ type MsgAssistente = {
 }
 
 type Msg = MsgUsuario | MsgAssistente
+
+/**
+ * O fio da conversa até uma posição — o que a rota recebe para resolver
+ * referência ("e se ele for reincidente?") e herdar as fontes já citadas.
+ *
+ * Sai da tela e não do banco porque é aqui que a conversa mora, inclusive a
+ * reaberta do histórico, que volta com `comp` preenchido. O servidor não teria
+ * como lê-la: `conversas` tem RLS por `auth.uid()` e o cliente daquela rota não
+ * carrega a sessão do usuário.
+ *
+ * **Manda pergunta e ids, nunca a prosa.** A resposta gerada não passa por
+ * `valida()` de novo, e devolvê-la ao contexto deixaria uma afirmação da
+ * primeira troca sobreviver à terceira sem âncora nenhuma. Ver
+ * `lib/consulta/fio.ts`.
+ *
+ * `ate` é exclusivo, e é o que faz "Gerar de novo" enxergar só o que estava na
+ * tela ANTES daquela resposta — regenerar a terceira pergunta com o fio das
+ * cinco seguintes seria respondê-la com o que ainda não tinha sido perguntado.
+ */
+function fioAte(ms: Msg[], ate: number): Troca[] {
+  const fio: Troca[] = []
+  for (let k = 0; k < ate && k < ms.length; k++) {
+    const m = ms[k]
+    if (!m || m.papel !== 'assistente' || !m.comp) continue
+    fio.push({ pergunta: m.pergunta, ids: m.comp.fontes.map((f) => f.id) })
+  }
+  // O corte é pelo fim: recente é o que sustenta a pergunta atual.
+  return fio.slice(-MAX_TROCAS)
+}
+
+/**
+ * Junta ao resultado da busca os dispositivos que entraram no contexto pelo fio.
+ *
+ * Sem isto o cartão de uma fonte herdada abre o painel no dispositivo ERRADO, em
+ * silêncio: `PainelFonte` procura o id em `achados` e, não achando, cai no
+ * primeiro da lista. O usuário clica em "art. 33, § 4º" e lê outro artigo.
+ *
+ * Só a tela muda. O histórico continua gravando `bruta`, que é a resposta da
+ * busca — misturar a herança ali faria a conversa reaberta afirmar que a busca
+ * daquela pergunta devolveu o que ela não devolveu.
+ */
+const juntarAchados = (achados: Achado[], herdados: Achado[]): Achado[] => {
+  if (herdados.length === 0) return achados
+  // Herdado pode já estar na busca crua: o piso de fusão o cortou do contexto,
+  // mas ele voltou pela herança. Nesse caso a tela já o tem.
+  const tem = new Set(achados.map((a) => a.dispositivo_id))
+  return achados.concat(herdados.filter((h) => !tem.has(h.dispositivo_id)))
+}
 
 const vazia = (pergunta: string, params: Parametros): MsgAssistente => ({
   papel: 'assistente',
@@ -285,7 +334,12 @@ export function Consulta({
           // Escopo e quantidade saem da mensagem, não do estado da tela: esta é
           // a mesma pergunta sendo refeita, e refazê-la com outro filtro
           // devolveria outra resposta no lugar da que o usuário mandou repetir.
-          body: JSON.stringify({ q: alvo.pergunta, lei: alvo.params.lei, qtd: alvo.params.qtd }),
+          body: JSON.stringify({
+            q: alvo.pergunta,
+            lei: alvo.params.lei,
+            qtd: alvo.params.qtd,
+            fio: fioAte(msgsRef.current, i),
+          }),
         })
 
         if (!r.ok || !r.body) {
@@ -334,8 +388,9 @@ export function Consulta({
               // O objeto validado substitui a prévia. Nada do que foi revelado
               // token a token sobrevive a este ponto — ele era animação.
               const total = e.comp.paras.reduce((a, p) => a + p.t.length, 0)
-              mutarEm(i, () => ({
+              mutarEm(i, (m) => ({
                 comp: e.comp,
+                achados: juntarAchados(m.achados, e.herdados),
                 passos: e.comp.passos,
                 passo: e.comp.passos.length,
                 digitado: total,
@@ -440,6 +495,11 @@ export function Consulta({
       setAnuncio('Consultando o corpus curado…')
       cancelado.current = false
       perguntaEmCurso.current = q
+
+      // Lido ANTES de as duas mensagens novas entrarem no estado: o fio é a
+      // conversa até a pergunta ANTERIOR, e é isso que a rota espera.
+      const fio = fioAte(msgsRef.current, msgsRef.current.length)
+
       setMsgs((ms) =>
         ms.concat([{ papel: 'usuario', texto: q }, vazia(q, { lei: escopo, qtd })]),
       )
@@ -462,6 +522,8 @@ export function Consulta({
       let bruta: RespostaBusca | null = null
       let gerada: RespostaComposta | null = null
       let modelo: string | null = null
+      /** Os dispositivos que o fio trouxe ao contexto. Só a tela os usa. */
+      let herdados: Achado[] = []
       let motivo: string | null = null
       /** Já chegou algum passo do servidor? Ver o `tipo === 'passo'`, abaixo. */
       let reais = false
@@ -476,7 +538,7 @@ export function Consulta({
         const res = await fetch('/api/consulta/aovivo', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ q, lei: escopo, qtd }),
+          body: JSON.stringify({ q, lei: escopo, qtd, fio }),
           signal: aborto.current.signal,
         })
 
@@ -571,6 +633,7 @@ export function Consulta({
               } else if (e.tipo === 'fim') {
                 gerada = e.comp
                 modelo = e.modelo
+                herdados = e.herdados
               } else if (e.tipo === 'erro') {
                 motivo = e.motivo
               }
@@ -640,7 +703,7 @@ export function Consulta({
         pararRelogios()
         mutar(() => ({
           comp,
-          achados: crua.itens,
+          achados: juntarAchados(crua.itens, herdados),
           passos: comp.passos,
           passo: comp.passos.length,
           digitado: total,
@@ -732,6 +795,14 @@ export function Consulta({
       if (carregada.current !== conversaInicial) return
 
       conversaRef.current = c.id
+
+      // O pool da conversa inteira, para reatar as fontes que a troca citou por
+      // herança do fio. Ver `religaHerdados`: o histórico guarda só a busca de
+      // cada pergunta, e uma resposta com fio cita dispositivo que a busca DELA
+      // não devolveu. Sem isto, o cartão dessa fonte abriria o artigo errado na
+      // conversa reaberta — o mesmo defeito que o evento `fim` conserta ao vivo.
+      const pool = c.conteudo.flatMap((t) => t.bruta.itens)
+
       setMsgs(
         c.conteudo.flatMap((t): Msg[] => {
           const comp = t.gerada ?? comporResposta(t.bruta)
@@ -747,7 +818,10 @@ export function Consulta({
               // inventar um número a partir do tamanho da lista.
               params: { lei: t.bruta.lei, qtd: null },
               comp,
-              achados: t.bruta.itens,
+              achados: juntarAchados(
+                t.bruta.itens,
+                religaHerdados(pool, t.bruta.itens, comp.fontes.map((f) => f.id)),
+              ),
               passos: comp.passos,
               passo: comp.passos.length,
               digitado: total,
@@ -1240,7 +1314,11 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
           {crime.citacao} · {crime.minimo / 12} a {crime.maximo / 12} anos
         </Selo>
         <span className="flex-1" />
-        <span className="text-[12.5px] tabular-nums text-tg-acento-txt">{meses(c.definitiva)}</span>
+        {/* `whitespace-nowrap`: em 390px a pena quebrava em "1a / 8m", duas
+            linhas para um número de cinco caracteres. */}
+        <span className="shrink-0 whitespace-nowrap text-[12.5px] tabular-nums text-tg-acento-txt">
+          {meses(c.definitiva)}
+        </span>
         <span aria-hidden="true" className={`text-[11px] text-tg-fraco-3 transition-transform ${aberto ? 'rotate-180' : ''}`}>
           ⌄
         </span>
@@ -1469,9 +1547,16 @@ function CartaoFonte({ f, aoAbrir }: { f: Fonte; aoAbrir: () => void }) {
       <span className="grid size-[19px] shrink-0 place-items-center rounded-[7px] bg-tg-acento-fraco text-[10px] font-semibold text-tg-acento-txt">
         {f.n}
       </span>
-      <span className="shrink-0 text-[13px] font-medium text-tg-tinta-2">{f.titulo}</span>
-      <span className="truncate text-[12px] text-tg-fraco-2">{f.sub}</span>
-      <span className="flex-1" />
+      {/*
+        Título e subtítulo dividem o que sobra, e os dois truncam. O título era
+        `shrink-0`: com "art. 33, § 4º da Lei nº 11.343/2006" numa tela de 390px
+        ele empurrava o selo de vigência e a seta para FORA da janela — sumia da
+        tela justamente a informação que a decisão nº 3 existe para mostrar.
+      */}
+      <span className="flex min-w-0 flex-1 items-baseline gap-[11px]">
+        <span className="truncate text-[13px] font-medium text-tg-tinta-2">{f.titulo}</span>
+        <span className="truncate text-[12px] text-tg-fraco-2">{f.sub}</span>
+      </span>
       <Selo tom={f.tom}>{f.selo}</Selo>
       <span aria-hidden="true" className="shrink-0 text-[13px] text-tg-tenue-2">
         ›
@@ -1673,7 +1758,17 @@ function PainelFonte({
   aoTrocar: (id: string) => void
   aoFechar: () => void
 }) {
-  const atual = achados.find((a) => a.dispositivo_id === id) ?? achados[0]
+  /**
+   * Sem `?? achados[0]`, e a queda foi tirada de propósito.
+   *
+   * Ela existia como defesa e virou caminho de resposta errada assim que a
+   * herança do fio pôs, nas fontes, id que podia não estar nesta lista: o painel
+   * abria o PRIMEIRO achado com o cabeçalho da fonte clicada, e o link "Abrir
+   * dispositivo ↗" apontava para o artigo errado junto. Não achar e não abrir é
+   * um defeito de conforto; abrir outro artigo é o produto afirmando coisa
+   * falsa, que é a única coisa que ele não pode fazer.
+   */
+  const atual = achados.find((a) => a.dispositivo_id === id)
 
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent) => e.key === 'Escape' && aoFechar()
