@@ -72,8 +72,20 @@ type Ordem = 'tese' | 'tribunal'
 
 export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
   const [ligados, setLigados] = useState<Record<string, boolean>>({})
+  /**
+   * O painel de filtros do celular.
+   *
+   * Fechado por padrão: quem chega quer ver os entendimentos, não a lista de
+   * critérios. Quantos estão ligados vai no rótulo do botão — filtro aplicado
+   * com painel fechado seria lista curta sem explicação na tela.
+   */
+  const [filtrosAbertos, setFiltrosAbertos] = useState(false)
   const [ordem, setOrdem] = useState<Ordem>('tese')
   const [busca, setBusca] = useState('')
+
+  const alternar = (chave: string) => setLigados((l) => ({ ...l, [chave]: !l[chave] }))
+  const limpar = () => setLigados({})
+  const quantosLigados = Object.values(ligados).filter(Boolean).length
 
   /**
    * Grupos de filtro derivados dos dados. Chave prefixada pelo grupo para que
@@ -143,45 +155,7 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
     <div className="tg-sobe flex min-h-0 flex-1">
       {/* filtros */}
       <aside className="hidden w-[242px] shrink-0 overflow-auto border-r border-tg-linha-media px-4 py-5 xl:block">
-        <div className="mb-4 flex items-center gap-2">
-          <p className="text-[12px] font-medium text-tg-suave">Filtros</p>
-          <span className="flex-1" />
-          <button
-            type="button"
-            onClick={() => setLigados({})}
-            className="tgb text-[11.5px] font-medium text-tg-acento-txt"
-          >
-            Limpar
-          </button>
-        </div>
-
-        {grupos.map((g) => (
-          <div key={g.nome} className="mb-5">
-            <p className="mb-2.5 text-[11.5px] font-medium text-tg-fraco-3">{g.nome}</p>
-            <div className="flex flex-col gap-[3px]">
-              {g.itens.map((i) => {
-                const on = !!ligados[i.chave]
-                return (
-                  <button
-                    key={i.chave}
-                    type="button"
-                    onClick={() => setLigados((l) => ({ ...l, [i.chave]: !l[i.chave] }))}
-                    aria-pressed={on}
-                    className={`tgb flex items-center gap-[9px] rounded-[10px] px-[9px] py-1.5 text-left transition-[background-color,box-shadow] duration-200 hover:bg-tg-acento-fraco hover:shadow-[inset_0_0_0_1px_var(--color-tg-acento-palido)] ${
-                      on ? 'bg-tg-preenche' : ''
-                    }`}
-                  >
-                    <Caixinha marcada={on} />
-                    <span className="min-w-0 flex-1 truncate text-[12.5px] text-tg-corpo">
-                      {i.t}
-                    </span>
-                    <span className="shrink-0 text-[11px] text-tg-tenue-2">{i.n}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        ))}
+        <Facetas grupos={grupos} ligados={ligados} aoAlternar={alternar} aoLimpar={limpar} />
 
         {/*
           A restrição de doutrina é regra dura do projeto e mora nesta tela
@@ -235,12 +209,81 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
               Ordenar: {ordem === 'tese' ? 'por tese' : 'por tribunal'} ⌄
             </button>
           </div>
+
+          {/*
+            Os filtros no celular. A lateral é `xl:block`, então até aqui o
+            telefone via os 76 entendimentos e nenhuma forma de estreitar a
+            lista. Abre com `grid-template-rows: 0fr → 1fr`, que é o único jeito
+            de animar até "a altura que o conteúdo tiver" sem medir em
+            JavaScript; fechado leva `inert`, senão o que está escondido
+            continuaria no caminho do Tab.
+          */}
+          <div className="mt-2.5 xl:hidden">
+            <button
+              type="button"
+              onClick={() => setFiltrosAbertos((a) => !a)}
+              aria-expanded={filtrosAbertos}
+              aria-controls="filtros-jurisprudencia"
+              className="tgb flex w-full items-center gap-2 rounded-[14px] bg-white px-4 py-3 text-left shadow-[var(--tg-elev-1f)]"
+            >
+              <span className="text-[13px] font-medium text-tg-tinta-2">Filtros</span>
+              {quantosLigados > 0 && (
+                <span className="rounded-full bg-tg-acento-fraco px-2 py-[2px] text-[11px] font-semibold text-tg-acento-txt">
+                  {quantosLigados}
+                </span>
+              )}
+              <span className="flex-1" />
+              <span className="text-[11.5px] text-tg-fraco-3">
+                {quantosLigados === 0 ? 'tribunal, classe, situação' : 'aplicados'}
+              </span>
+              <span
+                aria-hidden="true"
+                className={`text-[11px] text-tg-fraco-3 transition-transform ${
+                  filtrosAbertos ? 'rotate-180' : ''
+                }`}
+              >
+                ⌄
+              </span>
+            </button>
+
+            <div
+              id="filtros-jurisprudencia"
+              className="tg-abre"
+              data-aberto={filtrosAbertos ? 'sim' : 'nao'}
+            >
+              <div inert={!filtrosAbertos}>
+                <div className="mt-2 rounded-[14px] bg-white px-4 pb-1 pt-4 shadow-[var(--tg-elev-1f)]">
+                  <Facetas
+                    grupos={grupos}
+                    ligados={ligados}
+                    aoAlternar={alternar}
+                    aoLimpar={limpar}
+                    titulo={false}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="tg-lista flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-5 pb-[26px] pt-1 sm:px-[26px]">
           {resultados.map((l, i) => (
             <Cartao key={`${l.origemId}-${i}`} l={l} />
           ))}
+
+          {/* A nota da doutrina também mora na lateral `xl:block`, e sumia junto
+              no celular. Ela é regra dura do projeto e a pergunta nasce nesta
+              tela — fica no fim da lista, onde não disputa espaço com o
+              conteúdo que se veio ler. */}
+          <div className="order-last rounded-2xl bg-white px-4 py-3.5 shadow-[var(--tg-elev-1)] xl:hidden">
+            <p className="text-[12px] font-medium text-tg-tinta-2">Por que não há doutrina</p>
+            <p className="mt-1.5 text-[11.5px] leading-[1.55] text-tg-fraco-2">
+              Doutrina é obra autoral protegida — Nucci, Greco, Bitencourt. Este projeto não
+              hospeda, não indexa e não resume de forma substitutiva. Acórdão não tem essa
+              proteção, e é por isso que o entendimento consolidado cabe aqui e o resumo de
+              manual não cabe em lugar nenhum.
+            </p>
+          </div>
 
           {resultados.length === 0 && (
             <div className="rounded-[18px] bg-white px-6 py-10 text-center shadow-[var(--tg-elev-1)]">
@@ -333,6 +376,74 @@ function Cartao({ l }: { l: Linha }) {
         </Link>
       </div>
     </article>
+  )
+}
+
+/**
+ * As facetas de filtro, num lugar só.
+ *
+ * A lateral de 242px é `xl:block`, então no celular ela não existia — e com ela
+ * sumia a única forma de filtrar por tribunal, classe ou situação. A tela abria
+ * mostrando os 76 entendimentos e nenhuma maneira de estreitar a lista.
+ *
+ * O mesmo componente serve à lateral do desktop e ao painel que abre no
+ * celular. Duas cópias divergiriam na primeira faceta nova — e divergir aqui é
+ * o telefone filtrar por um critério que o desktop não tem.
+ */
+function Facetas({
+  grupos,
+  ligados,
+  aoAlternar,
+  aoLimpar,
+  titulo = true,
+}: {
+  grupos: { nome: string; itens: { chave: string; t: string; n: number }[] }[]
+  ligados: Record<string, boolean>
+  aoAlternar: (chave: string) => void
+  aoLimpar: () => void
+  /** No celular quem diz "Filtros" é o botão que abre; repetir aqui é eco. */
+  titulo?: boolean
+}) {
+  return (
+    <>
+      <div className="mb-4 flex items-center gap-2">
+        {titulo && <p className="text-[12px] font-medium text-tg-suave">Filtros</p>}
+        <span className="flex-1" />
+        <button
+          type="button"
+          onClick={aoLimpar}
+          className="tgb text-[11.5px] font-medium text-tg-acento-txt"
+        >
+          Limpar
+        </button>
+      </div>
+
+      {grupos.map((g) => (
+        <div key={g.nome} className="mb-5">
+          <p className="mb-2.5 text-[11.5px] font-medium text-tg-fraco-3">{g.nome}</p>
+          <div className="flex flex-col gap-[3px]">
+            {g.itens.map((i) => {
+              const on = !!ligados[i.chave]
+              return (
+                <button
+                  key={i.chave}
+                  type="button"
+                  onClick={() => aoAlternar(i.chave)}
+                  aria-pressed={on}
+                  className={`tgb flex items-center gap-[9px] rounded-[10px] px-[9px] py-1.5 text-left transition-[background-color,box-shadow] duration-200 hover:bg-tg-acento-fraco hover:shadow-[inset_0_0_0_1px_var(--color-tg-acento-palido)] ${
+                    on ? 'bg-tg-preenche' : ''
+                  }`}
+                >
+                  <Caixinha marcada={on} />
+                  <span className="min-w-0 flex-1 truncate text-[12.5px] text-tg-corpo">{i.t}</span>
+                  <span className="shrink-0 text-[11px] text-tg-tenue-2">{i.n}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+    </>
   )
 }
 
