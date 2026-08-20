@@ -29,9 +29,11 @@ import {
   MINIMO,
   PREPONDERANTE,
   calcula,
+  EXPRESSIVA,
   crimeDaPergunta,
   daLeiDeDrogas,
   dosavel,
+  emGramas,
   leDaConversa,
   memorialDe,
   meses,
@@ -243,6 +245,49 @@ describe('a que pergunta a calculadora se aplica', () => {
   it('reconhece quantidade expressiva no vetor do art. 42', () => {
     const { entrada } = leDaConversa('apreensão de 3 kg de cocaína')
     expect(entrada.vetores[PREPONDERANTE]).toBe('desf')
+  })
+
+  // A regra anterior ligava o vetor em qualquer menção a `kg` e ignorava grama:
+  // "500 gramas" não ligava nada e "0,5 kg" ligava, sobre a mesma apreensão. O
+  // critério não mudou — continua sendo um quilo, que é o que o `kg` solto já
+  // dizia sem escrever; o que mudou é a unidade deixar de decidir.
+  it('a unidade não decide: grama e quilo vão para a mesma balança', () => {
+    expect(emGramas('3 kg de cocaína')).toBe(3000)
+    expect(emGramas('1,5 kg')).toBe(1500)
+    expect(emGramas('500 gramas de crack')).toBe(500)
+    expect(emGramas('2000 gramas de maconha')).toBe(2000)
+    // Sem número com unidade não é zero, é "não apurado".
+    expect(emGramas('grande quantidade de droga')).toBeNull()
+
+    const iguais = (a: string, b: string) =>
+      expect(leDaConversa(a).entrada.vetores[PREPONDERANTE]).toBe(
+        leDaConversa(b).entrada.vetores[PREPONDERANTE],
+      )
+    iguais('apreensão de 2 kg', 'apreensão de 2000 gramas')
+    iguais('apreensão de 0,5 kg', 'apreensão de 500 gramas')
+  })
+
+  it('quantidade abaixo do piso não agrava, e não vira chip', () => {
+    const pouca = leDaConversa('flagrante com 2 gramas de cocaína')
+    expect(pouca.entrada.vetores[PREPONDERANTE]).toBe('neutra')
+    expect(pouca.chips).not.toContain('Quantidade expressiva · art. 42')
+
+    const muita = leDaConversa(`flagrante com ${EXPRESSIVA} gramas de cocaína`)
+    expect(muita.entrada.vetores[PREPONDERANTE]).toBe('desf')
+  })
+
+  // "300 g de cocaína e 2 kg de maconha" é apreensão de 2,3 kg: o que interessa
+  // ao art. 42 é o porte do conjunto, não a primeira droga que a frase nomeia.
+  it('com duas quantidades na frase, fica com a maior', () => {
+    expect(emGramas('300 g de cocaína e 2 kg de maconha')).toBe(2000)
+  })
+
+  // Termo qualitativo não passa pela balança: quem escreveu "grande quantidade"
+  // já afirmou o que o vetor registra.
+  it('termo qualitativo continua valendo sem número nenhum', () => {
+    for (const p of ['grande quantidade de droga', 'muita droga apreendida']) {
+      expect(leDaConversa(p).entrada.vetores[PREPONDERANTE], p).toBe('desf')
+    }
   })
 
   it('o que é lido muda o resultado — a leitura não é decorativa', () => {

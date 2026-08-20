@@ -46,9 +46,17 @@ gatilho de **tráfico privilegiado** — e o checklist ofereceria o art. 33, § 
 quem responde pelo art. 157. As nove teses cuja argumentação está presa à Lei de
 Drogas passaram a exigir `trafico_imputado: true`; `regime_inicial_menos_gravoso`
 ganhou guarda de pena (`pena_provavel_superior_a_oito_anos: false`), porque o
-art. 33, § 2º do CP fecha o regime acima de oito anos e o mínimo do art. 217-A é
-oito. Conferido caso a caso: os quatro casos de tráfico recebem exatamente as
-mesmas teses de antes, e nenhuma tese de tráfico aparece nos dois casos novos.
+art. 33, § 2º do CP fecha o regime acima de oito anos e o mínimo do art. 217-A
+está acima disso. Conferido caso a caso: os quatro casos de tráfico recebem
+exatamente as mesmas teses de antes, e nenhuma tese de tráfico aparece nos dois
+casos novos.
+
+> Esta linha dizia "e o mínimo do art. 217-A é oito", e envelheceu: o corpus
+> conferido em 15/08/2026 traz **10 a 18 anos**, elevados pelas Leis 15.280/2025
+> e 15.353/2026. A guarda continua certa — dez também fecha o regime —, mas o
+> número na prosa era da redação antiga. Foi a tabela de crimes da dosimetria
+> que o pegou, lendo o preceito secundário do corpus em vez da memória; é o
+> mesmo motivo pelo qual a data de corte é visível o tempo todo.
 
 **As cinco teses novas não têm `jurisprudencia`, e é a regra 3 de `teses.yaml`
 funcionando:** entendimento consolidado não se infere, e não houve como conferir
@@ -1314,17 +1322,67 @@ confere que todo id curado existe no corpus e tem a forma de id de artigo.
 Duas coisas moram nele além da busca, e as duas seguem a mesma regra: nada de
 cálculo nem de estado duplicado.
 
-**Dosimetria dentro da resposta.** Um cartão recolhido aparece em **toda**
-resposta, porque a pergunta de um advogado raramente diz "calcule a pena" — ele
-pergunta sobre o § 4º, e a pena é a consequência que ele quer ver. Um cartão
-condicionado a palavra-chave erraria justamente aí.
+**Dosimetria dentro da resposta.** Um cartão recolhido aparece em toda resposta
+**de crime que a calculadora dosa**, e não só nas que pedem cálculo: a pergunta
+de um advogado raramente diz "calcule a pena" — ele pergunta sobre o § 4º, e a
+pena é a consequência que ele quer ver. Condicionar a palavra de dosimetria
+erraria justamente aí.
+
+**O "de crime que a calculadora dosa" foi conserto, não cautela.** O cartão saa
+sob TODA resposta com o selo "art. 33 · 5 a 15 anos". Era verdade enquanto o
+produto inteiro era tráfico, e virou a pena de um crime exibida sob a resposta de
+outro assim que a busca alcançou o art. 157 e o art. 217-A. Quem decide é a
+**pergunta**, não os dispositivos recuperados — medido contra a busca real,
+"pena para porte de muitas armas" traz o art. 28 da Lei de Drogas entre os dez
+primeiros, então olhar a lei do contexto manteria o cartão justamente no caso que
+motivou o conserto. Sem crime reconhecido não há cartão: `crimeDaPergunta`
+devolve `null`, e o erro é enviesado para esconder.
+
+**A conta é de oito crimes**: os cinco da Lei de Drogas (arts. 33 a 37) e três
+do Código Penal (furto, roubo e o art. 217-A). Os três últimos já viviam no
+projeto — estão no corpus, e roubo majorado e art. 217-A entraram na busca e na
+peça por pedido explícito. Nenhum outro entra sem o mesmo pedido: calculadora
+que aceita qualquer artigo e ignora metade da terceira fase é larga por fora e
+vazia por dentro.
+
+O que muda por crime são quatro números e uma lista; o que não muda — as três
+fases, o art. 59, a Súmula 231, as faixas de regime — não está na tabela. Três
+travas nasceram de misturar duas leis, e elas são o coração disto:
+
+1. **Cada causa fica na lei que a criou.** O art. 40 diz "as penas previstas nos
+   arts. 33 a 37 **desta** Lei": a majorante da escola não alcança um roubo, e o
+   concurso de agentes do art. 157 não alcança um tráfico. O caso que fundou a
+   trava é o § 4º, que se restringe ao "caput e § 1º **deste** artigo" — nem
+   associação nem financiamento o recebem. A trava está em `calcula()`, não só
+   na tela: a tela pode esconder a chave, mas o cartão do chat monta a entrada
+   em código e passaria direto.
+2. **O nono vetor só existe na Lei de Drogas.** "Natureza e quantidade da droga"
+   é o art. 42, e não é circunstância de um furto — sai da tela e sai da conta.
+3. **O art. 217-A não recebe majorante nenhuma.** Os §§ 3º e 4º são
+   **qualificadoras** — outras faixas de pena, 12 a 24 e 20 a 40 —, não frações
+   sobre a provisória. Modelá-las como causa de aumento daria um número
+   plausível e errado.
+
+**As faixas não são digitadas de memória.** Cada crime carrega o id do artigo no
+corpus, e um teste lê o preceito secundário de `data/normalizado/` e compara —
+o desenho de `tests/citacao.test.ts` aplicado a número em vez de id. Ele pagou o
+preço na primeira execução: o art. 33 escreve "reclusão de 5 … anos" e os arts.
+34 a 37 escrevem "reclusão, de 3 … anos," — o preceito não é redigido igual na
+mesma lei. E pegou duas faixas que a memória erraria: roubo está em **6 a 10** e
+o art. 217-A em **10 a 18**, elevados por leis posteriores à fotografia.
+
+A multa mudou de origem, não de espécie: os crimes de droga trazem a faixa no
+próprio preceito; os do CP dizem só "e multa", e quem dá o intervalo é o art. 49
+do CP (10 a 360 dias-multa). O memorial imprime qual, porque vai para dentro de
+uma peça.
 
 A conta vem de `lib/toga/dosimetria.ts`, **a mesma** que a tela de Dosimetria
 usa. Antes a aritmética morava dentro do componente da tela; duas cópias
 divergiriam na primeira correção, e divergir aqui é a tela dizer uma pena e o
-cartão dizer outra sobre o mesmo caso. `tests/dosimetria.test.ts` (21 asserções)
+cartão dizer outra sobre o mesmo caso. `tests/dosimetria.test.ts` (52 asserções)
 tranca as regras que a conta tem de respeitar: Súmula 231 na segunda fase, peso
-dobrado do art. 42 na primeira, e terceira fase podendo cair abaixo do mínimo.
+dobrado do art. 42 na primeira, terceira fase podendo cair abaixo do mínimo, e
+as três travas acima.
 
 **O memorial de cálculo passou a existir.** O botão que o oferecia acendia
 "Gerando memorial…" por 1400 ms e passava a "Memorial pronto ✓" sem nada ter sido
@@ -1338,9 +1396,34 @@ mesmo teatro por outro caminho. Cinco asserções conferem que o texto repete os
 números que `calcula` devolveu, e não é fixo.
 
 `leDaConversa()` lê da pergunta os fatos que sabe representar — "reincidente",
-"primário", "3 kg", "perto de escola". É reconhecimento de termo, não
-interpretação: **o que não é reconhecido não vira suposição**, fica no padrão, e
-os chips mostram o que foi lido para o usuário conferir.
+"primário", "3 kg", "perto de escola", "concurso de agentes". É reconhecimento de
+termo, não interpretação: **o que não é reconhecido não vira suposição**, e os
+chips mostram o que foi lido para o usuário conferir.
+
+**Ela parte do neutro, e não do padrão da ferramenta.** `ENTRADA_PADRAO` traz
+confissão e privilégio ligados — legítimo em `/dosimetria`, onde as duas chaves
+aparecem marcadas e se desligam. Dentro da resposta do chat a suposição é
+invisível: medido, pergunta sem nenhum fato reconhecível exibia "1a 8m", o
+cenário mais favorável que a calculadora sabe produzir, e o cabeçalho recolhido
+mostra só o número. Com `ENTRADA_NEUTRA`, sem fato lido a conta dá o mínimo do
+caput — o que se pode afirmar de um caso sobre o qual nada se sabe.
+
+**Termo negado não vira fato.** "O réu **não** é reincidente" ligava a
+reincidência, que agrava a pena e desliga o § 4º: o erro na pior direção
+possível, porque vira o fato favorável escrito no desfavorável negado. A janela
+da negação para na pontuação forte — "não cabe o § 4º. Réu reincidente" são
+duas afirmações, e a segunda vale.
+
+**A quantidade é lida, não só casada.** A regra ligava o vetor do art. 42 em
+qualquer menção a `kg` e ignorava grama: "500 gramas" não ligava nada e "0,5 kg"
+ligava, sobre a mesma apreensão. `emGramas()` normaliza as duas unidades e fica
+com a maior quantidade citada — "300 g de cocaína e 2 kg de maconha" é apreensão
+de 2,3 kg. O piso é `EXPRESSIVA`, um quilo, e **o número não está na lei**: o
+art. 42 manda considerar "a natureza e a quantidade" sem fixar medida. É
+convenção desta calculadora, do mesmo tipo que o 1/8 por vetor negativo — e o
+critério não mudou: um quilo era o que o `kg` solto já dizia sem escrever.
+Termo qualitativo ("grande quantidade") não passa pela balança, porque quem o
+escreveu já afirmou o que o vetor registra.
 
 **Histórico de conversas.** `lib/toga/historico.ts`, sobre as tabelas
 `conversas` e `conversa_trocas` (migration 0007). A lista "Recentes" da lateral
@@ -1407,10 +1490,13 @@ pixel; o conteúdo foi trocado pelo verdadeiro.
 - **O cartão "Base sincronizada" virou "Base conferida".** Mesma forma — ponto
   vivo, rótulo, linha de apoio — carregando a data de corte, que é a decisão nº 3
   e não pode depender de a tela da vez lembrar de mostrá-la.
-- **`/dosimetria` calcula tráfico, não roubo.** O documento dosa o art. 157 do CP;
-  o recorte é o art. 33 da Lei 11.343 (5 a 15 anos). Não é troca cosmética: o
-  tráfico tem o art. 42, que manda a natureza e a quantidade da droga
-  **preponderarem** sobre o art. 59 — daí o nono vetor, com peso dobrado.
+- **`/dosimetria` abre no tráfico, e não no roubo do documento.** O protótipo dosa
+  o art. 157 do CP; o recorte é o art. 33 da Lei 11.343, e é nele que a tela
+  abre. Não é troca cosmética: o tráfico tem o art. 42, que manda a natureza e a
+  quantidade da droga **preponderarem** sobre o art. 59 — daí o nono vetor, com
+  peso dobrado, que nenhum crime do CP tem. O roubo do documento existe hoje,
+  por pedido, ao lado de outros sete — mas como crime que se escolhe no seletor,
+  com a lista de causas dele, e não como o crime da tela.
 
 `prefers-reduced-motion` desliga todo o movimento. O documento não trata disso —
 protótipo não precisa; produto precisa.
@@ -1567,7 +1653,7 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As nove suítes (166 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As nove suítes (200 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
 e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 
@@ -1584,7 +1670,7 @@ e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
 > impresso (`exige_corpus`, em `coletores/tests/test_filtro.py`); as do filtro,
 > que são as que podem errar em silêncio, continuam rodando sempre. **O lado
 > vitest recebeu o mesmo conserto** (`seComCorpus`, em `citacao`, `peca`,
-> `redacao` e `vigilia`): num clone sem corpus são 140 asserções passando e 26
+> `redacao` e `vigilia`): num clone sem corpus são 169 asserções passando e 31
 > anunciadas como puladas, em vez de nove suítes vermelhas.
 >
 > Medido escondendo `data/normalizado/` e rodando o vitest: 8 arquivos passam, 1
@@ -1677,6 +1763,16 @@ está no `ls` da pasta.
   ignorado pelo git e não existe no GitHub Actions, onde a coleta roda. Filtrar
   só onde o arquivo existe faria o coletor se comportar diferente em dois
   ambientes, que é pior que o ruído.
+- **A dosimetria dosa oito crimes, e não um artigo qualquer.** Os cinco da Lei
+  de Drogas e três do Código Penal. Estender exige, por crime, a faixa conferida
+  contra o corpus e a lista de causas da terceira fase — sem isso a calculadora
+  aceitaria o artigo e ignoraria metade da conta. Fora do que a busca e a peça já
+  alcançam, nenhum entra sem pedido explícito.
+- **O piso de quantidade expressiva é convenção, não lei.** `EXPRESSIVA` é um
+  quilo, e o art. 42 não fixa medida nenhuma. Está escrito onde mora e vale só
+  para a leitura automática da conversa — na ferramenta, quem marca o vetor é o
+  usuário. Piso diferente por droga (cocaína e maconha não pesam igual no
+  processo) seria mais fiel e exigiria curadoria que ninguém conferiu.
 - **A Lei de Execução Penal não está no projeto, e trazê-la é decisão de
   procedência, não de trabalho.** Ela não está no corpus, não está no acervo de
   75 e não está no PDF do Vade Mecum — as quatro ocorrências no PDF são
