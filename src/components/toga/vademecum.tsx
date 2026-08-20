@@ -77,8 +77,16 @@ export function VadeMecum({
   const artigosTotal = leis.reduce((s, l) => s + l.artigos, 0)
 
   return (
-    <div className="tg-sobe flex min-h-0 flex-1 flex-col xl:flex-row">
-      <div className="min-h-0 flex-1 overflow-auto px-5 pb-[30px] pt-6 sm:px-7">
+    <div className="tg-sobe flex min-h-0 flex-1 flex-col overflow-y-auto xl:flex-row xl:overflow-hidden">
+      {/*
+        Abaixo de `xl` quem rola é esta coluna, e não cada painel por dentro.
+        A casca é `h-dvh overflow-hidden`, então num flex de coluna com altura
+        travada o `aside` — que é `shrink-0` e tem conteúdo alto — espremia o
+        painel principal até sobrarem 54px de altura: no celular a tela abria
+        direto no leitor e a grade de ramos era inalcançável. Medido em 390px,
+        antes: `alturaVisivel: 54`, `escondido: 3002`.
+      */}
+      <div className="px-5 pb-[30px] pt-6 sm:px-7 xl:min-h-0 xl:flex-1 xl:overflow-auto">
         <TituloTela
           titulo="Vade Mecum"
           sub={
@@ -242,7 +250,9 @@ export function VadeMecum({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-auto px-[22px] pb-[26px] pt-5">
+        {/* Mesma regra do painel da esquerda: no celular a lista das leis do
+            ramo cresce com o conteúdo, e quem rola é a coluna inteira. */}
+        <div className="px-[22px] pb-[26px] pt-5 xl:min-h-0 xl:flex-1 xl:overflow-auto">
           <p className="mb-3.5 text-[11.5px] font-medium text-tg-tenue">
             {areaAtual?.descricao ?? 'Legislação do ramo'}
           </p>

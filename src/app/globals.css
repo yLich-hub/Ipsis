@@ -815,3 +815,31 @@ button[aria-label='Enviar consulta']:hover:not(:disabled) {
 .tgsk {
   background: linear-gradient(90deg, #eef0f4 0%, #fbf7f8 40%, #eef0f4 80%);
 }
+
+/* -----------------------------------------------------------------------------
+   Campo de texto no toque: 16px, ou o iOS amplia a página inteira
+
+   O Safari do iPhone dá zoom automático ao focar um campo cuja fonte é MENOR
+   que 16px, e não desfaz o zoom ao sair dele. O efeito não parece um problema
+   de campo: a página inteira fica maior que a janela e o lado direito some —
+   o botão de enviar da Consulta cortado ao meio, o "Criar conta" do login
+   pela metade. Foi assim que ele apareceu, num print de iPhone.
+
+   Medido antes de mexer: em 320, 375 e 390 o `scrollWidth` é exatamente a
+   largura da janela, sem um pixel de transbordo. O layout nunca esteve errado;
+   o que estava era a fonte de 13 dos 14 campos do produto, entre 11px e 14,5px.
+
+   **A saída fácil está recusada.** `maximum-scale=1` no viewport mata o zoom e
+   com ele o defeito, e mata junto a ampliação por pinça de quem precisa dela —
+   é falha de WCAG 1.4.4, e este projeto tem uma seção inteira sobre acesso.
+   Corrigir a causa custa uma regra; suprimir o sintoma custa um usuário.
+
+   Só em ponteiro grosso: no desktop a densidade do TOGA v2 fica como está.
+   ----------------------------------------------------------------------------- */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}

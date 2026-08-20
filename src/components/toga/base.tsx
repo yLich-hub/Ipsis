@@ -272,14 +272,17 @@ export function TituloTela({
   children?: ReactNode
 }) {
   return (
-    <div className="flex items-end gap-4">
+    // No celular o botão desce em vez de disputar a linha com a legenda: ao
+    // lado dela, ele a espremia a ponto de "75 legislações federais · 8.726
+    // artigos · espelho de leitura" quebrar em quatro linhas de duas palavras.
+    <div className="flex flex-col items-start gap-2.5 sm:flex-row sm:items-end sm:gap-4">
       <div className="min-w-0">
         <h1 className="font-tg-serif text-[26px] leading-[1.2] -tracking-[0.01em] text-tg-tinta">
           {titulo}
         </h1>
         <p className="mt-1.5 text-[13px] text-tg-fraco-2">{sub}</p>
       </div>
-      <span className="flex-1" />
+      <span className="hidden flex-1 sm:block" />
       {children}
     </div>
   )
