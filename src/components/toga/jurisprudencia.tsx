@@ -173,7 +173,15 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
       </aside>
 
       {/* resultados */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/*
+        Abaixo de `xl` quem rola é esta coluna inteira, e não a lista por dentro
+        dela. O painel de filtros mora no cabeçalho, que é `shrink-0`: aberto,
+        ele passa de 1.700px e, com a lista sendo o único trecho rolável, empurra
+        o resto para fora de uma coluna de altura travada — a tela congelava com
+        metade das facetas inalcançáveis. É o mesmo conserto do Vade Mecum e da
+        Dosimetria, pela mesma causa: `h-dvh overflow-hidden` na casca.
+      */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto xl:overflow-hidden">
         <div className="shrink-0 px-5 pb-3.5 pt-5 sm:px-[26px]">
           <div className="flex items-center gap-[11px] rounded-[18px] bg-white px-4 py-3.5 shadow-[var(--tg-elev-1f)]">
             <Selo tom="acento">Entendimento consolidado</Selo>
@@ -252,7 +260,14 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
               data-aberto={filtrosAbertos ? 'sim' : 'nao'}
             >
               <div inert={!filtrosAbertos}>
-                <div className="mt-2 rounded-[14px] bg-white px-4 pb-1 pt-4 shadow-[var(--tg-elev-1f)]">
+                {/*
+                  Teto de 55% da tela, com rolagem própria. São 44 facetas, que
+                  dão 1.724px: sem o teto, abrir os filtros empurrava os cartões
+                  para dois telefones abaixo, e escolher um filtro virava uma
+                  viagem de ida e volta. `overscroll-contain` para a rolagem do
+                  painel não continuar na página quando ele chega ao fim.
+                */}
+                <div className="mt-2 max-h-[55vh] overflow-y-auto overscroll-contain rounded-[14px] bg-white px-4 pb-1 pt-4 shadow-[var(--tg-elev-1f)]">
                   <Facetas
                     grupos={grupos}
                     ligados={ligados}
@@ -266,7 +281,7 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
           </div>
         </div>
 
-        <div className="tg-lista flex min-h-0 flex-1 flex-col gap-3 overflow-auto px-5 pb-[26px] pt-1 sm:px-[26px]">
+        <div className="tg-lista flex flex-col gap-3 px-5 pb-[26px] pt-1 sm:px-[26px] xl:min-h-0 xl:flex-1 xl:overflow-auto">
           {resultados.map((l, i) => (
             <Cartao key={`${l.origemId}-${i}`} l={l} />
           ))}
