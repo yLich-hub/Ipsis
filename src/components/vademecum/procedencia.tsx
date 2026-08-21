@@ -10,16 +10,21 @@
 // enxerga o acervo, e `tests/vademecum.test.ts` falha se alguém ligar os dois.
 // O que sai é o texto do aviso, não a garantia.
 //
-// O que fica: o link para o texto oficial (atalho, não advertência), o link
-// cruzado para o lado curado quando a mesma lei existe lá, e o crédito de
-// licença no rodapé — este último é obrigação, não escolha.
+// O crédito de licença que ficava no rodapé do leitor também saiu, a pedido. O
+// espelho está sob CC0-1.0, que é renúncia de direitos e não exige atribuição,
+// e o texto de lei federal já é de domínio público (art. 8º, I da Lei
+// 9.610/1998) — a origem continua registrada em `docs/acervo-vademecum.md` e no
+// SHA fixado em `scripts/vademecum.ts`.
+//
+// O que fica na tela: o link para o texto oficial (atalho, não advertência) e o
+// link cruzado para o lado curado quando a mesma lei existe lá.
 // =============================================================================
 
 import Link from 'next/link'
 
 import { Icone } from '@/components/icones'
 import { Aviso } from '@/components/ui'
-import type { IndiceAcervo, LeiAcervo } from '@/lib/tipos'
+import type { LeiAcervo } from '@/lib/tipos'
 
 export function Procedencia({ lei }: { lei: LeiAcervo }) {
   return (
@@ -55,28 +60,5 @@ export function Procedencia({ lei }: { lei: LeiAcervo }) {
         </Aviso>
       )}
     </div>
-  )
-}
-
-/** Crédito no rodapé do leitor: de onde veio o texto e sob qual licença. */
-export function CreditoAcervo({ origem }: { origem: IndiceAcervo['origem'] }) {
-  // `suave` e não `tenue-2`: estava em 1.92:1. Este parágrafo é a obrigação
-  // para com o espelho de terceiro — licença e commit fixado —, e o CLAUDE.md
-  // diz que ele não deve ser removido. Ilegível é uma forma de remover.
-  return (
-    <p className="mt-8 border-t border-tg-linha pt-4 text-[11.5px] leading-relaxed text-tg-suave">
-      Texto de lei federal é de domínio público (art. 8º, I da Lei 9.610/1998). O espelho vem de{' '}
-      <a
-        href={`${origem.url}/tree/${origem.sha}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-tg-fraco-3 underline underline-offset-2 hover:text-tg-tinta-4"
-      >
-        {origem.repo}
-      </a>{' '}
-      ({origem.licenca}), commit <code className="text-tg-fraco-3">{origem.sha.slice(0, 7)}</code> de{' '}
-      {origem.commit_em}. A interface é deste projeto; nenhum código do repositório de origem foi
-      copiado.
-    </p>
   )
 }

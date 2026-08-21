@@ -17,13 +17,11 @@
 import type { Metadata } from 'next'
 
 import { VadeMecum } from '@/components/toga/vademecum'
-import { areasDoAcervo, leisDoAcervo, origemDoAcervo } from '@/lib/vademecum'
+import { areasDoAcervo, leisDoAcervo } from '@/lib/vademecum'
 import { titulo } from '@/lib/toga/marca'
 
 export const metadata: Metadata = { title: titulo('Vade Mecum') }
 
 export default function PaginaAcervo() {
-  return (
-    <VadeMecum areas={areasDoAcervo()} leis={leisDoAcervo()} origem={origemDoAcervo()} />
-  )
+  return <VadeMecum areas={areasDoAcervo()} leis={leisDoAcervo()} />
 }

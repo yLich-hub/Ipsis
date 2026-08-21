@@ -978,10 +978,19 @@ leitor, e atrapalhava quem só queria localizar uma lei. **A separação não
 dependia dele** — ela é estrutural, e os quatro pontos acima continuam valendo
 sem uma linha de texto na tela. O que saiu foi o aviso, não a garantia.
 
-O que ficou, e por quê: o link para o texto oficial no Planalto (atalho, não
-advertência), o link cruzado para o corpus curado, e o crédito de licença no
-rodapé do leitor — este é obrigação para com o espelho de terceiro, não escolha
-de produto, e não deve ser removido.
+**O cartão "Neste acervo" da grade e o crédito de licença do rodapé do leitor
+também saíram, a pedido.** O primeiro era navegação lateral (Corpus, Busca,
+Origem) no pé da coluna de ramos; o segundo era a atribuição ao espelho. Este
+documento dizia que o crédito não devia ser removido, e a frase era mais dura
+que a obrigação: **o que se importou é texto de lei federal, domínio público
+pelo art. 8º, I da Lei 9.610/1998, e nenhum código do repositório de origem foi
+copiado** — não há obra de terceiro no que a tela mostra. A procedência continua
+registrada onde ela é auditável —
+`docs/acervo-vademecum.md` e o SHA fixado em `scripts/vademecum.ts` —, que é
+mais do que um parágrafo de rodapé garantia.
+
+O que ficou na tela, e por quê: o link para o texto oficial no Planalto (atalho,
+não advertência) e o link cruzado para o corpus curado.
 
 **Não derivar URL do Planalto pelo número da lei.** 42 das 75 estão sem link
 oficial porque o espelho não trouxe. `itcmd` é lei do Rio de Janeiro e `estsppi`

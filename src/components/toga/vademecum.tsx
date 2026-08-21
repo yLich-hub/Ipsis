@@ -36,16 +36,12 @@ import { MATIZ, type Matiz } from '@/lib/toga/tokens'
  */
 const MATIZES = Object.values(MATIZ) as (typeof MATIZ)[Matiz][]
 
-type Origem = { repo: string; url: string; sha: string; commit_em: string; licenca: string }
-
 export function VadeMecum({
   areas,
   leis,
-  origem,
 }: {
   areas: AreaAcervo[]
   leis: LeiAcervo[]
-  origem: Origem
 }) {
   const [ramo, setRamo] = useState<string>(() => areas[0]?.chave ?? '')
   /**
@@ -343,31 +339,6 @@ export function VadeMecum({
                 Nenhuma legislação deste ramo passa pelo filtro atual.
               </p>
             )}
-          </div>
-
-          <div className="mt-5 rounded-2xl bg-tg-fundo px-4 py-[15px]">
-            <p className="mb-2.5 text-[12px] font-medium text-tg-suave">Neste acervo</p>
-            <div className="flex flex-col gap-2.5">
-              {[
-                { tag: 'Corpus', t: 'A legislação citável em peça', href: '/leis' },
-                { tag: 'Busca', t: 'Rubrica, léxico e vetor no corpus', href: '/consulta' },
-                { tag: 'Origem', t: `${origem.repo} · ${origem.licenca}`, href: origem.url },
-              ].map((l) => (
-                <Link
-                  key={l.tag}
-                  href={l.href}
-                  className="tgb flex items-center gap-2.5"
-                  {...(l.href.startsWith('http')
-                    ? { target: '_blank', rel: 'noopener noreferrer' }
-                    : {})}
-                >
-                  <span className="shrink-0 rounded-full bg-tg-acento-fraco px-2 py-[3px] text-[10px] font-semibold text-tg-acento-txt">
-                    {l.tag}
-                  </span>
-                  <span className="truncate text-[12px] text-tg-corpo-2">{l.t}</span>
-                </Link>
-              ))}
-            </div>
           </div>
         </div>
       </aside>
