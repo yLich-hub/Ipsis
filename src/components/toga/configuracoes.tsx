@@ -214,6 +214,15 @@ export function Configuracoes({
                   {s.t}
                 </button>
               ))}
+              {/*
+                No celular o sair fica AQUI, no fim da navegação — e não depois do
+                conteúdo da seção, que era onde estava. Como só uma seção aparece
+                por vez, ele reaparecia embaixo de qualquer uma que se abrisse, e
+                a tela parecia ter um "Sair da conta" por opção. É um só, no
+                mesmo lugar do desktop: no fim da lista de seções.
+              */}
+              <span aria-hidden="true" className="mx-0.5 my-1 w-px shrink-0 bg-tg-linha" />
+              <SairDaConta compacto />
             </div>
             {maisAntes && (
               <span
@@ -241,10 +250,6 @@ export function Configuracoes({
             {secao === 'fontes' && <SecaoFontes leis={leis} erro={erroFontes} />}
             {secao === 'aparencia' && <SecaoAparencia />}
             {secao === 'seguranca' && <SecaoSeguranca />}
-          </div>
-
-          <div className="mt-5 md:hidden">
-            <SairDaConta />
           </div>
         </div>
       </div>
@@ -635,7 +640,7 @@ function SecaoSeguranca() {
 // --- sair --------------------------------------------------------------------
 
 /** O item vermelho do pé da trilha, como no documento. */
-function SairDaConta() {
+function SairDaConta({ compacto = false }: { compacto?: boolean }) {
   const [saindo, setSaindo] = useState(false)
 
   async function sair() {
@@ -651,11 +656,15 @@ function SairDaConta() {
       type="button"
       onClick={() => void sair()}
       disabled={saindo}
-      className="tgb mt-[18px] flex items-center gap-2.5 rounded-[11px] px-[11px] py-[9px] text-left text-[12.5px] font-medium text-tg-supressao-txt hover:bg-tg-supressao-fundo disabled:cursor-not-allowed disabled:opacity-60"
+      className={
+        compacto
+          ? 'tgb flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-tg-supressao-fundo px-3 py-1.5 text-[11.5px] font-medium text-tg-supressao-txt disabled:cursor-not-allowed disabled:opacity-60'
+          : 'tgb mt-[18px] flex items-center gap-2.5 rounded-[11px] px-[11px] py-[9px] text-left text-[12.5px] font-medium text-tg-supressao-txt hover:bg-tg-supressao-fundo disabled:cursor-not-allowed disabled:opacity-60'
+      }
     >
       <span
         aria-hidden="true"
-        className="size-[18px] shrink-0 rounded-md bg-[#f6dede]"
+        className={`shrink-0 rounded-md bg-[#f6dede] ${compacto ? 'size-3' : 'size-[18px]'}`}
       />
       {saindo ? 'Saindo…' : 'Sair da conta'}
     </button>
