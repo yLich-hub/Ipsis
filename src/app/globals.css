@@ -251,14 +251,31 @@ body {
   }
 }
 
+/* -----------------------------------------------------------------------------
+   `backwards`, e não `both`, em tudo que envolve tela
+
+   `both` mantém o último quadro aplicado PARA SEMPRE. E o último quadro do
+   `tgUp` é `transform: none` — que, aplicado por animação, computa como
+   `matrix(1, 0, 0, 1, 0, 0)`, e não como ausência de transform. Qualquer
+   transform, inclusive a identidade, faz do elemento o **bloco de contenção dos
+   descendentes `fixed`**.
+
+   O efeito apareceu no celular: a folha do painel de fonte é `fixed bottom-0`, e
+   media o `.tg-tela` em vez da janela — o pé dela caa 133px abaixo da tela, com
+   o fim do texto legal inalcançável. É o mesmo defeito de classe que o
+   `backdrop-filter` do cabeçalho já tinha causado duas vezes neste arquivo.
+
+   `backwards` dá o mesmo resultado visual — ele aplica o PRIMEIRO quadro antes
+   de começar, que é o que evita o pisco — e larga o elemento em paz ao terminar.
+   ----------------------------------------------------------------------------- */
 .tg-sobe {
-  animation: tgUp 0.35s ease both;
+  animation: tgUp 0.35s ease backwards;
 }
 .tg-sobe-lento {
-  animation: tgUp 0.5s ease both;
+  animation: tgUp 0.5s ease backwards;
 }
 .tg-entra {
-  animation: tgIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: tgIn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 .tg-desliza {
   animation: tgRight 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -291,7 +308,7 @@ body {
    uma vez e nunca mais.
    ----------------------------------------------------------------------------- */
 .tg-tela {
-  animation: tgUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: tgUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
 /* -----------------------------------------------------------------------------
@@ -307,7 +324,7 @@ body {
    a primeira tela; o resto já está lá quando se chega nele.
    ----------------------------------------------------------------------------- */
 .tg-lista > * {
-  animation: tgUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: tgUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 .tg-lista > *:nth-child(1) {
   animation-delay: 0ms;
