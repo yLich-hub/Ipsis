@@ -55,8 +55,7 @@ E o que o leitor vê:
 - selo âmbar **"não citável"** no leitor, com a razão no `title`;
 - link para o texto oficial no Planalto quando existe;
 - no CP e no CPP, **link cruzado para o corpus curado** — as duas leis existem
-  dos dois lados, e só um deles é citável;
-- crédito de licença no rodapé do leitor.
+  dos dois lados, e só um deles é citável.
 
 > **O aviso âmbar fixo de procedência foi removido a pedido.** Ele abria a grade
 > e o leitor, antes de qualquer coisa, e atrapalhava quem só queria localizar uma
@@ -66,8 +65,18 @@ E o que o leitor vê:
 > tabela acima continuam valendo sem uma linha de texto na tela. O que saiu foi o
 > aviso, não a garantia.
 >
-> O crédito de licença no rodapé **não** sai: é obrigação para com o espelho de
-> terceiro, não escolha de produto.
+> **O crédito de licença do rodapé e o cartão "Neste acervo" da grade saíram
+> depois, no mesmo pedido.** Este documento dizia que o crédito não sairia, por
+> ser obrigação para com o espelho — e a frase era mais dura que a obrigação.
+> **O que se importou é texto de lei federal, domínio público pelo art. 8º, I da
+> Lei 9.610/1998, e nenhum código do repositório de origem foi copiado**: não há
+> obra de terceiro no que a tela mostra, qualquer que seja a licença do
+> repositório — que, como a seção "De onde vem" registra, é contraditória
+> (`LICENSE` CC0 1.0, README "GNU").
+>
+> A procedência não sumiu do projeto: ela está neste documento e no SHA fixado
+> em `scripts/vademecum.ts`, que é onde ela se audita. O que saiu foi o
+> parágrafo na tela.
 
 ---
 

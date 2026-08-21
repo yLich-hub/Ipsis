@@ -156,20 +156,6 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
       {/* filtros */}
       <aside className="hidden w-[242px] shrink-0 overflow-auto border-r border-tg-linha-media px-4 py-5 xl:block">
         <Facetas grupos={grupos} ligados={ligados} aoAlternar={alternar} aoLimpar={limpar} />
-
-        {/*
-          A restrição de doutrina é regra dura do projeto e mora nesta tela
-          porque é aqui que a pergunta nasce: "e a doutrina?". Ver CLAUDE.md.
-        */}
-        <div className="rounded-2xl bg-white px-4 py-3.5 shadow-[var(--tg-elev-1)]">
-          <p className="text-[12px] font-medium text-tg-tinta-2">Por que não há doutrina</p>
-          <p className="mt-1.5 text-[11.5px] leading-[1.55] text-tg-fraco-2">
-            Doutrina é obra autoral protegida — Nucci, Greco, Bitencourt. Este projeto não hospeda,
-            não indexa e não resume de forma substitutiva. Acórdão não tem essa proteção, e é por
-            isso que o entendimento consolidado cabe aqui e o resumo de manual não cabe em lugar
-            nenhum.
-          </p>
-        </div>
       </aside>
 
       {/* resultados */}
@@ -285,20 +271,6 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
           {resultados.map((l, i) => (
             <Cartao key={`${l.origemId}-${i}`} l={l} />
           ))}
-
-          {/* A nota da doutrina também mora na lateral `xl:block`, e sumia junto
-              no celular. Ela é regra dura do projeto e a pergunta nasce nesta
-              tela — fica no fim da lista, onde não disputa espaço com o
-              conteúdo que se veio ler. */}
-          <div className="order-last rounded-2xl bg-white px-4 py-3.5 shadow-[var(--tg-elev-1)] xl:hidden">
-            <p className="text-[12px] font-medium text-tg-tinta-2">Por que não há doutrina</p>
-            <p className="mt-1.5 text-[11.5px] leading-[1.55] text-tg-fraco-2">
-              Doutrina é obra autoral protegida — Nucci, Greco, Bitencourt. Este projeto não
-              hospeda, não indexa e não resume de forma substitutiva. Acórdão não tem essa
-              proteção, e é por isso que o entendimento consolidado cabe aqui e o resumo de
-              manual não cabe em lugar nenhum.
-            </p>
-          </div>
 
           {resultados.length === 0 && (
             <div className="rounded-[18px] bg-white px-6 py-10 text-center shadow-[var(--tg-elev-1)]">

@@ -19,10 +19,10 @@ import { Cabecalho } from '@/components/casca/cabecalho'
 import { Selo } from '@/components/ui'
 import { BarraLeitura } from '@/components/vademecum/barra-leitura'
 import { BotaoFavorito } from '@/components/vademecum/favoritos'
-import { CreditoAcervo, Procedencia } from '@/components/vademecum/procedencia'
+import { Procedencia } from '@/components/vademecum/procedencia'
 import { Sumario } from '@/components/vademecum/sumario'
 import { numeroBR } from '@/lib/formato'
-import { leiDoAcervo, origemDoAcervo, textoDoAcervo } from '@/lib/vademecum'
+import { leiDoAcervo, textoDoAcervo } from '@/lib/vademecum'
 import { titulo } from '@/lib/toga/marca'
 
 // Sem generateStaticParams: a rota está sob (app), que lê cookie de sessão e
@@ -50,8 +50,6 @@ export default async function LeiDoAcervoPage({
 
   const html = textoDoAcervo(leiId)
   if (!html) notFound()
-
-  const origem = origemDoAcervo()
 
   return (
     <>
@@ -138,8 +136,6 @@ export default async function LeiDoAcervoPage({
                 </ul>
               </nav>
             )}
-
-            <CreditoAcervo origem={origem} />
           </div>
         </div>
       </div>
