@@ -181,7 +181,7 @@ export function Jurisprudencia({ linhas }: { linhas: Linha[] }) {
         metade das facetas inalcançáveis. É o mesmo conserto do Vade Mecum e da
         Dosimetria, pela mesma causa: `h-dvh overflow-hidden` na casca.
       */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto xl:overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col xl:overflow-hidden">
         <div className="shrink-0 px-5 pb-3.5 pt-5 sm:px-[26px]">
           <div className="flex items-center gap-[11px] rounded-[18px] bg-white px-4 py-3.5 shadow-[var(--tg-elev-1f)]">
             <Selo tom="acento">Entendimento consolidado</Selo>

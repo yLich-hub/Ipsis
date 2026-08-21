@@ -280,16 +280,14 @@ export function Consulta({
   /** Aplica uma mudança a uma mensagem qualquer, pelo índice. */
   const mutarEm = useCallback(
     (i: number, fn: (m: MsgAssistente) => Partial<MsgAssistente>) => {
-      setMsgs((ms) => {
-        const m = ms[i]
-        if (!m || m.papel !== 'assistente') return ms
-        const copia = ms.slice()
-        copia[i] = { ...m, ...fn(m) }
-        return copia
-      })
-    },
-    [],
-  )
+    setMsgs((ms) => {
+      const m = ms[i]
+      if (!m || m.papel !== 'assistente') return ms
+      const copia = ms.slice()
+      copia[i] = { ...m, ...fn(m) }
+      return copia
+    })
+  }, [])
 
   /** Aplica uma mudança à última mensagem, que é sempre a do assistente em curso. */
   const mutar = useCallback((fn: (m: MsgAssistente) => Partial<MsgAssistente>) => {
@@ -902,7 +900,7 @@ export function Consulta({
         {anuncio}
       </p>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 overflow-auto px-5 pb-1.5 pt-[30px] sm:px-[34px]">
+        <div className="flex-1 px-5 pb-1.5 pt-[30px] sm:px-[34px] lg:min-h-0 lg:overflow-auto">
           <div className="mx-auto flex max-w-[690px] flex-col gap-[26px]">
             {msgs.length === 0 && <Abertura saudacao={saudacao} />}
 
@@ -1252,8 +1250,8 @@ function PainelDeDoutrina({ pergunta }: { pergunta: string }) {
         <Selo tom="neutro">fora do acervo</Selo>
       </div>
       <p className="px-4 pb-3 text-[12px] leading-[1.55] text-tg-fraco-2">
-        Livro e artigo são obra protegida, e este produto não os hospeda nem os resume. O
-        endereço abaixo abre a busca pelo seu termo no repositório, na fonte.
+        Livro e artigo são obra protegida, e este produto não os hospeda nem os resume. O endereço
+        abaixo abre a busca pelo seu termo no repositório, na fonte.
       </p>
       <ul className="border-t border-tg-linha-tenue">
         {fontes.map((f) => (
@@ -1293,9 +1291,19 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
   if (!dosavel(pergunta)) return null
 
   const fases = [
-    { k: '1ª fase', nome: 'Pena-base', v: meses(c.base), d: `${c.negativos} circunstância${c.negativos === 1 ? '' : 's'} desfavorável${c.negativos === 1 ? '' : 'eis'}` },
+    {
+      k: '1ª fase',
+      nome: 'Pena-base',
+      v: meses(c.base),
+      d: `${c.negativos} circunstância${c.negativos === 1 ? '' : 's'} desfavorável${c.negativos === 1 ? '' : 'eis'}`,
+    },
     { k: '2ª fase', nome: 'Provisória', v: meses(c.provisoria), d: 'agravantes e atenuantes' },
-    { k: '3ª fase', nome: 'Definitiva', v: meses(c.definitiva), d: 'causas de aumento e diminuição' },
+    {
+      k: '3ª fase',
+      nome: 'Definitiva',
+      v: meses(c.definitiva),
+      d: 'causas de aumento e diminuição',
+    },
   ]
 
   return (
@@ -1319,7 +1327,10 @@ function CartaoDosimetria({ pergunta }: { pergunta: string }) {
         <span className="shrink-0 whitespace-nowrap text-[12.5px] tabular-nums text-tg-acento-txt">
           {meses(c.definitiva)}
         </span>
-        <span aria-hidden="true" className={`text-[11px] text-tg-fraco-3 transition-transform ${aberto ? 'rotate-180' : ''}`}>
+        <span
+          aria-hidden="true"
+          className={`text-[11px] text-tg-fraco-3 transition-transform ${aberto ? 'rotate-180' : ''}`}
+        >
           ⌄
         </span>
       </button>
@@ -1613,7 +1624,11 @@ function Entrada({
   aoTrocarQtd: (n: number) => void
 }) {
   return (
-    <div className="shrink-0 bg-gradient-to-b from-transparent to-tg-fundo to-[42%] px-5 pb-[22px] pt-3 sm:px-[34px]">
+    // No celular a caixa de pergunta gruda no pé da janela: com o documento
+    // rolando, ela desceria com a conversa e sair do fim da lista para perguntar
+    // de novo viraria uma viagem. No desktop nada muda — a casca tem altura fixa
+    // e a caixa já está no lugar.
+    <div className="sticky bottom-0 z-10 shrink-0 bg-gradient-to-b from-transparent to-tg-fundo to-[42%] px-5 pb-[22px] pt-3 sm:px-[34px] lg:static">
       <div className="mx-auto max-w-[690px]">
         <div className="mb-[9px] flex flex-wrap gap-1.5">
           {ESCOPOS.map((e) => {
@@ -1779,148 +1794,171 @@ function PainelFonte({
   if (!atual) return null
 
   return (
-    <aside
-      aria-label="Fonte citada"
-      className="tg-desliza hidden w-[420px] shrink-0 flex-col border-l border-tg-linha bg-white xl:flex"
-    >
-      <div className="shrink-0 px-5 pt-4">
-        <div className="mb-3.5 flex items-center gap-[9px]">
-          <span className="text-[12px] font-medium text-tg-fraco-3">Fonte citada</span>
-          <span className="flex-1" />
-          <Link
-            href={`/dispositivo/${atual.dispositivo_id}`}
-            className="tgb text-[12px] font-medium text-tg-acento-txt"
-          >
-            Abrir dispositivo ↗
-          </Link>
-          <button
-            type="button"
-            onClick={aoFechar}
-            aria-label="Fechar painel"
-            className="tgb grid size-6 place-items-center rounded-lg bg-tg-preenche text-tg-fraco-3 hover:bg-tg-hover"
-          >
-            ✕
-          </button>
-        </div>
+    <>
+      {/*
+        No celular o painel vira folha: até aqui ele era `hidden xl:flex`, e
+        tocar num cartão de fonte **não fazia nada** — o estado mudava, o painel
+        não existia na árvore. Era o mesmo defeito de classe do Vade Mecum: o
+        que o desktop mostra ao lado, o telefone não mostra em lugar nenhum.
 
-        {achados.length > 1 && (
-          <div className="flex gap-1.5 overflow-x-auto pb-3.5">
-            {achados.slice(0, 4).map((a) => {
-              const ativo = a.dispositivo_id === atual.dispositivo_id
-              return (
-                <button
-                  key={a.dispositivo_id}
-                  type="button"
-                  onClick={() => aoTrocar(a.dispositivo_id)}
-                  className={`tgb shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium ${
-                    ativo ? 'bg-tg-acento text-white' : 'bg-tg-preenche text-tg-corpo'
-                  }`}
-                >
-                  {a.citacao}
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-auto border-t border-tg-linha-fraca px-5 pb-6 pt-1">
-        <div className="my-3.5 flex flex-wrap items-center gap-[7px]">
-          <Selo tom={atual.revogado ? 'ambar' : 'verde'}>
-            {atual.revogado ? 'Revogado' : 'Em vigor'}
-          </Selo>
-          {atual.cobertura === 'parcial' && (
-            <Selo tom="ambar" title={atual.cobertura_nota ?? undefined}>
-              Cobertura parcial
-            </Selo>
-          )}
-          {atual.via_rubrica && atual.rubrica_termo && (
-            <Selo tom="acento">rubrica “{atual.rubrica_termo}”</Selo>
-          )}
-          <span className="text-[11.5px] text-tg-tenue">{atual.lei_apelido}</span>
-        </div>
-
-        <h3 className="font-tg-serif text-[20px] leading-[1.3] text-tg-tinta">
-          {atual.artigo_rubrica ?? atual.citacao}
-        </h3>
-        <p className="mb-[18px] mt-[5px] text-[12px] text-tg-fraco-3">
-          {atual.citacao}
-          {atual.capitulo ? ` · ${atual.capitulo}` : ''}
-        </p>
-
-        <div className="flex flex-col gap-3 font-tg-serif text-[14px] leading-[1.78] text-tg-tinta-4">
-          <div
-            className={`rounded-[14px] ${
-              atual.via_rubrica ? 'bg-tg-acento-fraco px-[15px] py-[13px] text-tg-tinta-2' : ''
-            }`}
-          >
-            <p>{atual.texto}</p>
-            {atual.via_rubrica && atual.rubrica_termo && (
-              <div className="mt-[9px] flex items-center gap-2">
-                <span className="rounded-full bg-tg-acento-fraco-2 px-2 py-[3px] font-tg text-[10px] font-semibold text-tg-acento-txt">
-                  Trecho citado
-                </span>
-                <span className="font-tg text-[11.5px] text-tg-fraco-2">
-                  match exato de rubrica{atual.papel ? ` · ${atual.papel}` : ''}
-                </span>
-              </div>
-            )}
+        Sobe do pé da tela cobrindo 88% dela, com véu atrás. Fechar por Esc já
+        existia; o véu acrescenta o gesto de tocar fora, que é como se fecha
+        qualquer folha num telefone.
+      */}
+      <button
+        type="button"
+        aria-label="Fechar painel"
+        onClick={aoFechar}
+        className="fixed inset-0 z-40 bg-[rgb(18_20_30_/_0.32)] xl:hidden"
+      />
+      <aside
+        aria-label="Fonte citada"
+        className="tg-desliza fixed inset-x-0 bottom-0 z-50 flex max-h-[88svh] flex-col rounded-t-[20px] border-t border-tg-linha bg-white shadow-[0_-8px_40px_-12px_rgb(18_20_30_/_0.4)] xl:static xl:z-auto xl:max-h-none xl:w-[420px] xl:shrink-0 xl:rounded-none xl:border-l xl:border-t-0 xl:shadow-none"
+      >
+        {/* A alça: diz que a folha se arrasta antes de alguém tentar. */}
+        <span
+          aria-hidden="true"
+          className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-tg-caixa xl:hidden"
+        />
+        <div className="shrink-0 px-5 pt-4">
+          <div className="mb-3.5 flex items-center gap-[9px]">
+            <span className="text-[12px] font-medium text-tg-fraco-3">Fonte citada</span>
+            <span className="flex-1" />
+            <Link
+              href={`/dispositivo/${atual.dispositivo_id}`}
+              className="tgb text-[12px] font-medium text-tg-acento-txt"
+            >
+              Abrir dispositivo ↗
+            </Link>
+            <button
+              type="button"
+              onClick={aoFechar}
+              aria-label="Fechar painel"
+              className="tgb grid size-6 place-items-center rounded-lg bg-tg-preenche text-tg-fraco-3 hover:bg-tg-hover"
+            >
+              ✕
+            </button>
           </div>
 
-          {atual.capitulo && (
-            <div className="rounded-[14px] bg-tg-fundo px-[15px] py-[13px]">
-              <span className="font-tg text-[11px] font-medium text-tg-fraco-3">Contexto</span>
-              <p className="mt-1">{atual.capitulo}</p>
+          {achados.length > 1 && (
+            <div className="flex gap-1.5 overflow-x-auto pb-3.5">
+              {achados.slice(0, 4).map((a) => {
+                const ativo = a.dispositivo_id === atual.dispositivo_id
+                return (
+                  <button
+                    key={a.dispositivo_id}
+                    type="button"
+                    onClick={() => aoTrocar(a.dispositivo_id)}
+                    className={`tgb shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium ${
+                      ativo ? 'bg-tg-acento text-white' : 'bg-tg-preenche text-tg-corpo'
+                    }`}
+                  >
+                    {a.citacao}
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>
 
-        <div className="mt-5 rounded-2xl bg-tg-fundo px-4 py-[15px]">
-          <p className="mb-3 text-[12px] font-medium text-tg-suave">Procedência do texto</p>
-          <div className="flex flex-col gap-3">
-            {[
-              {
-                // A data sai do próprio dispositivo, não de um literal: o painel
-                // já tem o registro em mãos, e `vigencia_ate` é o que a decisão
-                // nº 3 manda mostrar. Um `28/02/2025` escrito aqui continuaria
-                // impresso sobre um artigo em redação posterior.
-                chave: dataBR(atual.vigencia_ate),
-                txt: 'Fotografia do Vade Mecum do Senado Federal, 1ª edição. É a data de corte do corpus inteiro.',
-              },
-              {
-                chave: atual.cobertura === 'parcial' ? 'Parcial' : 'Integral',
-                txt:
-                  atual.cobertura === 'parcial'
-                    ? (atual.cobertura_nota ??
-                      'Só o subconjunto curado desta lei está no banco; a ausência de um artigo não significa que ele não exista.')
-                    : 'Todos os artigos desta lei estão no banco, inclusive os revogados.',
-              },
-              {
-                chave: 'id',
-                txt: `${atual.dispositivo_id} — chave de citação estável, nunca renumerada.`,
-              },
-            ].map((l) => (
-              <div key={l.chave} className="flex items-start gap-[11px]">
-                <span className="w-[66px] shrink-0 text-[11px] font-medium text-tg-fraco-3">
-                  {l.chave}
-                </span>
-                <span
-                  aria-hidden="true"
-                  className="mt-1 size-[7px] shrink-0 rounded-full bg-tg-acento-palido"
-                />
-                <span className="text-[12.5px] leading-[1.5] text-tg-corpo">{l.txt}</span>
-              </div>
-            ))}
+        <div className="min-h-0 flex-1 overflow-auto border-t border-tg-linha-fraca px-5 pb-6 pt-1">
+          <div className="my-3.5 flex flex-wrap items-center gap-[7px]">
+            <Selo tom={atual.revogado ? 'ambar' : 'verde'}>
+              {atual.revogado ? 'Revogado' : 'Em vigor'}
+            </Selo>
+            {atual.cobertura === 'parcial' && (
+              <Selo tom="ambar" title={atual.cobertura_nota ?? undefined}>
+                Cobertura parcial
+              </Selo>
+            )}
+            {atual.via_rubrica && atual.rubrica_termo && (
+              <Selo tom="acento">rubrica “{atual.rubrica_termo}”</Selo>
+            )}
+            <span className="text-[11.5px] text-tg-tenue">{atual.lei_apelido}</span>
           </div>
 
-          <Link
-            href={`/dispositivo/${atual.dispositivo_id}`}
-            className="tgb mt-3.5 block text-[12px] font-medium text-tg-acento-txt"
-          >
-            Ver o dispositivo com o texto bruto do parser →
-          </Link>
+          <h3 className="font-tg-serif text-[20px] leading-[1.3] text-tg-tinta">
+            {atual.artigo_rubrica ?? atual.citacao}
+          </h3>
+          <p className="mb-[18px] mt-[5px] text-[12px] text-tg-fraco-3">
+            {atual.citacao}
+            {atual.capitulo ? ` · ${atual.capitulo}` : ''}
+          </p>
+
+          <div className="flex flex-col gap-3 font-tg-serif text-[14px] leading-[1.78] text-tg-tinta-4">
+            <div
+              className={`rounded-[14px] ${
+                atual.via_rubrica ? 'bg-tg-acento-fraco px-[15px] py-[13px] text-tg-tinta-2' : ''
+              }`}
+            >
+              <p>{atual.texto}</p>
+              {atual.via_rubrica && atual.rubrica_termo && (
+                <div className="mt-[9px] flex items-center gap-2">
+                  <span className="rounded-full bg-tg-acento-fraco-2 px-2 py-[3px] font-tg text-[10px] font-semibold text-tg-acento-txt">
+                    Trecho citado
+                  </span>
+                  <span className="font-tg text-[11.5px] text-tg-fraco-2">
+                    match exato de rubrica{atual.papel ? ` · ${atual.papel}` : ''}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {atual.capitulo && (
+              <div className="rounded-[14px] bg-tg-fundo px-[15px] py-[13px]">
+                <span className="font-tg text-[11px] font-medium text-tg-fraco-3">Contexto</span>
+                <p className="mt-1">{atual.capitulo}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-tg-fundo px-4 py-[15px]">
+            <p className="mb-3 text-[12px] font-medium text-tg-suave">Procedência do texto</p>
+            <div className="flex flex-col gap-3">
+              {[
+                {
+                  // A data sai do próprio dispositivo, não de um literal: o painel
+                  // já tem o registro em mãos, e `vigencia_ate` é o que a decisão
+                  // nº 3 manda mostrar. Um `28/02/2025` escrito aqui continuaria
+                  // impresso sobre um artigo em redação posterior.
+                  chave: dataBR(atual.vigencia_ate),
+                  txt: 'Fotografia do Vade Mecum do Senado Federal, 1ª edição. É a data de corte do corpus inteiro.',
+                },
+                {
+                  chave: atual.cobertura === 'parcial' ? 'Parcial' : 'Integral',
+                  txt:
+                    atual.cobertura === 'parcial'
+                      ? (atual.cobertura_nota ??
+                        'Só o subconjunto curado desta lei está no banco; a ausência de um artigo não significa que ele não exista.')
+                      : 'Todos os artigos desta lei estão no banco, inclusive os revogados.',
+                },
+                {
+                  chave: 'id',
+                  txt: `${atual.dispositivo_id} — chave de citação estável, nunca renumerada.`,
+                },
+              ].map((l) => (
+                <div key={l.chave} className="flex items-start gap-[11px]">
+                  <span className="w-[66px] shrink-0 text-[11px] font-medium text-tg-fraco-3">
+                    {l.chave}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="mt-1 size-[7px] shrink-0 rounded-full bg-tg-acento-palido"
+                  />
+                  <span className="text-[12.5px] leading-[1.5] text-tg-corpo">{l.txt}</span>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href={`/dispositivo/${atual.dispositivo_id}`}
+              className="tgb mt-3.5 block text-[12px] font-medium text-tg-acento-txt"
+            >
+              Ver o dispositivo com o texto bruto do parser →
+            </Link>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }

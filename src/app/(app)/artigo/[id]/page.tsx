@@ -27,7 +27,7 @@ export default async function ArtigoPage({ params }: { params: Promise<{ id: str
   return (
     <>
       <Cabecalho titulo="Texto legal" sub="lido do banco por id — nunca gerado" />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 lg:overflow-y-auto">
         <PaginaArtigo artigoId={id} />
       </div>
     </>

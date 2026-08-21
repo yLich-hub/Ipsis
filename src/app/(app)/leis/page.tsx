@@ -31,7 +31,7 @@ export default async function LeisPage() {
     return (
       <>
         <Cabecalho titulo="Legislação" />
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 p-6 lg:overflow-y-auto">
           <ErroBanco erro={ls.erro} />
         </div>
       </>
@@ -46,7 +46,7 @@ export default async function LeisPage() {
     <>
       <Cabecalho titulo="Legislação" sub="fotografia de fevereiro/2025, Vade Mecum Senado Federal" />
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 lg:overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
           <ul className="tg-lista space-y-3">
             {comContagem.map(({ l, dispositivos }) => (

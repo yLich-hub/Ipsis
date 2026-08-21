@@ -97,7 +97,7 @@ export function Dosimetria() {
   ]
 
   return (
-    <div className="tg-sobe flex min-h-0 flex-1 flex-col overflow-y-auto xl:flex-row xl:overflow-hidden">
+    <div className="tg-sobe flex flex-col lg:min-h-0 lg:flex-1 xl:flex-row xl:overflow-hidden">
       {/*
         Abaixo de `xl` quem rola é esta coluna, e não cada painel por dentro.
         A casca é `h-dvh overflow-hidden`, então num flex de coluna com altura
@@ -359,9 +359,12 @@ function PrimeiraFase({
                 ]}
               />
 
+              {/* No celular a coluna do acréscimo só aparece quando há acréscimo:
+                  o traço de "nada somado" ficava sozinho numa linha centrada
+                  abaixo do segmentado, parecendo sujeira. */}
               <div
                 className={`w-[78px] shrink-0 text-right text-[12px] font-medium tabular-nums ${
-                  desfavoravel ? 'text-tg-acento-txt' : 'text-tg-tenue-2'
+                  desfavoravel ? 'text-tg-acento-txt' : 'hidden text-tg-tenue-2 sm:block'
                 }`}
               >
                 {desfavoravel ? `+ ${Math.round(fracao * (dobrado ? 2 : 1))} meses` : '—'}
@@ -370,7 +373,9 @@ function PrimeiraFase({
           )
         })}
 
-        <div className="flex items-center gap-3 pb-0.5 pt-3.5">
+        {/* Empilha no celular: em 390px a nota ficava numa coluna de metade da
+            largura, com o botão ao lado, e quebrava a cada três palavras. */}
+        <div className="flex flex-col items-start gap-3 pb-0.5 pt-3.5 sm:flex-row sm:items-center">
           <p className="flex-1 text-[12px] leading-[1.5] text-tg-fraco-2">
             Fração de 1/8 do intervalo ({Math.round(fracao)} meses neste crime) por vetor negativo —
             critério majoritário do STJ.{' '}

@@ -53,7 +53,7 @@ export default async function LeiPage({
     return (
       <>
         <Cabecalho titulo="Legislação" />
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 p-6 lg:overflow-y-auto">
           <ErroBanco erro={l.ok ? (as as { erro: string }).erro : l.erro} />
         </div>
       </>
@@ -91,7 +91,7 @@ export default async function LeiPage({
         )}
       </Cabecalho>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 lg:overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
           <form method="get" className="flex items-center gap-2">
             <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-tg-linha bg-white px-3 py-2 focus-within:border-tg-acento-palido">

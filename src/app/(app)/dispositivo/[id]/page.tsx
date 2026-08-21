@@ -42,7 +42,7 @@ export default async function DispositivoPage({ params }: { params: Promise<{ id
         titulo={d.ok && d.dados ? d.dados.citacao : 'Dispositivo'}
         sub="texto lido do banco por id — nunca gerado"
       />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 lg:overflow-y-auto">
         <PaginaArtigo artigoId={artigoId} destaque={id} />
       </div>
     </>

@@ -21,7 +21,7 @@
 // =============================================================================
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { Selo, TituloTela } from '@/components/toga/base'
 import { ListaFavoritas } from '@/components/vademecum/lista-favoritas'
@@ -48,6 +48,24 @@ export function VadeMecum({
   origem: Origem
 }) {
   const [ramo, setRamo] = useState<string>(() => areas[0]?.chave ?? '')
+  /**
+   * O leitor, para o celular poder ir até ele.
+   *
+   * Em `xl` a coluna do leitor fica ao lado da grade e a troca de ramo se vê
+   * sem sair do lugar. Abaixo disso ela desce para DEPOIS dos catorze cartões
+   * de ramo — escolher um ramo mudava o leitor a milhares de pixels de
+   * distância, e o cartão dizia "No leitor" apontando para algo que o usuário
+   * não via. Tocar passa a levar até lá.
+   */
+  const leitor = useRef<HTMLElement>(null)
+
+  function escolhe(chave: string) {
+    setRamo(chave)
+    // `xl` é onde as duas colunas convivem; só abaixo disso há viagem a fazer.
+    if (window.matchMedia('(min-width: 1280px)').matches) return
+    // Depois do render, senão o leitor ainda mostra o ramo anterior.
+    requestAnimationFrame(() => leitor.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
   const [soCuradas, setSoCuradas] = useState(false)
   const [filtro, setFiltro] = useState('')
 
@@ -77,7 +95,7 @@ export function VadeMecum({
   const artigosTotal = leis.reduce((s, l) => s + l.artigos, 0)
 
   return (
-    <div className="tg-sobe flex min-h-0 flex-1 flex-col overflow-y-auto xl:flex-row xl:overflow-hidden">
+    <div className="tg-sobe flex flex-col lg:min-h-0 lg:flex-1 xl:flex-row xl:overflow-hidden">
       {/*
         Abaixo de `xl` quem rola é esta coluna, e não cada painel por dentro.
         A casca é `h-dvh overflow-hidden`, então num flex de coluna com altura
@@ -155,7 +173,7 @@ export function VadeMecum({
               <button
                 key={a.chave}
                 type="button"
-                onClick={() => setRamo(a.chave)}
+                onClick={() => escolhe(a.chave)}
                 aria-pressed={ativo}
                 className={`tgb tgc tg-sobe rounded-[18px] bg-white px-[17px] py-4 text-left ${
                   ativo
@@ -226,7 +244,10 @@ export function VadeMecum({
       </div>
 
       {/* leitor */}
-      <aside className="flex w-full shrink-0 flex-col border-t border-tg-linha-media bg-white xl:w-[404px] xl:border-l xl:border-t-0">
+      <aside
+        ref={leitor}
+        className="flex w-full shrink-0 scroll-mt-2 flex-col border-t border-tg-linha-media bg-white xl:w-[404px] xl:border-l xl:border-t-0"
+      >
         <div className="shrink-0 border-b border-tg-linha-fraca px-[22px] pb-4 pt-5">
           <p className="mb-2 text-[12px] font-medium text-tg-fraco-3">Leitor</p>
           <h2 className="font-tg-serif text-[17px] leading-[1.25] text-tg-tinta">

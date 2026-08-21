@@ -187,7 +187,7 @@ export function Configuracoes({
         <SairDaConta />
       </nav>
 
-      <div className="min-w-0 flex-1 overflow-auto px-5 pb-[34px] pt-[26px] sm:px-[30px]">
+      <div className="min-w-0 flex-1 px-5 pb-[34px] pt-[26px] sm:px-[30px] lg:overflow-auto">
         <div className="max-w-[720px]">
           {/* fileira de pílulas do modo estreito, no lugar da trilha */}
           <div className="relative -mx-5 mb-5 md:hidden">
@@ -407,9 +407,14 @@ function SecaoPerfil() {
           {/* O documento põe aqui um botão "Trocar foto". Não há upload nem
               armazenamento de imagem no projeto, e um botão que não faz nada é
               pior que nenhum: o avatar é gerado das iniciais, e o selo diz isso. */}
-          <Selo tom="neutro" className="hidden sm:inline-flex">
-            iniciais automáticas
-          </Selo>
+          {/* O `hidden` ia na classe do próprio `Selo` e não valia nada: ele já
+              nasce `inline-flex`, e duas regras de `display` com a mesma
+              especificidade se decidem pela ordem da FOLHA, não pela ordem no
+              atributo. Envolver é o único jeito que não depende disso — e no
+              celular o selo tomava a largura de que o e-mail precisava. */}
+          <span className="hidden sm:inline-flex">
+            <Selo tom="neutro">iniciais automáticas</Selo>
+          </span>
         </div>
 
         <div className="grid gap-3.5 sm:grid-cols-2">
