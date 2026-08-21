@@ -1128,7 +1128,18 @@ export function Casca({ children }: { children: React.ReactNode }) {
   }, [alternar])
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-tg-fundo text-tg-tinta">
+    // **No celular quem rola é o documento; no desktop, a casca.**
+    // Até aqui a casca era `h-dvh overflow-hidden` em toda largura, e cada tela
+    // rolava por dentro. Medido em 390px: `document.scrollHeight` era igual à
+    // janela em TODAS as rotas — o documento nunca rolava. Num telefone isso
+    // significa que o dedo só move a tela se começar exatamente sobre o painel
+    // certo, que a barra do navegador nunca recolhe (ela só recolhe quando a
+    // PÁGINA rola) e que o que está embaixo parece não existir. Era isso o
+    // "não carrega inteira" e metade dos "botões que não funcionam".
+    // A partir de `lg` a moldura de altura fixa volta — ela é o desenho do TOGA
+    // v2, com lateral e painel de fonte lado a lado, e ali não há barra de
+    // navegador para atrapalhar.
+    <div className="flex min-h-dvh bg-tg-fundo text-tg-tinta lg:h-dvh lg:overflow-hidden">
       {/*
         Primeira parada de Tab do app inteiro, e invisível até receber o foco.
 

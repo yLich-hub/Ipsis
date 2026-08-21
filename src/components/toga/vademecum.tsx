@@ -77,7 +77,7 @@ export function VadeMecum({
   const artigosTotal = leis.reduce((s, l) => s + l.artigos, 0)
 
   return (
-    <div className="tg-sobe flex min-h-0 flex-1 flex-col overflow-y-auto xl:flex-row xl:overflow-hidden">
+    <div className="tg-sobe flex flex-col lg:min-h-0 lg:flex-1 xl:flex-row xl:overflow-hidden">
       {/*
         Abaixo de `xl` quem rola é esta coluna, e não cada painel por dentro.
         A casca é `h-dvh overflow-hidden`, então num flex de coluna com altura

@@ -78,7 +78,7 @@ export function Clientes({ casos }: { casos: Pick<CasoCurado, 'id' | 'titulo'>[]
   const tituloDoCaso = (id: string) => casos.find((c) => c.id === id)?.titulo ?? id
 
   return (
-    <div className="min-h-0 flex-1 overflow-auto px-5 pb-[30px] pt-6 sm:px-7">
+    <div className="px-5 pb-[30px] pt-6 sm:px-7 lg:min-h-0 lg:flex-1 lg:overflow-auto">
       <div className="mx-auto w-full max-w-[860px]">
         <TituloTela
           titulo="Clientes"

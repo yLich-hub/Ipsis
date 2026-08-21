@@ -902,7 +902,7 @@ export function Consulta({
         {anuncio}
       </p>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 overflow-auto px-5 pb-1.5 pt-[30px] sm:px-[34px]">
+        <div className="flex-1 px-5 pb-1.5 pt-[30px] sm:px-[34px] lg:min-h-0 lg:overflow-auto">
           <div className="mx-auto flex max-w-[690px] flex-col gap-[26px]">
             {msgs.length === 0 && <Abertura saudacao={saudacao} />}
 
@@ -1613,7 +1613,11 @@ function Entrada({
   aoTrocarQtd: (n: number) => void
 }) {
   return (
-    <div className="shrink-0 bg-gradient-to-b from-transparent to-tg-fundo to-[42%] px-5 pb-[22px] pt-3 sm:px-[34px]">
+    // No celular a caixa de pergunta gruda no pé da janela: com o documento
+    // rolando, ela desceria com a conversa e sair do fim da lista para perguntar
+    // de novo viraria uma viagem. No desktop nada muda — a casca tem altura fixa
+    // e a caixa já está no lugar.
+    <div className="sticky bottom-0 z-10 shrink-0 bg-gradient-to-b from-transparent to-tg-fundo to-[42%] px-5 pb-[22px] pt-3 sm:px-[34px] lg:static">
       <div className="mx-auto max-w-[690px]">
         <div className="mb-[9px] flex flex-wrap gap-1.5">
           {ESCOPOS.map((e) => {

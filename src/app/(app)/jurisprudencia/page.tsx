@@ -40,7 +40,7 @@ export default async function PaginaJurisprudencia() {
 
   if (!ts.ok) {
     return (
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 p-6 lg:overflow-y-auto">
         <ErroBanco erro={ts.erro} />
       </div>
     )

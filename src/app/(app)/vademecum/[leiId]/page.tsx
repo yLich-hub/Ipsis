@@ -73,7 +73,7 @@ export default async function LeiDoAcervoPage({
           <Sumario topicos={lei.sumario} idRolagem={ID_ROLAGEM} />
         </aside>
 
-        <div id={ID_ROLAGEM} className="min-w-0 flex-1 overflow-y-auto">
+        <div id={ID_ROLAGEM} className="min-w-0 flex-1 lg:overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
             {/* O "← Acervo" que morava aqui subiu para o `Cabecalho`. Aqui ele
                 rolava para fora da tela no primeiro gesto e não voltava mais —

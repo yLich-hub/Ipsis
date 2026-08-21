@@ -36,7 +36,7 @@ export default async function PecasPage() {
     return (
       <>
         <Cabecalho titulo="Peças" />
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 p-6 lg:overflow-y-auto">
           <ErroBanco erro={cs.ok ? (ts as { erro: string }).erro : (cs as { erro: string }).erro} />
         </div>
       </>
@@ -51,7 +51,7 @@ export default async function PecasPage() {
         </Selo>
       </Cabecalho>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 lg:overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6">
           {cs.dados.length === 0 ? (
             /*
