@@ -28,6 +28,10 @@ O **acervo Vade Mecum** (`/vademecum`) também saiu: 75 legislações federais d
 todas as áreas, para leitura. Ele não fere o recorte porque não participa de nada
 que produza peça — ver "Acervo Vade Mecum" abaixo e `docs/acervo-vademecum.md`.
 
+Os **decretos estaduais do Paraná** (`/decretos`) saíram por pedido explícito, e
+entram pela mesma porta: acervo de consulta, tabela própria, fora da peça. Ver
+"Decretos estaduais do Paraná" abaixo e `docs/decretos-pr-levantamento.md`.
+
 **Dois institutos fora do tráfico entraram na busca, por pedido explícito** —
 roubo majorado com concurso de agentes (art. 157) e a presunção de
 vulnerabilidade do art. 217-A. São três rubricas curadas em
@@ -1002,6 +1006,119 @@ abriria a lei federal homônima. A tela diz que o link falta; a curadoria vai em
 Runtime lê do disco, sem Supabase: é a única parte do produto que continua
 inteira com o banco pausado.
 
+## Decretos estaduais do Paraná
+
+`/decretos` e as tabelas `decretos_pr` / `decretos_pr_blocos` (migration 0018).
+Decretos normativos do Executivo do Paraná, 2022–2026, na redação **compilada**
+publicada pela Casa Civil em `legislacao.pr.gov.br`. Entrou por pedido
+explícito, com busca própria e tela própria na lateral. O levantamento completo
+— fonte conferida endpoint por endpoint, volume medido, arquitetura em sete
+blocos — está em `docs/decretos-pr-levantamento.md`.
+
+**É acervo de consulta, não corpus citável, e a separação é estrutural.** É a
+mesma de `precedentes_stj` e do acervo Vade Mecum, e aqui ela é ainda mais
+direta: decreto do Executivo estadual não revoga lei federal, não tipifica crime
+e não altera pena. O id vive em espaço próprio — `decpr:2025:8812` — que nunca
+casa o padrão do corpus (`lei_11343_2006_art33_p4`); não há FK para
+`dispositivos`; e `tests/decretos.test.ts` falha se algum id do acervo casar o
+padrão do corpus. Nada disso depende de alguém lembrar da regra.
+
+**O recorte é normativo, e foi medido.** São 17.778 decretos na janela pedida, e
+a leitura de janeiro/2025 inteiro — 326 súmulas, as sete páginas — mostrou que a
+esmagadora maioria é ato de pessoal: 130 nomeações, 61 exonerações, 22
+designações. Ingerir tudo poria milhares de nomes de servidores num corpus que a
+Consulta lê em voz alta, afogaria a fusão em "Secretaria de Estado da Educação"
+e deixaria 96% das linhas sem resposta possível para a vigência.
+
+O recorte entra em `data/curadoria/decretos_pr.yaml`, aplicado à **súmula** que a
+listagem já traz — o texto integral só é buscado para o que passa. Em
+janeiro/2025 ele deixa entrar 25 das 326, ou 7,7%; nos cinco anos inteiros,
+**1.989 de 17.765**, entre 8,6% e 13,5% por ano. E **nenhuma súmula da amostra
+fica sem casar `entra` ou `sai`**.
+Esse zero é a asserção mais forte da suíte: recorte total sobre dado real, e não
+peneira com buraco por onde espécie desconhecida passa sem ninguém ver.
+
+**A súmula é a camada de rubrica deste acervo.** Decreto não tem rubrica
+marginal, e ninguém procura decreto por número: procura por "regulamento do
+ICMS" ou "conselho estadual de políticas sobre drogas". É a decisão nº 2 do
+projeto reencontrada em outro corpus — e por isso a súmula tem peso próprio (2.0)
+na fusão de `busca_decretos`, acima do léxico e do vetor. **Não 3.0 como a
+rubrica do corpus:** rubrica casa por igualdade exata de termo curado à mão, e
+quando bate, bateu; súmula casa por `ts_rank_cd`, que é aproximação — peso
+dominante faria qualquer palavra em comum com uma ementa encabeçar o resultado.
+
+**RPC própria, não uma quarta perna em `busca_hibrida`.** O piso de contexto de
+`filtraContexto` é derivado de `p_k` e dos pesos das três pernas de lá; misturar
+dois corpora numa fusão só reabriria a classe de erro que 0017 fechou. As três
+pernas de `busca_decretos` já nascem com a lição de 0017 aplicada: **cada uma
+calcula a própria posição dentro do próprio CTE**, e nenhuma janela enxerga
+linha de outra perna.
+
+**O que a tela afirma, e o que ela recusa afirmar.** A fonte serve três versões
+do texto — `compilado`, `alterado`, `original` — e o coletor lê a primeira, que
+é o análogo estadual do texto compilado do Planalto. O que se pode dizer é
+"redação compilada, lida em DD/MM/AAAA", e é isso que a tela e a coluna
+`conferido_em` dizem. **Não existe coluna de vigência**, porque se a fonte
+sinaliza revogação total do ato não foi conferido — e carimbar "em vigor" sem
+ter medido seria a decisão nº 3 mentindo numa tabela nova.
+
+**A fonte bloqueia por volume**, e isso moldou o coletor. Depois de ~40
+requisições em rajada ela responde `Erro 403 — Acesso temporariamente
+bloqueado`, servido pela própria aplicação e por IP, apanhando até o GET
+inicial. Três consequências, todas em código: o respiro subiu para 4 s neste
+host; 403 vira a exceção `Bloqueado` e **para a execução** em vez de virar falha
+de um mês; e **ano lido pela metade não é gravado**.
+
+A terceira nasceu de um defeito real e é a que mais importa. A primeira versão
+engolia o erro do mês e seguia — e gravou quatro arquivos de ano silenciosamente
+errados, dois deles dizendo `"no_recorte": 0` para anos inteiros que ninguém
+conseguiu ler. Nada quebrou, nada avisou, e semeado o acervo afirmaria na tela
+que 2023 e 2024 não tiveram decreto normativo nenhum. O conserto é o princípio de
+`montarPeca` aplicado à coleta: **sem modo degradado**. O arquivo do ano carrega
+`completo`, `scripts/seed-decretos.ts` recusa semear ano incompleto, e a coleta
+virou retomável (`--pular-prontos`).
+
+**O número do decreto não é chave única, e isso não estava previsto.** A fonte
+**republica** um ato quando a primeira publicação saiu com erro, e a
+republicação entra como registro novo: `codAto` diferente, data posterior, a
+mesma epígrafe — às vezes com " - Republicado" grudado no fim, às vezes sem
+nada. São seis pares em 2023, entre eles o Decreto 2.914, que regulamenta o
+Sistema Estadual de Unidades de Conservação.
+
+Quem pegou foi `tests/decretos.test.ts`, na asserção de id único, e o modo de
+falha era o de sempre: o seed faria upsert de um sobre o outro e **a ordem do
+arquivo decidiria** qual texto fica — metade das vezes a publicação superada,
+sem erro nenhum e sem nada na tela dizendo que houve republicação. `deduplica()`
+fica com a publicação mais recente, que é a mesma escolha de ler
+`tipoVisualizacao=compilado` em vez de `original`, e **relata o descarte** no
+campo `republicados` do arquivo do ano: descartar em silêncio é o que ela existe
+para impedir.
+
+`data/decretos_pr/` é **versionado**, como `data/vademecum/` e pelo mesmo
+argumento do `.gitignore`: a entrada vem de um servidor de terceiro. Ignorá-la
+amarraria o seed a um scraping ao vivo — de uma fonte que bloqueia — e deixaria o
+acervo irrecuperável no dia em que ela saísse do ar.
+
+Os comandos:
+
+```
+.venv/Scripts/python -m coletores.parana --seco --ano 2025 --mes 1
+.venv/Scripts/python -m coletores.parana --pular-prontos   # retoma a maratona
+npm run seed-decretos
+npm run embed -- --decretos
+npm run decretos -- "conselho estadual de políticas sobre drogas"
+```
+
+**O coletor não é da vigília, e por isso não entra em `coletores/__main__`.** A
+vigília responde uma pergunta só — _a fotografia de 28/02/2025 envelheceu?_ — e
+nada aqui altera o corpus federal. Isto é ingestão de acervo novo, com o mesmo
+papel de `scripts/vademecum.ts`.
+
+**O chat ainda não vê os decretos**, e é escopo, não lacuna: a entrega pedida
+foi até a tela. Quando entrar, entra por tag própria — `<decreto>`, nunca
+`<dispositivo>` —, com porteiro de intenção e piso próprio, pelas razões
+descritas no Bloco 6 de `docs/decretos-pr-levantamento.md`.
+
 ## Design system — TOGA v2
 
 A interface é a implementação de `Design_system/TOGA v2 - Assistente Jurídico.dc.html`,
@@ -1084,7 +1201,7 @@ Nada disso é movimento decorativo: cada um marca uma mudança que aconteceu de
 verdade. Continua valendo a regra da tela de Fontes — barra de progresso não
 chega a 100% antes do resultado, e esqueleto só onde a espera existe.
 
-### As sete telas
+### As oito telas
 
 | Rota              | Tela                                            | De onde vêm os dados                       |
 | ----------------- | ----------------------------------------------- | ------------------------------------------ |
@@ -1092,6 +1209,7 @@ chega a 100% antes do resultado, e esqueleto só onde a espera existe.
 | `/jurisprudencia` | entendimento consolidado + precedentes do STJ   | `teses.jurisprudencia` + `precedentes_stj` |
 | `/dosimetria`     | cálculo trifásico ao vivo                       | aritmética local, sem banco                |
 | `/vademecum`      | grade de ramos + leitor                         | índice do acervo, em disco                 |
+| `/decretos`       | acervo estadual do Paraná + leitor              | `decretos_pr` (migration 0018)             |
 | `/clientes`       | cadastro do escritório                          | `clientes` (RLS por sessão)                |
 | `/fontes`         | vigília sobre a data de corte                   | `vigilia_*` (migration 0012)               |
 | `/configuracoes`  | perfil, garantias, fontes, aparência, segurança | `perfil` + `leis` do banco                 |
@@ -1387,8 +1505,8 @@ nada. `.venv/Scripts/python -m coletores --seco` faz o mesmo com as seis fontes,
 incluindo o scraping — é como se confere o que o filtro está pegando antes de
 encher a tabela. `--tudo` faz a carga inicial, que nenhum dos dois crons faz.
 
-`.venv/Scripts/python -m pytest coletores -q` roda as 85 asserções do lado
-Python, offline e sem segredo, como as nove suítes do vitest.
+`.venv/Scripts/python -m pytest coletores -q` roda as 108 asserções do lado
+Python, offline e sem segredo, como as dez suítes do vitest.
 
 ### Jurisprudência: precedentes qualificados do STJ
 
@@ -1809,9 +1927,10 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As nove suítes (221 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As dez suítes (234 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
-e `dosimetria`, `historico`, `clientes` e `consulta` testam função pura.
+`decretos` lê `data/decretos_pr/`, e `dosimetria`, `historico`, `clientes` e
+`consulta` testam função pura.
 
 > **"Offline" não é o mesmo que "em qualquer clone".** `data/normalizado/*` é
 > ignorado pelo git — são 5,2 MB de saída determinística do `npm run normalize`,
@@ -1842,7 +1961,7 @@ mexe na interface. Os coletores têm a própria suíte, com o mesmo critério �
 offline, sem segredo:
 
 ```
-.venv/Scripts/python -m pytest coletores -q      # 85 asserções
+.venv/Scripts/python -m pytest coletores -q      # 108 asserções
 ```
 
 `tests/vigilia.test.ts` e `coletores/tests/test_filtro.py` testam a **mesma
@@ -1951,6 +2070,20 @@ está no `ls` da pasta.
   para a leitura automática da conversa — na ferramenta, quem marca o vetor é o
   usuário. Piso diferente por droga (cocaína e maconha não pesam igual no
   processo) seria mais fiel e exigiria curadoria que ninguém conferiu.
+- **O acervo de decretos do Paraná está cheio.** 1.989 decretos e 30.779 blocos,
+  todos com vetor, colhidos de 17.765 atos vistos entre 2022 e 2026 — um recorte
+  de 8,6% a 13,5% por ano. A coleta levou duas sessões, com um bloqueio de IP no
+  meio (`Erro 403 — Acesso temporariamente bloqueado`), que é o motivo de ela ser
+  retomável por `--pular-prontos`. Reprocessar tudo a partir do cache em disco
+  custa segundos; recolher da fonte custa ~2 h.
+- **O chat não vê os decretos**, e é escopo, não lacuna — a entrega pedida foi
+  até a tela. O desenho de como ele entraria (tag `<decreto>`, porteiro de
+  intenção, piso próprio, teto de 4 blocos) é o Bloco 6 do levantamento.
+- **A revogação total de decreto não foi conferida na fonte.** A página serve o
+  texto compilado e risca o alterado, mas se ela sinaliza ato revogado por
+  inteiro ninguém mediu. Enquanto isso, a tela diz "redação compilada, lida em
+  DD/MM/AAAA" e não existe coluna de vigência. Medir custa uma dúzia de decretos
+  revogados abertos à mão.
 - **A Lei de Execução Penal não está no projeto, e trazê-la é decisão de
   procedência, não de trabalho.** Ela não está no corpus, não está no acervo de
   75 e não está no PDF do Vade Mecum — as quatro ocorrências no PDF são

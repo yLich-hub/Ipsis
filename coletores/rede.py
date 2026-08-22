@@ -28,7 +28,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 import requests
 
@@ -57,6 +57,18 @@ INTERVALO = {
     "dadosabertos.camara.leg.br": 0.3,
     "legis.senado.leg.br": 0.3,
     "api-publica.datajud.cnj.jus.br": 0.5,
+    # O acervo de decretos do Paraná pede o dobro do respiro do Planalto, e o
+    # número foi imposto pela fonte: em 21/08/2026, cerca de quarenta
+    # requisições em rajada — as medições que levantaram o volume, sem intervalo
+    # nenhum — renderam `Erro 403 Acesso temporariamente bloqueado`, servido
+    # pela própria aplicação (WildFly), não por CDN. O bloqueio é por IP e
+    # apanha até o GET inicial da tela.
+    #
+    # 4 s é o que sobra depois de aceitar o que a fonte é: um servidor estadual
+    # com WAF de contagem, e uma ingestão de mais de mil páginas que só termina
+    # se for lenta. `coletores/parana.py` complementa isto parando no primeiro
+    # 403 em vez de insistir — ver a exceção `Bloqueado` de lá.
+    "www.legislacao.pr.gov.br": 4.0,
 }
 INTERVALO_PADRAO = 1.0
 
@@ -134,6 +146,38 @@ class Sessao:
             return guardado
 
         conteudo = self._tenta("GET", url, **kw).content
+
+        if self.usar_cache:
+            arq.parent.mkdir(parents=True, exist_ok=True)
+            arq.write_bytes(conteudo)
+        return conteudo
+
+    def post_bytes(self, url: str, campos: dict[str, Any], **kw: Any) -> bytes:
+        """POST de formulário, resposta em bytes, com cache.
+
+        Existe por causa do Paraná: `legislacao.pr.gov.br` é um Struts antigo em
+        que a listagem de atos só responde a POST — os parâmetros de ano e mês
+        vão na query string, mas os nove campos ocultos do formulário têm de ir
+        no corpo, ou a resposta volta sem tabela nenhuma. `bytes()` não serve, e
+        `post_json()` também não: a resposta é HTML.
+
+        O cache leva o corpo na chave, senão duas páginas diferentes da mesma
+        URL de listagem colidiriam na mesma entrada — e a segunda leria a
+        primeira, calada.
+        """
+        corpo = urlencode(campos)
+        arq = self._arquivo_de_cache(url, corpo)
+        guardado = self._do_cache(arq)
+        if guardado is not None:
+            return guardado
+
+        conteudo = self._tenta(
+            "POST",
+            url,
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            data=corpo,
+            **kw,
+        ).content
 
         if self.usar_cache:
             arq.parent.mkdir(parents=True, exist_ok=True)

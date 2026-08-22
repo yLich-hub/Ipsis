@@ -10,6 +10,8 @@
     "normalize": "tsx scripts/normalize.ts",
     "audit": "tsx scripts/audit.ts",
     "seed": "tsx scripts/seed.ts",
+    "seed-decretos": "tsx scripts/seed-decretos.ts",
+    "decretos": "tsx scripts/decretos.ts",
     "embed": "tsx scripts/embed.ts",
     "busca": "tsx scripts/busca.ts",
     "contexto": "tsx scripts/contexto.ts",

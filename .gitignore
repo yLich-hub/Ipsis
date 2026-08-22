@@ -32,6 +32,12 @@ data/normalizado/*
 # deixaria o acervo irrecuperável no dia em que a origem sair do ar. O espelho
 # versionado é o artefato de deploy; o SHA fixado no script é a receita.
 
+# data/decretos_pr/ também NÃO é ignorado, pelo mesmo argumento do acervo acima:
+# a entrada vem de um servidor de terceiro — e de um que bloqueia por volume,
+# com 403 depois de algumas dezenas de requisições. Ignorar a pasta amarraria o
+# seed a um scraping ao vivo dessa fonte e deixaria o acervo irrecuperável no dia
+# em que ela saísse do ar. O YAML do recorte é a receita; o JSON é o artefato.
+
 .DS_Store
 
 # Cache de páginas dos coletores da vigília e as colheitas cruas em JSON.

@@ -69,6 +69,11 @@ const TELAS = [
   { href: '/dosimetria', rotulo: 'Dosimetria', matiz: MATIZ.sabia },
   { href: '/vademecum', rotulo: 'Vade Mecum', matiz: MATIZ.rosa },
   { href: '/clientes', rotulo: 'Clientes', matiz: MATIZ.lilas },
+  // Sétimo item. O documento de design desenha seis, e este entrou a pedido —
+  // acervo de decretos estaduais do Paraná, que é ponto de PARTIDA (percorre-se
+  // e filtra-se), e não destino de citação como /leis e /pecas. Por isso vai na
+  // lateral e não só na paleta.
+  { href: '/decretos', rotulo: 'Decretos PR', matiz: MATIZ.musgo },
   // Fontes voltou à lateral, mas como vigília e não como painel de coletor: ela
   // é o lugar em que a decisão nº 3 vira uma pergunta respondível — "a
   // fotografia de 28/02/2025 ainda vale?". Fica antes de Configurações porque é
@@ -88,6 +93,7 @@ const CABECALHOS: Record<string, [string, string]> = {
   '/jurisprudencia': ['Jurisprudência', 'entendimento consolidado por tema'],
   '/dosimetria': ['Dosimetria', 'cálculo trifásico ao vivo'],
   '/vademecum': ['Vade Mecum', 'acervo de leitura, por ramo'],
+  '/decretos': ['Decretos PR', 'acervo estadual, redação compilada'],
   '/leis': ['Legislação', 'corpus curado e citável'],
   '/pecas': ['Peças', 'resposta à acusação'],
   '/clientes': ['Clientes', 'cadastro do escritório'],
