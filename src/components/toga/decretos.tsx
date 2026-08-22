@@ -30,7 +30,28 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { Caixinha, Selo } from '@/components/toga/base'
-import { dataBR, especie, publicacao, type DecretoResumo } from '@/lib/decretos/formato'
+import { Icone } from '@/components/icones'
+import { dataBR, especie, publicacao, versaoFem, type DecretoResumo } from '@/lib/decretos/formato'
+
+/**
+ * Quantos cartões se desenha de uma vez.
+ *
+ * **Medido no navegador, em 390px:** desenhando os 1.989 de uma vez a tela ia
+ * para o telefone com **2,3 MB de HTML e 14.195 nós no DOM**, numa página de
+ * 366 mil pixels de altura. Nenhum celular precisa disso para mostrar os seis
+ * cartões que cabem na primeira tela.
+ *
+ * É a mesma decisão de `tg-lista`, que anima só os dez primeiros porque 825
+ * elementos com `transform` travam a rolagem — e pelo mesmo motivo: o custo é
+ * de quem desenha, não de quem lê.
+ *
+ * **O filtro continua vendo os 1.989.** Ele roda sobre o array inteiro, em
+ * memória, e a contagem "X de Y" continua dizendo a verdade sobre o acervo. O
+ * que a janela limita é o desenho, e o botão do rodapé diz exatamente quantos
+ * ainda não foram desenhados — lista cortada que não se anuncia é lista que
+ * mente sobre o próprio tamanho.
+ */
+const JANELA = 60
 
 type Faceta = { chave: string; rotulo: string; total: number }
 
@@ -99,7 +120,7 @@ function Cartao({ d }: { d: DecretoResumo }) {
       <p className="mt-2 font-tg-serif text-[14px] leading-[1.55] text-tg-corpo">{d.sumula}</p>
 
       <p className="mt-2.5 text-[11px] text-tg-suave">
-        Redação {d.versao} · lida em {dataBR(d.conferido_em)}
+        Redação {versaoFem(d.versao)} · lida em {dataBR(d.conferido_em)}
       </p>
     </Link>
   )
@@ -109,6 +130,7 @@ export function Decretos({ linhas }: { linhas: DecretoResumo[] }) {
   const [busca, setBusca] = useState('')
   const [anos, setAnos] = useState<Set<string>>(new Set())
   const [especies, setEspecies] = useState<Set<string>>(new Set())
+  const [janela, setJanela] = useState(JANELA)
 
   const facetas = useMemo(() => {
     const porAno = new Map<string, number>()
@@ -134,25 +156,29 @@ export function Decretos({ linhas }: { linhas: DecretoResumo[] }) {
       if (anos.size && !anos.has(String(d.ano))) return false
       if (especies.size && !especies.has(especie(d.sumula))) return false
       if (!q) return true
-      return (
-        d.sumula.toLowerCase().includes(q) ||
-        d.numero.includes(q) ||
-        d.epigrafe.toLowerCase().includes(q)
-      )
+      // A epígrafe saiu do payload da lista — ela repetia número e data, que
+      // já têm coluna própria, e custava 40 caracteres por linha vezes 1.989.
+      // O filtro não perdeu nada: quem digita "8812" casa por `numero`.
+      return d.sumula.toLowerCase().includes(q) || d.numero.includes(q)
     })
   }, [linhas, busca, anos, especies])
 
+  // Toda mudança de filtro volta a janela ao começo. Sem isto, quem abriu 600
+  // cartões e depois filtrou por um ano continuaria com 600 desenhados — e o
+  // botão do rodapé sumiria sem que a lista tivesse encolhido.
   const alterna = (conjunto: Set<string>, set: (s: Set<string>) => void) => (chave: string) => {
     const novo = new Set(conjunto)
     if (novo.has(chave)) novo.delete(chave)
     else novo.add(chave)
     set(novo)
+    setJanela(JANELA)
   }
 
   const limpar = () => {
     setAnos(new Set())
     setEspecies(new Set())
     setBusca('')
+    setJanela(JANELA)
   }
 
   const ativos = anos.size + especies.size
@@ -198,7 +224,10 @@ export function Decretos({ linhas }: { linhas: DecretoResumo[] }) {
             <Selo tom="acento">Acervo estadual</Selo>
             <input
               value={busca}
-              onChange={(e) => setBusca(e.target.value)}
+              onChange={(e) => {
+                setBusca(e.target.value)
+                setJanela(JANELA)
+              }}
               placeholder="Filtrar por súmula ou número…"
               aria-label="Filtrar decretos"
               className="min-w-0 flex-1 bg-transparent text-[14px] text-tg-tinta-2 outline-none placeholder:text-tg-tenue-2"
@@ -210,9 +239,25 @@ export function Decretos({ linhas }: { linhas: DecretoResumo[] }) {
 
           {/* No celular as facetas moram aqui, dentro do cabeçalho que não
               rola com a lista. */}
-          <details className="mt-3 xl:hidden">
-            <summary className="tgb inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-2 text-[12.5px] text-tg-corpo">
-              Filtros{ativos > 0 && <Selo tom="acento">{ativos}</Selo>}
+          <details className="group mt-3 xl:hidden">
+            {/*
+              No celular esta é a ÚNICA porta para as facetas, e ela não parecia
+              porta: era a palavra "Filtros" solta, em 12,5px, sem borda, sem
+              fundo e sem seta — o `inline-flex` come o marcador padrão do
+              <summary>. Quem abrisse a tela no telefone não tinha como saber
+              que dava para filtrar por ano ou por espécie.
+
+              Vira pílula branca com a seta desenhada à mão, e a seta gira ao
+              abrir. `list-none` tira o marcador nativo nos navegadores que o
+              desenham por fora do flex.
+            */}
+            <summary className="tgb inline-flex cursor-pointer list-none items-center gap-2 rounded-full bg-white px-3.5 py-2.5 text-[12.5px] font-medium text-tg-corpo shadow-[var(--tg-elev-1)] [&::-webkit-details-marker]:hidden">
+              <Icone nome="filtro" className="size-3.5 text-tg-fraco-3" />
+              Filtros
+              {ativos > 0 && <Selo tom="acento">{ativos}</Selo>}
+              <span aria-hidden="true" className="text-[10px] text-tg-fraco-3 transition-transform group-open:rotate-180">
+                ▾
+              </span>
             </summary>
             <div className="mt-3 rounded-2xl bg-white px-4 py-4 shadow-[var(--tg-elev-1)]">
               {painel}
@@ -221,9 +266,22 @@ export function Decretos({ linhas }: { linhas: DecretoResumo[] }) {
         </div>
 
         <div className="tg-lista flex flex-col gap-3 px-5 pb-[26px] pt-1 sm:px-[26px] xl:min-h-0 xl:flex-1 xl:overflow-auto">
-          {resultados.map((d) => (
+          {resultados.slice(0, janela).map((d) => (
             <Cartao key={d.id} d={d} />
           ))}
+
+          {resultados.length > janela && (
+            <button
+              type="button"
+              onClick={() => setJanela((j) => j + JANELA)}
+              className="tgb rounded-[14px] bg-white px-4 py-3.5 text-[13px] font-medium text-tg-acento-txt shadow-[var(--tg-elev-1)] hover:shadow-[var(--tg-elev-3)]"
+            >
+              Mostrar mais {Math.min(JANELA, resultados.length - janela)} ·{' '}
+              <span className="font-normal text-tg-fraco-2">
+                {resultados.length - janela} ainda não exibidos
+              </span>
+            </button>
+          )}
 
           {resultados.length === 0 && (
             <div className="rounded-[18px] bg-white px-6 py-10 text-center shadow-[var(--tg-elev-1)]">

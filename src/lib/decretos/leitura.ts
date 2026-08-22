@@ -20,6 +20,7 @@ import { supabase } from '@/lib/supabase'
 import type {
   AchadoDecreto,
   BlocoDecreto,
+  DecretoCabecalho,
   DecretoInteiro,
   DecretoResumo,
 } from './formato'
@@ -41,6 +42,19 @@ async function tenta<T>(
 
 const COLUNAS_RESUMO =
   'id, numero, ano, epigrafe, sumula, publicado_em, conferido_em, versao, url'
+
+/**
+ * O que a LISTA precisa, e só isso.
+ *
+ * **Medido no navegador, em 390px:** com `COLUNAS_RESUMO` inteiro, a tela
+ * mandava 2,6 MB de HTML para o telefone — 1.989 linhas, cada uma carregando a
+ * epígrafe ("Decreto 8812 - 31 de Janeiro de 2025", que o cartão não imprime) e
+ * a URL da fonte (~90 caracteres que só o leitor usa). Nenhuma das duas aparece
+ * no cartão nem decide filtro: o número e o ano já estão em colunas próprias.
+ *
+ * Numa rede móvel, cada quilobyte a mais é espera antes do primeiro cartão.
+ */
+const COLUNAS_LISTA = 'id, numero, ano, sumula, publicado_em, conferido_em, versao'
 
 // --- leitura -----------------------------------------------------------------
 
@@ -81,7 +95,7 @@ export async function decretos(): Promise<Resultado<DecretoResumo[]>> {
     const r = await tenta<DecretoResumo[]>(
       supabase
         .from('decretos_pr')
-        .select(COLUNAS_RESUMO)
+        .select(COLUNAS_LISTA)
         .order('publicado_em', { ascending: false })
         .order('numero', { ascending: false })
         .range(inicio, inicio + PAGINA - 1),
@@ -194,7 +208,7 @@ export async function lerBlocos(ids: string[]): Promise<AchadoDecreto[]> {
       ordem: number
       rotulo: string
       texto: string
-      decretos_pr: DecretoResumo | null
+      decretos_pr: DecretoCabecalho | null
     }
 
     const posicao = new Map(ids.map((id, i) => [id, i]))

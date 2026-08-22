@@ -54,7 +54,12 @@ export function Cabecalho({
         {voltar && (
           <Link
             href={voltar.href}
-            className="tgb -ml-1 mb-1 inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[12.5px] text-tg-fraco-3 transition-colors hover:bg-tg-preenche hover:text-tg-tinta-2"
+            // `max-sm:py-2` é o alvo de toque, e o número saiu de medição: em 390px
+            // este link tinha 23px de altura — abaixo dos 32 da WCAG —, e ele é a
+            // única saída do leitor no celular. O padrão da casa é `py-2 -my-2`,
+            // que amplia a área sem mexer no desenho; aqui o `-my` não entra
+            // porque o `mb-1` já separa o link do título.
+            className="tgb -ml-1 mb-1 inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 text-[12.5px] text-tg-fraco-3 transition-colors hover:bg-tg-preenche hover:text-tg-tinta-2 max-sm:py-2"
           >
             <Icone nome="seta_esquerda" className="size-3.5" />
             {voltar.rotulo}

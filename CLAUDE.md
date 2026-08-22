@@ -1099,6 +1099,28 @@ argumento do `.gitignore`: a entrada vem de um servidor de terceiro. Ignorá-la
 amarraria o seed a um scraping ao vivo — de uma fonte que bloqueia — e deixaria o
 acervo irrecuperável no dia em que ela saísse do ar.
 
+**A tela desenha 60 cartões por vez, e o número saiu de medição no navegador.**
+Com os 1.989 de uma vez, `/decretos` chegava ao telefone com **2,3 MB de HTML e
+14.195 nós no DOM**, numa página de 366 mil pixels de altura — para mostrar os
+seis cartões que cabem na primeira tela de um celular. Com a janela: **710 KB,
+687 nós**, e o primeiro cartão em 1,3 s em vez de 3,5 s. É a mesma decisão de
+`tg-lista` animar só os dez primeiros, e pelo mesmo motivo: o custo é de quem
+desenha, não de quem lê.
+
+**O filtro continua vendo os 1.989** — ele roda sobre o array inteiro, em
+memória, e ficou mais rápido (82 ms contra 242 ms). O que a janela limita é o
+desenho, e o botão do rodapé diz quantos ainda não foram desenhados: lista
+cortada que não se anuncia é lista que mente sobre o próprio tamanho.
+
+**A lista não traz `epigrafe` nem `url`.** A primeira repete número e data, que
+já têm coluna própria; a segunda só o leitor usa. São 130 caracteres por linha
+que ninguém lê, vezes 1.989.
+
+**"Redação compilado" era erro de concordância em três telas.** A coluna guarda
+o vocabulário da fonte — `compilado`, `alterado`, `original` —, e assim deve
+continuar, porque é o nome dos três botões da página do Paraná. Quem concorda em
+português é `versaoFem()`, na exibição.
+
 Os comandos:
 
 ```
@@ -2151,12 +2173,20 @@ está no `ls` da pasta.
   divergente na fonte" em vez de exibir a contradição calada. `tests/decretos.test.ts`
   trava o número em um — se crescer, a fonte passou a divergir mais e a regra
   merece nova medição.
-- **As telas do acervo nunca foram dirigidas num navegador.** O build passa, as
-  rotas resolvem (conferido: `/decretos` e `/decretos/decpr%3A2023%3A475`
-  devolvem 307 para o login, não 404) e a camada de dados foi medida contra o
-  banco real — 1.989 linhas, blocos em ordem, 404 para id inexistente. O que
-  falta é o clique: a sessão salva do Playwright expirou e o `entrada.setup.ts`
-  exige `E2E_EMAIL`/`E2E_SENHA`, que não estão no ambiente.
+- **As telas do acervo foram auditadas em 320, 390 e 768 px**, num navegador de
+  verdade, com os 1.989 decretos reais. Não vaza horizontalmente em nenhuma das
+  três, a gaveta fica fora da tela quando fechada, os cartões cabem e o filtro
+  por ano devolve a contagem certa (306 de 1989, em 2022). O que a auditoria
+  achou está consertado: o peso da lista, a concordância de "redação compilada",
+  o `<summary>` de filtros que não parecia tocável no celular e o "voltar" do
+  cabeçalho com 23 px de altura em 390.
+
+  **O que continua sem conferência é o clique com sessão real**: o andaime da
+  auditoria montou as telas por fora do login (a tabela tem leitura pública por
+  RLS), então o menu lateral, o histórico e a Consulta não foram exercitados
+  autenticados. A sessão salva do Playwright expirou e `entrada.setup.ts` exige
+  `E2E_EMAIL`/`E2E_SENHA`, que não estão no ambiente.
+
 - **Quase um quarto do acervo é homologação de emergência municipal** — 493 dos
   1.989. São normativas e o recorte é generoso de propósito, mas não servem à
   advocacia criminal. Apertar isso é decisão de curadoria, e mexe no YAML, não
