@@ -1114,10 +1114,79 @@ vigília responde uma pergunta só — _a fotografia de 28/02/2025 envelheceu?_ 
 nada aqui altera o corpus federal. Isto é ingestão de acervo novo, com o mesmo
 papel de `scripts/vademecum.ts`.
 
-**O chat ainda não vê os decretos**, e é escopo, não lacuna: a entrega pedida
-foi até a tela. Quando entrar, entra por tag própria — `<decreto>`, nunca
-`<dispositivo>` —, com porteiro de intenção e piso próprio, pelas razões
-descritas no Bloco 6 de `docs/decretos-pr-levantamento.md`.
+**O chat vê os decretos, e vê por uma porta.** `lib/decretos/porteiro.ts`
+decide, por regra em TS e sem chamada de modelo, se o acervo estadual entra: a
+pergunta tem de falar em decreto ou trazer marca do Executivo estadual. Porta
+fechada não custa requisição nenhuma — e ela fica fechada na esmagadora maioria
+das consultas, que são sobre crime.
+
+**A armadilha do porteiro é o Decreto-Lei.** O Código Penal é o DL 2.848/1940 e
+o CPP é o 3.689/1941: as duas leis mais citadas do produto têm a palavra
+"decreto" dentro do nome. Sem `(?!\s*-?\s*lei)`, a pergunta mais central do
+projeto arrastaria consigo um corpus que não tem nada a ver com ela.
+
+**A consulta que vai ao acervo não é a pergunta crua.** Saem dela as palavras
+que abriram a porta — "decreto", "Paraná", "estadual" —, porque num acervo em
+que todo ato é um decreto do Executivo do Paraná elas não separam um ato de
+outro. Serviram para decidir SE o acervo entra; decidir QUAL ato entra é
+trabalho das outras palavras.
+
+**O piso do acervo não zera, e a diferença para o corpus foi medida.** As três
+pernas de `busca_decretos` usam `websearch_to_tsquery`, que exige TODAS as
+palavras — e nenhuma súmula contém "qual" ou "trata". Numa pergunta em forma de
+pergunta sobra a perna semântica sozinha, e aí todo resultado cai na mesma
+escada de 1/61. Medido em 22/08/2026:
+
+| Consulta                                                      | Topo                | Perfil                                        |
+| ------------------------------------------------------------- | ------------------- | --------------------------------------------- |
+| "conselho estadual de políticas sobre drogas" (frase nominal) | 0,0621 · via súmula | 4 blocos, forte                               |
+| "qual decreto trata do porte de arma dos policiais penais?"   | 0,0164              | 2 blocos, **fraco** — e o decreto está certo  |
+| "decreto sobre pesca esportiva em rio"                        | 0,0164              | 2 blocos, **fraco** — e o acervo não responde |
+
+Os dois últimos perfis são **indistinguíveis pelo score**. Cortar pelo piso
+jogaria fora o acerto junto com o erro; deixar passar calado poria um decreto de
+bacias hidrográficas como fonte. A saída é a de `filtraContexto`: manda-se o
+pouco, MARCADO, e o contexto diz ao modelo que aqueles blocos vieram só por
+proximidade semântica e que ele não deve construir argumento sobre eles.
+Conferido contra o modelo real: na pergunta da pesca ele respondeu que o acervo
+não cobre e não usou o decreto.
+
+**Tag própria — `<decreto>`, nunca `<dispositivo>`.** São hierarquias
+normativas diferentes, e a distinção tem de estar na marcação, não só no prompt.
+A regra 8 do contrato manda escrever "o Decreto estadual X/AAAA dispõe que…" e
+nunca "a lei determina que…". Conferido: o modelo escreveu sozinho que o decreto
+"organiza a composição do CONESD, mas não cria tipo penal nem altera regime de
+tráfico".
+
+**Decreto não conta como fonte primária**, e a exclusão é a mesma decisão de ele
+não entrar na peça: o medidor de confiança mede quanto da resposta se apoia no
+corpus curado e datado. O cartão dele é âmbar e diz "redação compilado" — nunca
+"Em vigor" —, e clicar abre `/decretos/[id]` em vez do painel lateral, que
+procura por `dispositivo_id` e não acharia um id `decpr:`.
+
+**O fio da conversa carrega o decreto, e ligar isso consertou um defeito
+anterior ao acervo.** `saneiaFio` recusava todo id com dois-pontos, e os dois
+espaços de id não-corpus do produto têm um: `stj:1234` e `decpr:2023:475:1`.
+Precedente e decreto eram descartados ali, sem erro e sem rastro, e o efeito só
+aparecia uma troca depois — a pergunta de seguimento perdia o assunto. O
+comentário de `lerDispositivos` dizia que "o fio carrega também id de precedente
+do STJ": era verdade sobre a intenção e falsa sobre o código. Pior, um teste
+**afirmava o defeito**, exigindo que `stj:4200` fosse descartado.
+
+A herança importa mais aqui do que no corpus: "e quem preside esse colegiado?"
+não tem a palavra "decreto", então o porteiro fecha — e sem herança o assunto
+que a conversa acabou de tratar sumiria entre uma troca e outra. Conferido com
+duas trocas reais: a segunda pergunta, de porta fechada e busca vazia no acervo,
+respondeu sobre o CONESD pelo Decreto 475/2023 herdado. O bloco herdado entra
+marcado com `origem:`, como no corpus, e a marca é o que impede o aviso de
+recuperação fraca desta pergunta de cair sobre um decreto que a conversa já
+tratou.
+
+**A guarda de contexto vazio passou a contar o acervo, e isso foi um conserto.**
+Ela contava só dispositivos do corpus, e uma pergunta SOBRE decreto legitimamente
+não recupera lei federal nenhuma: medido, o corpus voltava vazio, o acervo
+devolvia quatro blocos do decreto certo e a resposta era recusada inteira — o
+produto tinha a resposta em mãos e dizia que não tinha o que citar.
 
 ## Design system — TOGA v2
 
@@ -2076,9 +2145,28 @@ está no `ls` da pasta.
   meio (`Erro 403 — Acesso temporariamente bloqueado`), que é o motivo de ela ser
   retomável por `--pular-prontos`. Reprocessar tudo a partir do cache em disco
   custa segundos; recolher da fonte custa ~2 h.
-- **O chat não vê os decretos**, e é escopo, não lacuna — a entrega pedida foi
-  até a tela. O desenho de como ele entraria (tag `<decreto>`, porteiro de
-  intenção, piso próprio, teto de 4 blocos) é o Bloco 6 do levantamento.
+- **Um decreto em 1.989 tem data de publicação divergente na fonte.** O 4.895 é
+  listado em 2024, tem epígrafe de 2024 e traz `21/02/2021` na coluna de data. O
+  ano do id vem da epígrafe; a data fica como a fonte a deu, e a tela diz "data
+  divergente na fonte" em vez de exibir a contradição calada. `tests/decretos.test.ts`
+  trava o número em um — se crescer, a fonte passou a divergir mais e a regra
+  merece nova medição.
+- **As telas do acervo nunca foram dirigidas num navegador.** O build passa, as
+  rotas resolvem (conferido: `/decretos` e `/decretos/decpr%3A2023%3A475`
+  devolvem 307 para o login, não 404) e a camada de dados foi medida contra o
+  banco real — 1.989 linhas, blocos em ordem, 404 para id inexistente. O que
+  falta é o clique: a sessão salva do Playwright expirou e o `entrada.setup.ts`
+  exige `E2E_EMAIL`/`E2E_SENHA`, que não estão no ambiente.
+- **Quase um quarto do acervo é homologação de emergência municipal** — 493 dos
+  1.989. São normativas e o recorte é generoso de propósito, mas não servem à
+  advocacia criminal. Apertar isso é decisão de curadoria, e mexe no YAML, não
+  no código.
+- **A perna de súmula do acervo estadual não dispara em pergunta em forma de
+  pergunta.** `websearch_to_tsquery` exige todas as palavras, e nenhuma ementa
+  contém "qual" ou "trata" — sobra a perna semântica, e o acerto fica com o
+  mesmo score do erro. O contexto marca isso como fraco e o modelo se comporta,
+  mas a recuperação seria melhor com semântica OR na perna de súmula. Mexer nisso
+  é mudar a RPC, e não se muda peso de fusão no escuro: pede medição antes.
 - **A revogação total de decreto não foi conferida na fonte.** A página serve o
   texto compilado e risca o alterado, mas se ela sinaliza ato revogado por
   inteiro ninguém mediu. Enquanto isso, a tela diz "redação compilada, lida em

@@ -161,3 +161,68 @@ export async function buscaDecretos({
     }),
   )
 }
+
+/**
+ * Lê blocos de decreto pelo id, na ordem em que foram pedidos.
+ *
+ * Serve à herança do fio da conversa, exatamente como `lerDispositivos` serve ao
+ * corpus: o decreto que a resposta anterior citou volta ao contexto da pergunta
+ * seguinte. Sem isto, "e o que ele diz sobre a composição?" perde o decreto —
+ * a pergunta anafórica não tem a palavra "decreto", então o porteiro fecha, e o
+ * assunto que a conversa acabou de tratar some.
+ *
+ * `score: 0` é literal: herdado não passou por fusão nenhuma nesta pergunta. É
+ * o mesmo 0 de `lerDispositivos`, e quem o protege do piso é o chamador, que o
+ * junta ao contexto depois de `filtraDecretos` ter rodado.
+ *
+ * Id que não existe some sem erro: herança é conforto, e não pode derrubar a
+ * consulta.
+ */
+export async function lerBlocos(ids: string[]): Promise<AchadoDecreto[]> {
+  if (ids.length === 0) return []
+
+  try {
+    const { data, error } = await supabase
+      .from('decretos_pr_blocos')
+      .select(`id, ordem, rotulo, texto, decretos_pr ( ${COLUNAS_RESUMO} )`)
+      .in('id', ids)
+
+    if (error || !data?.length) return []
+
+    type Linha = {
+      id: string
+      ordem: number
+      rotulo: string
+      texto: string
+      decretos_pr: DecretoResumo | null
+    }
+
+    const posicao = new Map(ids.map((id, i) => [id, i]))
+
+    return (data as unknown as Linha[])
+      .filter((b) => b.decretos_pr)
+      .sort((a, b) => (posicao.get(a.id) ?? 0) - (posicao.get(b.id) ?? 0))
+      .map((b) => {
+        const d = b.decretos_pr!
+        return {
+          bloco_id: b.id,
+          decreto_id: d.id,
+          numero: d.numero,
+          ano: d.ano,
+          epigrafe: d.epigrafe,
+          sumula: d.sumula,
+          publicado_em: d.publicado_em,
+          conferido_em: d.conferido_em,
+          versao: d.versao,
+          url: d.url,
+          ordem: b.ordem,
+          rotulo: b.rotulo,
+          texto: b.texto,
+          score: 0,
+          via_sumula: false,
+        }
+      })
+  } catch {
+    return []
+  }
+}

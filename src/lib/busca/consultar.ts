@@ -58,7 +58,9 @@ const MODELO_EMBEDDING = 'text-embedding-3-small'
  * única chamada a modelo aceitável em runtime neste projeto (geração de texto
  * é offline, ver CLAUDE.md, "Nenhuma chamada a LLM em runtime").
  */
-async function embutir(consulta: string): Promise<{ vetor: string | null; aviso: string | null }> {
+export async function embutir(
+  consulta: string,
+): Promise<{ vetor: string | null; aviso: string | null }> {
   const chave = process.env.OPENAI_API_KEY
   if (!chave) return { vetor: null, aviso: 'OPENAI_API_KEY ausente — busca sem a perna semântica' }
 
@@ -270,3 +272,19 @@ export async function consultar({
     ms: Date.now() - inicio,
   }
 }
+
+/**
+ * O vetor da consulta, para quem precisa dele fora de `consultar()`.
+ *
+ * Existe por causa do acervo de decretos do Paraná: ele tem RPC própria
+ * (`busca_decretos`, migration 0018) e precisa do mesmo embedding desta
+ * pergunta. Sem isto a rota do ao vivo faria uma segunda chamada à OpenAI para
+ * embutir exatamente o mesmo texto — barato em dinheiro e caro em latência, com
+ * a agravante de as duas buscas passarem a correr sobre vetores calculados em
+ * momentos diferentes.
+ *
+ * Devolve `null` quando não há chave ou a API falha, e é degradação prevista: a
+ * busca do acervo cai para súmula + léxico, que é a mesma queda que o corpus já
+ * faz. Duas pernas valem mais que uma tela de erro.
+ */
+export const embuteConsulta = async (q: string) => (await embutir(q)).vetor

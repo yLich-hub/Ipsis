@@ -87,3 +87,24 @@ export function especie(sumula: string): string {
 
 /** `2025-01-31` → `31/01/2025`. */
 export const dataBR = (iso: string) => iso.split('-').reverse().join('/')
+
+/**
+ * A data de publicação como ela pode ser exibida.
+ *
+ * **Existe por causa de um ato em 1.989.** O Decreto 4.895 foi listado em 2024,
+ * tem epígrafe "21 de Fevereiro de 2024" e traz `21/02/2021` na coluna de data
+ * de publicação da fonte. O ano do id vem da epígrafe — dois sinais contra um —,
+ * mas a data continua gravada como a fonte a deu, porque corrigi-la por dedução
+ * seria inventar justamente o dado de que se desconfia.
+ *
+ * O efeito, sem isto, é um cartão que diz "Decreto 4895/2024" ao lado de
+ * "21/02/2021" e parece defeito do produto. Dizer que a fonte diverge é a única
+ * saída que não mente de um dos dois lados.
+ */
+export function publicacao(d: { publicado_em: string; ano: number }): {
+  texto: string
+  divergente: boolean
+} {
+  const texto = dataBR(d.publicado_em)
+  return { texto, divergente: Number(d.publicado_em.slice(0, 4)) !== d.ano }
+}

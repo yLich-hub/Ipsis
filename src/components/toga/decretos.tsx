@@ -30,7 +30,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 import { Caixinha, Selo } from '@/components/toga/base'
-import { dataBR, especie, type DecretoResumo } from '@/lib/decretos/formato'
+import { dataBR, especie, publicacao, type DecretoResumo } from '@/lib/decretos/formato'
 
 type Faceta = { chave: string; rotulo: string; total: number }
 
@@ -73,6 +73,7 @@ function Facetas({
 }
 
 function Cartao({ d }: { d: DecretoResumo }) {
+  const pub = publicacao(d)
   return (
     <Link
       href={`/decretos/${encodeURIComponent(d.id)}`}
@@ -83,7 +84,13 @@ function Cartao({ d }: { d: DecretoResumo }) {
         <span className="text-[13.5px] font-medium text-tg-tinta-2">
           Decreto {d.numero}/{d.ano}
         </span>
-        <span className="text-[12px] text-tg-fraco-3">{dataBR(d.publicado_em)}</span>
+        <span
+          className="text-[12px] text-tg-fraco-3"
+          title={pub.divergente ? 'a fonte publica esta data em desacordo com o ano do ato' : undefined}
+        >
+          {pub.texto}
+          {pub.divergente && <span className="ml-1 text-tg-ambar-txt">· data divergente na fonte</span>}
+        </span>
       </div>
 
       {/* Serifada: é texto da fonte, não rótulo do produto. A divisão entre as
