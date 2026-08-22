@@ -26,9 +26,12 @@ import {
   LeitorDeTexto,
   PISO_DE_FUSAO,
   filtraContexto,
+  filtraDecretos,
   montarContexto,
+  montarDecretos,
   montarPrecedentes,
 } from '@/lib/consulta/aovivo'
+import { querDecretos } from '@/lib/decretos/porteiro'
 import {
   MAX_HERDADOS,
   idsHerdados,
@@ -587,6 +590,15 @@ describe('o fio da conversa', () => {
     it('descarta id que não tem forma de id', () => {
       // Isto vem do navegador. Um `id` com aspas, espaço ou barra não chega a
       // virar consulta ao banco — e o que sobra da troca continua valendo.
+      //
+      // **`stj:4200` mudou de lado, e a mudança é um conserto.** Esta asserção
+      // exigia que ele fosse descartado, e com isso ELA AFIRMAVA O DEFEITO: o
+      // dois-pontos não tem nada de perigoso — os ids vão parametrizados para o
+      // PostgREST — e é a forma dos outros dois espaços de id do produto,
+      // `stj:<sequencial>` e `decpr:<ano>:<numero>:<ordem>`. Enquanto ele caía
+      // aqui, nenhum precedente e nenhum decreto sobrevivia a uma pergunta de
+      // seguimento, e o comentário de `lerDispositivos` — que diz que o fio
+      // carrega id de precedente — descrevia algo que o código impedia.
       const [t] = saneiaFio([
         troca('e o § 4º?', [
           'lei_11343_2006_art33_p4',
@@ -595,7 +607,7 @@ describe('o fio da conversa', () => {
           'stj:4200',
         ]),
       ])
-      expect(t?.ids).toEqual(['lei_11343_2006_art33_p4'])
+      expect(t?.ids).toEqual(['lei_11343_2006_art33_p4', 'stj:4200'])
     })
 
     it('não repete id dentro da mesma troca', () => {
@@ -764,5 +776,206 @@ describe('o fio da conversa', () => {
     it('sem herança, o contexto sai como sempre saiu', () => {
       expect(montarContexto([ach('novo')])).not.toContain('origem:')
     })
+  })
+})
+
+
+// --- o acervo estadual no contexto -------------------------------------------
+
+describe('porteiro do acervo de decretos do Paraná', () => {
+  it('abre quando a pergunta fala em decreto', () => {
+    expect(querDecretos('o que diz o decreto 8812 do Paraná?').abre).toBe(true)
+    expect(querDecretos('tem algum decreto estadual sobre polícia penal?').abre).toBe(true)
+  })
+
+  it('abre por marca do Executivo estadual', () => {
+    expect(querDecretos('legislação estadual sobre conselho de drogas').abre).toBe(true)
+    expect(querDecretos('o que o governo do estado regulamentou sobre isso').abre).toBe(true)
+  })
+
+  it('NÃO abre para decreto-lei, e essa é a armadilha central', () => {
+    // O Código Penal é o Decreto-Lei 2.848/1940 e o CPP é o 3.689/1941: as duas
+    // leis mais citadas do produto têm a palavra "decreto" dentro do nome. Sem a
+    // exclusão, a pergunta mais central do projeto arrastaria para o contexto um
+    // corpus que não tem nada a ver com ela.
+    expect(querDecretos('o que diz o decreto-lei 3.689 sobre flagrante?').abre).toBe(false)
+    expect(querDecretos('decreto lei 2848, art. 59').abre).toBe(false)
+  })
+
+  it('fica fechado na consulta comum, que é a esmagadora maioria', () => {
+    expect(querDecretos('requisitos do tráfico privilegiado').abre).toBe(false)
+    expect(querDecretos('cabe absolvição sumária no art. 33?').abre).toBe(false)
+    expect(querDecretos('').abre).toBe(false)
+  })
+
+  it('diz o que abriu a porta, para a regra ser auditável', () => {
+    expect(querDecretos('decreto do paraná').sinal).toContain('decreto')
+    expect(querDecretos('norma estadual sobre drogas').sinal).toContain('estadual')
+  })
+})
+
+describe('decretos no contexto do modelo', () => {
+  const dec = (id: string, score: number, extra: Record<string, unknown> = {}) =>
+    ({
+      bloco_id: id,
+      decreto_id: id.split(':').slice(0, 3).join(':'),
+      numero: '8812',
+      ano: 2025,
+      epigrafe: 'Decreto 8812 - 31 de Janeiro de 2025',
+      sumula: 'Regulamenta a alteração do regime de trabalho dos professores.',
+      publicado_em: '2025-01-31',
+      conferido_em: '2026-08-21',
+      versao: 'compilado',
+      url: 'https://www.legislacao.pr.gov.br/x?codAto=351933',
+      ordem: 1,
+      rotulo: 'Art. 1º',
+      texto: 'A alteração de regime de trabalho será efetivada conforme este Decreto.',
+      score,
+      via_sumula: true,
+      ...extra,
+    }) as never
+
+  it('usa tag própria, nunca <dispositivo>', () => {
+    // São hierarquias normativas diferentes. Sem a distinção na marcação, o
+    // modelo escreveria "a norma determina que…" sobre regulamento
+    // administrativo estadual no meio de uma resposta sobre crime.
+    const bloco = montarDecretos([dec('decpr:2025:8812:1', 0.05)])
+    expect(bloco).toContain('<decreto doc_id="decpr:2025:8812:1"')
+    expect(bloco).not.toContain('<dispositivo')
+  })
+
+  it('declara a data de leitura e nega a vigência', () => {
+    // O acervo não tem coluna de vigência, e o contexto não pode deixar o
+    // modelo supor que tem — ver o cabeçalho da migration 0018.
+    const bloco = montarDecretos([dec('decpr:2025:8812:1', 0.05)])
+    expect(bloco).toContain('lido_em="2026-08-21"')
+    expect(bloco).toMatch(/vigência destes atos NÃO/i)
+    expect(bloco).toMatch(/não é fundamento de peça criminal/i)
+  })
+
+  it('leva a ementa do ato junto do dispositivo', () => {
+    // Um `§ 2º` de decreto isolado não diz de que decreto é — mesmo argumento
+    // de `texto_embed`, aplicado ao contexto.
+    const bloco = montarDecretos([dec('decpr:2025:8812:3', 0.05, { rotulo: '§ 2º' })])
+    expect(bloco).toContain('Regulamenta a alteração do regime de trabalho')
+    expect(bloco).toContain('dispositivo: § 2º')
+  })
+
+  it('some inteiro quando não há decreto', () => {
+    expect(montarDecretos([])).toBe('')
+  })
+})
+
+describe('piso do acervo estadual', () => {
+  const dec = (score: number, i: number) =>
+    ({ bloco_id: `decpr:2025:88${i}:1`, score }) as never
+
+  it('deixa passar sem ressalva o que teve concordância entre pernas', () => {
+    // `1/61` é o teto de uma perna sozinha na melhor posição. Acima disso, ou a
+    // súmula bateu (peso 2) ou duas pernas concordaram.
+    const r = filtraDecretos([dec(0.0328, 1), dec(1 / 61, 2), dec(0.0154, 3)])
+    expect(r.itens).toHaveLength(1)
+    expect(r.fraco).toBe(false)
+  })
+
+  it('tem teto de quatro blocos quando não é fraco', () => {
+    const r = filtraDecretos([0.05, 0.049, 0.048, 0.047, 0.046].map((s, i) => dec(s, i)))
+    expect(r.itens).toHaveLength(4)
+    expect(r.fraco).toBe(false)
+  })
+
+  it('não zera quando nada passa: marca como fraco e manda dois', () => {
+    // Medido em 22/08/2026: com só a perna semântica viva — o que acontece em
+    // toda pergunta em forma de pergunta, porque `websearch_to_tsquery` exige
+    // todas as palavras —, o acerto e o erro têm EXATAMENTE o mesmo topo de
+    // 0,016393. Cortar pelo piso jogaria fora o decreto certo junto com o
+    // errado; deixar passar calado poria um decreto de bacias hidrográficas
+    // como fonte. Manda-se o pouco, marcado, como faz `filtraContexto`.
+    const r = filtraDecretos([dec(1 / 61, 1), dec(0.0161, 2), dec(0.0159, 3)])
+    expect(r.fraco).toBe(true)
+    expect(r.itens).toHaveLength(2)
+  })
+
+  it('a marca de fraqueza chega ao modelo em palavras', () => {
+    const bloco = montarDecretos(
+      [
+        {
+          bloco_id: 'decpr:2023:81:1',
+          numero: '81',
+          ano: 2023,
+          sumula: 'Cria a Superintendência Geral das Bacias Hidrográficas e Pesca.',
+          conferido_em: '2026-08-21',
+          versao: 'compilado',
+          rotulo: 'Art. 1º',
+          texto: 'Fica criada a Superintendência.',
+        } as never,
+      ],
+      true,
+    )
+    expect(bloco).toMatch(/proximidade semântica/i)
+    expect(bloco).toMatch(/NÃO construa argumento sobre eles/i)
+  })
+
+  it('sem fraqueza, não diz que a busca falhou', () => {
+    const bloco = montarDecretos([{ bloco_id: 'x', numero: '1', ano: 2025, sumula: 's', conferido_em: '2026-08-21', versao: 'compilado', rotulo: '', texto: 't' } as never])
+    expect(bloco).not.toMatch(/proximidade semântica/i)
+  })
+})
+
+
+describe('o fio carrega os três espaços de id do produto', () => {
+  it('não descarta precedente do STJ nem bloco de decreto', () => {
+    // Defeito silencioso e anterior ao acervo estadual: `ID_VALIDO` não aceitava
+    // dois-pontos, e os ids do STJ (`stj:1234`) e dos decretos
+    // (`decpr:2023:475:1`) eram jogados fora aqui, sem erro e sem rastro. O
+    // efeito só aparecia uma troca depois — a pergunta de seguimento perdia o
+    // tema do STJ ou o decreto que a resposta anterior tinha citado.
+    const fio = saneiaFio([
+      {
+        pergunta: 'decreto do Paraná sobre o conselho de políticas sobre drogas',
+        ids: ['lei_11343_2006_art8-e_caput', 'stj:1234', 'decpr:2023:475:1'],
+      },
+    ])
+    expect(fio[0]?.ids).toEqual([
+      'lei_11343_2006_art8-e_caput',
+      'stj:1234',
+      'decpr:2023:475:1',
+    ])
+  })
+
+  it('continua recusando o que não tem forma de id', () => {
+    const fio = saneiaFio([
+      { pergunta: 'x', ids: ['../etc/passwd', 'SELECT 1', '', 'ab', 'ok_1'] },
+    ])
+    expect(fio[0]?.ids).toEqual(['ok_1'])
+  })
+
+  it('a herança separa os decretos dos dispositivos', () => {
+    // É o que a rota faz para mandar cada id à sua tabela: bloco de decreto em
+    // `decretos_pr_blocos`, o resto em `v_dispositivo`. Sem a separação o
+    // decreto sumiria numa consulta ao corpus, que não o conhece.
+    const fio = saneiaFio([
+      { pergunta: 'p', ids: ['lei_11343_2006_art33_p4', 'decpr:2023:475:1', 'stj:9'] },
+    ])
+    const herdar = idsHerdados(fio, [])
+    expect(herdar.filter((i) => i.startsWith('decpr:'))).toEqual(['decpr:2023:475:1'])
+    expect(herdar.filter((i) => !i.startsWith('decpr:'))).toEqual([
+      'lei_11343_2006_art33_p4',
+      'stj:9',
+    ])
+  })
+
+  it('o decreto herdado entra marcado, e a marca o separa do recuperado', () => {
+    const bloco = montarDecretos(
+      [
+        { bloco_id: 'decpr:2023:475:1', numero: '475', ano: 2023, sumula: 's', conferido_em: '2026-08-21', versao: 'compilado', rotulo: 'Art. 1º', texto: 'a' } as never,
+        { bloco_id: 'decpr:2025:8812:1', numero: '8812', ano: 2025, sumula: 's', conferido_em: '2026-08-21', versao: 'compilado', rotulo: 'Art. 1º', texto: 'b' } as never,
+      ],
+      false,
+      new Set(['decpr:2023:475:1']),
+    )
+    const partes = bloco.split('<decreto ')
+    expect(partes[1]).toContain('origem: citado numa pergunta anterior')
+    expect(partes[2]).not.toContain('origem:')
   })
 })

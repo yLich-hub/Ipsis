@@ -1548,13 +1548,30 @@ function Rodape({
   )
 }
 
+/**
+ * Um cartão de fonte é botão OU link, conforme o que ele cita.
+ *
+ * Dispositivo e precedente abrem o painel lateral, que mostra o texto ao lado da
+ * resposta. **Decreto estadual não tem painel**: ele vive noutro acervo, com id
+ * em espaço próprio (`decpr:`), e `PainelFonte` procura por `dispositivo_id`
+ * numa lista onde ele não está — o painel simplesmente não abriria.
+ *
+ * Botão que não faz nada é o defeito de conforto que o comentário de
+ * `PainelFonte` descreve; a saída aqui não é fazê-lo cair em outra fonte (foi o
+ * que se removeu de lá, por afirmar coisa falsa), é mandá-lo ao lugar certo —
+ * `/decretos/[id]`, onde o ato está inteiro.
+ */
+const EH_DECRETO = (id: string) => id.startsWith('decpr:')
+
+/** O id do BLOCO carrega a ordem no fim; a tela do ato é o id sem ela. */
+const atoDoBloco = (id: string) => id.split(':').slice(0, 3).join(':')
+
 function CartaoFonte({ f, aoAbrir }: { f: Fonte; aoAbrir: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={aoAbrir}
-      className="tgb flex items-center gap-[11px] rounded-[14px] bg-white px-[13px] py-[11px] text-left shadow-[var(--tg-elev-1)] hover:shadow-[var(--tg-elev-3)]"
-    >
+  const comum =
+    'tgb flex items-center gap-[11px] rounded-[14px] bg-white px-[13px] py-[11px] text-left shadow-[var(--tg-elev-1)] hover:shadow-[var(--tg-elev-3)]'
+
+  const miolo = (
+    <>
       <span className="grid size-[19px] shrink-0 place-items-center rounded-[7px] bg-tg-acento-fraco text-[10px] font-semibold text-tg-acento-txt">
         {f.n}
       </span>
@@ -1572,6 +1589,20 @@ function CartaoFonte({ f, aoAbrir }: { f: Fonte; aoAbrir: () => void }) {
       <span aria-hidden="true" className="shrink-0 text-[13px] text-tg-tenue-2">
         ›
       </span>
+    </>
+  )
+
+  if (EH_DECRETO(f.id)) {
+    return (
+      <Link href={`/decretos/${encodeURIComponent(atoDoBloco(f.id))}`} className={comum}>
+        {miolo}
+      </Link>
+    )
+  }
+
+  return (
+    <button type="button" onClick={aoAbrir} className={comum}>
+      {miolo}
     </button>
   )
 }

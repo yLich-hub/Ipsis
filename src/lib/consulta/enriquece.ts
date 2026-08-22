@@ -15,6 +15,7 @@
 // =============================================================================
 
 import type { Achado } from '@/lib/busca/consultar'
+import type { AchadoDecreto } from '@/lib/decretos/formato'
 import type { Citavel } from '@/lib/vigilia/precedentes'
 import type { RespostaIA } from '@/lib/consulta/contrato'
 import type { Fonte, Paragrafo, Passo, RespostaComposta } from '@/lib/toga/resposta'
@@ -57,9 +58,11 @@ export function enriquece(
   achados: Achado[],
   passos: Passo[],
   precedentes: Citavel[] = [],
+  decretos: AchadoDecreto[] = [],
 ): RespostaComposta {
   const porId = new Map(achados.map((a) => [a.dispositivo_id, a]))
   const porPrecedente = new Map(precedentes.map((p) => [p.docId, p]))
+  const porDecreto = new Map(decretos.map((d) => [d.bloco_id, d]))
 
   // Um `source` resolve para um dispositivo OU para um precedente. A validação
   // já garante que todos resolvem; este filtro é a segunda linha, para o caso
@@ -67,14 +70,21 @@ export function enriquece(
   // citáveis; o que muda é o cartão que a tela desenha — e o selo, que no
   // dispositivo vem da vigência e no precedente vem da situação no STJ.
   const resolvidas = dados.sources
-    .map((f, i) => ({ f, a: porId.get(f.doc_id), p: porPrecedente.get(f.doc_id), i }))
+    .map((f, i) => ({
+      f,
+      a: porId.get(f.doc_id),
+      p: porPrecedente.get(f.doc_id),
+      d: porDecreto.get(f.doc_id),
+      i,
+    }))
     .filter(
       (x): x is {
         f: (typeof dados.sources)[number]
         a: Achado | undefined
         p: Citavel | undefined
+        d: AchadoDecreto | undefined
         i: number
-      } => !!x.a || !!x.p,
+      } => !!x.a || !!x.p || !!x.d,
     )
 
   /**
@@ -129,6 +139,22 @@ export function enriquece(
       }
     }
 
+    // Decreto estadual: o selo diz o que se sabe — a redação lida e o dia da
+    // leitura —, e o tom é âmbar porque este acervo pede conferência por
+    // definição. Não existe "Em vigor" aqui: a vigência do ato não foi medida,
+    // e um selo verde afirmaria justamente o que a migration 0018 recusa
+    // afirmar.
+    if (x.d) {
+      return {
+        n: String(i + 1),
+        titulo: `Decreto ${x.d.numero}/${x.d.ano}${x.d.rotulo ? `, ${x.d.rotulo}` : ''}`,
+        sub: 'decreto estadual do Paraná — acervo de consulta, não citável em peça',
+        selo: `redação ${x.d.versao}`,
+        tom: 'ambar' as const,
+        id: x.d.bloco_id,
+      }
+    }
+
     const a = x.a!
     return {
       n: String(i + 1),
@@ -171,6 +197,10 @@ export function enriquece(
     // O medidor de confiança continua contando dispositivo em vigor, e não lendo
     // o `confidence` do modelo: o número que a tela mostra é verificável na
     // mesma tela, e a autoavaliação de um modelo não é.
+    // Decreto NÃO conta como primária, e a exclusão é a mesma decisão de ele
+    // não entrar na peça: o medidor mede quanto da resposta se apoia no corpus
+    // curado e datado. Contar norma administrativa estadual ali inflaria o
+    // número que a tela oferece como garantia.
     primarias: usadas.filter((x) => (x.a && !x.a.revogado) || x.p).length,
     vigencia: primeiro ? dataBR(primeiro.vigencia_ate) : null,
     erro: null,

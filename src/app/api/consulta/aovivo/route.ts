@@ -20,8 +20,16 @@
 
 import { NextResponse } from 'next/server'
 
-import { consultar, lerDispositivos } from '@/lib/busca/consultar'
-import { filtraContexto, gerarAoVivo, temChave, type EventoAoVivo } from '@/lib/consulta/aovivo'
+import { consultar, embuteConsulta, lerDispositivos } from '@/lib/busca/consultar'
+import {
+  filtraContexto,
+  filtraDecretos,
+  gerarAoVivo,
+  temChave,
+  type EventoAoVivo,
+} from '@/lib/consulta/aovivo'
+import { buscaDecretos, lerBlocos } from '@/lib/decretos/leitura'
+import { consultaDoAcervo, querDecretos } from '@/lib/decretos/porteiro'
 import { idsHerdados, saneiaFio } from '@/lib/consulta/fio'
 import { precedentesPara } from '@/lib/vigilia/precedentes'
 import { soArtigo } from '@/lib/vigilia/alvos'
@@ -163,7 +171,44 @@ export async function POST(req: Request) {
         // porque é o que de fato acontece primeiro.
         manda({ tipo: 'passo', t: 'Classificando a intenção da consulta', meta: 'regra em TS' })
 
-        const busca = await consultar({ q, lei, qtd })
+        // O acervo estadual só é consultado quando a pergunta o chama — ver
+        // `lib/decretos/porteiro.ts`. A porta fechada não custa requisição
+        // nenhuma, que é o ponto: a esmagadora maioria das consultas deste
+        // produto é sobre crime, e não tem o que fazer com decreto estadual.
+        const porta = querDecretos(q)
+
+        // Em paralelo: são duas RPCs independentes, em corpora separados. A
+        // latência é a maior das duas, não a soma — que é o que torna aceitável
+        // não fundir os dois numa chamada só. Fundir reabriria a classe de erro
+        // que a migration 0017 fechou; ver o cabeçalho da 0018.
+        const [busca, doAcervo] = await Promise.all([
+          consultar({ q, lei, qtd }),
+          porta.abre
+            ? (async () => {
+                // A consulta que vai ao acervo não é a pergunta crua: sai dela
+                // o que abriu a porta, que não discrimina nada num corpus em
+                // que todo ato é um decreto do Executivo do Paraná. Ver
+                // `consultaDoAcervo`.
+                const c = consultaDoAcervo(q)
+                return buscaDecretos({ consulta: c, embedding: await embuteConsulta(c), qtd: 8 })
+              })()
+            : Promise.resolve({ ok: true as const, dados: [] }),
+        ])
+
+        // Falha do acervo estadual NÃO derruba a consulta: ela é acréscimo, e o
+        // corpus responde sozinho. Mesma escolha do histórico e dos precedentes
+        // — perder o secundário é degradação, não pane.
+        const decretos = filtraDecretos(doAcervo.ok ? doAcervo.dados : [])
+
+        if (porta.abre) {
+          manda({
+            tipo: 'passo',
+            t: 'Consultando o acervo de decretos do Paraná',
+            meta: decretos.itens.length
+              ? `${decretos.itens.length} bloco(s)${decretos.fraco ? ', sem concordância' : ''} · ${porta.sinal}`
+              : `nada no acervo · ${porta.sinal}`,
+          })
+        }
 
         // A busca crua vai para a tela antes da geração: é o que alimenta o
         // painel de fonte, o histórico e — se a geração falhar daqui em diante —
@@ -196,9 +241,36 @@ export async function POST(req: Request) {
         // contra `itens` (o contexto já filtrado) e não contra a busca crua: um
         // dispositivo que o piso cortou e a troca anterior citou VOLTA por aqui,
         // e volta com razão — a conversa já o tratou como assunto.
-        const herdados = await lerDispositivos(
-          idsHerdados(fio, itens.map((i) => i.dispositivo_id)),
-        )
+        // A herança do fio carrega os três espaços de id do produto, e cada um
+        // é lido na sua tabela. `lerDispositivos` ignora o que não é do corpus,
+        // então separar antes não é otimização: é o que faz o bloco de decreto
+        // chegar a `lerBlocos` em vez de sumir numa consulta a `v_dispositivo`.
+        const aHerdar = idsHerdados(fio, [
+          ...itens.map((i) => i.dispositivo_id),
+          ...decretos.itens.map((d) => d.bloco_id),
+        ])
+
+        const [herdados, decretosHerdados] = await Promise.all([
+          lerDispositivos(aHerdar.filter((id) => !id.startsWith('decpr:'))),
+          // **A herança é o que mantém o decreto vivo na pergunta seguinte.**
+          // "E o que ele diz sobre a composição?" não tem a palavra "decreto",
+          // então o porteiro fecha — e sem herança o assunto que a conversa
+          // acabou de tratar sumiria entre uma troca e outra.
+          lerBlocos(aHerdar.filter((id) => id.startsWith('decpr:')).slice(0, 3)),
+        ])
+
+        // Herdado entra DEPOIS do piso, pelo mesmo motivo do corpus: ele não
+        // passou pela fusão desta pergunta, e o piso o cortaria inteiro. Ele vai
+        // MARCADO — ver `montarDecretos` —, e a marca é o que impede o aviso de
+        // recuperação fraca desta pergunta de cair sobre um decreto que a
+        // conversa já tratou.
+        const contextoEstadual = {
+          itens: [...decretos.itens, ...decretosHerdados],
+          // Sem nada recuperado nesta pergunta, não há recuperação fraca a
+          // anunciar: o que está no contexto veio inteiro da conversa.
+          fraco: decretos.itens.length > 0 && decretos.fraco,
+          herdados: decretosHerdados.map((d) => d.bloco_id),
+        }
 
         // Os precedentes olham os artigos do contexto inteiro, herança incluída:
         // numa pergunta de seguimento o artigo em discussão vem pelo fio, e sem
@@ -212,6 +284,7 @@ export async function POST(req: Request) {
           pergunta: q,
           achados: busca.itens,
           precedentes,
+          decretos: contextoEstadual,
           fio,
           herdados,
           // Endereço explícito não passou pela fusão e tem score 0 — o piso de

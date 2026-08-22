@@ -21,7 +21,7 @@ import { Cabecalho } from '@/components/casca/cabecalho'
 import { ErroBanco } from '@/components/toga/estados'
 import { Icone } from '@/components/icones'
 import { Selo } from '@/components/toga/base'
-import { dataBR, especie } from '@/lib/decretos/formato'
+import { dataBR, especie, publicacao } from '@/lib/decretos/formato'
 import { decreto } from '@/lib/decretos/leitura'
 import { titulo } from '@/lib/toga/marca'
 
@@ -50,12 +50,19 @@ export default async function PaginaDecreto({ params }: Props) {
   if (!r.dados) notFound()
 
   const d = r.dados
+  const pub = publicacao(d)
 
   return (
     <>
       <Cabecalho
         titulo={`Decreto ${d.numero}/${d.ano}`}
-        sub={`Publicado em ${dataBR(d.publicado_em)}${d.diario ? ` · Diário Oficial nº ${d.diario}` : ''}`}
+        sub={
+          `Publicado em ${pub.texto}` +
+          // A fonte escreve o ano em dois lugares e, num ato em 1.989, eles
+          // discordam. Dizer isso é a única saída que não mente de um dos lados.
+          (pub.divergente ? ' (data divergente na fonte)' : '') +
+          (d.diario ? ` · Diário Oficial nº ${d.diario}` : '')
+        }
         voltar={{ href: '/decretos', rotulo: 'Decretos do Paraná' }}
       >
         <Selo tom="acento">{especie(d.sumula)}</Selo>

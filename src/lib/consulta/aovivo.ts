@@ -26,6 +26,7 @@
 // =============================================================================
 
 import type { Achado } from '@/lib/busca/consultar'
+import type { AchadoDecreto } from '@/lib/decretos/formato'
 import type { Citavel } from '@/lib/vigilia/precedentes'
 import { ESQUEMA, INSTRUCOES, type EventoAoVivo, type RespostaIA } from '@/lib/consulta/contrato'
 import { enriquece } from '@/lib/consulta/enriquece'
@@ -221,6 +222,111 @@ export function montarPrecedentes(ps: Citavel[]): string {
   return `\n\nPrecedentes qualificados do STJ que tocam os mesmos artigos (jurisprudência, NÃO texto de lei):\n\n${blocos}`
 }
 
+/**
+ * Os decretos estaduais, como o modelo os vê.
+ *
+ * **Tag própria — `<decreto>`, nunca `<dispositivo>` — e aqui a razão é mais
+ * forte que a dos precedentes.** Precedente e dispositivo são duas autoridades
+ * sobre a mesma matéria; decreto do Executivo estadual é outra hierarquia
+ * normativa inteira. Ele não revoga lei federal, não tipifica crime e não altera
+ * pena. Sem a distinção na marcação, o modelo escreveria "a norma determina
+ * que…" sobre um regulamento administrativo estadual no meio de uma resposta
+ * sobre crime — e a frase estaria formalmente certa e juridicamente perdida.
+ *
+ * O bloco carrega a súmula do ato inteiro junto do texto do dispositivo, e não
+ * é enfeite: um `§ 2º` de decreto isolado não diz de que decreto é. É o mesmo
+ * argumento de `texto_embed`, aplicado ao contexto em vez do vetor.
+ *
+ * `conferido_em` vai declarado porque é o que este acervo pode afirmar — e a
+ * ausência de vigência é dita com todas as letras, para o modelo não a inventar.
+ */
+export function montarDecretos(
+  ds: AchadoDecreto[],
+  fraco = false,
+  herdados = new Set<string>(),
+): string {
+  if (ds.length === 0) return ''
+
+  const blocos = ds
+    .map((d) =>
+      [
+        `<decreto doc_id="${d.bloco_id}" versao="${d.versao}" lido_em="${d.conferido_em}">`,
+        `identificação: Decreto ${d.numero}/${d.ano} do Estado do Paraná`,
+        `ementa: ${d.sumula.replace(/\s+/g, ' ').trim()}`,
+        d.rotulo ? `dispositivo: ${d.rotulo}` : null,
+        // Mesma marca de `montarContexto`, pela mesma razão: o modelo precisa
+        // saber que este decreto é o assunto que se arrastou da troca anterior,
+        // e não algo que o acervo devolveu para o que se acabou de perguntar.
+        // Sem ela, o aviso de recuperação fraca desta pergunta cairia também
+        // sobre o decreto que a conversa já tratou.
+        herdados.has(d.bloco_id)
+          ? 'origem: citado numa pergunta anterior desta conversa, não recuperado por esta'
+          : null,
+        `texto: ${d.texto}`,
+        '</decreto>',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    )
+    .join('\n\n')
+
+  return (
+    '\n\nDecretos do Executivo do Estado do Paraná que a busca do acervo estadual alcançou ' +
+    '(norma ADMINISTRATIVA ESTADUAL, hierarquicamente inferior à lei federal — não tipifica ' +
+    'crime, não altera pena e não é fundamento de peça criminal). A vigência destes atos NÃO ' +
+    (fraco
+      ? 'foi conferida. ATENÇÃO: a busca do acervo estadual não teve concordância entre as suas ' +
+        'pernas — os decretos abaixo vieram apenas por proximidade semântica e podem não ter ' +
+        'relação nenhuma com a pergunta. Se eles não responderem, diga que o acervo estadual não ' +
+        'cobre o assunto e NÃO construa argumento sobre eles. '
+      : 'foi conferida. ') +
+    `O que se sabe é a redação lida na data declarada.\n\n${blocos}`
+  )
+}
+
+export type ContextoDecretos = {
+  itens: AchadoDecreto[]
+  fraco: boolean
+  /** Ids que vieram do fio da conversa, não da busca desta pergunta. */
+  herdados?: string[]
+}
+
+/**
+ * O que do acervo estadual chega ao modelo.
+ *
+ * **O piso não zera, e a razão é uma medição.** `PISO_DE_FUSAO` (1/61) é o que
+ * UMA perna alcança sozinha na melhor posição, e para o corpus ele separa bem —
+ * lá a perna de rubrica casa por igualdade exata e dispara de verdade. Aqui as
+ * três pernas usam `websearch_to_tsquery`, que exige TODAS as palavras: uma
+ * pergunta de verdade ("qual decreto do Paraná trata do porte de arma dos
+ * policiais penais?") não casa ementa nenhuma, porque nenhuma súmula contém
+ * "qual" nem "trata". Sobra a perna semântica, e aí TODO resultado cai na mesma
+ * escada — 1/61, 1/62, 1/63.
+ *
+ * Medido em 22/08/2026, três perguntas com respostas muito diferentes:
+ *
+ *   "conselho de políticas sobre drogas"  → Dec 475/2023  (é o decreto do CONESD)
+ *   "porte de arma dos policiais penais"  → Dec 2759/2023 (é exatamente ele)
+ *   "pesca esportiva em rio"              → Dec 81/2023   (Bacias e Pesca, não responde)
+ *
+ * **Os três perfis de score são indistinguíveis**: 0,016393 no topo, nos três.
+ * Cortar pelo piso descartaria os dois acertos junto com o erro; deixar passar
+ * sem dizer nada poria um decreto de bacias hidrográficas como fonte de uma
+ * resposta que ele não sustenta.
+ *
+ * A saída é a mesma de `filtraContexto`, e não por analogia frouxa: manda-se o
+ * pouco, MARCADO, e quem decide é o modelo, com a marca na frente. É a diferença
+ * entre "cite o que der" e "diga que não tem".
+ *
+ * Quando fraco, o teto cai para dois: aposta em acervo secundário não merece
+ * quatro blocos de texto dentro de uma chamada paga.
+ */
+export function filtraDecretos(ds: AchadoDecreto[], teto = 4): ContextoDecretos {
+  const acima = ds.filter((d) => d.score > PISO_DE_FUSAO)
+  if (acima.length > 0) return { itens: acima.slice(0, teto), fraco: false }
+  return { itens: ds.slice(0, 2), fraco: true }
+}
+
 const recuperadosDe = (achados: Achado[]): Recuperado[] =>
   achados.map((a) => ({ docId: a.dispositivo_id, texto: a.texto }))
 
@@ -408,6 +514,7 @@ export async function* gerarAoVivo({
   achados,
   direta = false,
   precedentes = [],
+  decretos = { itens: [], fraco: false },
   fio = [],
   herdados = [],
   passos,
@@ -421,6 +528,13 @@ export async function* gerarAoVivo({
    * em julgado — ver `lib/vigilia/precedentes.ts`. Vazio é o normal.
    */
   precedentes?: Citavel[]
+  /**
+   * Decretos estaduais do Paraná, quando a pergunta os pediu — ver
+   * `lib/decretos/porteiro.ts`. Vazio é o normal e de longe o mais comum: o
+   * recorte do produto é tráfico de drogas, e norma administrativa estadual só
+   * entra quando alguém a chama pelo nome.
+   */
+  decretos?: ContextoDecretos
   /**
    * As trocas anteriores desta conversa — perguntas e ids, nunca a prosa. Ver
    * `lib/consulta/fio.ts`. Vazio é o normal: primeira pergunta.
@@ -447,12 +561,22 @@ export async function* gerarAoVivo({
   // A guarda olha o contexto montado, não a busca crua: com fio, uma pergunta
   // puramente anafórica ("e nesse caso?") pode não recuperar nada sozinha e
   // ainda assim ter o que citar.
-  if (doContexto.length === 0) {
+  // **O universo citável inclui o acervo estadual, e esta linha é um conserto.**
+  // A guarda contava só dispositivos do corpus, e uma pergunta SOBRE decreto
+  // legitimamente não recupera lei federal nenhuma: medido com "decreto do
+  // Paraná sobre o conselho estadual de políticas sobre drogas", o corpus voltou
+  // vazio, o acervo devolveu quatro blocos do decreto certo — e a resposta era
+  // recusada inteira. O produto tinha a resposta em mãos e dizia que não tinha
+  // nada para citar.
+  if (doContexto.length === 0 && decretos.itens.length === 0) {
     yield { tipo: 'erro', motivo: 'a busca não recuperou nenhum dispositivo para citar' }
     return
   }
 
-  const contexto = montarContexto(doContexto, idsHerdados) + montarPrecedentes(precedentes)
+  const contexto =
+    montarContexto(doContexto, idsHerdados) +
+    montarPrecedentes(precedentes) +
+    montarDecretos(decretos.itens, decretos.fraco, new Set(decretos.herdados ?? []))
 
   // O universo do que pode ser citado. Precedente entra aqui para `valida()`
   // aceitar o `doc_id` dele — e entra COM o texto da tese, o que faz a recusa
@@ -461,6 +585,10 @@ export async function* gerarAoVivo({
   const recuperados = [
     ...recuperadosDe(doContexto),
     ...precedentes.map((p) => ({ docId: p.docId, texto: p.tese })),
+    // Decreto entra com o TEXTO, como o precedente entra com a tese: é o que
+    // faz a recusa de transcrição valer para ele também. O modelo argumenta a
+    // partir do decreto; quem exibe o texto é a tela.
+    ...decretos.itens.map((d) => ({ docId: d.bloco_id, texto: d.texto })),
   ]
 
   /**
@@ -505,7 +633,14 @@ export async function* gerarAoVivo({
     {
       role: 'user',
       content:
-        `Contexto recuperado do corpus curado (única fonte citável):\n\n${contexto}` +
+        (doContexto.length > 0
+          ? `Contexto recuperado do corpus curado (única fonte citável):\n\n${contexto}`
+          : // Sem dispositivo do corpus, o cabeçalho não pode dizer "corpus curado":
+            // o que veio é o acervo estadual, e chamá-lo do que ele não é seria o
+            // produto mentindo na primeira linha do próprio contexto.
+            `A busca no corpus curado (Lei de Drogas, Código Penal e CPP) não recuperou ` +
+            `nenhum dispositivo para esta pergunta. O que o sistema alcançou está abaixo, ` +
+            `e é a única fonte citável:\n${contexto}`) +
         `${montarFio(fio)}${aviso}\n\nPergunta do advogado: ${pergunta}`,
     },
   ]
@@ -567,7 +702,7 @@ export async function* gerarAoVivo({
         // descartaria por não achar o id, deixando o parágrafo ancorado nos
         // dados e órfão na tela. É o mesmo modo de falha do corte de fontes
         // pelo fim, que o comentário de `enriquece` descreve.
-        comp: enriquece(veredito.dados, doContexto, passos, precedentes),
+        comp: enriquece(veredito.dados, doContexto, passos, precedentes, decretos.itens),
         modelo: MODELO,
       }
       return

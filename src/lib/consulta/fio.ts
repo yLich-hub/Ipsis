@@ -65,11 +65,22 @@ export const MAX_HERDADOS = 5
 const MAX_PERGUNTA = 300
 
 /**
- * A forma dos ids do projeto (`lei_11343_2006_art33_p4`, `dl_2848_1940_art59`).
- * Isto vem do cliente e é entrada de usuário como qualquer outra — o que não
- * tem forma de id não chega a virar consulta ao banco.
+ * A forma dos ids do projeto. Isto vem do cliente e é entrada de usuário como
+ * qualquer outra — o que não tem forma de id não chega a virar consulta ao
+ * banco.
+ *
+ * **Os dois-pontos entraram consertando um defeito silencioso.** O corpus usa
+ * `lei_11343_2006_art33_p4` e cabia na regra antiga; os outros dois espaços de
+ * id do produto, não: precedente do STJ é `stj:1234` e bloco de decreto
+ * estadual é `decpr:2023:475:1`. Os dois eram descartados aqui, sem erro e sem
+ * rastro, e o efeito só aparecia uma troca depois — a pergunta de seguimento
+ * perdia o tema do STJ ou o decreto que a resposta anterior tinha citado.
+ *
+ * O comentário de `lerDispositivos` já dizia que "o fio carrega também id de
+ * precedente do STJ": era verdade sobre a intenção e falsa sobre o código,
+ * porque nenhum chegava lá.
  */
-const ID_VALIDO = /^[a-z0-9][a-z0-9_-]{2,79}$/
+const ID_VALIDO = /^[a-z0-9][a-z0-9_:-]{2,79}$/
 
 /**
  * Sanea o fio que o cliente mandou.

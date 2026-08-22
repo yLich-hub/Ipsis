@@ -23,7 +23,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { dataBR, especie } from '../src/lib/decretos/formato'
+import { dataBR, especie, publicacao } from '../src/lib/decretos/formato'
 
 const ACERVO = resolve(import.meta.dirname, '..', 'data', 'decretos_pr')
 
@@ -188,5 +188,33 @@ describe('data', () => {
     // mesmo cuidado que `scripts/busca.ts` documenta.
     expect(dataBR('2025-01-31')).toBe('31/01/2025')
     expect(dataBR('2022-12-01')).toBe('01/12/2022')
+  })
+})
+
+describe('data de publicação divergente', () => {
+  it('marca quando o ano da data discorda do ano do ato', () => {
+    // O Decreto 4.895: listado em 2024, epígrafe de 2024, e a coluna de data de
+    // publicação da fonte dizendo 21/02/2021. Sem a marca, o cartão exibe
+    // "Decreto 4895/2024" ao lado de "21/02/2021" e parece defeito do produto.
+    expect(publicacao({ publicado_em: '2021-02-21', ano: 2024 })).toEqual({
+      texto: '21/02/2021',
+      divergente: true,
+    })
+  })
+
+  it('não marca nada no caso normal', () => {
+    expect(publicacao({ publicado_em: '2025-01-31', ano: 2025 })).toEqual({
+      texto: '31/01/2025',
+      divergente: false,
+    })
+  })
+
+  seComAcervo('o acervo real tem exatamente um ato divergente', () => {
+    // Medido em 22/08/2026 sobre os 1.989. Se este número crescer, a fonte
+    // passou a divergir mais e a regra do ano merece nova medição — não é para
+    // virar ruído aceito.
+    const fora = todos.filter((d) => publicacao(d).divergente)
+    expect(fora).toHaveLength(1)
+    expect(fora[0]?.id).toBe('decpr:2024:4895')
   })
 })
