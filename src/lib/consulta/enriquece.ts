@@ -15,6 +15,7 @@
 // =============================================================================
 
 import type { Achado } from '@/lib/busca/consultar'
+import { versaoFem } from '@/lib/decretos/formato'
 import type { AchadoDecreto } from '@/lib/decretos/formato'
 import type { Citavel } from '@/lib/vigilia/precedentes'
 import type { RespostaIA } from '@/lib/consulta/contrato'
@@ -149,7 +150,7 @@ export function enriquece(
         n: String(i + 1),
         titulo: `Decreto ${x.d.numero}/${x.d.ano}${x.d.rotulo ? `, ${x.d.rotulo}` : ''}`,
         sub: 'decreto estadual do Paraná — acervo de consulta, não citável em peça',
-        selo: `redação ${x.d.versao}`,
+        selo: `redação ${versaoFem(x.d.versao)}`,
         tom: 'ambar' as const,
         id: x.d.bloco_id,
       }

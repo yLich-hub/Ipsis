@@ -13,18 +13,25 @@
 
 // --- formatos ----------------------------------------------------------------
 
-/** Uma linha da lista: o que a fonte publica ao lado do ato, sem o texto. */
+/**
+ * Uma linha da lista: o que o CARTÃO imprime, e nada além.
+ *
+ * `epigrafe` e `url` saíram daqui de propósito — ver `COLUNAS_LISTA`, em
+ * `leitura.ts`: são 130 caracteres por linha que ninguém lê na lista, e com
+ * 1.989 linhas viram meio megabyte indo para o telefone.
+ */
 export type DecretoResumo = {
   id: string
   numero: string
   ano: number
-  epigrafe: string
   sumula: string
   publicado_em: string
   conferido_em: string
   versao: string
-  url: string
 }
+
+/** O ato inteiro, como o leitor precisa dele. */
+export type DecretoCabecalho = DecretoResumo & { epigrafe: string; url: string }
 
 export type BlocoDecreto = {
   id: string
@@ -33,7 +40,7 @@ export type BlocoDecreto = {
   texto: string
 }
 
-export type DecretoInteiro = DecretoResumo & {
+export type DecretoInteiro = DecretoCabecalho & {
   preambulo: string
   diario: string | null
   blocos: BlocoDecreto[]
@@ -107,4 +114,20 @@ export function publicacao(d: { publicado_em: string; ano: number }): {
 } {
   const texto = dataBR(d.publicado_em)
   return { texto, divergente: Number(d.publicado_em.slice(0, 4)) !== d.ano }
+}
+
+/**
+ * A versão do texto, concordando em português.
+ *
+ * A coluna guarda o vocabulário da fonte — `compilado`, `alterado`, `original`
+ * —, e é assim que ela deve continuar: é o nome que a página do Paraná dá aos
+ * três botões, e trocá-lo no banco faria o dado deixar de casar com a origem.
+ *
+ * A tela, porém, escreve "Redação ___", e "redação" é feminino: colada no valor
+ * cru ela dizia **"Redação compilado"** no cartão da lista, no selo da fonte
+ * citada no chat e no painel de procedência do leitor. Erro de concordância em
+ * três lugares, num produto cujo leitor é advogado.
+ */
+export function versaoFem(versao: string): string {
+  return versao === 'compilado' ? 'compilada' : versao === 'alterado' ? 'alterada' : versao
 }

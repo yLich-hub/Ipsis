@@ -21,7 +21,7 @@ import { Cabecalho } from '@/components/casca/cabecalho'
 import { ErroBanco } from '@/components/toga/estados'
 import { Icone } from '@/components/icones'
 import { Selo } from '@/components/toga/base'
-import { dataBR, especie, publicacao } from '@/lib/decretos/formato'
+import { dataBR, especie, publicacao, versaoFem } from '@/lib/decretos/formato'
 import { decreto } from '@/lib/decretos/leitura'
 import { titulo } from '@/lib/toga/marca'
 
@@ -79,7 +79,7 @@ export default async function PaginaDecreto({ params }: Props) {
               — e não diz o que não se conferiu. Ver o cabeçalho deste arquivo. */}
           <div className="mt-4 rounded-2xl bg-tg-fundo px-4 py-3">
             <p className="text-[12px] leading-[1.6] text-tg-corpo-2">
-              Redação <strong className="font-medium">{d.versao}</strong> — a última alteração
+              Redação <strong className="font-medium">{versaoFem(d.versao)}</strong> — a última alteração
               publicada pela fonte —, lida em{' '}
               <strong className="font-medium">{dataBR(d.conferido_em)}</strong>. A vigência do ato
               não foi conferida.
