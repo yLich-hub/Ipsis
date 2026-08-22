@@ -1,0 +1,91 @@
+# =============================================================================
+# Decretos estaduais do Paraná — o recorte
+#
+# Este arquivo decide o que entra no acervo de decretos e o que fica de fora.
+# Ele existe pelo mesmo motivo de `vigilia.yaml`: padrão de reconhecimento não
+# mora em constante de código. Aqui, porém, ele vive num runtime só — o coletor
+# em `coletores/parana.py` —, então não há divergência entre runtimes a trancar;
+# o que se tranca é a mudança silenciosa do recorte, por
+# `coletores/tests/test_parana.py`, que roda estes padrões contra as 326 súmulas
+# reais de janeiro/2025 guardadas em `coletores/tests/amostras/`.
+#
+# **Por que há recorte.** Medido em 21/08/2026: são 17.778 decretos entre 2022 e
+# 2026, e a leitura de janeiro/2025 inteiro (326 atos, as 7 páginas) mostrou que
+# a esmagadora maioria é ato de pessoal — 130 nomeações, 61 exonerações, 22
+# designações. Ingerir tudo poria milhares de nomes de servidores num corpus que
+# a Consulta lê em voz alta, afogaria a busca em "Secretaria de Estado da
+# Educação" e deixaria 96% das linhas sem resposta possível para a vigência.
+# O levantamento completo está em `docs/decretos-pr-levantamento.md`.
+#
+# **O erro é enviesado para o falso positivo.** Decreto administrativo que entra
+# custa uma linha na lista; decreto normativo que fica de fora é a resposta que
+# o chat não dá. Por isso `entra` é generoso e `sai` é que faz o trabalho fino.
+#
+# Curadoria manual, versionada, revisável em diff. Nunca gerar este arquivo.
+# =============================================================================
+
+# A fonte, como o coletor a alcança. Os três parâmetros são os da URL que o
+# pedido trouxe: `tipoAto=11` é Decreto e `orgaoUnidade=1100` é o filtro que o
+# site aplica por padrão. O que este último exclui não foi conferido — se um dia
+# aparecer decreto relevante fora dele, é aqui que se muda.
+fonte:
+  base: https://www.legislacao.pr.gov.br/legislacao
+  tipo_ato: 11
+  orgao_unidade: 1100
+  # A versão do texto que se lê. `compilado` é o que traz a última alteração
+  # publicada — é o análogo estadual do texto compilado do Planalto, e é ele que
+  # impede o acervo de guardar a redação de 2022 e chamá-la de vigente.
+  # As outras duas que a fonte serve, `alterado` e `original`, não são lidas.
+  visualizacao: compilado
+
+# Janela pedida. Anos fechados, inclusive nas duas pontas.
+anos:
+  de: 2022
+  ate: 2026
+
+# ---------------------------------------------------------------------------
+# O recorte, aplicado à SÚMULA — o resumo que a própria fonte publica ao lado de
+# cada ato. É ela que diz a espécie do decreto sem abrir o ato, e é o que
+# permite ao coletor buscar o texto integral só do que passa.
+#
+# Os padrões são casados contra a súmula **sem acento, em minúsculas e sem
+# marcação HTML**, ancorados no começo. `sem_acento` tem o mesmo contrato de
+# `public.norm()` no banco e de `semAcento` em TS.
+#
+# A regra é: entra quem casa `entra` e NÃO casa `sai`. `sai` vence, porque um
+# ato de pessoal redigido com verbo normativo continua sendo ato de pessoal.
+# ---------------------------------------------------------------------------
+
+recorte:
+  # Verbos com que o Executivo estadual escreve norma.
+  entra: '^(regulamenta|institui|dispoe sobre|aprova|altera|introduz altera|acrescenta|revoga|prorroga|declara|homologa situacao|delega competencia|fica instituido|estabelece|define|cria|adota|suspende|reajusta|atualiza|fixa|consolida|autoriza)'
+
+  # Ato de pessoal, movimentação orçamentária e retificação.
+  #
+  # `nomea|nomeia` são duas entradas porque a fonte escreve as duas formas —
+  # "Nomeação de FULANO" e "Nomeia representante para compor o Conselho" — e
+  # `nomea` sozinho não casa `nomeia`. Foi assim que sete atos de pessoal
+  # passaram pelo recorte na primeira medição.
+  #
+  # **`retifica` sai, e a razão é estrutural, não de volume.** Retificação não
+  # diz na súmula o que retifica, então não há como saber se o alvo é normativo
+  # — mas ela é redundante por construção: o acervo lê a versão COMPILADA do
+  # decreto retificado, que já traz a correção aplicada. Guardar a retificação
+  # ao lado seria guardar o bilhete depois de a carta já ter sido corrigida.
+  sai: '^(nomea|nomeia|exonera|designa|dispensa|demissao|demite|cumprimento (de )?(decisao|ordem) judicial|abre (um |uma )?credito|autoriza a abertura|efetua (uma|um) (transposicao|transferencia|remanejamento)|torna(r)? sem efeito|cessao|cede |remocao|coloca a disposicao|concede aposentadoria|aposenta|transferencia de (cargo|funcao)|transfere (e nomeia|e designa|cargo|funcao)|transforma (cargos?|funcoes?|funcao)|promocao|progressao|retifica|reintegra|readapta)'
+
+# ---------------------------------------------------------------------------
+# O que a medição de janeiro/2025 devolveu com os padrões acima. Estes números
+# são asserção em `coletores/tests/test_parana.py` — mudar um padrão sem mexer
+# aqui derruba o teste, que é o ponto.
+# ---------------------------------------------------------------------------
+amostra:
+  arquivo: coletores/tests/amostras/decretos_pr_2025_01.json
+  total: 326
+  entram: 25
+  # Toda súmula da amostra casa `entra` ou `sai`. Não é enfeite estatístico: é
+  # a prova de que o recorte é total sobre dado real, e não uma peneira com
+  # buraco no meio por onde espécie nova passa sem ninguém ver. Súmula que não
+  # casasse nada seria espécie que a curadoria não conhece — e o teste exige
+  # que esse número continue zero.
+  sem_padrao: 0
