@@ -17,16 +17,34 @@ v2 faz de mais característico não era verificado por ninguém:
 - uma consulta indo até as fontes numeradas, com o aviso de origem na tela;
 - a conversa entrando no histórico da lateral;
 - o cadastro de cliente sobrevivendo a um recarregamento, e o apagar em dois
-  tempos.
+  tempos;
+- **o acervo de decretos do Paraná** (`decretos.spec.ts`): o item na lateral e na
+  gaveta do celular, o leitor abrindo por um id com dois-pontos, a recusa de
+  afirmar vigência, e a janela de desenho da lista — 1.989 linhas desenhadas 60
+  por vez, com o filtro ainda enxergando todas. Uma janela que corta sem se
+  anunciar é uma lista que mente sobre o próprio tamanho, e isso passa em `tsc`,
+  passa em vitest e só aparece com um dedo na tela.
 
 ## Como rodar
 
+Ponha as duas variáveis no `.env.local`, ao lado dos outros segredos do projeto
+— o `playwright.config.ts` lê o arquivo:
+
 ```
-E2E_EMAIL=... E2E_SENHA=... npm run e2e
-E2E_EMAIL=... E2E_SENHA=... npm run e2e -- --ui     # interativo, para depurar seletor
+E2E_EMAIL=teste@exemplo.com
+E2E_SENHA=...
 ```
 
-No PowerShell:
+E então:
+
+```
+npm run e2e
+npm run e2e -- --ui                    # interativo, para depurar seletor
+npm run e2e -- e2e/decretos.spec.ts    # um arquivo só
+```
+
+Variável já definida no ambiente vence o arquivo, para rodar com outra conta
+numa execução só:
 
 ```powershell
 $env:E2E_EMAIL = '...'; $env:E2E_SENHA = '...'; npm run e2e
@@ -48,7 +66,9 @@ deve precisar de segredo nem de rede para rodar o que roda sem os dois — por i
 
 ## A conta
 
-`E2E_EMAIL` e `E2E_SENHA` vêm do ambiente, nunca do código. Sem eles a suíte para
+`E2E_EMAIL` e `E2E_SENHA` vêm do ambiente — do `.env.local`, que o
+`playwright.config.ts` carrega, ou de variáveis exportadas na mão. Nunca do
+código. Sem eles a suíte para
 e diz o que falta, em vez de tentar entrar com credencial inventada e falhar com
 "e-mail ou senha incorretos" — que mandaria procurar o defeito no lugar errado.
 

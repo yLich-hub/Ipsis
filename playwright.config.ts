@@ -30,6 +30,27 @@
 // =============================================================================
 
 import { defineConfig, devices } from '@playwright/test'
+import { config } from 'dotenv'
+import { resolve } from 'node:path'
+
+/**
+ * Lê o `.env.local`, quando ele existe.
+ *
+ * `E2E_EMAIL` e `E2E_SENHA` continuam vindo do AMBIENTE — o que muda é que o
+ * ambiente pode ser o mesmo arquivo em que todos os outros segredos do projeto
+ * já moram, em vez de duas variáveis exportadas à mão em cada terminal novo.
+ *
+ * É o conserto que o lado Python já recebeu, e pela mesma razão escrita lá: os
+ * scripts em `scripts/` carregam o arquivo com dotenv, e não havia motivo para
+ * este lado ser diferente. O efeito de não carregar é ruim de diagnosticar —
+ * a suíte para dizendo "defina E2E_EMAIL" com as duas variáveis ali,
+ * preenchidas, no `.env.local` ao lado.
+ *
+ * **Variável já definida no ambiente vence o arquivo** (`override` fica
+ * desligado, que é o padrão do dotenv): quem quiser rodar com outra conta
+ * numa execução só continua podendo, exportando as duas antes do comando.
+ */
+config({ path: resolve(import.meta.dirname, '.env.local'), quiet: true })
 
 const PORTA = Number(process.env.PORTA_E2E ?? 3100)
 
