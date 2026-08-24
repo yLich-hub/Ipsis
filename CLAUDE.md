@@ -2181,11 +2181,9 @@ está no `ls` da pasta.
   o `<summary>` de filtros que não parecia tocável no celular e o "voltar" do
   cabeçalho com 23 px de altura em 390.
 
-  **O que continua sem conferência é o clique com sessão real**: o andaime da
-  auditoria montou as telas por fora do login (a tabela tem leitura pública por
-  RLS), então o menu lateral, o histórico e a Consulta não foram exercitados
-  autenticados. A sessão salva do Playwright expirou e `entrada.setup.ts` exige
-  `E2E_EMAIL`/`E2E_SENHA`, que não estão no ambiente.
+  **A suíte de navegador passou a rodar, e isso fechou a lacuna.** Com a conta
+  descartável em `.env.local`, `npm run e2e` roda os 24 casos com sessão real —
+  os dez do acervo e os catorze do resto do produto. Todos passam.
 
 - **Quase um quarto do acervo é homologação de emergência municipal** — 493 dos
   1.989. São normativas e o recorte é generoso de propósito, mas não servem à
