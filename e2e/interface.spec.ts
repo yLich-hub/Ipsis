@@ -25,9 +25,19 @@ test.describe('lateral', () => {
     await expect(lateral.getByText('Consulta em chat')).toBeHidden()
     await expect(page.getByRole('button', { name: 'Expandir menu' })).toBeVisible()
 
-    // A decisão nº 3 não se recolhe junto: na trilha a data vira o ponto vivo,
-    // com a data no `title`.
-    await expect(page.locator('[title*="Base conferida"]')).toBeVisible()
+    // **Esta asserção mudou de alvo, e a mudança é um teste envelhecido sendo
+    // corrigido.** Ela exigia `[title*="Base conferida"]` — o cartão que ficava
+    // no pé da lateral e carregava a data de corte. Ele SAIU a pedido, e o
+    // rodapé passou a ser a conta; a data continua no produto, em cinco outros
+    // lugares (a pílula da caixa de consulta, a procedência de cada
+    // dispositivo, `/leis`, `/fontes` e o rodapé do `.docx`), mas não aqui.
+    //
+    // O que se testa na trilha agora é o que ela de fato promete: o botão da
+    // conta sobrevive ao recolhimento, reduzido ao avatar. É a única ação que
+    // precisa estar sempre alcançável — sair da sessão.
+    // Pelo nome acessível, e não por `aria-haspopup`: o botão de dev tools do
+    // Next tem o mesmo atributo, e o seletor casava dois elementos.
+    await expect(page.getByRole('button', { name: /^Conta de/ })).toBeVisible()
 
     // Persistência: outra tela, mesma preferência.
     await page.getByRole('link', { name: 'Dosimetria' }).click()
@@ -58,7 +68,7 @@ test.describe('preferências', () => {
     const html = page.locator('html')
     await expect(html).not.toHaveAttribute('data-movimento', 'reduzido')
 
-    await page.getByRole('button', { name: /Reduzir movimento/ }).click()
+    await page.getByRole('switch', { name: /Reduzir movimento/ }).click()
     await expect(html).toHaveAttribute('data-movimento', 'reduzido')
 
     await page.reload()
@@ -68,7 +78,7 @@ test.describe('preferências', () => {
     // `localStorage`, e deixar o movimento desligado mudaria o que os outros
     // veem.
     await page.getByRole('button', { name: /Aparência/ }).click()
-    await page.getByRole('button', { name: /Reduzir movimento/ }).click()
+    await page.getByRole('switch', { name: /Reduzir movimento/ }).click()
     await expect(html).not.toHaveAttribute('data-movimento', 'reduzido')
   })
 
@@ -79,10 +89,15 @@ test.describe('preferências', () => {
     // A Casca e a tela de Configurações são árvores diferentes; é o evento
     // `toga:preferencias` que faz uma reagir à outra sem recarregar. Sem ele,
     // este clique só apareceria na próxima navegação.
-    await page.getByRole('button', { name: /Lateral recolhida/ }).click()
+    //
+    // `switch`, e não `button`: a linha ganhou `role="switch"` com
+    // `aria-checked` quando o interruptor passou a anunciar o próprio estado ao
+    // leitor de tela — antes ele chegava como "Lateral recolhida" e nada mais.
+    // O teste seguia procurando o papel antigo.
+    await page.getByRole('switch', { name: /Lateral recolhida/ }).click()
     await expect(page.getByRole('button', { name: 'Expandir menu' })).toBeVisible()
 
-    await page.getByRole('button', { name: /Lateral recolhida/ }).click()
+    await page.getByRole('switch', { name: /Lateral recolhida/ }).click()
     await expect(page.getByRole('button', { name: 'Recolher menu' })).toBeVisible()
   })
 })
