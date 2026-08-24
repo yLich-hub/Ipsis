@@ -8,6 +8,14 @@
 // Existe para afinar os pesos da fusão RRF sem precisar de front-end, e para
 // provar que rubrica, lexical e semântica estão os três de pé. É a mesma função
 // que o app chama em runtime — aqui só o transporte é outro.
+//
+// **Isto é a RPC, não o caminho do app, e a diferença já custou um susto.** O
+// app entra por `consultar()`, que antes da fusão tenta `resolveDireto`: "art.
+// 33 da Lei de Drogas" é endereço, não busca, e é lido direto por id. Este
+// comando pula essa etapa e manda tudo para `busca_hibrida` — então uma
+// consulta com número de artigo sai daqui pela fusão, com score de perna única,
+// e parece defeito quando não é. Para conferir o caminho inteiro, chame
+// `consultar()`.
 // =============================================================================
 
 import OpenAI from 'openai'
