@@ -2134,15 +2134,30 @@ está no `ls` da pasta.
   contra o corpus e a lista de causas da terceira fase — sem isso a calculadora
   aceitaria o artigo e ignoraria metade da conta. Fora do que a busca e a peça já
   alcançam, nenhum entra sem pedido explícito.
-- **"Porte para consumo pessoal" não alcança o art. 28, e é rubrica faltando.**
-  Medido em 20/08/2026, depois de 0017: a consulta devolve o art. 180-A do CP
-  (receptação de animal), o art. 180, § 2º e o art. 158-D do CPP, e o art. 28 da
-  Lei de Drogas não aparece entre os oito. É o erro de classe que a decisão nº 2
-  descreve — busca por apelido do instituto sem rubrica curada que o case —, e o
-  perfil dela é indistinguível de uma pergunta fora do corpus (topo em 1/61,
-  razão 0,90, nada acima do piso). O piso está fazendo o certo: marca `fraco` e
-  impede o modelo de construir tese sobre receptação. O que falta é entrada em
-  `data/curadoria/rubricas.yaml`, com reseed — não é conserto de código.
+- **"Porte para consumo pessoal" já alcança o art. 28, e o diagnóstico anterior
+  estava errado.** A pendência dizia "rubrica faltando"; medido em 23/08/2026, a
+  rubrica `porte de droga para consumo pessoal` estava lá desde sempre, com o
+  cluster certo. O que faltava eram variantes **curtas**: o match é por
+  igualdade da consulta inteira ou pelo termo contido nela a partir de 12
+  caracteres, e todos os termos curados eram MAIS LONGOS que a pergunta — termo
+  de 35 caracteres não cabe dentro de uma consulta de 26, e igual não é. Uma
+  rubrica escrita na forma completa do instituto não alcança quem digita a forma
+  abreviada, que é como as pessoas escrevem. Com `consumo pessoal` (15) entre as
+  variantes, a consulta devolve o art. 28 caput, § 2º e § 1º, via rubrica, a
+  0,053.
+
+  **Uma variante foi escrita, medida e retirada, e o registro importa mais que a
+  correção.** `porte de droga` (14) casa por "contido" e fez
+  "porte de droga para venda" — que é tráfico — devolver o art. 28 em primeiro
+  lugar, com peso dominante. É a classe de erro que a pendência do corte de 12
+  caracteres descreve, aparecendo em uma tarde. Ficou a forma qualificada,
+  `porte de droga para consumo`, que não cabe dentro da pergunta de venda.
+
+  **O preço:** `porte de droga` sozinho não alcança mais o art. 28 — cai em
+  léxico e vetor, e o piso marca o contexto como fraco. É o erro na direção
+  certa: perder um acerto custa uma recuperação fraca declarada; dominar com a
+  rubrica errada afirma outro crime.
+
 - **O corte de 12 caracteres da rubrica contida foi calibrado contra o peso
   quebrado, e 0017 mudou o terreno.** A trava de 0011 existe para "tráfico" (7)
   não casar em toda pergunta; ela foi medida quando a rubrica valia, de fato,

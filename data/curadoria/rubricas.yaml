@@ -156,12 +156,53 @@
   explicacao: >-
     Conduta do art. 28, sem pena privativa de liberdade — só advertência,
     prestação de serviços e medida educativa.
+  # **Estas variantes nasceram de uma medição, e a lição vale para o arquivo
+  # inteiro.** Em 20/08/2026 ficou registrado que "porte para consumo pessoal"
+  # não alcançava o art. 28 — a busca devolvia o art. 180-A do CP (receptação de
+  # animal) e a cadeia de custódia do CPP. O diagnóstico anotado era "rubrica
+  # faltando"; medido de novo em 23/08/2026, a rubrica estava aqui o tempo todo.
+  #
+  # O que faltava eram variantes CURTAS. O match é por igualdade da consulta
+  # inteira, ou pelo termo contido na consulta a partir de 12 caracteres — e
+  # todos os termos curados eram MAIS LONGOS que a pergunta:
+  #
+  #   consulta ....................... "porte para consumo pessoal"      (26)
+  #   termo .......................... "porte de droga para consumo pessoal" (35)
+  #   variante mais longa ............ "consumo pessoal de drogas"        (25)
+  #
+  # Termo mais longo que a consulta não cabe dentro dela, e igual não é. Uma
+  # rubrica escrita na forma completa do instituto não alcança quem digita a
+  # forma abreviada — que é como as pessoas escrevem.
+  #
+  # `consumo pessoal` (15) é a que conserta o caso medido: ela cabe dentro da
+  # pergunta. E é específica o bastante para o peso dominante não fazer estrago —
+  # no corpus ela só aparece no art. 28 e no § 3º do art. 33, que é a mesma
+  # matéria.
+  #
+  # **`porte de droga` sozinho foi escrito, medido e retirado.** Com 14
+  # caracteres ele casa por "contido", e o teste de controle mostrou o estrago:
+  # "porte de droga para venda" — que é tráfico — passou a devolver o art. 28 em
+  # primeiro lugar, com peso dominante. É exatamente a classe de erro que a
+  # pendência do corte de 12 caracteres descreve, e ela apareceu aqui em uma
+  # tarde. A forma qualificada (`porte de droga para consumo`) não cabe dentro
+  # da pergunta de venda, e é a que ficou.
+  #
+  # A rubrica casa termo, não lê qualificador. Quando as duas leituras de uma
+  # mesma expressão apontam para crimes diferentes, quem decide não pode ser
+  # a perna de peso dominante.
   variantes:
     - uso pessoal
+    - uso próprio
+    - consumo pessoal
+    - porte para consumo pessoal
     - porte para uso próprio
     - porte de droga para uso
+    - porte de droga para consumo
+    - posse de droga para consumo pessoal
+    - porte de entorpecente para uso pessoal
     - usuário de drogas
     - consumo pessoal de drogas
+    - despenalização
   dispositivos:
     - { id: lei_11343_2006_art28_caput, papel: principal, peso: 100 }
     - { id: lei_11343_2006_art28_p2, papel: requisito, peso: 80, nota: critérios para dizer se a droga era de consumo pessoal }
