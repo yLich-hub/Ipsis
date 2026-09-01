@@ -87,6 +87,25 @@ const sha256 = (s: string) => createHash('sha256').update(s).digest('hex')
  */
 const TETO_EMBED = 8_000
 
+/**
+ * Piso do que merece um vetor, em caracteres do TEXTO do bloco.
+ *
+ * **Imposto por uma conta de espaço, medida em 01/09/2026.** Com todos os
+ * 30.779 blocos embutidos, `decretos_pr_blocos` ocupava 703 MB dos 827 MB do
+ * projeto — 85% —, e o plano gratuito do Supabase para em 500 MB. Dos 30.779,
+ * 16.114 têm menos de 150 caracteres: incisos de uma linha, alíneas e o fecho
+ * do ato.
+ *
+ * Fragmento desse tamanho não sustenta resposta — é o argumento de
+ * `texto_embed` levado ao limite: no corpus federal a saída foi dar contexto ao
+ * vetor; para um inciso de seis palavras, nem o contexto salva.
+ *
+ * **Eles não somem da busca.** A perna lexical lê `busca`, que toda linha tem, e
+ * a perna de súmula é do ato inteiro. O que se perde é a busca semântica sobre o
+ * fragmento isolado, que é onde ela vale menos.
+ */
+const PISO_EMBED = 150
+
 const paraEmbed = (d: Decreto, b: Bloco) => {
   const inteiro = [`${d.epigrafe}.`, d.sumula, [b.rotulo, b.texto].filter(Boolean).join(' ')]
     .filter(Boolean)
@@ -130,7 +149,10 @@ try {
 
     const blocos = a.decretos.flatMap((d) =>
       d.blocos.map((b) => {
-        const texto_embed = paraEmbed(d, b)
+        // Bloco curto vai para o banco com `texto_embed` NULO, e o `embed.ts`
+        // não o enxerga. Nulo aqui é decisão, não pendência — ver `PISO_EMBED`.
+        const curto = b.texto.trim().length < PISO_EMBED
+        const texto_embed = curto ? null : paraEmbed(d, b)
         return {
           id: b.id,
           decreto_id: d.id,
@@ -138,7 +160,7 @@ try {
           rotulo: b.rotulo,
           texto: b.texto,
           texto_embed,
-          texto_hash: sha256(texto_embed),
+          texto_hash: texto_embed ? sha256(texto_embed) : null,
         }
       }),
     )

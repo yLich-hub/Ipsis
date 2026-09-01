@@ -6,9 +6,9 @@
   "orgao_unidade": 1100,
   "visualizacao": "compilado"
  },
- "colhido_em": "2026-08-21",
+ "colhido_em": "2026-09-01",
  "vistos": 2493,
- "no_recorte": 214,
+ "no_recorte": 161,
  "completo": true,
  "republicados": [],
  "decretos": [
@@ -24,7 +24,7 @@
    "cod_ato": "403349",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403349",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14812:1",
@@ -107,236 +107,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14800",
-   "numero": "14800",
-   "ano": 2026,
-   "epigrafe": "Decreto 14800 - 18 de Agosto de 2026",
-   "sumula": "Homologa situação de emergência no Município de Reserva, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Reserva, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.438.780-9,\n\nDECRETA:",
-   "publicado_em": "2026-08-18",
-   "diario": "12210",
-   "cod_ato": "403222",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403222",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14800:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 4.554, de 18 de agosto de 2026, exarado pelo Prefeito de Reserva, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14800:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14800:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14800:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14800:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 18 de agosto de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14798",
-   "numero": "14798",
-   "ano": 2026,
-   "epigrafe": "Decreto 14798 - 18 de Agosto de 2026",
-   "sumula": "Homologa situação de emergência no Município de Marquinho, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Marquinho, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.437.746-3,\n\nDECRETA:",
-   "publicado_em": "2026-08-18",
-   "diario": "12210",
-   "cod_ato": "403209",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403209",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14798:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 82, de 18 de agosto de 2026, exarado pelo Prefeito de Marquinho, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14798:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14798:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14798:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14798:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 18 de agosto de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14797",
-   "numero": "14797",
-   "ano": 2026,
-   "epigrafe": "Decreto 14797 - 18 de Agosto de 2026",
-   "sumula": "Homologa situação de emergência no Município de Santa Maria do Oeste, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Santa Maria do Oeste, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.436.017-0,\n\nDECRETA:",
-   "publicado_em": "2026-08-18",
-   "diario": "12210",
-   "cod_ato": "403208",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403208",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14797:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 72, de 18 de agosto de 2026, exarado pelo Prefeito de Santa Maria do Oeste, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14797:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14797:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14797:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14797:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 18 de agosto de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14796",
-   "numero": "14796",
-   "ano": 2026,
-   "epigrafe": "Decreto 14796 - 18 de Agosto de 2026",
-   "sumula": "Homologa situação de emergência no Município de Palmital, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Palmital, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.435.927-9,\n\nDECRETA:",
-   "publicado_em": "2026-08-18",
-   "diario": "12210",
-   "cod_ato": "403204",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403204",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14796:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 45, de 18 de agosto de 2026, exarado pelo Prefeito de Palmital, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14796:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14796:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14796:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14796:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 18 de agosto de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14788",
-   "numero": "14788",
-   "ano": 2026,
-   "epigrafe": "Decreto 14788 - 18 de Agosto de 2026",
-   "sumula": "Homologa situação de emergência no Município de Cândido de Abreu, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Cândido de Abreu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.435.133-2,\n\nDECRETA:",
-   "publicado_em": "2026-08-18",
-   "diario": "12210",
-   "cod_ato": "403194",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403194",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14788:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 197, de 18 de agosto de 2026, exarado pelo Prefeito de Cândido de Abreu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14788:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14788:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14788:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14788:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 18 de agosto de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14777",
    "numero": "14777",
    "ano": 2026,
@@ -348,7 +118,7 @@
    "cod_ato": "403153",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403153",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14777:1",
@@ -382,7 +152,7 @@
    "cod_ato": "403151",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403151",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14776:1",
@@ -416,7 +186,7 @@
    "cod_ato": "403150",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403150",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14775:1",
@@ -450,7 +220,7 @@
    "cod_ato": "403085",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403085",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14766:1",
@@ -490,7 +260,7 @@
    "cod_ato": "403081",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403081",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14765:1",
@@ -560,7 +330,7 @@
    "cod_ato": "403079",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403079",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14764:1",
@@ -618,7 +388,7 @@
    "cod_ato": "403068",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403068",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14763:1",
@@ -652,7 +422,7 @@
    "cod_ato": "403067",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403067",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14762:1",
@@ -686,7 +456,7 @@
    "cod_ato": "403066",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403066",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14761:1",
@@ -792,7 +562,7 @@
    "cod_ato": "402783",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402783",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14718:1",
@@ -875,52 +645,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14716",
-   "numero": "14716",
-   "ano": 2026,
-   "epigrafe": "Decreto 14716 - 12 de Agosto de 2026",
-   "sumula": "Homologa situação de emergência no Município de Piraí do Sul, em face da ocorrência de Tempestade Local/Convectiva - Tornados.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Piraí do Sul, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.402.968-6,\n\nDECRETA:",
-   "publicado_em": "2026-08-12",
-   "diario": "12206",
-   "cod_ato": "402650",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402650",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14716:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 2.983, de 12 de agosto de 2026, exarado pelo Prefeito de Piraí do Sul, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Tornados."
-    },
-    {
-     "id": "decpr:2026:14716:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14716:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14716:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14716:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 12 agosto de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14715",
    "numero": "14715",
    "ano": 2026,
@@ -932,7 +656,7 @@
    "cod_ato": "402610",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402610",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14715:1",
@@ -1014,7 +738,7 @@
    "cod_ato": "402609",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402609",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14714:1",
@@ -1048,7 +772,7 @@
    "cod_ato": "402544",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402544",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14706:1",
@@ -1274,7 +998,7 @@
    "cod_ato": "402417",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402417",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14699:1",
@@ -1314,7 +1038,7 @@
    "cod_ato": "402251",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402251",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14669:1",
@@ -1337,52 +1061,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14632",
-   "numero": "14632",
-   "ano": 2026,
-   "epigrafe": "Decreto 14632 - 06 de Agosto de 2026",
-   "sumula": "Homologa situação de emergência no Município de Guaratuba, em face da ocorrência de Tempestade Local/Convectiva - Vendaval.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Guaratuba, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 26.366.869-3,\n\nDECRETA:",
-   "publicado_em": "2026-08-06",
-   "diario": "12202",
-   "cod_ato": "402039",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402039",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14632:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 27.783, de 5 de agosto de 2026, exarado pelo Prefeito de Guaratuba, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Vendaval."
-    },
-    {
-     "id": "decpr:2026:14632:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14632:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14632:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14632:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 6 de agosto de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14630",
    "numero": "14630",
    "ano": 2026,
@@ -1394,7 +1072,7 @@
    "cod_ato": "401929",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=401929",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14630:1",
@@ -1434,7 +1112,7 @@
    "cod_ato": "401693",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=401693",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14617:1",
@@ -2422,7 +2100,7 @@
    "cod_ato": "401143",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=401143",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14554:1",
@@ -2445,52 +2123,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14500",
-   "numero": "14500",
-   "ano": 2026,
-   "epigrafe": "Decreto 14500 - 27 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Quedas do Iguaçu, em face da ocorrência de Alagamentos.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Quedas do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.305.178-5,\n\nDECRETA:",
-   "publicado_em": "2026-07-27",
-   "diario": "12194",
-   "cod_ato": "400919",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400919",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14500:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 261, de 24 de julho de 2026, exarado pelo Prefeito de Quedas do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Alagamentos."
-    },
-    {
-     "id": "decpr:2026:14500:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14500:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14500:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14500:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 27 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14499",
    "numero": "14499",
    "ano": 2026,
@@ -2502,7 +2134,7 @@
    "cod_ato": "400911",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400911",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14499:1",
@@ -2866,7 +2498,7 @@
    "cod_ato": "400772",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400772",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14483:1",
@@ -2906,7 +2538,7 @@
    "cod_ato": "400630",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400630",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14476:1",
@@ -2952,7 +2584,7 @@
    "cod_ato": "400632",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400632",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14477:1",
@@ -2998,7 +2630,7 @@
    "cod_ato": "400080",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400080",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14379:1",
@@ -3068,7 +2700,7 @@
    "cod_ato": "400079",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400079",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14378:1",
@@ -3126,7 +2758,7 @@
    "cod_ato": "400076",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400076",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14377:1",
@@ -3196,7 +2828,7 @@
    "cod_ato": "399697",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399697",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14362:1",
@@ -3927,52 +3559,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14318",
-   "numero": "14318",
-   "ano": 2026,
-   "epigrafe": "Decreto 14318 - 09 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Rio Bonito do Iguaçu, em face da ocorrência de Tempestade Local/Convectiva - Chuvas Intensas.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Rio Bonito do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.210.393-5,\n\nDECRETA:",
-   "publicado_em": "2026-07-09",
-   "diario": "12182",
-   "cod_ato": "399655",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399655",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14318:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 222, de 7 de julho de 2026, exarado pelo Prefeito de Rio Bonito do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Chuvas Intensas."
-    },
-    {
-     "id": "decpr:2026:14318:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14318:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14318:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14318:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 9 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14316",
    "numero": "14316",
    "ano": 2026,
@@ -3984,7 +3570,7 @@
    "cod_ato": "399610",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399610",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14316:1",
@@ -4024,7 +3610,7 @@
    "cod_ato": "399598",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399598",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14315:1",
@@ -4101,98 +3687,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14307",
-   "numero": "14307",
-   "ano": 2026,
-   "epigrafe": "Decreto 14307 - 6 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de General Carneiro, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de General Carneiro, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.199.558-1,\n\nDECRETA:",
-   "publicado_em": "2026-07-06",
-   "diario": "12179",
-   "cod_ato": "399358",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399358",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14307:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 509, de 6 de julho de 2026, exarado pelo Prefeito de General Carneiro, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14307:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14307:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14307:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14307:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 6 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14306",
-   "numero": "14306",
-   "ano": 2026,
-   "epigrafe": "Decreto 14306 - 06 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Reserva, em face da ocorrência de Tempestade Local/Convectiva - Tornados.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Reserva, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.200.091-5,\n\nDECRETA:",
-   "publicado_em": "2026-07-06",
-   "diario": "12179",
-   "cod_ato": "399345",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399345",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14306:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 4.513, de 3 de julho de 2026, exarado pelo Prefeito de Reserva, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Tornados."
-    },
-    {
-     "id": "decpr:2026:14306:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14306:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14306:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14306:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 6 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14305",
    "numero": "14305",
    "ano": 2026,
@@ -4204,7 +3698,7 @@
    "cod_ato": "399341",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399341",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14305:1",
@@ -4238,7 +3732,7 @@
    "cod_ato": "399340",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399340",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14304:1",
@@ -4272,7 +3766,7 @@
    "cod_ato": "399339",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399339",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14303:1",
@@ -4295,190 +3789,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14262",
-   "numero": "14262",
-   "ano": 2026,
-   "epigrafe": "Decreto 14262 - 3 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Marquinho, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Marquinho, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.181.529-0,\n\nDECRETA:",
-   "publicado_em": "2026-07-03",
-   "diario": "12178",
-   "cod_ato": "398996",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398996",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14262:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 73, de 2 de julho de 2026, exarado pelo Prefeito de Marquinho, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14262:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14262:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14262:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14262:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 3 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14261",
-   "numero": "14261",
-   "ano": 2026,
-   "epigrafe": "Decreto 14261 - 03 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Candói, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Candói, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.184.049-9,\n\nDECRETA:",
-   "publicado_em": "2026-07-03",
-   "diario": "12178",
-   "cod_ato": "398994",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398994",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14261:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 225, de 2 de julho de 2026, exarado pelo Prefeito de Candói, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14261:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14261:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14261:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14261:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 3 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14257",
-   "numero": "14257",
-   "ano": 2026,
-   "epigrafe": "Decreto 14257 - 2 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Turvo, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Turvo, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.177.197-7,\n\nDECRETA:",
-   "publicado_em": "2026-07-02",
-   "diario": "12177",
-   "cod_ato": "398876",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398876",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14257:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 72, de 1º de julho de 2026, exarado pelo Prefeito de Turvo, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14257:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14257:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14257:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14257:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 2 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:14256",
-   "numero": "14256",
-   "ano": 2026,
-   "epigrafe": "Decreto 14256 - 02 de Julho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Goioxim, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Goioxim, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.176.775-9,\n\nDECRETA:",
-   "publicado_em": "2026-07-02",
-   "diario": "12177",
-   "cod_ato": "398875",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398875",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14256:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 34, de 1º de julho de 2026, exarado pelo Prefeito de Goioxim, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:14256:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14256:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14256:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14256:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 2 de julho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14187",
    "numero": "14187",
    "ano": 2026,
@@ -4490,7 +3800,7 @@
    "cod_ato": "398549",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398549",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14187:1",
@@ -4524,7 +3834,7 @@
    "cod_ato": "398524",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398524",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14186:1",
@@ -4582,7 +3892,7 @@
    "cod_ato": "398504",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398504",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14185:1",
@@ -4622,7 +3932,7 @@
    "cod_ato": "398149",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398149",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14182:1",
@@ -4662,7 +3972,7 @@
    "cod_ato": "398147",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398147",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14180:1",
@@ -4720,7 +4030,7 @@
    "cod_ato": "398058",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398058",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14166:1",
@@ -4796,7 +4106,7 @@
    "cod_ato": "398045",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398045",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14165:1",
@@ -4902,7 +4212,7 @@
    "cod_ato": "397851",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397851",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14143:1",
@@ -4991,52 +4301,6 @@
    ]
   },
   {
-   "id": "decpr:2026:14096",
-   "numero": "14096",
-   "ano": 2026,
-   "epigrafe": "Decreto 14096 - 22 de Junho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Iporã, em face da ocorrência de Enxurradas.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Iporã, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.111.631-6,\n\nDECRETA:",
-   "publicado_em": "2026-06-22",
-   "diario": "12169",
-   "cod_ato": "397554",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397554",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:14096:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 133, de 19 de junho de 2026, exarado pelo Prefeito de Iporã, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Enxurradas."
-    },
-    {
-     "id": "decpr:2026:14096:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14096:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:14096:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:14096:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 22 de junho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:14095",
    "numero": "14095",
    "ano": 2026,
@@ -5048,7 +4312,7 @@
    "cod_ato": "397553",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397553",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14095:1",
@@ -5088,7 +4352,7 @@
    "cod_ato": "397261",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397261",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14078:1",
@@ -5122,7 +4386,7 @@
    "cod_ato": "397260",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397260",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14077:1",
@@ -5282,7 +4546,7 @@
    "cod_ato": "396994",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396994",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14053:1",
@@ -5388,7 +4652,7 @@
    "cod_ato": "396974",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396974",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14042:1",
@@ -5422,7 +4686,7 @@
    "cod_ato": "396718",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396718",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:14021:1",
@@ -5510,7 +4774,7 @@
    "cod_ato": "396549",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396549",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13996:1",
@@ -5544,7 +4808,7 @@
    "cod_ato": "396394",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396394",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13977:1",
@@ -6118,7 +5382,7 @@
    "cod_ato": "388903",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388903",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13043:1",
@@ -6176,7 +5440,7 @@
    "cod_ato": "396056",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396056",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13947:1",
@@ -7866,7 +7130,7 @@
    "cod_ato": "396055",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396055",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13946:1",
@@ -7924,7 +7188,7 @@
    "cod_ato": "395980",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395980",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13930:1",
@@ -7953,52 +7217,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13928",
-   "numero": "13928",
-   "ano": 2026,
-   "epigrafe": "Decreto 13928 - 02 de Junho de 2026",
-   "sumula": "Homologa situação de emergência no Município de Moreira Sales, em face da ocorrência de Tempestade Local/Convectiva - Vendaval.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Moreira Sales, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 26.011.769-6,\n\nDECRETA:",
-   "publicado_em": "2026-06-02",
-   "diario": "12157",
-   "cod_ato": "395887",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395887",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13928:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 695, de 1º de junho de 2026, exarado pelo Prefeito de Moreira Sales, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Vendaval."
-    },
-    {
-     "id": "decpr:2026:13928:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13928:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13928:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13928:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 2 de junho de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13905",
    "numero": "13905",
    "ano": 2026,
@@ -8010,7 +7228,7 @@
    "cod_ato": "395885",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395885",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13905:1",
@@ -8093,52 +7311,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13851",
-   "numero": "13851",
-   "ano": 2026,
-   "epigrafe": "Decreto 13851 - 27 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Terra Rica, em face da ocorrência de Tempestade Local/Convectiva - Granizo.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Terra Rica, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.984.362-6,\n\nDECRETA:",
-   "publicado_em": "2026-05-27",
-   "diario": "12153",
-   "cod_ato": "395355",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395355",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13851:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 227, de 25 de maio de 2026, exarado pelo Prefeito de Terra Rica, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Granizo."
-    },
-    {
-     "id": "decpr:2026:13851:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13851:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13851:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13851:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 27 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13848",
    "numero": "13848",
    "ano": 2026,
@@ -8150,7 +7322,7 @@
    "cod_ato": "395330",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395330",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13848:1",
@@ -8203,52 +7375,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13847",
-   "numero": "13847",
-   "ano": 2026,
-   "epigrafe": "Decreto 13847 - 26 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Vera Cruz do Oeste, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Vera Cruz do Oeste, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.975.552-2,\n\nDECRETA:",
-   "publicado_em": "2026-05-26",
-   "diario": "12152",
-   "cod_ato": "395155",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395155",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13847:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 7.641, de 25 de maio de 2026, exarado pelo Prefeito de Vera Cruz do Oeste, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13847:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13847:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13847:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13847:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 26 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13803",
    "numero": "13803",
    "ano": 2026,
@@ -8260,7 +7386,7 @@
    "cod_ato": "395069",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395069",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13803:1",
@@ -8300,7 +7426,7 @@
    "cod_ato": "395046",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395046",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13792:1",
@@ -8334,7 +7460,7 @@
    "cod_ato": "395029",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395029",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13791:1",
@@ -8374,7 +7500,7 @@
    "cod_ato": "394627",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394627",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13737:1",
@@ -8438,7 +7564,7 @@
    "cod_ato": "394626",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394626",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13736:1",
@@ -8496,7 +7622,7 @@
    "cod_ato": "394621",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394621",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13735:1",
@@ -8554,7 +7680,7 @@
    "cod_ato": "394499",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394499",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13728:1",
@@ -9165,52 +8291,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13701",
-   "numero": "13701",
-   "ano": 2026,
-   "epigrafe": "Decreto 13701 - 15 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Pérola D'Oeste em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Pérola D'Oeste, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.925.294-6,\n\nDECRETA:",
-   "publicado_em": "2026-05-15",
-   "diario": "12145",
-   "cod_ato": "394358",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394358",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13701:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 68, de 14 de maio de 2026, exarado pelo Prefeito de Pérola D'Oeste, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13701:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13701:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13701:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13701:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 15 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13693",
    "numero": "13693",
    "ano": 2026,
@@ -9222,7 +8302,7 @@
    "cod_ato": "394262",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394262",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13693:1",
@@ -9245,52 +8325,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13666",
-   "numero": "13666",
-   "ano": 2026,
-   "epigrafe": "Decreto 13666 - 14 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Marquinho em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Marquinho, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.912.147-7,\n\nDECRETA:",
-   "publicado_em": "2026-05-14",
-   "diario": "12144",
-   "cod_ato": "394142",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394142",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13666:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 44, de 13 de maio de 2026, exarado pelo Prefeito de Marquinho, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13666:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13666:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13666:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13666:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 14 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13652",
    "numero": "13652",
    "ano": 2026,
@@ -9302,7 +8336,7 @@
    "cod_ato": "394065",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394065",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13652:1",
@@ -9336,7 +8370,7 @@
    "cod_ato": "394062",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394062",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13651:1",
@@ -9370,7 +8404,7 @@
    "cod_ato": "393590",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393590",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13583:1",
@@ -9399,190 +8433,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13569",
-   "numero": "13569",
-   "ano": 2026,
-   "epigrafe": "Decreto 13569 - 07 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Guaraniaçu, em face da ocorrência de Enxurradas",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre\nocorrido no Município de Guaraniaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.881.801-6,\n\nDECRETA:",
-   "publicado_em": "2026-05-07",
-   "diario": "12139",
-   "cod_ato": "393483",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393483",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13569:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 7.323, de 7 de maio de 2026, exarado pelo Prefeito de Guaraniaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Enxurradas."
-    },
-    {
-     "id": "decpr:2026:13569:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13569:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13569:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13569:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 7 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13563",
-   "numero": "13563",
-   "ano": 2026,
-   "epigrafe": "Decreto 13563 - 6 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Cruzeiro do Iguaçu, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Cruzeiro do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.870.775-3,\n\nDECRETA:",
-   "publicado_em": "2026-05-06",
-   "diario": "12138",
-   "cod_ato": "393357",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393357",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13563:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 6.484, de 5 de maio de 2026, exarado pelo Prefeito de Cruzeiro do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13563:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13563:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13563:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13563:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 6 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13552",
-   "numero": "13552",
-   "ano": 2026,
-   "epigrafe": "Decreto 13552 - 05 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Palmital, em face da ocorrência de Tempestade Local/Convectiva - Vendaval.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Palmital, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.860.427-0,\n\nDECRETA:",
-   "publicado_em": "2026-05-05",
-   "diario": "12137",
-   "cod_ato": "393188",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393188",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13552:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 25, de 4 de maio de 2026, exarado pelo Prefeito de Palmital, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Vendaval."
-    },
-    {
-     "id": "decpr:2026:13552:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13552:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13552:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13552:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 5 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13554",
-   "numero": "13554",
-   "ano": 2026,
-   "epigrafe": "Decreto 13554 - 05 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Espigão Alto do Iguaçu, em face da ocorrência de Enxurradas.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Espigão Alto do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.865.260-6,\n\nDECRETA:",
-   "publicado_em": "2026-05-05",
-   "diario": "12137",
-   "cod_ato": "393186",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393186",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13554:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 28, de 5 de maio de 2026, exarado pelo Prefeito de Espigão Alto do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Enxurradas."
-    },
-    {
-     "id": "decpr:2026:13554:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13554:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13554:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13554:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 5 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13556",
    "numero": "13556",
    "ano": 2026,
@@ -9594,7 +8444,7 @@
    "cod_ato": "393181",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393181",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13556:1",
@@ -9724,7 +8574,7 @@
    "cod_ato": "393118",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393118",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13530:1",
@@ -9765,98 +8615,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13523",
-   "numero": "13523",
-   "ano": 2026,
-   "epigrafe": "Decreto 13523 - 4 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Quedas do Iguaçu, em face da ocorrência de Enxurradas.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Quedas do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.853.441-7,\n\nDECRETA:",
-   "publicado_em": "2026-05-04",
-   "diario": "12136",
-   "cod_ato": "393003",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393003",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13523:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 180, de 4 de maio de 2026, exarado pelo Prefeito de Quedas do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Enxurradas."
-    },
-    {
-     "id": "decpr:2026:13523:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13523:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13523:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13523:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 4 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13522",
-   "numero": "13522",
-   "ano": 2026,
-   "epigrafe": "Decreto 13522 - 04 de Maio de 2026",
-   "sumula": "Homologa situação de emergência no Município de Goioxim, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Goioxim, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.846.450-8,\n\nDECRETA:",
-   "publicado_em": "2026-05-04",
-   "diario": "12136",
-   "cod_ato": "393001",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393001",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13522:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 18, de 30 de abril de 2026, exarado pelo Prefeito de Goioxim, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13522:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13522:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13522:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13522:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 4 de maio de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13521",
    "numero": "13521",
    "ano": 2026,
@@ -9868,7 +8626,7 @@
    "cod_ato": "392997",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392997",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13521:1",
@@ -9902,7 +8660,7 @@
    "cod_ato": "392996",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392996",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13520:1",
@@ -9936,7 +8694,7 @@
    "cod_ato": "392995",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392995",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13519:1",
@@ -9970,7 +8728,7 @@
    "cod_ato": "392991",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392991",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13518:1",
@@ -10004,7 +8762,7 @@
    "cod_ato": "392990",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392990",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13517:1",
@@ -10038,7 +8796,7 @@
    "cod_ato": "392937",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392937",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13429:1",
@@ -10672,7 +9430,7 @@
    "cod_ato": "391043",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391043",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13319:1",
@@ -10766,7 +9524,7 @@
    "cod_ato": "392757",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392757",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13498:1",
@@ -10861,52 +9619,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13492",
-   "numero": "13492",
-   "ano": 2026,
-   "epigrafe": "Decreto 13492 - 28 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Rebouças, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Rebuças, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.825.515-1,\n\nDECRETA:",
-   "publicado_em": "2026-04-28",
-   "diario": "12133",
-   "cod_ato": "392688",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392688",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13492:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 75, de 27 de abril de 2026, exarado pelo Prefeito de Rebouças, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13492:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13492:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13492:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13492:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 28 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13467",
    "numero": "13467",
    "ano": 2026,
@@ -10918,7 +9630,7 @@
    "cod_ato": "392500",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392500",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13467:1",
@@ -10964,7 +9676,7 @@
    "cod_ato": "392488",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392488",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13466:1",
@@ -11088,7 +9800,7 @@
    "cod_ato": "392121",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392121",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13441:1",
@@ -11128,7 +9840,7 @@
    "cod_ato": "392118",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392118",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13442:1",
@@ -11162,7 +9874,7 @@
    "cod_ato": "392094",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392094",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13452:1",
@@ -11191,52 +9903,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13455",
-   "numero": "13455",
-   "ano": 2026,
-   "epigrafe": "Decreto 13455 - 23 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Manoel Ribas, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Manoel Ribas, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.803.684-0,\n\nDECRETA:",
-   "publicado_em": "2026-04-23",
-   "diario": "12130",
-   "cod_ato": "392084",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392084",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13455:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 60, de 23 de abril de 2026, exarado pelo Prefeito de Manoel Ribas, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13455:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13455:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13455:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13455:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 23 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13407",
    "numero": "13407",
    "ano": 2026,
@@ -11248,7 +9914,7 @@
    "cod_ato": "391909",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391909",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13407:1",
@@ -11271,98 +9937,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13420",
-   "numero": "13420",
-   "ano": 2026,
-   "epigrafe": "Decreto 13420 - 22 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Coronel Domingos Soares, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Coronel Domingos Soares, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.782.218-4,\n\nDECRETA:",
-   "publicado_em": "2026-04-22",
-   "diario": "12129",
-   "cod_ato": "391803",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391803",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13420:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 36, de 16 de abril de 2026, exarado pela Prefeita de Coronel Domingos Soares, a qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13420:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13420:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13420:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13420:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 22 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13388",
-   "numero": "13388",
-   "ano": 2026,
-   "epigrafe": "Decreto 13388 - 17 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Antonina, em face da ocorrência de Enxurradas.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Antonina, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.779.972-7,\n\nDECRETA:",
-   "publicado_em": "2026-04-17",
-   "diario": "12128",
-   "cod_ato": "391475",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391475",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13388:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 148, de 16 de abril de 2026, exarado pela Prefeita de Antonina, a qual declara Situação de Emergência nas áreas do município em face da ocorrência de Enxurradas."
-    },
-    {
-     "id": "decpr:2026:13388:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13388:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13388:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13388:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 17 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13362",
    "numero": "13362",
    "ano": 2026,
@@ -11374,7 +9948,7 @@
    "cod_ato": "391408",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391408",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13362:1",
@@ -11397,52 +9971,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13352",
-   "numero": "13352",
-   "ano": 2026,
-   "epigrafe": "Decreto 13352 - 15 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Guaraqueçaba, em face da ocorrência de Enxurradas.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Guaraqueçaba, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.764.983-0,\n\nDECRETA:",
-   "publicado_em": "2026-04-15",
-   "diario": "12126",
-   "cod_ato": "391261",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391261",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13352:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 706, de 14 de abril de 2026, exarado pelo Prefeito de Guaraqueçaba, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Enxurradas."
-    },
-    {
-     "id": "decpr:2026:13352:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13352:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13352:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13352:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 15 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13345",
    "numero": "13345",
    "ano": 2026,
@@ -11454,7 +9982,7 @@
    "cod_ato": "391219",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391219",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13345:1",
@@ -11669,52 +10197,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13317",
-   "numero": "13317",
-   "ano": 2026,
-   "epigrafe": "Decreto 13317 - 13 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Planalto, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Planalto, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.750.880-3,\n\nDECRETA:",
-   "publicado_em": "2026-04-13",
-   "diario": "12124",
-   "cod_ato": "391004",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391004",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13317:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 5.733, de 11 de abril de 2026, exarado pelo Prefeito de Planalto, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13317:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13317:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13317:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13317:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 13 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13302",
    "numero": "13302",
    "ano": 2026,
@@ -11726,7 +10208,7 @@
    "cod_ato": "390833",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390833",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13302:1",
@@ -11857,98 +10339,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13299",
-   "numero": "13299",
-   "ano": 2026,
-   "epigrafe": "Decreto 13299 - 10 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Prudentópolis, em face da ocorrência de Estiagem",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Prudentópolis, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.738.681-3,\n\nDECRETA:",
-   "publicado_em": "2026-04-10",
-   "diario": "12123",
-   "cod_ato": "390829",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390829",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13299:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 268, de 9 de abril de 2026, exarado pelo Prefeito de Prudentópolis, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13299:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13299:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13299:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13299:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 10 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13234",
-   "numero": "13234",
-   "ano": 2026,
-   "epigrafe": "Decreto 13234 - 07 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Nova Tebas, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Nova Tebas, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.716.896-4,\n\nDECRETA:",
-   "publicado_em": "2026-04-07",
-   "diario": "12120",
-   "cod_ato": "390266",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390266",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13234:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 43, de 7 de abril de 2026, exarado pelo Prefeito de Nova Tebas, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13234:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13234:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13234:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13234:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 7 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13217",
    "numero": "13217",
    "ano": 2026,
@@ -11960,7 +10350,7 @@
    "cod_ato": "390260",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390260",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13217:1",
@@ -11983,52 +10373,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13216",
-   "numero": "13216",
-   "ano": 2026,
-   "epigrafe": "Decreto 13216 - 7 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Missal, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Missal, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.714.429-1,\n\nDECRETA:",
-   "publicado_em": "2026-04-07",
-   "diario": "12120",
-   "cod_ato": "390259",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390259",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13216:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 6.590, de 6 de abril de 2026, exarado pelo Prefeito de Missal, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13216:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13216:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13216:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13216:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 7 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13209",
    "numero": "13209",
    "ano": 2026,
@@ -12040,7 +10384,7 @@
    "cod_ato": "390234",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390234",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13209:1",
@@ -12165,98 +10509,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13208",
-   "numero": "13208",
-   "ano": 2026,
-   "epigrafe": "Decreto 13208 - 7 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Realeza, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Realeza, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.709.711-0,\n\nDECRETA:",
-   "publicado_em": "2026-04-07",
-   "diario": "12120",
-   "cod_ato": "390214",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390214",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13208:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 5.042, de 6 de abril de 2026, exarado pelo Prefeito de Realeza, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13208:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13208:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13208:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13208:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 7 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13202",
-   "numero": "13202",
-   "ano": 2026,
-   "epigrafe": "Decreto 13202 - 6 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Quedas do Iguaçu, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Quedas do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.707.194-4,\n\nDECRETA:",
-   "publicado_em": "2026-04-06",
-   "diario": "12119",
-   "cod_ato": "390174",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390174",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13202:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 142, de 6 de abril de 2026, exarado pelo Prefeito de Quedas do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13202:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13202:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13202:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13202:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 6 de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13201",
    "numero": "13201",
    "ano": 2026,
@@ -12268,7 +10520,7 @@
    "cod_ato": "390173",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390173",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13201:1",
@@ -12302,7 +10554,7 @@
    "cod_ato": "390112",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390112",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13190:1",
@@ -12456,7 +10708,7 @@
    "cod_ato": "390086",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390086",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13186:1",
@@ -12490,7 +10742,7 @@
    "cod_ato": "390042",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390042",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13182:1",
@@ -12555,98 +10807,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13177",
-   "numero": "13177",
-   "ano": 2026,
-   "epigrafe": "Decreto 13177 - 01 de Abril de 2026",
-   "sumula": "Homologa situação de emergência no Município de Capitão Leônidas Marques, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Capitão Leônidas Marques, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres – FIDE, consubstanciado no protocolo nº 25.692.989-9,\n\nDECRETA:",
-   "publicado_em": "2026-04-01",
-   "diario": "12118",
-   "cod_ato": "389938",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389938",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13177:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 100, de 31 de março de 2026, exarado pelo Prefeito de Capitão Leônidas Marques, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13177:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13177:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13177:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13177:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 1º de abril de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13135",
-   "numero": "13135",
-   "ano": 2026,
-   "epigrafe": "Decreto 13135 - 31 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Boa Vista da Aparecida, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Boa Vista da Aparecida, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.685.998-0,\n\nDECRETA:",
-   "publicado_em": "2026-03-31",
-   "diario": "12117",
-   "cod_ato": "389828",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389828",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13135:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 107, de 31 de março de 2026, exarado pelo Prefeito de Boa Vista da Aparecida, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13135:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13135:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13135:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13135:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 31 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13134",
    "numero": "13134",
    "ano": 2026,
@@ -12658,7 +10818,7 @@
    "cod_ato": "389827",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389827",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13134:1",
@@ -12692,7 +10852,7 @@
    "cod_ato": "389824",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389824",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13133:1",
@@ -12715,52 +10875,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13116",
-   "numero": "13116",
-   "ano": 2026,
-   "epigrafe": "Decreto 13116 - 30 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Espigão Alto do Iguaçu, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Espião Alto do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.674.411-2,\n\nDECRETA:",
-   "publicado_em": "2026-03-30",
-   "diario": "12116",
-   "cod_ato": "389686",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389686",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13116:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 21, de 30 de março de 2026, exarado pelo Prefeito de Espigão Alto do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13116:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13116:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13116:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13116:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 30 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13101",
    "numero": "13101",
    "ano": 2026,
@@ -12772,7 +10886,7 @@
    "cod_ato": "389640",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389640",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13101:1",
@@ -14384,7 +12498,7 @@
    "cod_ato": "389636",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389636",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13102:1",
@@ -14875,144 +12989,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13096",
-   "numero": "13096",
-   "ano": 2026,
-   "epigrafe": "Decreto 13096 - 27 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Laranjal, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Laranjal, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.657.039-4,\n\nDECRETA:",
-   "publicado_em": "2026-03-27",
-   "diario": "12115",
-   "cod_ato": "389558",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389558",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13096:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 19, de 25 de março de 2026, exarado pelo Prefeito de Laranjal, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13096:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13096:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13096:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13096:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 27 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13061",
-   "numero": "13061",
-   "ano": 2026,
-   "epigrafe": "Decreto 13061 - 25 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Iretama, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Iretama, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.644.876-9,\n\nDECRETA:",
-   "publicado_em": "2026-03-25",
-   "diario": "12113",
-   "cod_ato": "389236",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389236",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13061:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 20, de 24 de março de 2026, exarado pelo Prefeito de Iretama, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13061:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13061:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13061:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13061:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 25 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13060",
-   "numero": "13060",
-   "ano": 2026,
-   "epigrafe": "Decreto 13060 - 25 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Santa Helena, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Santa Helena, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.646.362-8,\n\nDECRETA:",
-   "publicado_em": "2026-03-25",
-   "diario": "12113",
-   "cod_ato": "389235",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389235",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13060:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 184, de 24 de março de 2026, exarado pelo Prefeito de Santa Helena, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13060:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13060:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13060:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13060:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 25 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13044",
    "numero": "13044",
    "ano": 2026,
@@ -15024,7 +13000,7 @@
    "cod_ato": "388934",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388934",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13044:1",
@@ -15064,7 +13040,7 @@
    "cod_ato": "388894",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388894",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13041:1",
@@ -15110,7 +13086,7 @@
    "cod_ato": "384768",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384768",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12709:1",
@@ -15181,236 +13157,6 @@
    ]
   },
   {
-   "id": "decpr:2026:13033",
-   "numero": "13033",
-   "ano": 2026,
-   "epigrafe": "Decreto 13033 - 19 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Roncador, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Roncador, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.619.958-0,\n\nDECRETA:",
-   "publicado_em": "2026-03-19",
-   "diario": "12109",
-   "cod_ato": "388590",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388590",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13033:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 29, de 19 de março de 2026, exarado pela Prefeita de Roncador, a qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13033:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13033:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13033:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13033:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 19 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13020",
-   "numero": "13020",
-   "ano": 2026,
-   "epigrafe": "Decreto 13020 - 19 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Santa Mariana, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Santa Mariana, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.606.441-3,\n\nDECRETA:",
-   "publicado_em": "2026-03-19",
-   "diario": "12109",
-   "cod_ato": "388478",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388478",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13020:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 21, de 17 de março de 2026, exarado pelo Prefeito de Santa Mariana, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13020:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13020:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13020:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13020:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 19 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13019",
-   "numero": "13019",
-   "ano": 2026,
-   "epigrafe": "Decreto 13019 - 19 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Doutor Ulysses, em face da ocorrência de Tempestade Local/Convectiva - Chuvas Intensas.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Doutor Ulysses, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.610.304-4,\n\nDECRETA:",
-   "publicado_em": "2026-03-19",
-   "diario": "12109",
-   "cod_ato": "388477",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388477",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13019:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 67, de 17 de março de 2026, exarado pelo Prefeito de Doutor Ulysses, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Chuvas Intensas."
-    },
-    {
-     "id": "decpr:2026:13019:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13019:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13019:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13019:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 19 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13018",
-   "numero": "13018",
-   "ano": 2026,
-   "epigrafe": "Decreto 13018 - 19 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Nova Prata do Iguaçu, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Nova Prata do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.611.180-2,\n\nDECRETA:",
-   "publicado_em": "2026-03-19",
-   "diario": "12109",
-   "cod_ato": "388476",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388476",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13018:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 4.052, de 18 de março de 2026, exarado pela Prefeita de Nova Prata do Iguaçu, a qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13018:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13018:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13018:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13018:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 19 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:13017",
-   "numero": "13017",
-   "ano": 2026,
-   "epigrafe": "Decreto 13017 - 19 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Capanema, em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Capanema, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.615.664-4,\n\nDECRETA:",
-   "publicado_em": "2026-03-19",
-   "diario": "12109",
-   "cod_ato": "388474",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388474",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:13017:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 8.061, de 18 de março de 2026, exarado pelo Prefeito de Capanema, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:13017:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13017:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:13017:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:13017:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 19 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:13016",
    "numero": "13016",
    "ano": 2026,
@@ -15422,7 +13168,7 @@
    "cod_ato": "388455",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388455",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13016:1",
@@ -15726,7 +13472,7 @@
    "cod_ato": "388441",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388441",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13015:1",
@@ -15766,7 +13512,7 @@
    "cod_ato": "388434",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388434",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13014:1",
@@ -15824,7 +13570,7 @@
    "cod_ato": "388429",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388429",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13013:1",
@@ -15882,7 +13628,7 @@
    "cod_ato": "388426",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388426",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:13012:1",
@@ -15922,7 +13668,7 @@
    "cod_ato": "387986",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387986",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12992:1",
@@ -15986,7 +13732,7 @@
    "cod_ato": "387592",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387592",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12958:1",
@@ -16020,7 +13766,7 @@
    "cod_ato": "387590",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387590",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12957:1",
@@ -16054,7 +13800,7 @@
    "cod_ato": "387589",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387589",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12956:1",
@@ -16094,7 +13840,7 @@
    "cod_ato": "387585",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387585",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12955:1",
@@ -16128,7 +13874,7 @@
    "cod_ato": "387384",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387384",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12926:1",
@@ -16408,7 +14154,7 @@
    "cod_ato": "387376",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387376",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12925:1",
@@ -16454,7 +14200,7 @@
    "cod_ato": "387374",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387374",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12924:1",
@@ -16483,52 +14229,6 @@
    ]
   },
   {
-   "id": "decpr:2026:12923",
-   "numero": "12923",
-   "ano": 2026,
-   "epigrafe": "Decreto 12923 - 09 de Março de 2026",
-   "sumula": "Homologa situação de emergência no Município de Borrazópolis, em face da ocorrência de Estiagem",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Borrazópolis, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.546.500-7,\n\nDECRETA:",
-   "publicado_em": "2026-03-09",
-   "diario": "12101",
-   "cod_ato": "387323",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387323",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:12923:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 27, de 6 de março de 2026, exarado pelo Prefeito de Borrazópolis, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:12923:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12923:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12923:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:12923:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 9 de março de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:12915",
    "numero": "12915",
    "ano": 2026,
@@ -16540,7 +14240,7 @@
    "cod_ato": "387091",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387091",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12915:1",
@@ -16574,7 +14274,7 @@
    "cod_ato": "386994",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386994",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12893:1",
@@ -16608,7 +14308,7 @@
    "cod_ato": "386981",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386981",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12892:1",
@@ -16648,7 +14348,7 @@
    "cod_ato": "386888",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386888",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12878:1",
@@ -16682,7 +14382,7 @@
    "cod_ato": "386885",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386885",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12877:1",
@@ -16818,7 +14518,7 @@
    "cod_ato": "386809",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386809",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12863:1",
@@ -16876,7 +14576,7 @@
    "cod_ato": "386794",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386794",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12862:1",
@@ -17588,7 +15288,7 @@
    "cod_ato": "386529",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386529",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12828:1",
@@ -17646,7 +15346,7 @@
    "cod_ato": "386515",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386515",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12827:1",
@@ -17674,7 +15374,7 @@
    "cod_ato": "386493",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386493",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12821:1",
@@ -18050,7 +15750,7 @@
    "cod_ato": "386473",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386473",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12819:1",
@@ -18337,52 +16037,6 @@
    ]
   },
   {
-   "id": "decpr:2026:12802",
-   "numero": "12802",
-   "ano": 2026,
-   "epigrafe": "Decreto 12802 - 26 de Fevereiro de 2026",
-   "sumula": "Homologa situação de emergência no Município de Quedas do Iguaçu, em face da ocorrência de Tempestade Local/Convectiva - Vendaval.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Quedas do Iguaçu, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.478.825-2,\n\nDECRETA:",
-   "publicado_em": "2026-02-26",
-   "diario": "12904",
-   "cod_ato": "386399",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386399",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:12802:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 89, de 25 de fevereiro de 2026, exarado pelo Prefeito de Quedas do Iguaçu, o qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Vendaval."
-    },
-    {
-     "id": "decpr:2026:12802:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12802:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12802:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:12802:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 26 de fevereiro de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:12801",
    "numero": "12801",
    "ano": 2026,
@@ -18394,7 +16048,7 @@
    "cod_ato": "386342",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386342",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12801:1",
@@ -18518,7 +16172,7 @@
    "cod_ato": "386340",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386340",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12800:1",
@@ -18786,7 +16440,7 @@
    "cod_ato": "386330",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386330",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12799:1",
@@ -18868,7 +16522,7 @@
    "cod_ato": "385993",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=385993",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12732:1",
@@ -18914,7 +16568,7 @@
    "cod_ato": "384689",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384689",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12674:1",
@@ -18954,7 +16608,7 @@
    "cod_ato": "384412",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384412",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12667:1",
@@ -18988,7 +16642,7 @@
    "cod_ato": "384312",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384312",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12665:1",
@@ -19796,7 +17450,7 @@
    "cod_ato": "384294",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384294",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12664:1",
@@ -20106,7 +17760,7 @@
    "cod_ato": "384292",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384292",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12663:1",
@@ -20152,7 +17806,7 @@
    "cod_ato": "384276",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384276",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12662:1",
@@ -20648,7 +18302,7 @@
    "cod_ato": "383477",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383477",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12561:1",
@@ -20688,7 +18342,7 @@
    "cod_ato": "383474",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383474",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12560:1",
@@ -20722,7 +18376,7 @@
    "cod_ato": "383260",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383260",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12559:1",
@@ -20780,7 +18434,7 @@
    "cod_ato": "383248",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383248",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12556:1",
@@ -20814,7 +18468,7 @@
    "cod_ato": "383236",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383236",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12555:1",
@@ -20866,7 +18520,7 @@
    "cod_ato": "383175",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383175",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12550:1",
@@ -20978,7 +18632,7 @@
    "cod_ato": "383158",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383158",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12546:1",
@@ -21018,7 +18672,7 @@
    "cod_ato": "382840",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382840",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12495:1",
@@ -21322,7 +18976,7 @@
    "cod_ato": "382832",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382832",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12489:1",
@@ -21386,7 +19040,7 @@
    "cod_ato": "382829",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382829",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12490:1",
@@ -21450,7 +19104,7 @@
    "cod_ato": "382828",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382828",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12491:1",
@@ -21508,7 +19162,7 @@
    "cod_ato": "382825",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382825",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12492:1",
@@ -21566,7 +19220,7 @@
    "cod_ato": "382823",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382823",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12493:1",
@@ -21624,7 +19278,7 @@
    "cod_ato": "382817",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382817",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12494:1",
@@ -21682,7 +19336,7 @@
    "cod_ato": "382804",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382804",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12488:1",
@@ -21848,7 +19502,7 @@
    "cod_ato": "382789",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382789",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12487:1",
@@ -22026,7 +19680,7 @@
    "cod_ato": "382676",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382676",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12485:1",
@@ -22060,7 +19714,7 @@
    "cod_ato": "382564",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382564",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12482:1",
@@ -22154,7 +19808,7 @@
    "cod_ato": "382476",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382476",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12478:1",
@@ -22272,7 +19926,7 @@
    "cod_ato": "382325",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382325",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12456:1",
@@ -22408,7 +20062,7 @@
    "cod_ato": "382150",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382150",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12451:1",
@@ -22496,7 +20150,7 @@
    "cod_ato": "382097",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382097",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12435:1",
@@ -22560,7 +20214,7 @@
    "cod_ato": "382009",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382009",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12434:1",
@@ -22595,52 +20249,6 @@
    ]
   },
   {
-   "id": "decpr:2026:12431",
-   "numero": "12431",
-   "ano": 2026,
-   "epigrafe": "Decreto 12431 - 14 de Janeiro de 2026",
-   "sumula": "Homologa situação de emergência no Município de São José dos Pinhais, em face da ocorrência de Tempestade Local/Convectiva - Tornados.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de São José dos Pinhais, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.252.211-5,\n\nDECRETA:",
-   "publicado_em": "2026-01-14",
-   "diario": "12065",
-   "cod_ato": "382002",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382002",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:12431:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 6.995, de 14 de janeiro de 2026, exarado pela Prefeita de São José dos Pinhais, a qual declara Situação de Emergência nas áreas do município em face da ocorrência de Tempestade Local/Convectiva - Tornados."
-    },
-    {
-     "id": "decpr:2026:12431:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12431:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12431:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do decreto municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data em que foi publicada declaração de anormalidade em âmbito municipal."
-    },
-    {
-     "id": "decpr:2026:12431:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 14 de janeiro de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
    "id": "decpr:2026:12430",
    "numero": "12430",
    "ano": 2026,
@@ -22652,7 +20260,7 @@
    "cod_ato": "381995",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381995",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12430:1",
@@ -22836,7 +20444,7 @@
    "cod_ato": "381988",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381988",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12429:1",
@@ -22888,7 +20496,7 @@
    "cod_ato": "381987",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381987",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12428:1",
@@ -22922,7 +20530,7 @@
    "cod_ato": "381980",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381980",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12427:1",
@@ -22980,7 +20588,7 @@
    "cod_ato": "381705",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381705",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12401:1",
@@ -23032,7 +20640,7 @@
    "cod_ato": "381704",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381704",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12400:1",
@@ -23150,7 +20758,7 @@
    "cod_ato": "381703",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381703",
    "versao": "compilado",
-   "conferido_em": "2026-08-21",
+   "conferido_em": "2026-09-01",
    "blocos": [
     {
      "id": "decpr:2026:12399:1",
@@ -23211,52 +20819,6 @@
      "ordem": 10,
      "rotulo": "",
      "texto": "Curitiba, em 9 de janeiro de 2026, 205° da Independência e 138° da República."
-    }
-   ]
-  },
-  {
-   "id": "decpr:2026:12372",
-   "numero": "12372",
-   "ano": 2026,
-   "epigrafe": "Decreto 12372 - 7 de Janeiro de 2026",
-   "sumula": "Homologa situação de emergência no Município de Antonina em face da ocorrência de Estiagem.",
-   "preambulo": "O GOVERNADOR DO ESTADO DO PARANÁ, no uso das atribuições que lhe são conferidas pelos incisos V e VI do art. 87 da Constituição Estadual, em consonância com o contido no parágrafo único do art. 15 do Regulamento do Sistema Estadual de Proteção e Defesa Civil, aprovado pelo Decreto nº 9.557, de 6 de dezembro de 2013 e, considerando a Portaria do Ministério do Desenvolvimento Regional nº 260, de 2 de fevereiro de 2022, bem como os efeitos adversos que culminaram no desastre ocorrido no Município de Antonina, causando danos e prejuízos, devidamente documentados em formulário de informação de desastres - FIDE, consubstanciado no protocolo nº 25.215.928-2,\n\nDECRETA:",
-   "publicado_em": "2026-01-07",
-   "diario": "12060",
-   "cod_ato": "381330",
-   "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381330",
-   "versao": "compilado",
-   "conferido_em": "2026-08-21",
-   "blocos": [
-    {
-     "id": "decpr:2026:12372:1",
-     "ordem": 1,
-     "rotulo": "Art. 1º",
-     "texto": "Homologa o Decreto Municipal nº 006, de 6 de janeiro de 2026, exarado pela Prefeita de Antonina, a qual declara Situação de Emergência nas áreas do município em face da ocorrência de Estiagem."
-    },
-    {
-     "id": "decpr:2026:12372:2",
-     "ordem": 2,
-     "rotulo": "Art. 2º",
-     "texto": "Confirma-se, por intermédio deste Decreto de homologação, que os atos oficiais de declaração de situação anormal estão de acordo com os critérios estabelecidos pelo Conselho Nacional de Proteção e Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12372:3",
-     "ordem": 3,
-     "rotulo": "Art. 3º",
-     "texto": "Os órgãos do Sistema Estadual de Proteção e Defesa Civil ficam autorizados a prestar o apoio suplementar aos municípios afetados pelo desastre, mediante prévia articulação com a Coordenadoria Estadual de Defesa Civil."
-    },
-    {
-     "id": "decpr:2026:12372:4",
-     "ordem": 4,
-     "rotulo": "Art. 4º",
-     "texto": "Este Decreto de homologação entra em vigor na data de sua publicação, retroagindo seus efeitos à data do Decreto Municipal anteriormente citado, devendo vigorar pelo prazo de 180 (cento e oitenta) dias, a contar da data de ocorrência do evento."
-    },
-    {
-     "id": "decpr:2026:12372:5",
-     "ordem": 5,
-     "rotulo": "",
-     "texto": "Curitiba, em 7 de janeiro de 2026, 205° da Independência e 138° da República."
     }
    ]
   }

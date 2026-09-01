@@ -58,7 +58,7 @@ anos:
 
 recorte:
   # Verbos com que o Executivo estadual escreve norma.
-  entra: '^(regulamenta|institui|dispoe sobre|aprova|altera|introduz altera|acrescenta|revoga|prorroga|declara|homologa situacao|delega competencia|fica instituido|estabelece|define|cria|adota|suspende|reajusta|atualiza|fixa|consolida|autoriza)'
+  entra: '^(regulamenta|institui|dispoe sobre|aprova|altera|introduz altera|acrescenta|revoga|prorroga|declara|delega competencia|fica instituido|estabelece|define|cria|adota|suspende|reajusta|atualiza|fixa|consolida|autoriza)'
 
   # Ato de pessoal, movimentação orçamentária e retificação.
   #
@@ -67,12 +67,25 @@ recorte:
   # `nomea` sozinho não casa `nomeia`. Foi assim que sete atos de pessoal
   # passaram pelo recorte na primeira medição.
   #
+  # **`homologa situacao` saiu de `entra` e passou para cá, e a razão é de
+  # espaço medido.** São 493 atos de 1.989 — um quarto do acervo — e todos dizem
+  # a mesma coisa: situação de emergência num município, por enxurrada, vendaval
+  # ou estiagem. São normativos, e o recorte é generoso de propósito, mas eles
+  # não servem à advocacia criminal e não respondem pergunta nenhuma que este
+  # produto exista para responder.
+  #
+  # O que forçou a decisão foi o banco: `decretos_pr_blocos` chegou a 703 MB dos
+  # 827 MB do projeto — 85% —, e o plano gratuito do Supabase para em 500 MB.
+  # Passar do teto restringe a escrita, e escrita bloqueada derruba conversa,
+  # cliente e a vigília inteira. A pendência já questionava estes 493; a conta de
+  # espaço decidiu.
+  #
   # **`retifica` sai, e a razão é estrutural, não de volume.** Retificação não
   # diz na súmula o que retifica, então não há como saber se o alvo é normativo
   # — mas ela é redundante por construção: o acervo lê a versão COMPILADA do
   # decreto retificado, que já traz a correção aplicada. Guardar a retificação
   # ao lado seria guardar o bilhete depois de a carta já ter sido corrigida.
-  sai: '^(nomea|nomeia|exonera|designa|dispensa|demissao|demite|cumprimento (de )?(decisao|ordem) judicial|abre (um |uma )?credito|autoriza a abertura|efetua (uma|um) (transposicao|transferencia|remanejamento)|torna(r)? sem efeito|cessao|cede |remocao|coloca a disposicao|concede aposentadoria|aposenta|transferencia de (cargo|funcao)|transfere (e nomeia|e designa|cargo|funcao)|transforma (cargos?|funcoes?|funcao)|promocao|progressao|retifica|reintegra|readapta)'
+  sai: '^(homologa situacao|nomea|nomeia|exonera|designa|dispensa|demissao|demite|cumprimento (de )?(decisao|ordem) judicial|abre (um |uma )?credito|autoriza a abertura|efetua (uma|um) (transposicao|transferencia|remanejamento)|torna(r)? sem efeito|cessao|cede |remocao|coloca a disposicao|concede aposentadoria|aposenta|transferencia de (cargo|funcao)|transfere (e nomeia|e designa|cargo|funcao)|transforma (cargos?|funcoes?|funcao)|promocao|progressao|retifica|reintegra|readapta)'
 
 # ---------------------------------------------------------------------------
 # O que a medição de janeiro/2025 devolveu com os padrões acima. Estes números
@@ -82,7 +95,9 @@ recorte:
 amostra:
   arquivo: coletores/tests/amostras/decretos_pr_2025_01.json
   total: 326
-  entram: 25
+  # Eram 25 antes de `homologa situacao` sair de `entra` — as cinco
+  # homologações de emergência de janeiro/2025 são a diferença.
+  entram: 20
   # Toda súmula da amostra casa `entra` ou `sai`. Não é enfeite estatístico: é
   # a prova de que o recorte é total sobre dado real, e não uma peneira com
   # buraco no meio por onde espécie nova passa sem ninguém ver. Súmula que não

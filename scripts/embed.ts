@@ -45,7 +45,7 @@ try {
   const pendentes = (await sql<Pendente[]>`
     select id, texto_embed
     from ${ALVO.tabela}
-    ${TUDO ? sql`` : sql`where embedding is null`}
+    ${TUDO ? sql`where texto_embed is not null` : sql`where embedding is null and texto_embed is not null`}
     order by ${ALVO.ordem}
   `) as unknown as Pendente[]
 
