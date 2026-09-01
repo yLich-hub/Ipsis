@@ -69,7 +69,7 @@ def test_recorte_bate_com_a_curadoria(amostra):
     o recorte não muda em silêncio.
     """
     entram = [x for x in amostra if no_recorte(x["sumula"], CFG)]
-    assert len(entram) == CFG.amostra["entram"] == 25
+    assert len(entram) == CFG.amostra["entram"] == 20
 
 
 def test_nenhuma_sumula_fica_sem_padrao(amostra):
@@ -105,6 +105,22 @@ def test_ato_de_pessoal_nunca_entra(amostra):
         if pessoal.search(sem_acento(texto_de(x["sumula"]))) and no_recorte(x["sumula"], CFG)
     ]
     assert vazados == [], f"ato de pessoal no recorte: {vazados[:3]}"
+
+
+def test_homologacao_de_emergencia_fica_de_fora():
+    """São 493 dos 1.989 — um quarto do acervo — e todos dizem a mesma coisa:
+    emergência num município por enxurrada, vendaval ou estiagem.
+
+    Saíram por espaço medido, não por gosto: `decretos_pr_blocos` chegou a 703 MB
+    dos 827 MB do projeto, e o plano gratuito do Supabase para em 500 MB. Eles são
+    normativos e não servem à advocacia criminal — foi o primeiro corte a fazer.
+    """
+    assert not no_recorte(
+        "Homologa situação de emergência no Município de Tibagi, em face da ocorrência de Enxurradas.",
+        CFG,
+    )
+    # E o que é norma de verdade continua entrando.
+    assert no_recorte("Regulamenta a alteração do regime de trabalho dos professores.", CFG)
 
 
 def test_sai_vence_entra():

@@ -1099,6 +1099,41 @@ argumento do `.gitignore`: a entrada vem de um servidor de terceiro. Ignorá-la
 amarraria o seed a um scraping ao vivo — de uma fonte que bloqueia — e deixaria o
 acervo irrecuperável no dia em que ela saísse do ar.
 
+**O acervo encolheu por uma conta de espaço, e a conta é a parte que importa.**
+Em 01/09/2026 o Supabase avisou que o projeto passava dos 500 MB do plano
+gratuito, com 841 MB. A varredura por tabela achou a causa numa linha só:
+`decretos_pr_blocos` ocupava **703 MB dos 827 MB** — 85% do banco —, contra 102
+MB do corpus federal inteiro. O que pesava não era o texto: eram 30.779 vetores
+de 1536 dimensões, ~382 MB fora da linha mais 245 MB só do índice HNSW.
+
+Passar do teto não é aviso, é **escrita bloqueada** — e escrita bloqueada
+derruba conversa, cliente e a vigília, deixando o produto lendo e sem registrar.
+Dois cortes, os dois medidos:
+
+1. **As 493 homologações de emergência municipal saíram do recorte.** Um quarto
+   do acervo dizendo a mesma coisa — emergência num município por enxurrada,
+   vendaval ou estiagem —, normativas e inúteis para a advocacia criminal. A
+   pendência já as questionava; a conta de espaço decidiu.
+2. **Bloco com menos de 150 caracteres não recebe vetor** (migration 0019).
+   Eram 16.114 dos 30.779: incisos de uma linha, alíneas e o fecho do ato. É o
+   argumento de `texto_embed` levado ao limite — no corpus a saída foi dar
+   contexto ao vetor; para um inciso de seis palavras, nem o contexto salva.
+   **Eles continuam alcançáveis** pela perna lexical, que lê `busca` em toda
+   linha, e pela súmula, que é do ato.
+
+`texto_embed` virou anulável em vez de o filtro morar numa consulta do
+`embed.ts`: assim o banco DIZ quais blocos ele decidiu não embutir, e ninguém lê
+`embedding is null` como "faltou rodar o embed".
+
+Resultado, medido: **827 MB → 353 MB**, 1.496 decretos e 28.315 blocos, 12.694
+com vetor. E a recuperação não piorou — as sete consultas de controle mantiveram
+o mesmo decreto no topo, com score igual ou melhor ("conselho estadual de
+políticas sobre drogas" foi de 0,0612 para 0,0638).
+
+**O espaço só volta ao disco depois de `vacuum full`.** Apagar linha no Postgres
+não devolve arquivo ao sistema, e sem isso a medição do Supabase continuaria
+igual — a tabela ficou em 229 MB só depois de reescrita.
+
 **A tela desenha 60 cartões por vez, e o número saiu de medição no navegador.**
 Com os 1.989 de uma vez, `/decretos` chegava ao telefone com **2,3 MB de HTML e
 14.195 nós no DOM**, numa página de 366 mil pixels de altura — para mostrar os
@@ -2200,10 +2235,6 @@ está no `ls` da pasta.
   descartável em `.env.local`, `npm run e2e` roda os 24 casos com sessão real —
   os dez do acervo e os catorze do resto do produto. Todos passam.
 
-- **Quase um quarto do acervo é homologação de emergência municipal** — 493 dos
-  1.989. São normativas e o recorte é generoso de propósito, mas não servem à
-  advocacia criminal. Apertar isso é decisão de curadoria, e mexe no YAML, não
-  no código.
 - **A perna de súmula do acervo estadual não dispara em pergunta em forma de
   pergunta.** `websearch_to_tsquery` exige todas as palavras, e nenhuma ementa
   contém "qual" ou "trata" — sobra a perna semântica, e o acerto fica com o

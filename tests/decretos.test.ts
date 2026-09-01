@@ -209,12 +209,17 @@ describe('data de publicação divergente', () => {
     })
   })
 
-  seComAcervo('o acervo real tem exatamente um ato divergente', () => {
-    // Medido em 22/08/2026 sobre os 1.989. Se este número crescer, a fonte
-    // passou a divergir mais e a regra do ano merece nova medição — não é para
-    // virar ruído aceito.
+  seComAcervo('nenhum ato do acervo tem data divergente hoje', () => {
+    // **Este número já foi um, e a mudança conta uma história.** O Decreto
+    // 4.895 — listado em 2024, epígrafe de 2024, coluna de data dizendo
+    // 21/02/2021 — era uma homologação de situação de emergência, e saiu do
+    // acervo em 01/09/2026 junto com as outras 492, quando o recorte apertou
+    // por espaço no banco.
+    //
+    // A asserção continua sendo alarme, não estatística: se este número subir,
+    // a fonte passou a divergir de si mesma em atos que ficaram, e a regra de
+    // tirar o ano da epígrafe merece nova medição.
     const fora = todos.filter((d) => publicacao(d).divergente)
-    expect(fora).toHaveLength(1)
-    expect(fora[0]?.id).toBe('decpr:2024:4895')
+    expect(fora.map((d) => d.id)).toEqual([])
   })
 })
