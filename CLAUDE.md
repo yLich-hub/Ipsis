@@ -1142,8 +1142,9 @@ seis cartões que cabem na primeira tela de um celular. Com a janela: **710 KB,
 `tg-lista` animar só os dez primeiros, e pelo mesmo motivo: o custo é de quem
 desenha, não de quem lê.
 
-**O filtro continua vendo os 1.989** — ele roda sobre o array inteiro, em
-memória, e ficou mais rápido (82 ms contra 242 ms). O que a janela limita é o
+**O filtro continua vendo o acervo inteiro** — ele roda sobre o array todo, em
+memória, e ficou mais rápido (82 ms contra 242 ms, medido com os 1.989 de
+então). O que a janela limita é o
 desenho, e o botão do rodapé diz quantos ainda não foram desenhados: lista
 cortada que não se anuncia é lista que mente sobre o próprio tamanho.
 
@@ -2211,22 +2212,27 @@ está no `ls` da pasta.
   para a leitura automática da conversa — na ferramenta, quem marca o vetor é o
   usuário. Piso diferente por droga (cocaína e maconha não pesam igual no
   processo) seria mais fiel e exigiria curadoria que ninguém conferiu.
-- **O acervo de decretos do Paraná está cheio.** 1.989 decretos e 30.779 blocos,
-  todos com vetor, colhidos de 17.765 atos vistos entre 2022 e 2026 — um recorte
-  de 8,6% a 13,5% por ano. A coleta levou duas sessões, com um bloqueio de IP no
+- **O acervo de decretos do Paraná está cheio.** 1.496 decretos e 28.315 blocos,
+  **12.694 deles com vetor**, colhidos de 17.765 atos vistos entre 2022 e 2026.
+  Eram 1.989 e 30.779 até 01/09/2026, quando o corte de espaço tirou as 493
+  homologações de emergência e deixou de embutir bloco com menos de 150
+  caracteres — ver "Decretos estaduais do Paraná", acima. Bloco sem vetor não é
+  pendência: é decisão, e ele continua alcançável pelo léxico e pela súmula. A coleta levou duas sessões, com um bloqueio de IP no
   meio (`Erro 403 — Acesso temporariamente bloqueado`), que é o motivo de ela ser
   retomável por `--pular-prontos`. Reprocessar tudo a partir do cache em disco
   custa segundos; recolher da fonte custa ~2 h.
-- **Um decreto em 1.989 tem data de publicação divergente na fonte.** O 4.895 é
-  listado em 2024, tem epígrafe de 2024 e traz `21/02/2021` na coluna de data. O
-  ano do id vem da epígrafe; a data fica como a fonte a deu, e a tela diz "data
-  divergente na fonte" em vez de exibir a contradição calada. `tests/decretos.test.ts`
-  trava o número em um — se crescer, a fonte passou a divergir mais e a regra
-  merece nova medição.
+- **Nenhum decreto do acervo tem data de publicação divergente hoje, e já teve
+  um.** O 4.895 era listado em 2024, com epígrafe de 2024 e `21/02/2021` na
+  coluna de data — e saiu em 01/09/2026 junto com as outras 492 homologações de
+  emergência. A regra que ele motivou continua de pé: o ano do id vem da
+  epígrafe, a data fica como a fonte a deu, e a tela diz "data divergente na
+  fonte" em vez de exibir a contradição calada. `tests/decretos.test.ts` trava o
+  número em zero — se subir, a fonte passou a divergir em atos que ficaram.
 - **As telas do acervo foram auditadas em 320, 390 e 768 px**, num navegador de
-  verdade, com os 1.989 decretos reais. Não vaza horizontalmente em nenhuma das
-  três, a gaveta fica fora da tela quando fechada, os cartões cabem e o filtro
-  por ano devolve a contagem certa (306 de 1989, em 2022). O que a auditoria
+  verdade, com o acervo real — eram 1.989 decretos na data da auditoria, hoje
+  são 1.496. Não vaza horizontalmente em nenhuma das três, a gaveta fica fora da
+  tela quando fechada, os cartões cabem e o filtro por ano devolve a contagem
+  certa (306 de 1989 em 2022, na medição daquele dia). O que a auditoria
   achou está consertado: o peso da lista, a concordância de "redação compilada",
   o `<summary>` de filtros que não parecia tocável no celular e o "voltar" do
   cabeçalho com 23 px de altura em 390.

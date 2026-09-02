@@ -12,9 +12,17 @@ fonte revelou um limite que nenhuma medição de leitura tinha mostrado: ela
 estão marcados abaixo onde aconteceram.
 
 Os blocos 0 a 5 estão implementados, verificados e **com o acervo cheio**:
-1.989 decretos e 30.779 blocos, todos com vetor, colhidos de 17.765 atos entre
-2022 e 2026. Os números finais estão em "O que a coleta inteira devolveu", no
-fim deste documento.
+1.496 decretos e 28.315 blocos, 12.694 deles com vetor, colhidos de 17.765 atos
+entre 2022 e 2026.
+
+> **Corrigido em 01/09/2026.** A coleta original trouxe 1.989 decretos e 30.779
+> blocos, todos com vetor — e isso pôs o banco em 841 MB, acima dos 500 MB do
+> plano gratuito do Supabase, com `decretos_pr_blocos` sozinha ocupando 85% do
+> total. Dois cortes medidos devolveram o projeto a 353 MB: as 493 homologações
+> de emergência municipal saíram do recorte, e bloco com menos de 150 caracteres
+> deixou de receber vetor (migration 0019). As sete consultas de controle
+> mantiveram o mesmo decreto no topo, com score igual ou melhor. Os números finais estão em "O que a coleta inteira devolveu", no
+> fim deste documento.
 
 ---
 
