@@ -63,6 +63,43 @@ _ARTIGOS = re.compile(
 _NUMERO = re.compile(r"\d{1,4}(?:-[A-Za-z])?")
 _DIPLOMA = re.compile(r"\b\d{1,3}\.\d{3}\b")
 
+#: Quantos caracteres depois de "art. N" se olha para achar o diploma. Trinta
+#: cobririam ", § 4.º, da Lei n. 11.343/2006" com folga; oitenta ainda pegam
+#: "art. 1030, IV e art. 1036, §1º, do CPC/15" a partir do primeiro artigo.
+JANELA_DIPLOMA = 80
+
+
+def _de_outro_diploma(janela: str, lei_alvo: str, cfg: Config) -> bool:
+    """A janela depois de um artigo nomeia um diploma que NÃO é o alvo?
+
+    **Vale o PRIMEIRO diploma nomeado, não qualquer um na janela** — e essa
+    precisão foi cobrada por um caso real. O Tema 991 diz "majorante do art.
+    157, § 2º, I, do Código Penal" e, cinquenta caracteres depois, traz o
+    boilerplate "RRC de Origem (… do CPC/15)". Com a regra frouxa — "há CPC na
+    janela?" — o art. 157 era descartado, e ele estava certo.
+
+    Devolve ``False`` quando nenhum diploma é nomeado: silêncio conta a favor de
+    atribuir, que é o comportamento que esta função preserva.
+    """
+    def primeiro(padrao) -> int:
+        m = padrao.search(janela)
+        return m.start() if m else len(janela) + 1
+
+    do_alvo = next((a for a in cfg.alvos if a.lei_id == lei_alvo), None)
+    inicio_alvo = primeiro(do_alvo.reconhece) if do_alvo else len(janela) + 1
+
+    inicio_outro = primeiro(cfg.outros_diplomas)
+    for a in cfg.alvos:
+        if a.lei_id != lei_alvo:
+            inicio_outro = min(inicio_outro, primeiro(a.reconhece))
+
+    # Nenhum dos dois apareceu: atribui.
+    if inicio_alvo > len(janela) and inicio_outro > len(janela):
+        return False
+
+    return inicio_outro < inicio_alvo
+
+
 
 def artigos_de(ementa: str, alvos: list[Alvo]) -> list[str]:
     """Artigos que a ementa diz alterar, como ids no formato do corpus.
@@ -92,8 +129,33 @@ def artigos_de(ementa: str, alvos: list[Alvo]) -> list[str]:
     if len(set(_DIPLOMA.findall(ementa))) > 1:
         return []
 
+    cfg = carrega()
+    t = sem_acento(ementa)
+
     numeros: list[str] = []
     for m in _ARTIGOS.finditer(ementa):
+        # **Terceira trava, por ARTIGO e não pela ementa inteira.** As duas
+        # anteriores olham o texto todo; esta olha o que vem logo DEPOIS de cada
+        # `art. N` e pergunta de que diploma ele é.
+        #
+        # Nasceu de um boilerplate do STJ: quase todo tema traz "RRC de Origem
+        # (art. 1030, IV e art. 1036, §1º, do CPC/15)", e como `1030` e `1036`
+        # não têm ponto de milhar, a trava do diploma NUMERADO não os via —
+        # 28 ids em 21 dos 72 temas, medidos em 02/09/2026.
+        #
+        # E pega o caso mais sutil, que nenhuma das outras pegava: "nos crimes
+        # da Lei n. 11.343/2006, aplica-se o rito do art. 400 do Código de
+        # Processo Penal". O CPP está no corpus, o artigo é DELE, e atribuí-lo
+        # à Lei de Drogas produzia `lei_11343_2006_art400` — id que existe,
+        # aponta para o artigo errado e não levanta suspeita de ninguém.
+        #
+        # Silêncio conta a favor: sem diploma nomeado na janela, atribui-se ao
+        # alvo, como sempre se fez. A trava é para quando a frase DIZ que o
+        # artigo é de outro lugar.
+        janela = t[m.end() : m.end() + JANELA_DIPLOMA]
+        if _de_outro_diploma(janela, lei, cfg):
+            continue
+
         for n in _NUMERO.findall(m.group(1)):
             # Caixa baixa não é estética: o corpus grava
             # `dl_2848_1940_art359-a`, e um id em maiúscula não casaria com

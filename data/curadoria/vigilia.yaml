@@ -50,6 +50,26 @@ alvos:
 # ementas que citam a Lei 11.343 a citam como referência.
 verbos: '\b(altera(r|m|cao|coes)?|acrescenta|inclui|insere|revoga|modifica|renumera|substitui|suprime|da nova redacao|nova redacao|atualiza|reformula|derroga)\b'
 
+# Diplomas que NÃO estão no corpus, reconhecidos pelo nome.
+#
+# **Existe por um boilerplate do STJ.** Quase todo tema traz, na anotação do
+# NUGEP, a frase "RRC de Origem (art. 1030, IV e art. 1036, §1º, do CPC/15)" —
+# procedimento do recurso repetitivo, não matéria penal. Como `1030` e `1036`
+# não têm ponto de milhar, a trava do diploma NUMERADO não os via, e a extração
+# atribuía os dois à Lei de Drogas ou ao Código Penal: 28 ids em 21 dos 72
+# temas, medidos em 02/09/2026.
+#
+# O mesmo buraco pega o caso legítimo e mais sutil: "nos crimes da Lei n.
+# 11.343/2006, aplica-se o rito do art. 400 do Código de Processo Penal" produzia
+# `lei_11343_2006_art400`. O CPP está no corpus, mas o artigo é DELE, não da Lei
+# de Drogas — e o id resultante existe, aponta para o artigo errado e não
+# levantaria suspeita de ninguém.
+#
+# A regra que isto habilita é por ARTIGO, não pela ementa inteira: cada `art. N`
+# olha o que vem logo depois e só é atribuído se o diploma nomeado ali for o
+# alvo — ou se nenhum for nomeado.
+outros_diplomas: '\b(cpc|codigo de processo civil|clt|consolidacao das leis do trabalho|cdc|codigo de defesa do consumidor|eca|estatuto da crianca|ctb|codigo de transito|ctn|codigo tributario|codigo civil|constituicao|lei de execucao penal|lep)\b'
+
 # `2.848` sozinho é ambíguo — pode ser valor em reais numa ementa orçamentária.
 # Quando a lei é reconhecida só pelo número, exige-se o contexto que a nomeia
 # como diploma legal.

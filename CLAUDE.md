@@ -2213,10 +2213,25 @@ está no `ls` da pasta.
   tem como saber —, e a escrita recusa. Filtra o vínculo, não a linha: derrubar
   o tema por causa de um id ruim descartaria a tese junto.
 
-  **A causa em `artigos_de` continua de pé, e é outra pendência.** Ela recusa
-  atribuir quando a frase NUMERA dois diplomas, e não recusa quando o segundo é
-  apenas NOMEADO ("art. 1.030 do CPC"). O trigger cobre o efeito; a extração
-  ainda produz o ruído, agora descartado na porta.
+  **A causa em `artigos_de` também foi consertada.** Ela recusava atribuir
+  quando a frase NUMERA dois diplomas, e não recusava quando o segundo era
+  apenas NOMEADO. Agora há uma terceira trava, por ARTIGO e não pela ementa
+  inteira: o que vem logo depois de cada `art. N` diz de que diploma ele é.
+  Reproduzido antes de consertar — quase todo tema traz o boilerplate "RRC de
+  Origem (art. 1030, IV e art. 1036, §1º, do CPC/15)", e `1030` não tem ponto de
+  milhar, então a trava do diploma numerado não o via.
+
+  **Vale o PRIMEIRO diploma nomeado, não qualquer um na janela**, e essa
+  precisão foi cobrada por um caso real: o Tema 991 nomeia o Código Penal e,
+  cinquenta caracteres depois, traz o mesmo boilerplate — com a regra frouxa, o
+  art. 157 era descartado, e ele estava certo. Silêncio conta a favor de
+  atribuir: a trava é para quando a frase DIZ que o artigo é de outro lugar.
+
+  A trava vale nos dois runtimes (`coletores/filtro.py` e `lib/vigilia/alvos.ts`),
+  com o padrão em `data/curadoria/vigilia.yaml` e `tests/vigilia.test.ts`
+  falhando se divergirem — a mesma disciplina do resto da vigília. Recolhido
+  depois do conserto: 69 vínculos em 54 dos 72 temas, e **zero** ids
+  inexistentes vindos da extração.
 
 - **A dosimetria dosa oito crimes, e não um artigo qualquer.** Os cinco da Lei
   de Drogas e três do Código Penal. Estender exige, por crime, a faixa conferida

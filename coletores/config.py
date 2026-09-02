@@ -36,6 +36,7 @@ class Config:
     alvos: list[Alvo]
     verbos: re.Pattern[str]
     contexto_de_lei: re.Pattern[str]
+    outros_diplomas: re.Pattern[str]
     camara: dict = field(default_factory=dict)
     datajud: dict = field(default_factory=dict)
     dou: dict = field(default_factory=dict)
@@ -85,6 +86,7 @@ def carrega(caminho: Path | None = None) -> Config:
         alvos=alvos,
         verbos=re.compile(bruto["verbos"]),
         contexto_de_lei=re.compile(bruto["contexto_de_lei"]),
+        outros_diplomas=re.compile(bruto["outros_diplomas"]),
         camara=bruto.get("camara", {}),
         datajud=bruto.get("datajud", {}),
         dou=bruto.get("dou", {}),

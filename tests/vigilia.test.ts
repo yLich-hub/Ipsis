@@ -30,6 +30,7 @@ import {
   extraiNorma,
   tocaOCorpus,
   virouNorma,
+  OUTROS_DIPLOMAS,
 } from '@/lib/vigilia/alvos'
 import { FONTES, fonte } from '@/lib/vigilia/fontes'
 import { NORMALIZADO, seComCorpus, temCorpus } from './corpus.ts'
@@ -322,6 +323,7 @@ describe('curadoria compartilhada — a trava contra divergência', () => {
     alvos: { lei_id: string; rotulo: string; reconhece: string; planalto: string }[]
     verbos: string
     contexto_de_lei: string
+    outros_diplomas: string
   }
 
   it('a data de corte é a mesma nos dois lados', () => {
@@ -337,6 +339,13 @@ describe('curadoria compartilhada — a trava contra divergência', () => {
     ALVOS.forEach((a, i) => {
       expect(a.reconhece.source, a.leiId).toBe(curadoria.alvos[i]!.reconhece)
     })
+  })
+
+  it('o padrão de outros diplomas é o mesmo dos dois lados', () => {
+    // A chave mais nova do YAML, e a que faz a terceira trava de `artigosDe`
+    // existir. Divergir aqui faria o coletor recusar um artigo que a tela
+    // aceita — a divergência silenciosa que este bloco existe para pegar.
+    expect(OUTROS_DIPLOMAS.source).toBe(curadoria.outros_diplomas)
   })
 
   it('toda lei do corpus tem endereço no Planalto', () => {
@@ -396,5 +405,51 @@ describe('alvos e fontes', () => {
 
   it('fonte desconhecida devolve um objeto, não quebra a tela', () => {
     expect(fonte('lexml' as never).nome).toBe('lexml')
+  })
+})
+
+
+describe('o diploma nomeado depois do artigo', () => {
+  // O boilerplate que o STJ põe em quase todo tema: procedimento do recurso
+  // repetitivo, nomeando o CPC. Não é matéria penal.
+  const RRC = '  RRC de Origem (art. 1030, IV e art. 1036, §1º, do CPC/15).Afetação na sessão.'
+
+  const drogas = ALVOS.filter((a) => a.leiId === 'lei_11343_2006')
+  const cp = ALVOS.filter((a) => a.leiId === 'dl_2848_1940')
+
+  it('não atribui artigo de outro diploma', () => {
+    // 28 ids em 21 dos 72 temas do STJ vinham daqui, medidos em 02/09/2026:
+    // `1030` e `1036` não têm ponto de milhar, então a trava do diploma
+    // NUMERADO não os via.
+    const e = 'É vedada a utilização de inquéritos para afastar o art. 33, § 4º, da Lei n. 11.343/06.' + RRC
+    expect(artigosDe(e, drogas)).toEqual(['lei_11343_2006_art33'])
+  })
+
+  it('recusa também o artigo do OUTRO código do corpus', () => {
+    // O caso mais sutil, e o único que produzia id de artigo EXISTENTE: o CPP
+    // está no corpus, mas o art. 400 é dele, não da Lei de Drogas.
+    const e =
+      'Saber se, nos crimes previstos na Lei n. 11.343/2006, deve ser aplicado o rito ' +
+      'processual do art. 400 do Código de Processo Penal, ou o rito específico ' +
+      '(art. 57 da Lei n. 11.343/2006).'
+    expect(artigosDe(e, drogas)).toEqual(['lei_11343_2006_art57'])
+  })
+
+  it('vale o PRIMEIRO diploma nomeado, não qualquer um na janela', () => {
+    // A precisão que um caso real cobrou: o Tema 991 nomeia o Código Penal e,
+    // cinquenta caracteres depois, traz o boilerplate do CPC. Com a regra
+    // frouxa o art. 157 era descartado, e ele estava certo.
+    const e =
+      'Se é necessária a apreensão e perícia da arma de fogo para a incidência da ' +
+      'majorante do art. 157, § 2º, I, do Código Penal.' + RRC
+    expect(artigosDe(e, cp)).toEqual(['dl_2848_1940_art157'])
+  })
+
+  it('sem diploma nomeado, o artigo continua sendo atribuído', () => {
+    // Silêncio conta a favor: a trava é para quando a frase DIZ que o artigo é
+    // de outro lugar.
+    expect(artigosDe('Altera a Lei nº 11.343 para modificar o art. 33.', drogas)).toEqual([
+      'lei_11343_2006_art33',
+    ])
   })
 })
