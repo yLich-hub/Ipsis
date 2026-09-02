@@ -14,6 +14,18 @@ next-env.d.ts
 # o PDF, não.
 *.pdf
 
+# A regra acima existe por causa de UM arquivo, e é larga demais para o próprio
+# propósito: ela engolia também o relatório da auditoria de segurança, que é
+# entregável nosso, tem 255 KB e precisa abrir direto do repositório para quem
+# não vai montar um venv com reportlab. A negação é explícita e estreita — só
+# esta pasta —, para não reabrir a porta a outro PDF de terceiro por acidente.
+!docs/security-audit/*.pdf
+
+# Os gráficos, esses, são redesenhados a cada execução do gerador a partir de
+# dados versionados. Vale aqui a mesma regra de data/normalizado/: versiona-se a
+# entrada e as regras, não o resultado.
+docs/security-audit/graficos/
+
 # Saída de `npm run normalize`: 2,2 MB derivados de data/*.json mais a
 # curadoria, por script determinístico. O que se versiona é a entrada e as
 # regras — não o resultado. Ignorar a pasta inteira, em vez de só *.json, faz

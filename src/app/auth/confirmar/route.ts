@@ -22,10 +22,53 @@ import { supabaseServidor } from '@/lib/auth/servidor'
 
 const TIPOS: EmailOtpType[] = ['recovery', 'email', 'signup', 'magiclink', 'invite', 'email_change']
 
+/**
+ * Marca de que ESTA sessão nasceu de um link de recuperação.
+ *
+ * Existe porque, para o Supabase, a sessão aberta pelo link e a sessão comum de
+ * trabalho são a mesma coisa — e `updateUser({ password })` aceita as duas. Sem
+ * uma marca, quem já está logado abre `/redefinir-senha` e troca a senha sem
+ * provar que conhece a antiga; um cookie emprestado vira conta perdida.
+ *
+ * `httpOnly` porque quem lê é o servidor, na página. Curto porque o gesto é de
+ * um minuto: quem demorar mais que a janela pede outro link, que é barato.
+ *
+ * **Isto não substitui a configuração do painel.** A trava completa é "Secure
+ * password change" no Supabase, que exige login recente e vale também para quem
+ * chamar o SDK direto, sem passar por tela nenhuma. O cookie resolve o acidente;
+ * o painel resolve o atacante. Ver README, "Configuração exigida no painel".
+ */
+const COOKIE_RECUPERACAO = 'ipsis-recuperacao'
+const MINUTOS_DE_RECUPERACAO = 15
+
+const TELA_DE_NOVA_SENHA = '/redefinir-senha'
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const destino = destinoSeguro(searchParams.get('proximo'))
   const paraOrigem = (caminho: string) => new URL(caminho, request.nextUrl.origin)
+
+  /**
+   * O redirect de sucesso, com a marca quando o destino é a tela de nova senha.
+   *
+   * O sinal é o `proximo`, e não o `type` do link: o fluxo PKCE manda só um
+   * `?code=`, que não diz de que espécie é. Quem sabe é `esqueci-senha.tsx`, que
+   * pede `redirectTo=…/auth/confirmar?proximo=%2Fredefinir-senha` — então o
+   * destino É a informação, e ele já passou por `destinoSeguro`.
+   */
+  const concluir = () => {
+    const r = NextResponse.redirect(paraOrigem(destino))
+    if (destino.split('?')[0] === TELA_DE_NOVA_SENHA) {
+      r.cookies.set(COOKIE_RECUPERACAO, '1', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: request.nextUrl.protocol === 'https:',
+        path: '/',
+        maxAge: MINUTOS_DE_RECUPERACAO * 60,
+      })
+    }
+    return r
+  }
 
   const code = searchParams.get('code')
   const tokenHash = searchParams.get('token_hash')
@@ -36,13 +79,13 @@ export async function GET(request: NextRequest) {
 
     if (code) {
       const { error } = await supabase.auth.exchangeCodeForSession(code)
-      if (!error) return NextResponse.redirect(paraOrigem(destino))
+      if (!error) return concluir()
     } else if (tokenHash && tipo && TIPOS.includes(tipo as EmailOtpType)) {
       const { error } = await supabase.auth.verifyOtp({
         token_hash: tokenHash,
         type: tipo as EmailOtpType,
       })
-      if (!error) return NextResponse.redirect(paraOrigem(destino))
+      if (!error) return concluir()
     }
   } catch {
     // Auth fora do ar cai no mesmo lugar que link vencido: a tela do pedido.

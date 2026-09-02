@@ -12,7 +12,9 @@
 // tela de erro. Ver docs/busca.md.
 // =============================================================================
 
+import { clienteDeServico } from '@/lib/servico'
 import { supabase } from '@/lib/supabase'
+import { chaveDeEmbedding } from './chave'
 import { classifica, refina, type Intencao } from './intencao'
 
 export type Achado = {
@@ -53,16 +55,97 @@ export type RespostaBusca = {
 
 const MODELO_EMBEDDING = 'text-embedding-3-small'
 
+
+/**
+ * Cache de embedding, na memória do processo.
+ *
+ * É quebra-molas, não portão — em serverless cada instância tem o próprio mapa e
+ * uma instância nova nasce vazia. É a mesma honestidade do limite por IP de
+ * `/api/consulta/aovivo`, e vale pelo mesmo motivo: o caso comum e barato é a
+ * mesma consulta repetida na mesma instância quente, e esse não deve custar uma
+ * chamada paga.
+ *
+ * O portão é o teto mensal em `consome_uso_busca()` (migration 0025). Cada
+ * entrada guarda 1536 floats como string, ~30 KB — daí o teto baixo de entradas:
+ * o que se economiza em chamada não se pode gastar em heap de função serverless.
+ */
+const CACHE_MAX = 128
+const cacheVetor = new Map<string, string>()
+
+function doCache(chave: string): string | null {
+  const v = cacheVetor.get(chave)
+  if (v === undefined) return null
+  // Reinserir move a chave para o fim da ordem de iteração do Map, que é a
+  // ordem de inserção. É o que transforma "o mais antigo" em "o menos usado" na
+  // hora do despejo, sem estrutura nenhuma além do próprio Map.
+  cacheVetor.delete(chave)
+  cacheVetor.set(chave, v)
+  return v
+}
+
+function guardaNoCache(chave: string, vetor: string): void {
+  cacheVetor.set(chave, vetor)
+  while (cacheVetor.size > CACHE_MAX) {
+    const maisAntiga = cacheVetor.keys().next().value
+    if (maisAntiga === undefined) break
+    cacheVetor.delete(maisAntiga)
+  }
+}
+
+/**
+ * Reserva um embedding do teto mensal.
+ *
+ * Devolve `true` também quando não há cliente de serviço ou quando a RPC falha,
+ * e isso é decisão: o teto existe para pôr um limite superior na conta da
+ * OpenAI, não para ser mais um jeito de a busca parar de funcionar. Falha de
+ * infraestrutura do contador não pode custar a perna semântica de quem está
+ * pesquisando — o erro aqui é enviesado para deixar passar.
+ */
+async function temVagaDeEmbedding(): Promise<{ ok: boolean; teto: number }> {
+  const servico = clienteDeServico()
+  if (!servico) return { ok: true, teto: 0 }
+
+  try {
+    const { data, error } = await servico.rpc('consome_uso_busca')
+    const cota = (Array.isArray(data) ? data[0] : data) as
+      | { permitido: boolean; chamadas: number; teto: number }
+      | undefined
+    if (error || !cota) return { ok: true, teto: 0 }
+    return { ok: cota.permitido, teto: cota.teto }
+  } catch {
+    return { ok: true, teto: 0 }
+  }
+}
+
 /**
  * Embedding da consulta. Custa fração de centavo por milhão de buscas — é a
  * única chamada a modelo aceitável em runtime neste projeto (geração de texto
  * é offline, ver CLAUDE.md, "Nenhuma chamada a LLM em runtime").
+ *
+ * **Duas guardas, e nenhuma delas recusa a busca.** O cache evita a chamada
+ * repetida; o teto mensal (migration 0025) põe um limite superior no gasto. Se o
+ * teto estourar, o retorno é o mesmo `vetor: null` com aviso que já existia para
+ * a OpenAI fora do ar, e a busca segue por rubrica e léxico.
+ *
+ * Recusar seria pior do que não ter teto: `/api/busca` é pública, e um 429 aqui
+ * entregaria ao atacante a negação de serviço que o teto existe para evitar.
  */
 export async function embutir(
   consulta: string,
 ): Promise<{ vetor: string | null; aviso: string | null }> {
   const chave = process.env.OPENAI_API_KEY
   if (!chave) return { vetor: null, aviso: 'OPENAI_API_KEY ausente — busca sem a perna semântica' }
+
+  const cacheado = doCache(chaveDeEmbedding(consulta))
+  if (cacheado) return { vetor: cacheado, aviso: null }
+
+  const vaga = await temVagaDeEmbedding()
+  if (!vaga.ok) {
+    return {
+      vetor: null,
+      aviso: `teto mensal de ${vaga.teto} embeddings atingido — busca sem a perna semântica`,
+    }
+  }
 
   try {
     const r = await fetch('https://api.openai.com/v1/embeddings', {
@@ -79,7 +162,9 @@ export async function embutir(
     if (!vetor?.length) return { vetor: null, aviso: 'embedding vazio — busca sem a perna semântica' }
 
     // A RPC recebe o vetor como string; PostgREST faz o cast para vector(1536).
-    return { vetor: JSON.stringify(vetor), aviso: null }
+    const serializado = JSON.stringify(vetor)
+    guardaNoCache(chaveDeEmbedding(consulta), serializado)
+    return { vetor: serializado, aviso: null }
   } catch (e) {
     const causa = e instanceof Error ? e.message : String(e)
     return { vetor: null, aviso: `embedding indisponível (${causa}) — busca sem a perna semântica` }
