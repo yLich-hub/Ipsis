@@ -271,7 +271,8 @@ _EPIGRAFE = re.compile(r"decreto\s+n?[º°o]?\.?\s*([\d.]+)", re.I)
 #: A fórmula de promulgação, que abre todo decreto estadual.
 #:
 #: Existe porque o rótulo não basta. A regra normal é "bloco de rótulo vazio
-#: antes do primeiro Art. é o preâmbulo" — e ela cobre 1.988 dos 1.989 atos.
+#: antes do primeiro Art. é o preâmbulo" — e ela cobria 1.988 dos 1.989 atos na
+#: medição de 22/08/2026, antes de o recorte apertar.
 #: O que sobra é o Decreto 12.438/2022, em que **a própria fonte rotulou o
 #: preâmbulo como `Art. 1º`** e o artigo verdadeiro veio logo abaixo com o mesmo
 #: rótulo. Não é falha da extração: é a marcação de origem errada.

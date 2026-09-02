@@ -5,9 +5,9 @@
 // lateral levando à tela, a gaveta do celular, a janela de desenho da lista, o
 // filtro local e o leitor abrindo por um id com dois-pontos.
 //
-// **A janela de desenho é o motivo principal deste arquivo.** A lista tem 1.989
-// linhas e desenha 60 por vez — medido, desenhar todas punha 2,3 MB de HTML e
-// 14.195 nós no telefone. Uma janela que corta sem se anunciar é uma lista que
+// **A janela de desenho é o motivo principal deste arquivo.** A lista tem quase
+// mil e quinhentas linhas e desenha 60 por vez — medido com as 1.989 de então,
+// desenhar todas punha 2,3 MB de HTML e 14.195 nós no telefone. Uma janela que corta sem se anunciar é uma lista que
 // mente sobre o próprio tamanho, e é exatamente o tipo de coisa que passa em
 // `tsc`, passa em vitest e só aparece com um dedo na tela.
 //
