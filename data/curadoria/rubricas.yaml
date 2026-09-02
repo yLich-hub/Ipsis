@@ -570,12 +570,29 @@
     A busca domiciliar depende de mandado, salvo as exceções do próprio Código.
     A execução é de dia, salvo consentimento do morador. Em tráfico é a questão
     que mais decide o processo, porque dela depende a licitude da apreensão.
+  # **Segunda vez que a mesma lição aparece neste arquivo.** Como no art. 28, a
+  # rubrica estava escrita na forma institucional e não alcançava quem escreve
+  # de outro jeito: medido em 02/09/2026, "quero discutir a nulidade da entrada
+  # na residência sem mandado" não disparava nada aqui — `busca domiciliar sem
+  # mandado` (28 caracteres) não cabe dentro dela, e `entrada em domicílio` fala
+  # em domicílio onde a pergunta fala em residência.
+  #
+  # As variantes novas são as formas que se escrevem de verdade. Todas com 18+
+  # caracteres e todas nomeando o instituto — nenhuma é palavra genérica que
+  # possa aparecer numa pergunta sobre outro assunto, que é o cuidado que o
+  # `porte de droga` ensinou a ter.
   variantes:
     - busca e apreensão domiciliar
     - entrada em domicílio
+    - entrada na residência
+    - entrada em residência
+    - entrada na residência sem mandado
+    - entrada em domicílio sem mandado
+    - ingresso em domicílio
     - busca sem mandado
     - invasão de domicílio pela polícia
     - flagrante em domicílio
+    - violação de domicílio pela polícia
   dispositivos:
     - { id: dl_3689_1941_art240_p1, papel: principal, peso: 100 }
     - { id: dl_3689_1941_art245_caput, papel: correlato, peso: 85, nota: execução de dia, salvo consentimento }

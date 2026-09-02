@@ -141,9 +141,37 @@ consulta vira frase. Conferido antes e depois de 0011: a mesma pergunta passa a
 devolver o art. 35 da Lei 11.343, via rubrica.
 
 A trava contra falso positivo é o comprimento. Só termo com 12+ caracteres pode
-casar contido; sem isso "tráfico" (7) casaria em toda pergunta sobre tráfico e a
-rubrica — que tem peso dominante na fusão — mandaria em consultas que ela não
-entende. Igualdade exata continua valendo para qualquer comprimento.
+casar contido; sem isso "tráfico" (7) casaria em toda pergunta sobre tráfico.
+Igualdade exata continua valendo para qualquer comprimento.
+
+**O comprimento não bastava, e 0020 separou as duas formas de match.** O corte de
+12 foi calibrado em 0011, quando a rubrica valia de fato 0,7× em vez de 3× — o
+defeito que 0017 consertou. Com o peso certo, termo curado curto e genérico passa
+a dominar de verdade: medido em 02/09/2026, "o réu confessou o tráfico, mas quero
+discutir a nulidade da entrada na residência sem mandado" devolvia o art. 65,
+III, d do CP nas duas primeiras posições, por causa de `reu confessou` (13
+caracteres), e **nada sobre busca domiciliar**.
+
+O que estava errado não era o comprimento: era as duas formas de match terem o
+mesmo poder. O `order by` final abria com `via_rubrica desc`, então qualquer
+match encabeçava a lista **independentemente do score**.
+
+    igualdade → o usuário digitou o nome do instituto. Manda, como sempre mandou.
+    contido   → o termo apareceu dentro de uma frase. É sinal, não comando.
+
+0020 dá ao contido **metade do peso** (1,5 contra 3,0) e tira dele o passe livre
+na ordenação: ele compete por score, onde qualquer dispositivo com duas pernas
+concordando o ultrapassa. O tipo de retorno não mudou — `via_rubrica_exata` serve
+só à ordenação e não sai da função —, e por isso a migration não tocou uma linha
+de TypeScript.
+
+Conferido depois: "tráfico privilegiado", "dosimetria da pena", "associação para
+o tráfico" e "busca domiciliar sem mandado" continuam com o cluster certo em
+primeiro, com o mesmo score de antes. E a pergunta que motivou 0011 —
+"Associação para o tráfico e concurso de pessoas: qual a diferença?" — passou a
+devolver **os dois** institutos, art. 29 do CP em primeiro e art. 35 da Lei de
+Drogas em segundo, que é o que a pergunta pede. O art. 149-A, tráfico de pessoas,
+continua fora.
 
 O erro só ficou visível quando a resposta do chat passou a ser redigida a partir
 do contexto recuperado: com a prosa composta de fatos sobre a busca, trazer o
@@ -2194,19 +2222,24 @@ está no `ls` da pasta.
   certa: perder um acerto custa uma recuperação fraca declarada; dominar com a
   rubrica errada afirma outro crime.
 
-- **O corte de 12 caracteres da rubrica contida foi calibrado contra o peso
-  quebrado, e 0017 mudou o terreno.** A trava de 0011 existe para "tráfico" (7)
-  não casar em toda pergunta; ela foi medida quando a rubrica valia, de fato,
-  0,7× em vez de 3×. Com o peso certo, termo curado curto e genérico domina de
-  verdade: há 236 termos curados com 12+ caracteres, entre eles `reu confessou`,
-  `regime inicial`, `prova ilicita` e `defesa previa`. Medido em 20/08/2026, "o
-  réu confessou o tráfico, mas quero discutir a nulidade da entrada na residência
-  sem mandado" devolve o art. 65, III, d do CP (confissão) nas duas primeiras
-  posições e **nada sobre busca domiciliar** — a frase incidental sequestrou a
-  recuperação. O piso pegou (marcou `fraco`), que é a rede funcionando, mas a
-  resposta certa também não veio. Rever o corte, ou exigir que a rubrica contida
-  tenha alguma concordância de outra perna, é decisão de curadoria e de medida —
-  não se muda o número no escuro.
+- **O corte de 12 caracteres da rubrica contida deixou de mandar na consulta,
+  e a saída não foi mexer no número.** A pendência dizia que o corte fora
+  calibrado contra o peso quebrado, e que rever o número ou exigir concordância
+  de outra perna era decisão de medida. Medido em 02/09/2026, o problema não era
+  o comprimento: era o match contido ter o MESMO poder do exato — inclusive o
+  passe livre na ordenação. 0020 separa os dois (metade do peso, sem passe
+  livre); ver "Busca", acima. O corte de 12 continua onde estava, porque agora
+  ele decide outra coisa.
+
+  **A segunda metade do conserto foi curadoria, e repetiu a lição do art. 28.**
+  A pergunta medida também não achava `busca domiciliar sem mandado` porque
+  falava em "entrada na residência", e a rubrica só conhecia "entrada em
+  domicílio". Com as variantes novas, a mesma pergunta devolve o art. 240, § 1º
+  do CPP em primeiro, e a confissão — que a frase de fato menciona — fica
+  presente e subordinada. **Duas vezes seguidas o defeito foi a rubrica escrita
+  na forma institucional não alcançar quem escreve de outro jeito**; é
+  propriedade do arquivo, não caso isolado.
+
 - **O piso de quantidade expressiva é convenção, não lei.** `EXPRESSIVA` é um
   quilo, e o art. 42 não fixa medida nenhuma. Está escrito onde mora e vale só
   para a leitura automática da conversa — na ferramenta, quem marca o vetor é o
