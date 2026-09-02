@@ -65,6 +65,7 @@ export default async function PaginaDecreto({ params }: Props) {
         }
         voltar={{ href: '/decretos', rotulo: 'Decretos do Paraná' }}
       >
+        {d.revogado_por && <Selo tom="ambar">Revogado</Selo>}
         <Selo tom="acento">{especie(d.sumula)}</Selo>
         <Selo tom="ambar" title="Acervo de consulta: decreto estadual não é fundamento de peça">
           não citável
@@ -77,6 +78,16 @@ export default async function PaginaDecreto({ params }: Props) {
 
           {/* Procedência. Diz o que se sabe — a versão lida e o dia da leitura
               — e não diz o que não se conferiu. Ver o cabeçalho deste arquivo. */}
+          {/* A revogação vem ANTES do texto, não depois: quem abre um ato
+              revogado precisa saber disso antes de ler o primeiro artigo. */}
+          {d.revogado_por && (
+            <p className="mt-4 rounded-2xl bg-tg-ambar-fundo px-4 py-3 text-[12.5px] leading-[1.6] text-tg-ambar-txt">
+              <strong className="font-medium">Ato revogado por inteiro.</strong>{' '}
+              {d.revogado_por} — como a fonte registra na página deste decreto. O texto abaixo
+              continua sendo o que ela publica, e fica aqui para consulta histórica.
+            </p>
+          )}
+
           <div className="mt-4 rounded-2xl bg-tg-fundo px-4 py-3">
             <p className="text-[12px] leading-[1.6] text-tg-corpo-2">
               Redação <strong className="font-medium">{versaoFem(d.versao)}</strong> — a última alteração

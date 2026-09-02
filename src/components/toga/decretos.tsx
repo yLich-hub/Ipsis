@@ -101,6 +101,10 @@ function Cartao({ d }: { d: DecretoResumo }) {
       className="tgc block rounded-[18px] bg-white px-5 py-4 shadow-[var(--tg-elev-1)] transition-shadow hover:shadow-[var(--tg-elev-2)]"
     >
       <div className="flex flex-wrap items-center gap-2">
+        {/* Revogado vem primeiro e em âmbar: é o que muda tudo o que se lê
+            abaixo. Sem ele o ato aparecia como qualquer outro — e 40 dos 1.496
+            estão revogados por inteiro. */}
+        {d.revogado_por && <Selo tom="ambar">Revogado</Selo>}
         <Selo tom="acento">{especie(d.sumula)}</Selo>
         <span className="text-[13.5px] font-medium text-tg-tinta-2">
           Decreto {d.numero}/{d.ano}
@@ -120,6 +124,7 @@ function Cartao({ d }: { d: DecretoResumo }) {
       <p className="mt-2 font-tg-serif text-[14px] leading-[1.55] text-tg-corpo">{d.sumula}</p>
 
       <p className="mt-2.5 text-[11px] text-tg-suave">
+        {d.revogado_por ? `${d.revogado_por} · ` : ''}
         Redação {versaoFem(d.versao)} · lida em {dataBR(d.conferido_em)}
       </p>
     </Link>

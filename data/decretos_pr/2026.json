@@ -6,7 +6,7 @@
   "orgao_unidade": 1100,
   "visualizacao": "compilado"
  },
- "colhido_em": "2026-09-01",
+ "colhido_em": "2026-09-02",
  "vistos": 2493,
  "no_recorte": 161,
  "completo": true,
@@ -24,7 +24,8 @@
    "cod_ato": "403349",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403349",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14812:1",
@@ -118,7 +119,8 @@
    "cod_ato": "403153",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403153",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14777:1",
@@ -152,7 +154,8 @@
    "cod_ato": "403151",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403151",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14776:1",
@@ -186,7 +189,8 @@
    "cod_ato": "403150",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403150",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14775:1",
@@ -220,7 +224,8 @@
    "cod_ato": "403085",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403085",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14766:1",
@@ -260,7 +265,8 @@
    "cod_ato": "403081",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403081",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14765:1",
@@ -330,7 +336,8 @@
    "cod_ato": "403079",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403079",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14764:1",
@@ -388,7 +395,8 @@
    "cod_ato": "403068",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403068",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14763:1",
@@ -422,7 +430,8 @@
    "cod_ato": "403067",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403067",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14762:1",
@@ -456,7 +465,8 @@
    "cod_ato": "403066",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=403066",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14761:1",
@@ -562,7 +572,8 @@
    "cod_ato": "402783",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402783",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14718:1",
@@ -656,7 +667,8 @@
    "cod_ato": "402610",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402610",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14715:1",
@@ -738,7 +750,8 @@
    "cod_ato": "402609",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402609",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14714:1",
@@ -772,7 +785,8 @@
    "cod_ato": "402544",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402544",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14706:1",
@@ -998,7 +1012,8 @@
    "cod_ato": "402417",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402417",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14699:1",
@@ -1038,7 +1053,8 @@
    "cod_ato": "402251",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=402251",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14669:1",
@@ -1072,7 +1088,8 @@
    "cod_ato": "401929",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=401929",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14630:1",
@@ -1112,7 +1129,8 @@
    "cod_ato": "401693",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=401693",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14617:1",
@@ -2100,7 +2118,8 @@
    "cod_ato": "401143",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=401143",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14554:1",
@@ -2134,7 +2153,8 @@
    "cod_ato": "400911",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400911",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14499:1",
@@ -2498,7 +2518,8 @@
    "cod_ato": "400772",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400772",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14483:1",
@@ -2538,7 +2559,8 @@
    "cod_ato": "400630",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400630",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14476:1",
@@ -2584,7 +2606,8 @@
    "cod_ato": "400632",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400632",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14477:1",
@@ -2630,7 +2653,8 @@
    "cod_ato": "400080",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400080",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14379:1",
@@ -2700,7 +2724,8 @@
    "cod_ato": "400079",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400079",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14378:1",
@@ -2758,7 +2783,8 @@
    "cod_ato": "400076",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=400076",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14377:1",
@@ -2828,7 +2854,8 @@
    "cod_ato": "399697",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399697",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14362:1",
@@ -3570,7 +3597,8 @@
    "cod_ato": "399610",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399610",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14316:1",
@@ -3610,7 +3638,8 @@
    "cod_ato": "399598",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399598",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14315:1",
@@ -3698,7 +3727,8 @@
    "cod_ato": "399341",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399341",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14305:1",
@@ -3732,7 +3762,8 @@
    "cod_ato": "399340",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399340",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14304:1",
@@ -3766,7 +3797,8 @@
    "cod_ato": "399339",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=399339",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14303:1",
@@ -3800,7 +3832,8 @@
    "cod_ato": "398549",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398549",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14187:1",
@@ -3834,7 +3867,8 @@
    "cod_ato": "398524",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398524",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14186:1",
@@ -3892,7 +3926,8 @@
    "cod_ato": "398504",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398504",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14185:1",
@@ -3932,7 +3967,8 @@
    "cod_ato": "398149",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398149",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14182:1",
@@ -3972,7 +4008,8 @@
    "cod_ato": "398147",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398147",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14180:1",
@@ -4030,7 +4067,8 @@
    "cod_ato": "398058",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398058",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14166:1",
@@ -4106,7 +4144,8 @@
    "cod_ato": "398045",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=398045",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14165:1",
@@ -4212,7 +4251,8 @@
    "cod_ato": "397851",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397851",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14143:1",
@@ -4312,7 +4352,8 @@
    "cod_ato": "397553",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397553",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14095:1",
@@ -4352,7 +4393,8 @@
    "cod_ato": "397261",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397261",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14078:1",
@@ -4386,7 +4428,8 @@
    "cod_ato": "397260",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=397260",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14077:1",
@@ -4546,7 +4589,8 @@
    "cod_ato": "396994",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396994",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14053:1",
@@ -4652,7 +4696,8 @@
    "cod_ato": "396974",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396974",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14042:1",
@@ -4686,7 +4731,8 @@
    "cod_ato": "396718",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396718",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:14021:1",
@@ -4774,7 +4820,8 @@
    "cod_ato": "396549",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396549",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13996:1",
@@ -4808,7 +4855,8 @@
    "cod_ato": "396394",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396394",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13977:1",
@@ -5382,7 +5430,8 @@
    "cod_ato": "388903",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388903",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13043:1",
@@ -5440,7 +5489,8 @@
    "cod_ato": "396056",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396056",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13947:1",
@@ -7130,7 +7180,8 @@
    "cod_ato": "396055",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=396055",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13946:1",
@@ -7188,7 +7239,8 @@
    "cod_ato": "395980",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395980",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13930:1",
@@ -7228,7 +7280,8 @@
    "cod_ato": "395885",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395885",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13905:1",
@@ -7322,7 +7375,8 @@
    "cod_ato": "395330",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395330",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13848:1",
@@ -7386,7 +7440,8 @@
    "cod_ato": "395069",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395069",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13803:1",
@@ -7426,7 +7481,8 @@
    "cod_ato": "395046",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395046",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13792:1",
@@ -7460,7 +7516,8 @@
    "cod_ato": "395029",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=395029",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13791:1",
@@ -7500,7 +7557,8 @@
    "cod_ato": "394627",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394627",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13737:1",
@@ -7564,7 +7622,8 @@
    "cod_ato": "394626",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394626",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13736:1",
@@ -7622,7 +7681,8 @@
    "cod_ato": "394621",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394621",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13735:1",
@@ -7680,7 +7740,8 @@
    "cod_ato": "394499",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394499",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13728:1",
@@ -8302,7 +8363,8 @@
    "cod_ato": "394262",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394262",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13693:1",
@@ -8336,7 +8398,8 @@
    "cod_ato": "394065",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394065",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13652:1",
@@ -8370,7 +8433,8 @@
    "cod_ato": "394062",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=394062",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13651:1",
@@ -8404,7 +8468,8 @@
    "cod_ato": "393590",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393590",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13583:1",
@@ -8444,7 +8509,8 @@
    "cod_ato": "393181",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393181",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13556:1",
@@ -8574,7 +8640,8 @@
    "cod_ato": "393118",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=393118",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13530:1",
@@ -8626,7 +8693,8 @@
    "cod_ato": "392997",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392997",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13521:1",
@@ -8660,7 +8728,8 @@
    "cod_ato": "392996",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392996",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13520:1",
@@ -8694,7 +8763,8 @@
    "cod_ato": "392995",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392995",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13519:1",
@@ -8728,7 +8798,8 @@
    "cod_ato": "392991",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392991",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13518:1",
@@ -8762,7 +8833,8 @@
    "cod_ato": "392990",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392990",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13517:1",
@@ -8796,7 +8868,8 @@
    "cod_ato": "392937",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392937",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13429:1",
@@ -9430,7 +9503,8 @@
    "cod_ato": "391043",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391043",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13319:1",
@@ -9524,7 +9598,8 @@
    "cod_ato": "392757",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392757",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13498:1",
@@ -9630,7 +9705,8 @@
    "cod_ato": "392500",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392500",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13467:1",
@@ -9676,7 +9752,8 @@
    "cod_ato": "392488",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392488",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13466:1",
@@ -9800,7 +9877,8 @@
    "cod_ato": "392121",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392121",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13441:1",
@@ -9840,7 +9918,8 @@
    "cod_ato": "392118",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392118",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13442:1",
@@ -9874,7 +9953,8 @@
    "cod_ato": "392094",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=392094",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13452:1",
@@ -9914,7 +9994,8 @@
    "cod_ato": "391909",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391909",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13407:1",
@@ -9948,7 +10029,8 @@
    "cod_ato": "391408",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391408",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13362:1",
@@ -9982,7 +10064,8 @@
    "cod_ato": "391219",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=391219",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13345:1",
@@ -10208,7 +10291,8 @@
    "cod_ato": "390833",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390833",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13302:1",
@@ -10350,7 +10434,8 @@
    "cod_ato": "390260",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390260",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13217:1",
@@ -10384,7 +10469,8 @@
    "cod_ato": "390234",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390234",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13209:1",
@@ -10520,7 +10606,8 @@
    "cod_ato": "390173",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390173",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13201:1",
@@ -10554,7 +10641,8 @@
    "cod_ato": "390112",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390112",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13190:1",
@@ -10708,7 +10796,8 @@
    "cod_ato": "390086",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390086",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13186:1",
@@ -10742,7 +10831,8 @@
    "cod_ato": "390042",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=390042",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13182:1",
@@ -10818,7 +10908,8 @@
    "cod_ato": "389827",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389827",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13134:1",
@@ -10852,7 +10943,8 @@
    "cod_ato": "389824",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389824",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13133:1",
@@ -10886,7 +10978,8 @@
    "cod_ato": "389640",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389640",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13101:1",
@@ -12498,7 +12591,8 @@
    "cod_ato": "389636",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=389636",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13102:1",
@@ -13000,7 +13094,8 @@
    "cod_ato": "388934",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388934",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13044:1",
@@ -13040,7 +13135,8 @@
    "cod_ato": "388894",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388894",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13041:1",
@@ -13086,7 +13182,8 @@
    "cod_ato": "384768",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384768",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12709:1",
@@ -13168,7 +13265,8 @@
    "cod_ato": "388455",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388455",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13016:1",
@@ -13472,7 +13570,8 @@
    "cod_ato": "388441",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388441",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13015:1",
@@ -13512,7 +13611,8 @@
    "cod_ato": "388434",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388434",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13014:1",
@@ -13570,7 +13670,8 @@
    "cod_ato": "388429",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388429",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13013:1",
@@ -13628,7 +13729,8 @@
    "cod_ato": "388426",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=388426",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:13012:1",
@@ -13668,7 +13770,8 @@
    "cod_ato": "387986",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387986",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12992:1",
@@ -13732,7 +13835,8 @@
    "cod_ato": "387592",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387592",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12958:1",
@@ -13766,7 +13870,8 @@
    "cod_ato": "387590",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387590",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12957:1",
@@ -13800,7 +13905,8 @@
    "cod_ato": "387589",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387589",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12956:1",
@@ -13840,7 +13946,8 @@
    "cod_ato": "387585",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387585",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12955:1",
@@ -13874,7 +13981,8 @@
    "cod_ato": "387384",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387384",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12926:1",
@@ -14154,7 +14262,8 @@
    "cod_ato": "387376",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387376",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12925:1",
@@ -14200,7 +14309,8 @@
    "cod_ato": "387374",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387374",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12924:1",
@@ -14240,7 +14350,8 @@
    "cod_ato": "387091",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=387091",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12915:1",
@@ -14274,7 +14385,8 @@
    "cod_ato": "386994",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386994",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12893:1",
@@ -14308,7 +14420,8 @@
    "cod_ato": "386981",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386981",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12892:1",
@@ -14348,7 +14461,8 @@
    "cod_ato": "386888",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386888",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12878:1",
@@ -14382,7 +14496,8 @@
    "cod_ato": "386885",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386885",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12877:1",
@@ -14518,7 +14633,8 @@
    "cod_ato": "386809",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386809",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12863:1",
@@ -14576,7 +14692,8 @@
    "cod_ato": "386794",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386794",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12862:1",
@@ -15288,7 +15405,8 @@
    "cod_ato": "386529",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386529",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12828:1",
@@ -15346,7 +15464,8 @@
    "cod_ato": "386515",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386515",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12827:1",
@@ -15374,7 +15493,8 @@
    "cod_ato": "386493",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386493",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12821:1",
@@ -15750,7 +15870,8 @@
    "cod_ato": "386473",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386473",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12819:1",
@@ -16048,7 +16169,8 @@
    "cod_ato": "386342",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386342",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12801:1",
@@ -16172,7 +16294,8 @@
    "cod_ato": "386340",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386340",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12800:1",
@@ -16440,7 +16563,8 @@
    "cod_ato": "386330",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=386330",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12799:1",
@@ -16522,7 +16646,8 @@
    "cod_ato": "385993",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=385993",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12732:1",
@@ -16568,7 +16693,8 @@
    "cod_ato": "384689",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384689",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12674:1",
@@ -16608,7 +16734,8 @@
    "cod_ato": "384412",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384412",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12667:1",
@@ -16642,7 +16769,8 @@
    "cod_ato": "384312",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384312",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12665:1",
@@ -17450,7 +17578,8 @@
    "cod_ato": "384294",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384294",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12664:1",
@@ -17760,7 +17889,8 @@
    "cod_ato": "384292",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384292",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12663:1",
@@ -17806,7 +17936,8 @@
    "cod_ato": "384276",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=384276",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12662:1",
@@ -18302,7 +18433,8 @@
    "cod_ato": "383477",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383477",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12561:1",
@@ -18342,7 +18474,8 @@
    "cod_ato": "383474",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383474",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12560:1",
@@ -18376,7 +18509,8 @@
    "cod_ato": "383260",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383260",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12559:1",
@@ -18434,7 +18568,8 @@
    "cod_ato": "383248",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383248",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12556:1",
@@ -18468,7 +18603,8 @@
    "cod_ato": "383236",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383236",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12555:1",
@@ -18520,7 +18656,8 @@
    "cod_ato": "383175",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383175",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12550:1",
@@ -18632,7 +18769,8 @@
    "cod_ato": "383158",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=383158",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12546:1",
@@ -18672,7 +18810,8 @@
    "cod_ato": "382840",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382840",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12495:1",
@@ -18976,7 +19115,8 @@
    "cod_ato": "382832",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382832",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12489:1",
@@ -19040,7 +19180,8 @@
    "cod_ato": "382829",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382829",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12490:1",
@@ -19104,7 +19245,8 @@
    "cod_ato": "382828",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382828",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12491:1",
@@ -19162,7 +19304,8 @@
    "cod_ato": "382825",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382825",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12492:1",
@@ -19220,7 +19363,8 @@
    "cod_ato": "382823",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382823",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12493:1",
@@ -19278,7 +19422,8 @@
    "cod_ato": "382817",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382817",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12494:1",
@@ -19336,7 +19481,8 @@
    "cod_ato": "382804",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382804",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12488:1",
@@ -19502,7 +19648,8 @@
    "cod_ato": "382789",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382789",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12487:1",
@@ -19680,7 +19827,8 @@
    "cod_ato": "382676",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382676",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12485:1",
@@ -19714,7 +19862,8 @@
    "cod_ato": "382564",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382564",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12482:1",
@@ -19808,7 +19957,8 @@
    "cod_ato": "382476",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382476",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12478:1",
@@ -19926,7 +20076,8 @@
    "cod_ato": "382325",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382325",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12456:1",
@@ -20062,7 +20213,8 @@
    "cod_ato": "382150",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382150",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12451:1",
@@ -20150,7 +20302,8 @@
    "cod_ato": "382097",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382097",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12435:1",
@@ -20214,7 +20367,8 @@
    "cod_ato": "382009",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=382009",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12434:1",
@@ -20260,7 +20414,8 @@
    "cod_ato": "381995",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381995",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12430:1",
@@ -20444,7 +20599,8 @@
    "cod_ato": "381988",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381988",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12429:1",
@@ -20496,7 +20652,8 @@
    "cod_ato": "381987",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381987",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12428:1",
@@ -20530,7 +20687,8 @@
    "cod_ato": "381980",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381980",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12427:1",
@@ -20588,7 +20746,8 @@
    "cod_ato": "381705",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381705",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12401:1",
@@ -20640,7 +20799,8 @@
    "cod_ato": "381704",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381704",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12400:1",
@@ -20758,7 +20918,8 @@
    "cod_ato": "381703",
    "url": "https://www.legislacao.pr.gov.br/legislacao/listarAtosAno.do?action=exibir&codAto=381703",
    "versao": "compilado",
-   "conferido_em": "2026-09-01",
+   "conferido_em": "2026-09-02",
+   "revogado_por": null,
    "blocos": [
     {
      "id": "decpr:2026:12399:1",

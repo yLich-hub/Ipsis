@@ -251,6 +251,23 @@ class Decreto:
     e é a única coisa que o acervo pode afirmar sobre atualidade — **não** é
     afirmação de que o decreto está em vigor. Ver docs/decretos-pr-levantamento.md."""
 
+    revogado_por: str | None = None
+    """A nota de revogação TOTAL do ato, como a fonte a escreve — "(Revogado
+    pelo Decreto 10832 de 06/08/2025)" —, ou `None`.
+
+    **A armadilha é a revogação parcial, e ela quase custou um dado errado.** A
+    mesma frase aparece dentro de atos VIVOS, marcando um inciso ou parágrafo
+    que caiu: o Decreto 475/2023, que institui o CONESD e está em pleno vigor,
+    traz "(Revogado pelo Decreto 7859 de 06/11/2024)" em dois blocos. Procurar
+    a palavra na página inteira marcaria como revogado justamente o decreto mais
+    citado deste acervo.
+
+    O que separa os dois casos é a FORMA da página, não a frase. Medido em seis
+    atos: quando a revogação é total, a fonte serve uma página com **um bloco
+    só** — a nota —, sem súmula e sem nenhum `Art.`. Quando é parcial, a nota
+    aparece entre dezenas de blocos, depois do primeiro artigo.
+    """
+
     blocos: list[Bloco] = field(default_factory=list)
 
 
@@ -281,6 +298,10 @@ _EPIGRAFE = re.compile(r"decreto\s+n?[º°o]?\.?\s*([\d.]+)", re.I)
 #: então casá-la é seguro — e o custo de não casar é a fórmula de promulgação
 #: virar vetor, respondendo a qualquer pergunta sobre o Governador.
 _PROMULGA = re.compile(r"^O\s+GOVERNADOR\s+DO\s+ESTADO", re.I)
+
+#: A nota de revogação, como a fonte a imprime: "(Revogado pelo Decreto 10832 de
+#: 06/08/2025)". Conferido em 02/09/2026 contra seis atos reais.
+_REVOGACAO = re.compile(r"\(\s*Revogad[oa]\b[^)]*\)", re.I)
 
 #: O ano na epígrafe: "Decreto 4895 - 21 de Fevereiro de 2024".
 _ANO_EPIGRAFE = re.compile(r"(\d{4})\s*$")
@@ -377,6 +398,19 @@ def extrai(pagina: str, resumo: Resumo, cfg: Config, hoje: str) -> Decreto:
             Bloco(id=f"{ato_id}:{len(blocos) + 1}", ordem=len(blocos) + 1, rotulo=rotulo, texto=texto)
         )
 
+    # Revogação TOTAL: página de um bloco só, sem artigo nenhum, com a nota.
+    # Ver o docstring de `Decreto.revogado_por` para a armadilha da parcial.
+    # A nota tem rótulo vazio e vem antes de qualquer artigo — então ela cai no
+    # PREÂMBULO, não nos dispositivos. Foi o que fez a primeira versão desta
+    # deteção não achar nada em ato nenhum: ela procurava só em `blocos`.
+    revogado_por = None
+    if not any(b.rotulo.lower().startswith("art") for b in blocos):
+        for texto in [*preambulo, *(b.texto for b in blocos)]:
+            m = _REVOGACAO.search(texto)
+            if m and len(texto) <= 120:
+                revogado_por = m.group(0).strip()
+                break
+
     return Decreto(
         id=ato_id,
         numero=numero,
@@ -390,6 +424,7 @@ def extrai(pagina: str, resumo: Resumo, cfg: Config, hoje: str) -> Decreto:
         url=f"{cfg.base}/listarAtosAno.do?action=exibir&codAto={resumo.cod_ato}",
         versao=cfg.visualizacao,
         conferido_em=hoje,
+        revogado_por=revogado_por,
         blocos=blocos,
     )
 

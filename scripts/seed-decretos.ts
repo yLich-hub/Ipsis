@@ -41,6 +41,7 @@ type Decreto = {
   url: string
   versao: string
   conferido_em: string
+  revogado_por: string | null
   blocos: Bloco[]
 }
 type Arquivo = {
@@ -181,9 +182,11 @@ try {
             url: d.url,
             versao: d.versao,
             conferido_em: d.conferido_em,
+            revogado_por: d.revogado_por ?? null,
           })),
           'id', 'numero', 'ano', 'epigrafe', 'sumula', 'preambulo',
           'publicado_em', 'diario', 'cod_ato', 'url', 'versao', 'conferido_em',
+          'revogado_por',
         )}
         on conflict (id) do update set
           numero       = excluded.numero,
@@ -196,7 +199,8 @@ try {
           cod_ato      = excluded.cod_ato,
           url          = excluded.url,
           versao       = excluded.versao,
-          conferido_em = excluded.conferido_em
+          conferido_em = excluded.conferido_em,
+          revogado_por = excluded.revogado_por
       `
 
       for (let i = 0; i < blocos.length; i += 500) {
