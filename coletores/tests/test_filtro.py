@@ -271,3 +271,62 @@ class TestCuradoria:
         # "nada mudou nessa lei".
         for a in CFG.alvos:
             assert a.planalto.startswith("https://www.planalto.gov.br/"), a.lei_id
+
+
+# --- o diploma nomeado depois do artigo --------------------------------------
+
+#: O boilerplate que o STJ põe em quase todo tema. Não é matéria penal: é o
+#: procedimento do recurso repetitivo, e nomeia o CPC.
+RRC = "  RRC de Origem (art. 1030, IV e art. 1036, §1º, do CPC/15).Afetação na sessão."
+
+
+def test_artigo_de_outro_diploma_nao_e_atribuido():
+    """28 ids em 21 dos 72 temas do STJ vinham daqui, medidos em 02/09/2026.
+
+    `1030` e `1036` não têm ponto de milhar, então a trava do diploma NUMERADO
+    não os via — e eles viravam `lei_11343_2006_art1030`, id que não existe.
+    """
+    alvo = [CFG.alvo("lei_11343_2006")]
+    ementa = "É vedada a utilização de inquéritos para afastar o art. 33, § 4º, da Lei n. 11.343/06." + RRC
+    assert artigos_de(ementa, alvo) == ["lei_11343_2006_art33"]
+
+
+def test_artigo_do_outro_codigo_do_corpus_tambem_e_recusado():
+    """O caso mais sutil, e o único que produzia id de artigo EXISTENTE.
+
+    "nos crimes da Lei n. 11.343/2006, aplica-se o rito do art. 400 do Código de
+    Processo Penal" rendia `lei_11343_2006_art400`: o CPP está no corpus, mas o
+    artigo é DELE. O id existe, aponta para o artigo errado e não levantaria
+    suspeita de ninguém.
+    """
+    alvo = [CFG.alvo("lei_11343_2006")]
+    ementa = (
+        "Saber se, nos crimes previstos na Lei n. 11.343/2006, deve ser aplicado o rito "
+        "processual do art. 400 do Código de Processo Penal, ou o rito específico "
+        "(art. 57 da Lei n. 11.343/2006)."
+    )
+    assert artigos_de(ementa, alvo) == ["lei_11343_2006_art57"]
+
+
+def test_vale_o_primeiro_diploma_nomeado_e_nao_qualquer_um():
+    """**A precisão que um caso real cobrou.**
+
+    O Tema 991 diz "majorante do art. 157, § 2º, I, do Código Penal" e, cinquenta
+    caracteres depois, traz o boilerplate do CPC. Com a regra frouxa — "há CPC na
+    janela?" — o art. 157 era descartado, e ele estava certo.
+    """
+    alvo = [CFG.alvo("dl_2848_1940")]
+    ementa = (
+        "Se é necessária a apreensão e perícia da arma de fogo para a incidência da "
+        "majorante do art. 157, § 2º, I, do Código Penal." + RRC
+    )
+    assert artigos_de(ementa, alvo) == ["dl_2848_1940_art157"]
+
+
+def test_sem_diploma_nomeado_o_artigo_continua_sendo_atribuido():
+    """Silêncio conta a favor: a trava é para quando a frase DIZ que o artigo é
+    de outro lugar, não para quando ela não diz nada."""
+    alvo = [CFG.alvo("lei_11343_2006")]
+    assert artigos_de("Altera a Lei nº 11.343 para modificar o art. 33.", alvo) == [
+        "lei_11343_2006_art33"
+    ]

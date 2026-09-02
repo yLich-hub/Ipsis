@@ -85,6 +85,46 @@ const VERBOS =
  */
 const CONTEXTO_DE_LEI = /\b(lei|decreto-?lei|codigo|estatuto|dec\.?-?lei)\b/
 
+/**
+ * Diplomas que NÃO estão no corpus, reconhecidos pelo nome. Espelha
+ * `outros_diplomas` em `data/curadoria/vigilia.yaml`, e `tests/vigilia.test.ts`
+ * falha se os dois divergirem.
+ */
+export const OUTROS_DIPLOMAS =
+  /\b(cpc|codigo de processo civil|clt|consolidacao das leis do trabalho|cdc|codigo de defesa do consumidor|eca|estatuto da crianca|ctb|codigo de transito|ctn|codigo tributario|codigo civil|constituicao|lei de execucao penal|lep)\b/
+
+/** Quantos caracteres depois de "art. N" se olha para achar o diploma. */
+const JANELA_DIPLOMA = 80
+
+/**
+ * A janela depois de um artigo nomeia um diploma que NÃO é o alvo?
+ *
+ * **Vale o PRIMEIRO diploma nomeado, não qualquer um na janela** — e essa
+ * precisão foi cobrada por um caso real. O Tema 991 do STJ diz "majorante do
+ * art. 157, § 2º, I, do Código Penal" e, cinquenta caracteres depois, traz o
+ * boilerplate "RRC de Origem (… do CPC/15)". Com a regra frouxa — "há CPC na
+ * janela?" — o art. 157 era descartado, e ele estava certo.
+ *
+ * Silêncio conta a favor de atribuir: sem diploma nomeado, devolve `false`.
+ */
+function deOutroDiploma(janela: string, leiAlvo: string): boolean {
+  const primeiro = (re: RegExp) => {
+    const m = janela.match(re)
+    return m?.index ?? janela.length + 1
+  }
+
+  const doAlvo = ALVOS.find((a) => a.leiId === leiAlvo)
+  const inicioAlvo = doAlvo ? primeiro(doAlvo.reconhece) : janela.length + 1
+
+  let inicioOutro = primeiro(OUTROS_DIPLOMAS)
+  for (const a of ALVOS) {
+    if (a.leiId !== leiAlvo) inicioOutro = Math.min(inicioOutro, primeiro(a.reconhece))
+  }
+
+  if (inicioAlvo > janela.length && inicioOutro > janela.length) return false
+  return inicioOutro < inicioAlvo
+}
+
 export type Achado = {
   /** Como a fonte identifica o item: 'PL 466/2026', 'Lei 15.123/2026'. */
   identificacao: string
@@ -154,6 +194,16 @@ export function artigosDe(ementa: string, alvos: Alvo[]): string[] {
   for (const m of ementa.matchAll(
     /\barts?\.?\s*((?:\d{1,4}(?:-[A-Za-z])?[ºo°]?(?:\s*(?:,|e)\s*)?)+)/gi,
   )) {
+    // Terceira trava, por ARTIGO e não pela ementa inteira: o que vem logo
+    // DEPOIS de cada `art. N` diz de que diploma ele é. Nasceu de um boilerplate
+    // do STJ — "RRC de Origem (art. 1030, IV e art. 1036, §1º, do CPC/15)" —,
+    // que produzia 28 ids de artigo inexistente em 21 dos 72 temas, e pega
+    // também o caso mais sutil: "nos crimes da Lei n. 11.343/2006, aplica-se o
+    // rito do art. 400 do Código de Processo Penal", que rendia
+    // `lei_11343_2006_art400` — id que existe e aponta para o artigo errado.
+    const fim = (m.index ?? 0) + m[0].length
+    if (deOutroDiploma(semAcento(ementa).slice(fim, fim + JANELA_DIPLOMA), lei)) continue
+
     for (const n of (m[1] ?? '').match(/\d{1,4}(?:-[A-Za-z])?/g) ?? []) {
       // `33-A` é artigo distinto de `33` e tem de sobreviver inteiro. A caixa
       // baixa não é estética: o corpus grava `dl_2848_1940_art359-a`, e um id em
