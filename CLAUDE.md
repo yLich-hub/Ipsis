@@ -1082,6 +1082,25 @@ pernas de `busca_decretos` já nascem com a lição de 0017 aplicada: **cada uma
 calcula a própria posição dentro do próprio CTE**, e nenhuma janela enxerga
 linha de outra perna.
 
+**A revogação total passou a ser lida, e a armadilha quase custou um dado
+errado.** A pendência dizia que ninguém tinha conferido se a fonte sinaliza ato
+revogado por inteiro. Conferido em 02/09/2026 contra seis atos reais — três
+revogados, dois com um artigo revogado e um vivo: **ela sinaliza**, servindo uma
+página de um bloco só, com a nota "(Revogado pelo Decreto 10832 de 06/08/2025)",
+sem súmula e sem nenhum `Art.`.
+
+A armadilha é que **a mesma frase aparece dentro de atos vivos**, marcando um
+inciso que caiu — o Decreto 475/2023, que institui o CONESD e é o mais citado
+deste acervo, traz duas. Procurar a palavra na página marcaria como revogado
+justamente ele. O que separa os dois casos é a FORMA da página, não a frase, e é
+isso que o coletor lê, com teste para os dois lados. São **40 dos 1.496**, e até
+então a tela os mostrava como qualquer outro ato.
+
+`revogado_por` (migration 0021) **não é coluna de vigência**, e a distinção é a
+de sempre: nulo quer dizer "a fonte não trouxe nota de revogação total na data da
+leitura", não "está em vigor" — um decreto pode ter perdido objeto ou sido
+revogado por lei sem que a página diga.
+
 **O que a tela afirma, e o que ela recusa afirmar.** A fonte serve três versões
 do texto — `compilado`, `alterado`, `original` — e o coletor lê a primeira, que
 é o análogo estadual do texto compilado do Planalto. O que se pode dizer é
@@ -2182,17 +2201,23 @@ está no `ls` da pasta.
 - **Leitor de tela real nunca foi usado.** O ARIA desta seção foi conferido no
   DOM e no navegador; como ele soa no NVDA ou no VoiceOver é conferência que
   ainda não aconteceu.
-- **21 dos 72 precedentes do STJ carregam id de artigo que não existe**, cinco
-  deles citáveis. São números do CPC lidos como se fossem do Código Penal —
-  `dl_2848_1940_art543-c`, `art1030`, `art1036`. `artigos_de` recusa atribuir
-  quando a frase numera dois diplomas, e não recusa quando o segundo é apenas
-  NOMEADO ("art. 543-C do CPC"). Id inexistente é inerte na recuperação — ele
-  nunca cruza com dispositivo nenhum —, mas é ruído, e o Tema 991 chegou a
-  produzir `dl_2848_1940_art1`, que existe e está errado. O conserto pede uma
-  decisão antes: filtrar contra o corpus exige `data/normalizado/`, que é
-  ignorado pelo git e não existe no GitHub Actions, onde a coleta roda. Filtrar
+- **Precedente do STJ não guarda mais id de artigo inexistente.** Eram 28 ids em
+  21 dos 72 temas — números do CPC lidos como se fossem da Lei de Drogas ou do
+  CP. A pendência registrava um impasse: filtrar contra o corpus exigiria
+  `data/normalizado/`, ausente no GitHub Actions onde a coleta roda, e filtrar
   só onde o arquivo existe faria o coletor se comportar diferente em dois
-  ambientes, que é pior que o ruído.
+  ambientes. **O impasse some quando se muda de lugar**: a tabela `artigos` está
+  no banco, e o banco é o mesmo em qualquer ambiente. Um trigger na escrita
+  (migration 0022) filtra o que não resolve, no mesmo desenho de
+  `valida_ids_dispositivo`. O coletor continua gravando o que extraiu — ele não
+  tem como saber —, e a escrita recusa. Filtra o vínculo, não a linha: derrubar
+  o tema por causa de um id ruim descartaria a tese junto.
+
+  **A causa em `artigos_de` continua de pé, e é outra pendência.** Ela recusa
+  atribuir quando a frase NUMERA dois diplomas, e não recusa quando o segundo é
+  apenas NOMEADO ("art. 1.030 do CPC"). O trigger cobre o efeito; a extração
+  ainda produz o ruído, agora descartado na porta.
+
 - **A dosimetria dosa oito crimes, e não um artigo qualquer.** Os cinco da Lei
   de Drogas e três do Código Penal. Estender exige, por crime, a faixa conferida
   contra o corpus e a lista de causas da terceira fase — sem isso a calculadora
@@ -2280,11 +2305,6 @@ está no `ls` da pasta.
   mesmo score do erro. O contexto marca isso como fraco e o modelo se comporta,
   mas a recuperação seria melhor com semântica OR na perna de súmula. Mexer nisso
   é mudar a RPC, e não se muda peso de fusão no escuro: pede medição antes.
-- **A revogação total de decreto não foi conferida na fonte.** A página serve o
-  texto compilado e risca o alterado, mas se ela sinaliza ato revogado por
-  inteiro ninguém mediu. Enquanto isso, a tela diz "redação compilada, lida em
-  DD/MM/AAAA" e não existe coluna de vigência. Medir custa uma dúzia de decretos
-  revogados abertos à mão.
 - **A Lei de Execução Penal não está no projeto, e trazê-la é decisão de
   procedência, não de trabalho.** Ela não está no corpus, não está no acervo de
   75 e não está no PDF do Vade Mecum — as quatro ocorrências no PDF são

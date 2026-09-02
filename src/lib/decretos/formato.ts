@@ -28,6 +28,14 @@ export type DecretoResumo = {
   publicado_em: string
   conferido_em: string
   versao: string
+  /**
+   * A nota de revogação TOTAL, como a fonte a escreve, ou `null`.
+   *
+   * **Nulo não é "em vigor".** É "a fonte não trouxe nota de revogação total na
+   * data da leitura" — o ato pode ter perdido objeto, sido revogado por lei ou
+   * caducado sem que a página diga. Continua não havendo coluna de vigência.
+   */
+  revogado_por: string | null
 }
 
 /** O ato inteiro, como o leitor precisa dele. */

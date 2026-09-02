@@ -423,3 +423,67 @@ def test_ano_vem_da_epigrafe_quando_a_data_discorda():
     assert d.id == "decpr:2024:4895"
     assert d.ano == 2024
     assert d.publicado_em == "2021-02-21"
+
+
+# --- revogação total ---------------------------------------------------------
+
+# Como a fonte serve um ato revogado por inteiro: um bloco só, com a nota, sem
+# súmula e sem nenhum `Art.`. Conferido em 02/09/2026 nos Decretos 7.415/2024,
+# 2.029/2023 e 11.202/2022.
+REVOGADO = """<html><body>
+<h3>Decreto 7415 - 25 de Setembro de 2024</h3>
+Publicado no <a href='#'>Di&aacute;rio Oficial n&ordm;. 11753</a> de 25 de Setembro de 2024
+<p>
+  <b class="labelAto"></b>
+  <a href='listarAtosAno.do?action=exibir&codAto=367235'> (Revogado pelo Decreto 10832 de 06/08/2025)</a>
+</p>
+</body></html>"""
+
+# A ARMADILHA: ato VIVO que carrega a mesma frase num inciso caído. O Decreto
+# 475/2023 — o do CONESD, o mais citado deste acervo — é exatamente assim.
+VIVO_COM_INCISO_REVOGADO = """<html><body>
+<h3>Decreto 475 - 10 de Fevereiro de 2023</h3>
+<p><b class="labelAto">S&uacute;mula:</b><a>Disp&otilde;e sobre o CONESD.</a></p>
+<p><b class="labelAto"></b><a>O GOVERNADOR DO ESTADO DO PARAN&Aacute; DECRETA:</a></p>
+<p><b class="labelAto">Art. 1&ordm;</b><a>Ao Conselho compete propor a pol&iacute;tica estadual.</a></p>
+<p><b class="labelAto">XIV -</b><strike><a>um representante da FIEP;</a></strike><a> (Revogado pelo Decreto 7859 de 06/11/2024)</a></p>
+</body></html>"""
+
+
+def test_revogacao_total_e_lida_da_pagina():
+    """A fonte SINALIZA revogação total, e isso foi medido antes de virar código.
+
+    A pendência dizia que ninguém tinha conferido. Medido em 02/09/2026 contra
+    seis atos reais — três revogados por inteiro, dois com um artigo revogado e
+    um vivo —, a fonte serve o ato revogado como uma página de um bloco só.
+    """
+    r = Resumo(
+        cod_ato="339329",
+        epigrafe="Decreto 7415 - 25 de Setembro de 2024",
+        sumula="Institui o Comitê de Governança das Contratações Públicas.",
+        publicado_em="25/09/2024",
+    )
+    d = extrai(REVOGADO, r, CFG, hoje="2026-09-02")
+    assert d.revogado_por == "(Revogado pelo Decreto 10832 de 06/08/2025)"
+
+
+def test_inciso_revogado_nao_derruba_o_ato():
+    """**A armadilha que quase custou um dado errado.**
+
+    A mesma frase aparece dentro de atos VIVOS, marcando um inciso que caiu.
+    Procurar a palavra na página inteira marcaria como revogado justamente o
+    Decreto 475/2023 — o do CONESD, o mais citado deste acervo.
+
+    O que separa os dois casos é a FORMA da página, não a frase: revogação total
+    vem numa página sem nenhum `Art.`.
+    """
+    r = Resumo(
+        cod_ato="282212",
+        epigrafe="Decreto 475 - 10 de Fevereiro de 2023",
+        sumula="Dispõe sobre o CONESD.",
+        publicado_em="10/02/2023",
+    )
+    d = extrai(VIVO_COM_INCISO_REVOGADO, r, CFG, hoje="2026-09-02")
+    assert d.revogado_por is None
+    # E o ato continua inteiro: o inciso caído não leva os artigos junto.
+    assert any(b.rotulo.startswith("Art.") for b in d.blocos)

@@ -41,7 +41,7 @@ async function tenta<T>(
 }
 
 const COLUNAS_RESUMO =
-  'id, numero, ano, epigrafe, sumula, publicado_em, conferido_em, versao, url'
+  'id, numero, ano, epigrafe, sumula, publicado_em, conferido_em, versao, url, revogado_por'
 
 /**
  * O que a LISTA precisa, e só isso.
@@ -54,7 +54,8 @@ const COLUNAS_RESUMO =
  *
  * Numa rede móvel, cada quilobyte a mais é espera antes do primeiro cartão.
  */
-const COLUNAS_LISTA = 'id, numero, ano, sumula, publicado_em, conferido_em, versao'
+const COLUNAS_LISTA =
+  'id, numero, ano, sumula, publicado_em, conferido_em, versao, revogado_por'
 
 // --- leitura -----------------------------------------------------------------
 
