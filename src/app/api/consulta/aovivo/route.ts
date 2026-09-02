@@ -6,7 +6,19 @@
 // A rota não é pública (não está em `lib/auth/rotas.ts`), e isso é o primeiro
 // dos três freios. Sem ele, uma rota que chama a API do Claude seria superfície
 // de gasto anônima — que é a razão original de o CLAUDE.md ter proibido LLM em
-// runtime. Os outros dois são o limite por IP e o teto mensal no banco.
+// runtime. Os outros dois são o limite por usuário e o teto mensal no banco.
+//
+// **Os três foram apertados depois de uma auditoria, e os três tinham a mesma
+// fresta: o gate morava na aplicação e o dado não o repetia.**
+//
+//   1. A sessão é conferida no HANDLER, e não só pelo matcher do middleware —
+//      que decide por extensão do caminho e podia ser contornado por quem
+//      controlasse um segmento dinâmico.
+//   2. O limite deixou de ser por IP e passou a ser por `auth.uid()`. O IP vinha
+//      do elemento mais à esquerda de `x-forwarded-for`, que o cliente escreve.
+//   3. O teto mensal é consumido pelo cliente de SERVIÇO. Ele saía pela chave
+//      publishable, que está no bundle — qualquer um chamava `consome_uso_llm`
+//      direto no PostgREST e esgotava as 200 gerações do mês. Ver 0023.
 //
 // **Os passos que a tela anima são os eventos reais deste pipeline**, emitidos
 // enquanto acontecem: classificação da intenção (regra em TS, sem rede), fusão
@@ -33,7 +45,8 @@ import { consultaDoAcervo, querDecretos } from '@/lib/decretos/porteiro'
 import { idsHerdados, saneiaFio } from '@/lib/consulta/fio'
 import { precedentesPara } from '@/lib/vigilia/precedentes'
 import { soArtigo } from '@/lib/vigilia/alvos'
-import { supabase } from '@/lib/supabase'
+import { clienteDeServico } from '@/lib/servico'
+import { usuarioAtual } from '@/lib/auth/servidor'
 import { passosDa } from '@/lib/toga/resposta'
 
 export const runtime = 'nodejs'
@@ -73,22 +86,33 @@ function saneiaQtd(bruto: unknown): number {
 }
 
 /**
- * Limite por IP, na memória do processo.
+ * Limite por USUÁRIO, na memória do processo.
  *
  * É um quebra-molas, não um portão: em serverless cada instância tem o próprio
  * mapa, e uma instância nova nasce com ele vazio. O portão de verdade é o teto
  * mensal, que mora no banco e vale para todas as instâncias. Este mapa existe
  * para o caso barato e comum — alguém segurando o botão.
+ *
+ * **A chave era o IP, e o IP vinha de um cabeçalho que o cliente escreve.**
+ * `x-forwarded-for` é uma lista construída por proxies, e tomar o elemento mais
+ * à ESQUERDA é tomar o valor que o cliente pôde escrever: bastava variá-lo a
+ * cada requisição para que cada uma caísse numa chave diferente e o contador
+ * nunca chegasse a cinco. O quebra-molas não segurava nem o caso barato.
+ *
+ * O `auth.uid()` não tem esse defeito: ele sai de um JWT que o servidor de Auth
+ * assinou e que `getUser()` validou lá — o cliente não escolhe o seu. E ele só
+ * está disponível aqui porque a rota passou a exigir sessão no próprio handler;
+ * as duas mudanças são a mesma mudança.
  */
 const JANELA_MS = 60_000
 const POR_JANELA = 5
 const visitas = new Map<string, number[]>()
 
-function excedeu(ip: string): boolean {
+function excedeu(quem: string): boolean {
   const agora = Date.now()
-  const recentes = (visitas.get(ip) ?? []).filter((t) => agora - t < JANELA_MS)
+  const recentes = (visitas.get(quem) ?? []).filter((t) => agora - t < JANELA_MS)
   recentes.push(agora)
-  visitas.set(ip, recentes)
+  visitas.set(quem, recentes)
   // O mapa não cresce sem fim: chaves sem visita recente saem quando cruzam o
   // caminho da limpeza. Sem isto, um processo longo acumularia um IP por
   // visitante para sempre.
@@ -101,6 +125,26 @@ function excedeu(ip: string): boolean {
 const sse = (evento: EventoAoVivo) => `data: ${JSON.stringify(evento)}\n\n`
 
 export async function POST(req: Request) {
+  // **A sessão é conferida AQUI, e não só no middleware.** As páginas sempre
+  // tiveram duas camadas — o matcher e o `redirect` de `(app)/layout.tsx` —, e
+  // as rotas de API não tinham nenhuma de reserva. Pior: o matcher decide por
+  // EXTENSÃO do caminho, então numa rota com segmento dinâmico era o próprio
+  // chamador quem decidia se o porteiro rodava. Ver `src/middleware.ts`.
+  //
+  // **Na prática este 401 quase nunca é o que o cliente vê, e está certo assim.**
+  // Medido contra `next start`: sem cookie, o middleware pega antes e devolve
+  // 307 para `/login`. Este ramo é a segunda camada — ele responde quando o
+  // matcher não alcançar a requisição, que é exatamente a situação que o achado
+  // descreveu. Vale como rede, não como caminho normal.
+  //
+  // 401 e não redirect porque quem chama isto é um `fetch()` de JSON: se um dia
+  // esta for a resposta que chega ao cliente, é melhor que ela diga o que houve
+  // do que mandá-lo seguir um redirect para HTML.
+  const usuario = await usuarioAtual()
+  if (!usuario) {
+    return NextResponse.json({ erro: 'sessão necessária' }, { status: 401 })
+  }
+
   if (!temChave()) {
     // O nome da variável vem de `temChave()`, que é quem a lê. Escrevê-lo à mão
     // aqui já custou caro uma vez: a mensagem dizia ANTHROPIC_API_KEY muito
@@ -135,18 +179,33 @@ export async function POST(req: Request) {
   // como qualquer outra, e `saneiaFio` a trata assim.
   const fio = saneiaFio(corpo.fio)
 
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    req.headers.get('x-real-ip') ||
-    'desconhecido'
-
-  if (excedeu(ip)) {
+  if (excedeu(usuario.id)) {
     return NextResponse.json({ erro: 'muitas gerações seguidas — espere um minuto' }, { status: 429 })
   }
 
   // Teto mensal. A função decide e escreve na mesma instrução (migration 0010),
   // então duas requisições simultâneas não passam juntas pela última vaga.
-  const { data, error } = await supabase.rpc('consome_uso_llm')
+  //
+  // **Quem pede a vaga é o cliente de SERVIÇO, não o `supabase` de leitura.** A
+  // chamada saía pela chave publishable sem sessão, ou seja, chegava ao banco
+  // como `anon` — e por isso 0010 precisava conceder EXECUTE a `anon`. Como a
+  // chave publishable está em texto claro no bundle, qualquer um chamava a
+  // função direto no PostgREST e esgotava as 200 gerações do mês sem passar por
+  // aqui. A migration 0023 revoga esse grant; esta linha é a outra metade dela, e
+  // sem as duas juntas ou o teto fica aberto, ou a geração para.
+  const servico = clienteDeServico()
+  if (!servico) {
+    return NextResponse.json(
+      {
+        erro:
+          'SUPABASE_SERVICE_ROLE_KEY ausente. O teto mensal é consumido pelo cliente de ' +
+          'serviço desde a migration 0023 — sem ele não há como reservar a vaga.',
+      },
+      { status: 503 },
+    )
+  }
+
+  const { data, error } = await servico.rpc('consome_uso_llm')
   const cota = (Array.isArray(data) ? data[0] : data) as
     | { permitido: boolean; chamadas: number; teto: number }
     | undefined

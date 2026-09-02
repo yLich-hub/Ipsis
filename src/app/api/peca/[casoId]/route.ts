@@ -16,6 +16,7 @@
 
 import { NextResponse } from 'next/server'
 
+import { usuarioAtual } from '@/lib/auth/servidor'
 import { aplicaA, caso as leCaso, tesesComTemplate } from '@/lib/dados'
 import { CitacaoOrfa, montarPeca } from '@/lib/peca/montar'
 import { pecaEmDocx } from '@/lib/peca/docx'
@@ -27,6 +28,24 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ casoId: string }> },
 ) {
+  // **A sessão é conferida aqui, e não só no middleware.** O `matcher` pula
+  // qualquer caminho terminado em `.txt`, `.xml`, `.svg` e companhia — e num
+  // segmento dinâmico é o chamador quem escolhe o fim do caminho. Medido antes
+  // do conserto: `/api/peca/caso.txt` não passava pelo middleware, enquanto
+  // `/api/peca/caso_flagrante` passava.
+  //
+  // Nada vazava por ali, e é justo dizê-lo: nenhum id de `casos.yaml` termina em
+  // extensão excluída, e `public.casos` tem leitura pública por projeto — é
+  // curadoria de demonstração. O que se fechou foi a classe de erro, antes que a
+  // próxima rota com segmento dinâmico nascesse sem porteiro. As páginas já
+  // tinham essa segunda camada em `(app)/layout.tsx`; as rotas de API, nenhuma.
+  //
+  // Conferido contra `next start`: hoje o middleware pega antes e devolve 307
+  // para `/login`, inclusive em `/api/peca/<id>.txt`, que antes ele nem via.
+  // Este 401 é a rede que fica embaixo — o caminho normal nunca chega nele.
+  const usuario = await usuarioAtual()
+  if (!usuario) return NextResponse.json({ erro: 'sessão necessária' }, { status: 401 })
+
   const { casoId } = await params
 
   const [c, ts] = await Promise.all([leCaso(casoId), tesesComTemplate()])

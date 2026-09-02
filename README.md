@@ -408,9 +408,32 @@ npm install
 **1. Banco.** No SQL Editor do Supabase, rode em ordem os 15 arquivos de
 `supabase/migrations/`. São idempotentes e aditivos.
 
-**2. Auth.** No painel: Authentication → Sign In / Providers → Email →
-**Confirm email desligado**, e a URL do deploy na lista de Redirect URLs. Não é
-código, e o fluxo trava sem isso.
+**2. Auth.** No painel do Supabase, quatro ajustes. Não são código, e dois deles
+não são de funcionamento: são de segurança, e o código não tem como impô-los.
+
+| Ajuste                                                          | Valor         |
+| --------------------------------------------------------------- | ------------- |
+| Authentication → Providers → Email → **Confirm email**            | **desligado** |
+| Authentication → **Allow new users to sign up**                   | **desligado** |
+| Authentication → Providers → Email → **Secure password change**    | **ligado**    |
+| Authentication → URL Configuration → **Redirect URLs**            | a URL do deploy |
+
+Os dois primeiros parecem contraditórios e não são: a conta única nasce uma vez
+(pela tela `/cadastro`, ou pelo próprio painel) e o cadastro fecha em seguida.
+
+**Fechar o cadastro é do painel, não do código, e a razão é estrutural.**
+`signUp()` sai do navegador direto para `https://<ref>.supabase.co/auth/v1/signup`
+com a chave publishable — que é pública por construção e está no bundle. Remover
+a tela tiraria o botão, não a porta. Com o cadastro aberto, qualquer pessoa vira
+`authenticated` e alcança o que exige apenas sessão: a geração ao vivo, que gasta
+modelo e consome o teto mensal compartilhado. O que ela **não** alcança é
+`clientes`, `conversas` e `perfil` — RLS por `auth.uid()`.
+
+O mesmo vale para "Secure password change": sem ele, `updateUser({ password })`
+troca a senha sem pedir a atual, e um cookie emprestado vira conta perdida. A
+guarda que existe em código (o cookie `ipsis-recuperacao`, posto por
+`/auth/confirmar` e exigido por `/redefinir-senha`) resolve o acidente; o painel
+resolve o atacante.
 
 **3. Variáveis.** Crie `.env.local` a partir de `.env.example`:
 

@@ -714,13 +714,40 @@ A rota é o único ponto do produto que chama um modelo em runtime. Três freios
 em camadas:
 
 1. a rota **exige sessão** — não está em `lib/auth/rotas.ts`, e rota nova nasce
-   fechada;
-2. limite por IP na memória do processo — quebra-molas, não portão: em
-   serverless cada instância tem o próprio mapa;
+   fechada. Desde 0023 ela também confere a sessão **dentro do handler**, com
+   `usuarioAtual()`: o `matcher` do middleware decide por extensão do caminho, e
+   numa rota com segmento dinâmico era o chamador quem escolhia se o porteiro
+   rodava (`/api/peca/caso.txt` pulava; `/api/peca/caso` não);
+2. limite por **usuário** na memória do processo — quebra-molas, não portão: em
+   serverless cada instância tem o próprio mapa. A chave era o IP, lido do
+   elemento mais à esquerda de `x-forwarded-for`, que é o que o cliente escreve:
+   bastava variá-lo a cada requisição para o contador nunca somar. `auth.uid()`
+   vem de um JWT que o servidor de Auth assinou, e o cliente não escolhe o seu;
 3. **teto mensal no banco**, `consome_uso_llm()` (migration 0010), 200 chamadas
    por mês. A função decide e escreve na mesma instrução, então duas requisições
    simultâneas não passam juntas pela última vaga. Conferido: com `teto = 1`, a
    segunda chamada devolve `permitido = false`.
+
+**Os três tinham a mesma fresta, e ela não estava no código da rota: o gate
+morava na aplicação e o dado não o repetia.** `consome_uso_llm()` é `security
+definer` e 0010 concedia `EXECUTE` a `anon` — precisava conceder, porque a rota a
+chamava pela chave publishable sem sessão. Só que a chave publishable é pública
+por construção e está em texto claro no bundle: um `POST` a
+`/rest/v1/rpc/consome_uso_llm`, duzentas vezes, esgotava o mês sem cookie, sem
+passar pela rota e sem tocar no limite por usuário. A partir daí a Consulta caía
+para a resposta composta até o mês virar — negação de serviço sobre a
+funcionalidade central, ao custo de nenhuma credencial.
+
+`0023_teto_sem_anon.sql` revoga o `EXECUTE` de `public`, `anon` e `authenticated`
+e o concede só a `service_role`; a rota passa a pedir a vaga pelo cliente de
+serviço. **As duas metades andam juntas** — a migration sozinha derruba a geração
+ao vivo, e a mudança na rota sozinha não fecha nada. Conferido no banco:
+`has_function_privilege('anon', …)` devolve `false`, e os dois casos de consulta
+da suíte de navegador continuam passando.
+
+**A mesma classe de erro foi procurada em toda função do schema.** Só há uma
+outra `security definer` — `consome_uso_busca()`, criada por 0025 —, e ela nasceu
+com o grant certo.
 
 `uso_llm` deixou de ser tabela morta: era a única peça de 0001 que nunca tinha
 sido usada, e é ela que sustenta o teto.
@@ -732,6 +759,39 @@ que já estava na tela permanece e a interface diz o motivo ao lado do botão.
 
 Embeddings de consulta em runtime continuam aceitáveis: `text-embedding-3-small`
 custa fração de centavo por milhão de buscas.
+
+**"Fração de centavo" não é o mesmo que "sem teto", e `/api/busca` viveu anos sem
+nenhum.** Ela é pública por decisão escrita, e a decisão continua de pé — mas
+enquanto a geração ao vivo tinha três freios, a busca não tinha um: nem rate
+limit, nem cache, nem cota, com `cache: 'no-store'` e consulta aceita até 400
+caracteres. Custo sem limite superior, provocável por anônimo.
+
+Duas guardas entraram, e **nenhuma delas recusa a busca**:
+
+- **cache na memória do processo**, chaveado por `chaveDeEmbedding` — minúscula,
+  espaço colapsado, acento fora. É quebra-molas: cada instância serverless tem o
+  próprio mapa. O risco dele é colapsar demais, não de menos: duas perguntas
+  distintas na mesma chave devolveriam o vetor de uma na busca da outra, e a tela
+  responderia sobre o crime errado sem erro nenhum — daí ele ser conservador, e
+  daí `tests/acesso.test.ts` trancá-lo;
+- **teto mensal**, `consome_uso_busca()` (migration 0025), no mesmo desenho de
+  `consome_uso_llm()`: decide e escreve na mesma instrução, `EXECUTE` só para
+  `service_role`.
+
+**O teto governa a chamada paga, não a rota, e essa é a decisão inteira.** Um 429
+numa rota PÚBLICA entregaria ao atacante exatamente o que ele queria: gastar o
+teto e deixar a busca fora do ar para o dono. Estourado, `embutir()` devolve
+`vetor: null` com aviso — que é a mesma degradação que o arquivo já previa para o
+dia em que a OpenAI estivesse fora. A tela continua respondendo por rubrica e
+léxico, e diz que está com uma perna a menos.
+
+Pela mesma razão, falha do próprio contador (sem service role, RPC fora) **deixa
+passar**. O teto existe para pôr um limite superior na conta, não para ser mais
+um jeito de a busca parar de funcionar.
+
+O que ele **não** compra, e a distinção importa: limite de VOLUME. A requisição
+continua custando uma execução de função na Vercel e uma RPC no Supabase, e
+nenhum SQL alcança isso — limitar volume é trabalho do firewall da plataforma.
 
 ### O contrato da geração
 
@@ -948,6 +1008,44 @@ apenas, **nunca com prefixo `NEXT_PUBLIC_`**. A service role ignora RLS — vaz�
 no bundle do cliente abre o banco para escrita. O front usa a chave publishable,
 com RLS em somente-leitura nas tabelas de consulta.
 
+### Cabeçalhos de segurança
+
+O produto não emitia nenhum. O que pesava não era a ausência em si: era a ausência
+somada ao único `dangerouslySetInnerHTML` que existe em produção — o leitor do
+acervo, em `app/(app)/vademecum/[leiId]/page.tsx`. O saneamento daquele HTML é
+sólido (allowlist de `sanitize-html` em build, `style` fora, `allowedSchemes` sem
+`javascript:`), e **CSP é justamente a camada que sobra no dia em que um
+saneamento falha**.
+
+O que não muda por requisição está em `next.config.mjs`: `nosniff`,
+`Referrer-Policy`, `X-Frame-Options` e `Permissions-Policy`. A CSP está no
+**middleware**, e tem de estar: ela precisa de um nonce novo a cada requisição, e
+`headers()` é estático — o valor é calculado no build e repetido para todo mundo.
+Nonce fixo não é nonce.
+
+O nonce é escrito nos **dois lados**: na requisição, porque é dela que o Next lê
+para carimbar os próprios scripts, e na resposta, para o navegador. Só na
+resposta produziria o pior dos mundos — política estrita no navegador e nenhum
+script do Next autorizado por ela. E ele sai em toda saída do middleware, não
+numa só: o arquivo tem cinco caminhos de retorno, e uma política que só sai por
+um deles não existe nas outras quatro telas.
+
+Duas folgas, e as duas são deliberadas. `'unsafe-eval'` **só em
+desenvolvimento** — o `next dev` compila por eval, e sem isso a tela não sobe;
+é a razão de a suíte de navegador precisar rodar contra `next start`, e não
+contra `next dev`, para provar alguma coisa sobre a política que vai ao ar.
+`'unsafe-inline'` em `style-src` é inevitável: o JSX usa `style={{}}` em vários
+pontos (ver `lib/toga/tokens.ts`), atributo de estilo não carrega nonce, e estilo
+não executa código — o que resta é risco de aparência, não de execução.
+
+`connect-src` lista o Supabase e mais nada. A OpenAI não está lá de propósito: se
+um dia aparecer nessa linha, é sinal de que a chave desceu para o cliente.
+
+Conferido contra `next start`, que é a única forma de conferir isto: nonce
+diferente a cada requisição, as 24 asserções de navegador passando, e as onze
+telas carregadas com **zero violação de CSP e zero erro de console**, com as duas
+famílias do design system carregando do Google Fonts.
+
 ## Autenticação
 
 Supabase Auth, e-mail e senha, usuário único. Sem OAuth, sem papéis, sem perfil.
@@ -983,10 +1081,35 @@ Supabase Auth, e-mail e senha, usuário único. Sem OAuth, sem papéis, sem perf
   recuperação confirma o envio mesmo para e-mail inexistente: distinguir entrega
   a lista de quem tem conta.
 
-**Configuração exigida no painel do Supabase** (não é código, e o fluxo trava sem
-ela): Authentication → Sign In / Providers → Email → **Confirm email desligado**;
-e a URL do deploy na lista de Redirect URLs, senão o link de recuperação volta
-para `localhost`.
+**Configuração exigida no painel do Supabase.** Não é código, e é por isso que
+está escrita aqui: configuração de painel que ninguém anotou não sobrevive ao
+próximo deploy. São quatro linhas, e duas delas são de segurança — não de
+funcionamento.
+
+| Painel                                                | Valor                | O que acontece sem ele                                                                                                                             |
+| ----------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication → Providers → Email → **Confirm email** | **desligado**        | O cadastro trava esperando um e-mail que o projeto não manda                                                                                       |
+| Authentication → **Allow new users to sign up**        | **desligado**        | **Qualquer pessoa cria conta e vira `authenticated`** — ver abaixo                                                                                  |
+| Authentication → Providers → Email → **Secure password change** | **ligado**  | `updateUser({ password })` troca a senha sem exigir a atual: um cookie emprestado vira conta perdida                                                |
+| Authentication → URL Configuration → **Redirect URLs** | a URL do deploy      | O link de recuperação volta para `localhost`                                                                                                       |
+
+**As duas do meio são a metade que o código não alcança, e a distinção importa.**
+Remover a tela `/cadastro` não fecharia nada: `signUp()` sai do navegador direto
+para `https://<projeto>.supabase.co/auth/v1/signup` com a chave publishable, e o
+app Next nunca vê essa requisição. Apagar a página tira o botão, não a porta.
+Vale igual para a troca de senha — a guarda de `/redefinir-senha` (o cookie
+`ipsis-recuperacao`, posto por `/auth/confirmar`) impede o acidente de quem já
+está logado abrir a tela; não impede quem tem um cookie válido e chama o SDK.
+
+O produto é de **usuário único**, e a afirmação estava em três documentos e numa
+tela — e em nenhuma linha de servidor. Com o cadastro aberto, um estranho
+alcançava `/api/consulta/aovivo` (que gasta modelo e consome o teto mensal
+compartilhado) e o `update` de `vigilia_alteracoes`. O que ele **não** alcançava,
+e continua não alcançando, é `clientes`, `conversas` e `perfil`: RLS por
+`auth.uid()`, conferida linha a linha.
+
+`lib/auth/mensagens.ts` já traduz `signup_disabled`, então com o interruptor
+desligado a tela diz o que houve em português, em vez de erro cru.
 
 ## Acervo Vade Mecum
 
@@ -1661,12 +1784,26 @@ troca uma porta por outra em vez de remover a porta: está em `PUBLICAS` porque
 cron não tem cookie, e exige `Authorization: Bearer $CRON_SECRET`. Sem o segredo
 configurado ela recusa tudo com 503.
 
-**`lib/vigilia/escrita.ts` é o único arquivo de `src/` que toca a service role.**
+**`lib/servico.ts` é o único arquivo de `src/` que lê `SUPABASE_SERVICE_ROLE_KEY`.**
 A coleta grava numa tabela com RLS fechada e não tem sessão para ancorar policy.
 As duas alternativas foram recusadas e estão escritas no cabeçalho do arquivo:
 policy de insert para `anon` daria a qualquer visitante o direito de escrever
 linhas na vigília, e `security definer` com segredo em argumento poria o segredo
 no log de consulta do Supabase. `lib/supabase.ts` continua limpo.
+
+**O arquivo mudou de nome porque o invariante não sobreviveria ao segundo
+chamador.** A regra sempre foi "um arquivo só toca a service role", e ela vivia
+em `lib/vigilia/escrita.ts` porque a vigília foi a primeira a precisar. Quando os
+tetos de gasto passaram a precisar dela também (0023), manter a leitura da
+variável lá dentro faria a rota de consulta importar um módulo da vigília, e
+mover a leitura para a rota faria virar dois. `lib/vigilia/escrita.ts` continua
+existindo e continua sendo onde o motivo da exceção está escrito; o que ele
+delega é a leitura da chave.
+
+O que torna isso seguro não é confiança: é a ausência do prefixo. Sem
+`NEXT_PUBLIC_`, o Next não substitui a variável no bundle, e um `import` deste
+arquivo a partir de um componente `'use client'` quebra o build em vez de vazar a
+chave.
 
 Marcar como conferido é a única escrita que sai do navegador, e o `grant` é **por
 coluna** (`reconferido_em`, `reconferido_por`): RLS decide linha, não coluna, e
@@ -1680,7 +1817,7 @@ incluindo o scraping — é como se confere o que o filtro está pegando antes d
 encher a tabela. `--tudo` faz a carga inicial, que nenhum dos dois crons faz.
 
 `.venv/Scripts/python -m pytest coletores -q` roda as 108 asserções do lado
-Python, offline e sem segredo, como as dez suítes do vitest.
+Python, offline e sem segredo, como as onze suítes do vitest.
 
 ### Jurisprudência: precedentes qualificados do STJ
 
@@ -2101,10 +2238,18 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
-As dez suítes (234 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As onze suítes (271 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
-`decretos` lê `data/decretos_pr/`, e `dosimetria`, `historico`, `clientes` e
-`consulta` testam função pura.
+`decretos` lê `data/decretos_pr/`, e `dosimetria`, `historico`, `clientes`,
+`consulta` e `acesso` testam função pura.
+
+`acesso` é a mais nova e tranca três regras que erram em silêncio: o `matcher` do
+middleware (que decidia por extensão do caminho e podia ser contornado por quem
+controlasse um segmento dinâmico), a lista de rotas públicas, e a normalização da
+chave do cache de embedding — que, frouxa demais, faria o cache devolver o vetor
+de uma pergunta na busca de outra, e a tela responderia sobre o crime errado sem
+erro nenhum. A primeira asserção confere que o regex do teste é literalmente o
+mesmo do arquivo: teste que valida uma cópia divergente não valida nada.
 
 > **"Offline" não é o mesmo que "em qualquer clone".** `data/normalizado/*` é
 > ignorado pelo git — são 5,2 MB de saída determinística do `npm run normalize`,
