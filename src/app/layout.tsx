@@ -2,7 +2,42 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { MARCA } from '@/lib/toga/marca'
 
+/**
+ * A origem contra a qual o Next resolve URL relativa de metadado.
+ *
+ * **Sem ela o build avisa e o cartão de compartilhamento sai errado.** O Next
+ * cai em `http://localhost:3000`, e `/opengraph-image` — que existe justamente
+ * para ser buscada por quem não tem sessão, o rastreador do LinkedIn, do
+ * WhatsApp, do Slack — vira um endereço que só resolve na máquina de quem fez o
+ * build. O aviso saía em toda execução de `next build` e ninguém o lia.
+ *
+ * **Vem do ambiente da Vercel, e não de variável declarada nem de constante
+ * escrita à mão.** As duas alternativas envelhecem: um literal
+ * `https://ipsis-juridico.vercel.app` fica errado no dia em que o domínio mudar,
+ * que é o mesmo defeito que `marca.ts` existe para impedir; e uma variável nova
+ * seria mais uma linha de configuração para esquecer num deploy — a plataforma
+ * já sabe o próprio endereço, e `VERCEL_PROJECT_PRODUCTION_URL` é estável
+ * enquanto `VERCEL_URL` muda a cada deploy.
+ *
+ * Preview usa a URL do próprio preview de propósito: um cartão gerado ali tem de
+ * mostrar o que aquele deploy desenha, não o que já está em produção.
+ *
+ * Isto NÃO entra em `marca.ts`: aquele arquivo diz de si que não se lê de
+ * variável de ambiente, porque marca é decisão de produto. Endereço de deploy é
+ * o contrário — é infraestrutura, e muda sem que o produto mude.
+ */
+function origem(): URL {
+  const { VERCEL_ENV, VERCEL_URL, VERCEL_PROJECT_PRODUCTION_URL, PORT } = process.env
+
+  if (VERCEL_ENV === 'production' && VERCEL_PROJECT_PRODUCTION_URL) {
+    return new URL(`https://${VERCEL_PROJECT_PRODUCTION_URL}`)
+  }
+  if (VERCEL_URL) return new URL(`https://${VERCEL_URL}`)
+  return new URL(`http://localhost:${PORT || 3000}`)
+}
+
 export const metadata: Metadata = {
+  metadataBase: origem(),
   title: `${MARCA.nome} — ${MARCA.descricao}`,
   description:
     'Consulta à Lei 11.343/2006, ao Código Penal e ao Código de Processo Penal, ' +
