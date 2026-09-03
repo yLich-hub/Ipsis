@@ -2372,7 +2372,24 @@ está no `ls` da pasta.
   `scripts/argumentar.ts` não existe, e hoje não é necessária: a argumentação da
   peça vive em `teses.template_md`, escrita à mão. `uso_llm` saiu desta lista —
   é o teto mensal do botão "gerar ao vivo", ver "Nenhuma chamada a LLM no
-  caminho padrão".
+  caminho padrão". Derrubar a tabela libera espaço nenhum, então ela fica.
+- **"Índice nunca usado" não quer dizer índice descartável, e a distinção quase
+  custou uma garantia.** Uma varredura de fim de ciclo listou catorze índices com
+  `idx_scan = 0`, somando 1,4 MB, e a leitura fácil é "sobra para apagar". Cinco
+  deles são **restrição de integridade**:
+
+      clientes.clientes_usuario_cpf_uq          UNIQUE      "o mesmo CPF duas vezes"
+      rubricas.rubricas_termo_norm_uq           UNIQUE
+      artigos.artigos_ordem_uq                  CONSTRAINT
+      conversa_trocas.conversa_trocas_ordem_uq  CONSTRAINT
+      vigilia_coletas.vigilia_coletas_pkey      CHAVE PRIMÁRIA
+
+  `idx_scan = 0` num índice único não quer dizer que ninguém o usa: quer dizer
+  que nenhuma consulta fez LOOKUP por ele. Ele continua sendo checado a cada
+  `insert` — derrubar o `clientes_usuario_cpf_uq` apagaria exatamente a regra que
+  `tests/clientes.test.ts` tranca. Os nove restantes são só de performance e
+  somam **1,1 MB de 316 MB**, 0,35% do banco. **A decisão é não mexer em nenhum**,
+  e ela está escrita aqui para não ser reaberta na próxima varredura.
 - **A geração ao vivo só existe na Consulta.** A minuta continua sem modelo
   nenhum, e não é lacuna a preencher sem pedido. **Cinco das 21 teses aguardam
   revisão de advogado** — marcadas em `teses.revisao`, com selo no checklist e
@@ -2494,6 +2511,34 @@ está no `ls` da pasta.
   meio (`Erro 403 — Acesso temporariamente bloqueado`), que é o motivo de ela ser
   retomável por `--pular-prontos`. Reprocessar tudo a partir do cache em disco
   custa segundos; recolher da fonte custa ~2 h.
+- **No acervo estadual, a alteração tende a ficar na frente do ato que ela
+  altera — e isso foi medido, não estimado.** Buscar "CONESD" devolve seis atos
+  sobre o CONESD, todos certos, e o Decreto 475/2023 — o que **institui** o
+  conselho — fica fora dos dez primeiros; à frente dele vão decretos que só
+  mudam a composição. Medido em 03/09/2026 sobre o caminho real (`buscaDecretos`
+  com o mesmo embedding da rota), em sete temas que têm ato constitutivo e ao
+  menos duas alterações:
+
+      ICMS                        Decreto 10545/2022  -> fora dos 10
+      CONESD                      Decreto   475/2023  -> fora dos 10
+      comitê técnico público      Decreto 10386/2022  -> fora dos 10
+      programa regulariza paraná  Decreto 12662/2026  -> posição 4
+      DETRAN                      Decreto  1887/2023  -> posição 2
+      SESA                        Decreto  2433/2023  -> TOPO
+      programa rota do progresso  Decreto  7794/2024  -> TOPO
+
+  **Cinco de sete fora do topo.** Não é caso isolado, e não é resultado errado:
+  todo ato devolvido é do tema perguntado — o que se perde é a hierarquia entre
+  a norma que cria e a que emenda.
+
+  A perna que decide é a da **súmula**, e o padrão é consistente com o
+  `ts_rank_cd` normalizar por comprimento: "Altera a composição do Conselho…" é
+  mais curta e mais densa que "Dispõe sobre a composição e funcionamento do
+  Conselho…". **Não isolei a causa** — isto é a medição, não o diagnóstico.
+
+  Consertar exige mexer em peso de fusão ou somar sinal novo (por exemplo, pesar
+  menos a súmula que começa em "Altera"), e a regra desta seção continua valendo:
+  não se muda peso no escuro. A diferença é que agora existe número para começar.
 - **Nenhum decreto do acervo tem data de publicação divergente hoje, e já teve
   um.** O 4.895 era listado em 2024, com epígrafe de 2024 e `21/02/2021` na
   coluna de data — e saiu em 01/09/2026 junto com as outras 492 homologações de
