@@ -988,18 +988,33 @@ nasce errado.
 
 O plano gratuito do Supabase pausa projetos após alguns dias sem atividade
 (historicamente ~7 — conferir política atual). Um portfólio é justamente um
-link clicado semanas depois. Duas defesas somadas:
+link clicado semanas depois. **A defesa é uma só: o Vercel Cron diário batendo em
+`/api/health`, que faz um `select` trivial.** Conferido no banco: ele roda, e a
+última coleta de cada fonte está a um dia ou menos.
 
-- Vercel Cron diário batendo em `/api/health`, que faz um `select` trivial.
-- `/vademecum` lê do disco, sem Supabase: com o banco pausado, é a parte do
-  produto que continua inteira.
-
-> **A renderização estática das páginas de caso não existe mais, e a troca foi
-> consciente.** Ler cookie torna a rota dinâmica, então tudo sob `src/app/(app)/`
-> é renderizado sob demanda desde que a autenticação entrou — está escrito em
-> "Autenticação", como consequência aceita. O que sustenta a demonstração de
-> banco pausado é o acervo em disco, não uma página pré-renderizada. Conferido no
-> `next build`: das 26 rotas, só `/` e `/_not-found` saem estáticas.
+> **Este parágrafo dizia que havia uma segunda defesa, e ela não existe desde a
+> autenticação.** A frase era "`/vademecum` lê do disco, sem Supabase: com o banco
+> pausado, é a parte do produto que continua inteira". A primeira metade continua
+> verdadeira e a segunda deixou de ser, porque o que muda não é o acervo — é o
+> caminho até ele.
+>
+> `/vademecum` não está em `PUBLICAS`. O middleware decide por `getUser()`, e
+> `(app)/layout.tsx` repete a checagem; projeto pausado **pausa o Auth junto**,
+> então `getUser()` falha, `usuarioAtual()` devolve `null` — ele engole a falha
+> de propósito, para não virar stack trace na tela — e o usuário é mandado para um
+> `/login` que também não funciona. Vale inclusive para quem já tem cookie válido:
+> a decisão de acesso não é tomada sobre o cookie, e é justamente esse o acerto da
+> seção "Autenticação".
+>
+> Conferido lendo os três pontos do caminho, não por dedução. **Com o projeto
+> pausado, o produto inteiro fica inalcançável**, acervo em disco incluído. Quem
+> impede a pausa é o cron; não há rede embaixo dele.
+>
+> A troca que restou desta seção é outra, e continua de pé: **a renderização
+> estática das páginas de caso não existe mais, e foi consciente.** Ler cookie
+> torna a rota dinâmica, então tudo sob `src/app/(app)/` é renderizado sob
+> demanda. Conferido no `next build`: das 30 rotas, só `/`, `/_not-found`,
+> `/icon.svg` e `/opengraph-image` saem estáticas.
 
 ### Segredos
 
@@ -1074,8 +1089,13 @@ Supabase Auth, e-mail e senha, usuário único. Sem OAuth, sem papéis, sem perf
   é devolvido a `/consulta` pela regra de `ehFormularioDeAuth`, então o atalho
   acerta nos dois estados sem gastar uma ida ao servidor de Auth.
 - **Consequência aceita:** tudo sob `src/app/(app)/` é renderizado sob demanda,
-  porque ler cookie torna a rota dinâmica. Com `/` fora do ar como tela, o que
-  sustenta a demonstração de banco pausado é `/vademecum`, que lê do disco.
+  porque ler cookie torna a rota dinâmica.
+- **Consequência que não estava aceita porque não estava vista:** com o projeto
+  do Supabase pausado, o produto inteiro fica inalcançável — inclusive
+  `/vademecum`, que lê do disco. Pausa derruba o Auth junto, `getUser()` falha e
+  o usuário cai num `/login` que também não responde. Quem impede a pausa é o
+  cron de `/api/health`, e não há segunda defesa. Ver "O demo precisa sobreviver
+  à inatividade".
 - **Nenhum erro do Supabase chega cru à tela.** `lib/auth/mensagens.ts` traduz
   por `code`. Login diz "E-mail ou senha incorretos" nos dois casos, e a
   recuperação confirma o envio mesmo para e-mail inexistente: distinguir entrega
@@ -1154,8 +1174,13 @@ abriria a lei federal homônima. A tela diz que o link falta; a curadoria vai em
 `data/curadoria/vademecum.yaml`, conferida com
 `npm run vademecum -- --verificar-links`.
 
-Runtime lê do disco, sem Supabase: é a única parte do produto que continua
-inteira com o banco pausado.
+Runtime lê do disco, sem Supabase — o que dispensa o banco para **servir** estas
+telas, e é o que torna o acervo barato.
+
+**O que isso NÃO dá é sobrevivência ao banco pausado**, e a frase que estava aqui
+dizia que dava. A rota exige sessão, e projeto pausado pausa o Auth: não se chega
+ao acervo para ver que ele estaria inteiro. Ver "O demo precisa sobreviver à
+inatividade" — quem segura a demonstração é o cron diário, sozinho.
 
 ## Decretos estaduais do Paraná
 
@@ -2238,6 +2263,28 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
+### `npm audit` acusa três `high`, e a decisão é não subir
+
+Todas as três vêm do próprio `next@15`, por dependência transitiva: `sharp`
+(CVEs herdadas do libvips) e `postcss`. O `npm audit fix --force` resolve
+instalando `next@16` — mudança de major, às vésperas de congelar o sistema.
+
+**Nenhuma das três é alcançável nesta configuração, e isso foi conferido, não
+suposto.** `sharp` existe para a otimização de imagem do `next/image`, e
+`next/image` **não é usado em lugar nenhum** de `src/` — a única ocorrência da
+string é `_next/image` dentro do `matcher` do middleware. O `postcss` só processa
+o CSS deste repositório, e o vetor dele exige CSS de terceiro.
+
+Sobe-se `next@16` quando houver motivo de produto, com tempo para rodar `npm run
+e2e` depois — não para calar um `audit` cujo achado não tem caminho até aqui.
+Trocar de major para fechar uma porta que não existe é o tipo de mudança que
+quebra a CSP com nonce, o `matcher` e o `runtime = 'nodejs'` da peça de uma vez.
+
+**Há uma quarta, moderada, que essa sim tem patch barato:** `sanitize-html`
+2.17.6 → 2.17.7, XSS por SMIL em SVG. Também não é alcançável — a allowlist de
+`scripts/vademecum.ts` não tem `svg` nem `animate` —, mas a correção fica dentro
+da mesma minor. Está na lista de pendências, não aqui.
+
 As onze suítes (271 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
 `decretos` lê `data/decretos_pr/`, e `dosimetria`, `historico`, `clientes`,
@@ -2302,6 +2349,14 @@ está no `ls` da pasta.
 - **`art. 761` do CPP termina em `"art. 82.49"`.** O `49` é marcador de rodapé
   que a regra B recusa remover, por ser indistinguível de decimal (`82.49`).
   Aparece em `relatorio.json` como o único suspeito. Fora do recorte.
+- **`sanitize-html` 2.17.6 → 2.17.7 não foi aplicado.** O aviso é XSS por SMIL em
+  SVG, e não é alcançável aqui: a allowlist de `scripts/vademecum.ts` não tem
+  `svg` nem `animate`, e o saneamento roda em build sobre um espelho num SHA
+  fixado, não sobre entrada de usuário. A correção fica dentro da mesma minor, e
+  quem a aplicar deve rodar `npm run vademecum` depois para confirmar que o
+  acervo em `data/vademecum/` sai idêntico — se sair diferente, o diff é a
+  informação, não o incômodo. As três `high` do mesmo `npm audit` são outra
+  coisa, e a decisão sobre elas está em "Verificação".
 - **545 divergências tipográficas entre o Vade Mecum e o Planalto**, listadas em
   `data/vigilia/redacoes.propostas.yaml`. Não são mudança de lei: são ortografia
   anterior ao Acordo do lado do Planalto (`seqüestro`, `Assembléias`, `argüir`) e
