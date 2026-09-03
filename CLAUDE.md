@@ -988,18 +988,33 @@ nasce errado.
 
 O plano gratuito do Supabase pausa projetos após alguns dias sem atividade
 (historicamente ~7 — conferir política atual). Um portfólio é justamente um
-link clicado semanas depois. Duas defesas somadas:
+link clicado semanas depois. **A defesa é uma só: o Vercel Cron diário batendo em
+`/api/health`, que faz um `select` trivial.** Conferido no banco: ele roda, e a
+última coleta de cada fonte está a um dia ou menos.
 
-- Vercel Cron diário batendo em `/api/health`, que faz um `select` trivial.
-- `/vademecum` lê do disco, sem Supabase: com o banco pausado, é a parte do
-  produto que continua inteira.
-
-> **A renderização estática das páginas de caso não existe mais, e a troca foi
-> consciente.** Ler cookie torna a rota dinâmica, então tudo sob `src/app/(app)/`
-> é renderizado sob demanda desde que a autenticação entrou — está escrito em
-> "Autenticação", como consequência aceita. O que sustenta a demonstração de
-> banco pausado é o acervo em disco, não uma página pré-renderizada. Conferido no
-> `next build`: das 26 rotas, só `/` e `/_not-found` saem estáticas.
+> **Este parágrafo dizia que havia uma segunda defesa, e ela não existe desde a
+> autenticação.** A frase era "`/vademecum` lê do disco, sem Supabase: com o banco
+> pausado, é a parte do produto que continua inteira". A primeira metade continua
+> verdadeira e a segunda deixou de ser, porque o que muda não é o acervo — é o
+> caminho até ele.
+>
+> `/vademecum` não está em `PUBLICAS`. O middleware decide por `getUser()`, e
+> `(app)/layout.tsx` repete a checagem; projeto pausado **pausa o Auth junto**,
+> então `getUser()` falha, `usuarioAtual()` devolve `null` — ele engole a falha
+> de propósito, para não virar stack trace na tela — e o usuário é mandado para um
+> `/login` que também não funciona. Vale inclusive para quem já tem cookie válido:
+> a decisão de acesso não é tomada sobre o cookie, e é justamente esse o acerto da
+> seção "Autenticação".
+>
+> Conferido lendo os três pontos do caminho, não por dedução. **Com o projeto
+> pausado, o produto inteiro fica inalcançável**, acervo em disco incluído. Quem
+> impede a pausa é o cron; não há rede embaixo dele.
+>
+> A troca que restou desta seção é outra, e continua de pé: **a renderização
+> estática das páginas de caso não existe mais, e foi consciente.** Ler cookie
+> torna a rota dinâmica, então tudo sob `src/app/(app)/` é renderizado sob
+> demanda. Conferido no `next build`: das 30 rotas, só `/`, `/_not-found`,
+> `/icon.svg` e `/opengraph-image` saem estáticas.
 
 ### Segredos
 
@@ -1074,8 +1089,13 @@ Supabase Auth, e-mail e senha, usuário único. Sem OAuth, sem papéis, sem perf
   é devolvido a `/consulta` pela regra de `ehFormularioDeAuth`, então o atalho
   acerta nos dois estados sem gastar uma ida ao servidor de Auth.
 - **Consequência aceita:** tudo sob `src/app/(app)/` é renderizado sob demanda,
-  porque ler cookie torna a rota dinâmica. Com `/` fora do ar como tela, o que
-  sustenta a demonstração de banco pausado é `/vademecum`, que lê do disco.
+  porque ler cookie torna a rota dinâmica.
+- **Consequência que não estava aceita porque não estava vista:** com o projeto
+  do Supabase pausado, o produto inteiro fica inalcançável — inclusive
+  `/vademecum`, que lê do disco. Pausa derruba o Auth junto, `getUser()` falha e
+  o usuário cai num `/login` que também não responde. Quem impede a pausa é o
+  cron de `/api/health`, e não há segunda defesa. Ver "O demo precisa sobreviver
+  à inatividade".
 - **Nenhum erro do Supabase chega cru à tela.** `lib/auth/mensagens.ts` traduz
   por `code`. Login diz "E-mail ou senha incorretos" nos dois casos, e a
   recuperação confirma o envio mesmo para e-mail inexistente: distinguir entrega
@@ -1154,8 +1174,13 @@ abriria a lei federal homônima. A tela diz que o link falta; a curadoria vai em
 `data/curadoria/vademecum.yaml`, conferida com
 `npm run vademecum -- --verificar-links`.
 
-Runtime lê do disco, sem Supabase: é a única parte do produto que continua
-inteira com o banco pausado.
+Runtime lê do disco, sem Supabase — o que dispensa o banco para **servir** estas
+telas, e é o que torna o acervo barato.
+
+**O que isso NÃO dá é sobrevivência ao banco pausado**, e a frase que estava aqui
+dizia que dava. A rota exige sessão, e projeto pausado pausa o Auth: não se chega
+ao acervo para ver que ele estaria inteiro. Ver "O demo precisa sobreviver à
+inatividade" — quem segura a demonstração é o cron diário, sozinho.
 
 ## Decretos estaduais do Paraná
 
@@ -2238,6 +2263,28 @@ página só carrega ali; aqui o link está no layout raiz do App Router. Trocar 
 `next/font` está recusado de propósito — baixaria a fonte em build e impediria
 buildar sem rede.
 
+### `npm audit` acusa três `high`, e a decisão é não subir
+
+Todas as três vêm do próprio `next@15`, por dependência transitiva: `sharp`
+(CVEs herdadas do libvips) e `postcss`. O `npm audit fix --force` resolve
+instalando `next@16` — mudança de major, às vésperas de congelar o sistema.
+
+**Nenhuma das três é alcançável nesta configuração, e isso foi conferido, não
+suposto.** `sharp` existe para a otimização de imagem do `next/image`, e
+`next/image` **não é usado em lugar nenhum** de `src/` — a única ocorrência da
+string é `_next/image` dentro do `matcher` do middleware. O `postcss` só processa
+o CSS deste repositório, e o vetor dele exige CSS de terceiro.
+
+Sobe-se `next@16` quando houver motivo de produto, com tempo para rodar `npm run
+e2e` depois — não para calar um `audit` cujo achado não tem caminho até aqui.
+Trocar de major para fechar uma porta que não existe é o tipo de mudança que
+quebra a CSP com nonce, o `matcher` e o `runtime = 'nodejs'` da peça de uma vez.
+
+**Há uma quarta, moderada, que essa sim tem patch barato:** `sanitize-html`
+2.17.6 → 2.17.7, XSS por SMIL em SVG. Também não é alcançável — a allowlist de
+`scripts/vademecum.ts` não tem `svg` nem `animate` —, mas a correção fica dentro
+da mesma minor. Está na lista de pendências, não aqui.
+
 As onze suítes (271 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
 `decretos` lê `data/decretos_pr/`, e `dosimetria`, `historico`, `clientes`,
@@ -2302,6 +2349,14 @@ está no `ls` da pasta.
 - **`art. 761` do CPP termina em `"art. 82.49"`.** O `49` é marcador de rodapé
   que a regra B recusa remover, por ser indistinguível de decimal (`82.49`).
   Aparece em `relatorio.json` como o único suspeito. Fora do recorte.
+- **`sanitize-html` 2.17.6 → 2.17.7 não foi aplicado.** O aviso é XSS por SMIL em
+  SVG, e não é alcançável aqui: a allowlist de `scripts/vademecum.ts` não tem
+  `svg` nem `animate`, e o saneamento roda em build sobre um espelho num SHA
+  fixado, não sobre entrada de usuário. A correção fica dentro da mesma minor, e
+  quem a aplicar deve rodar `npm run vademecum` depois para confirmar que o
+  acervo em `data/vademecum/` sai idêntico — se sair diferente, o diff é a
+  informação, não o incômodo. As três `high` do mesmo `npm audit` são outra
+  coisa, e a decisão sobre elas está em "Verificação".
 - **545 divergências tipográficas entre o Vade Mecum e o Planalto**, listadas em
   `data/vigilia/redacoes.propostas.yaml`. Não são mudança de lei: são ortografia
   anterior ao Acordo do lado do Planalto (`seqüestro`, `Assembléias`, `argüir`) e
@@ -2317,7 +2372,24 @@ está no `ls` da pasta.
   `scripts/argumentar.ts` não existe, e hoje não é necessária: a argumentação da
   peça vive em `teses.template_md`, escrita à mão. `uso_llm` saiu desta lista —
   é o teto mensal do botão "gerar ao vivo", ver "Nenhuma chamada a LLM no
-  caminho padrão".
+  caminho padrão". Derrubar a tabela libera espaço nenhum, então ela fica.
+- **"Índice nunca usado" não quer dizer índice descartável, e a distinção quase
+  custou uma garantia.** Uma varredura de fim de ciclo listou catorze índices com
+  `idx_scan = 0`, somando 1,4 MB, e a leitura fácil é "sobra para apagar". Cinco
+  deles são **restrição de integridade**:
+
+      clientes.clientes_usuario_cpf_uq          UNIQUE      "o mesmo CPF duas vezes"
+      rubricas.rubricas_termo_norm_uq           UNIQUE
+      artigos.artigos_ordem_uq                  CONSTRAINT
+      conversa_trocas.conversa_trocas_ordem_uq  CONSTRAINT
+      vigilia_coletas.vigilia_coletas_pkey      CHAVE PRIMÁRIA
+
+  `idx_scan = 0` num índice único não quer dizer que ninguém o usa: quer dizer
+  que nenhuma consulta fez LOOKUP por ele. Ele continua sendo checado a cada
+  `insert` — derrubar o `clientes_usuario_cpf_uq` apagaria exatamente a regra que
+  `tests/clientes.test.ts` tranca. Os nove restantes são só de performance e
+  somam **1,1 MB de 316 MB**, 0,35% do banco. **A decisão é não mexer em nenhum**,
+  e ela está escrita aqui para não ser reaberta na próxima varredura.
 - **A geração ao vivo só existe na Consulta.** A minuta continua sem modelo
   nenhum, e não é lacuna a preencher sem pedido. **Cinco das 21 teses aguardam
   revisão de advogado** — marcadas em `teses.revisao`, com selo no checklist e
@@ -2439,6 +2511,34 @@ está no `ls` da pasta.
   meio (`Erro 403 — Acesso temporariamente bloqueado`), que é o motivo de ela ser
   retomável por `--pular-prontos`. Reprocessar tudo a partir do cache em disco
   custa segundos; recolher da fonte custa ~2 h.
+- **No acervo estadual, a alteração tende a ficar na frente do ato que ela
+  altera — e isso foi medido, não estimado.** Buscar "CONESD" devolve seis atos
+  sobre o CONESD, todos certos, e o Decreto 475/2023 — o que **institui** o
+  conselho — fica fora dos dez primeiros; à frente dele vão decretos que só
+  mudam a composição. Medido em 03/09/2026 sobre o caminho real (`buscaDecretos`
+  com o mesmo embedding da rota), em sete temas que têm ato constitutivo e ao
+  menos duas alterações:
+
+      ICMS                        Decreto 10545/2022  -> fora dos 10
+      CONESD                      Decreto   475/2023  -> fora dos 10
+      comitê técnico público      Decreto 10386/2022  -> fora dos 10
+      programa regulariza paraná  Decreto 12662/2026  -> posição 4
+      DETRAN                      Decreto  1887/2023  -> posição 2
+      SESA                        Decreto  2433/2023  -> TOPO
+      programa rota do progresso  Decreto  7794/2024  -> TOPO
+
+  **Cinco de sete fora do topo.** Não é caso isolado, e não é resultado errado:
+  todo ato devolvido é do tema perguntado — o que se perde é a hierarquia entre
+  a norma que cria e a que emenda.
+
+  A perna que decide é a da **súmula**, e o padrão é consistente com o
+  `ts_rank_cd` normalizar por comprimento: "Altera a composição do Conselho…" é
+  mais curta e mais densa que "Dispõe sobre a composição e funcionamento do
+  Conselho…". **Não isolei a causa** — isto é a medição, não o diagnóstico.
+
+  Consertar exige mexer em peso de fusão ou somar sinal novo (por exemplo, pesar
+  menos a súmula que começa em "Altera"), e a regra desta seção continua valendo:
+  não se muda peso no escuro. A diferença é que agora existe número para começar.
 - **Nenhum decreto do acervo tem data de publicação divergente hoje, e já teve
   um.** O 4.895 era listado em 2024, com epígrafe de 2024 e `21/02/2021` na
   coluna de data — e saiu em 01/09/2026 junto com as outras 492 homologações de
