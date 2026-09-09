@@ -1,0 +1,110 @@
+-- =============================================================================
+-- 0026 — a escrita do cliente volta a ser a mínima, e a próxima tabela nasce fechada
+--
+-- `0004_rls.sql` já dizia o que este arquivo diz:
+--
+--     revoke insert, update, delete, truncate on all tables in schema public
+--       from anon, authenticated;
+--
+-- Estava certo, e não valia mais nada. Um `revoke` é uma FOTOGRAFIA: ele age
+-- sobre as tabelas que existiam no dia. As dez que vieram depois — `conversas`
+-- e `conversa_trocas` (0007), `perfil` (0008), `clientes` (0009), a vigília
+-- (0012, 0013), os precedentes (0014) e os decretos (0018) — nasceram cada uma
+-- com `GRANT ALL` para `anon` e `authenticated`, porque é isso que o
+-- `alter default privileges` do Supabase manda fazer, e ninguém revogou de novo.
+--
+-- Medido antes desta migration: 44 linhas de INSERT/UPDATE/DELETE/TRUNCATE para
+-- `anon` e `authenticated` em `information_schema.role_table_grants`.
+--
+-- --- por que repetir o revoke de 0004 QUEBRARIA o produto ---------------------
+--
+-- Esta é a parte que o relatório de auditoria errou, e o erro só apareceu no
+-- ensaio. A recomendação escrita lá era repetir o bloco de 0004. Em 2026 isso
+-- derruba a agenda de clientes, o histórico de conversas e o perfil.
+--
+-- **RLS decide QUAIS linhas, não SE o papel pode escrever.** As duas checagens
+-- são independentes, e a de privilégio vem primeiro. Conferido em transação com
+-- rollback: revogado o `insert` de tabela, `authenticated` recebe
+-- `permission denied for table clientes` antes de qualquer policy ser
+-- consultada. Em 0004 o revoke em bloco era inofensivo porque não havia
+-- escrita de usuário nenhuma — a autenticação nem existia.
+--
+-- Há uma segunda armadilha, medida do mesmo jeito: **revogar UPDATE de tabela
+-- apaga junto o grant por COLUNA.** `vigilia_alteracoes` concede UPDATE só em
+-- `reconferido_em` e `reconferido_por` (ver 0012 e 0024), e é isso que impede
+-- "marcar como conferido" de virar "reescrever o link do ato oficial". Um
+-- `revoke update ... from authenticated` em bloco zera as duas colunas e o botão
+-- para de funcionar — sem erro na migration, e sem nada dizendo o motivo.
+--
+-- Por isso o que se revoga de `authenticated` é nominal, e nunca UPDATE em
+-- bloco.
+--
+-- --- o que fica, e por que exatamente isto ------------------------------------
+--
+-- A superfície de escrita do produto foi levantada de `src/`, não estimada. São
+-- cinco pontos, todos pelo cliente do navegador com a sessão do dono:
+--
+--     clientes          insert/update/delete   lib/toga/clientes.ts
+--     conversas         insert/update/delete   lib/toga/historico.ts
+--     conversa_trocas   insert                 lib/toga/historico.ts
+--     perfil            insert/update (upsert) lib/toga/perfil.ts
+--     vigilia_alteracoes update em 2 colunas   lib/vigilia/marcar.ts
+--
+-- Tudo o mais que escreve — a coleta da vigília, os tetos de gasto — passa por
+-- `service_role`, que esta migration não toca. `anon` não escreve em lugar
+-- nenhum: `/api/busca` e `/api/health` só leem.
+--
+-- Sobram 9 linhas de escrita, e são essas cinco. `conversa_trocas` fica só com
+-- `insert` porque o apagamento vem em cascata de `conversas` — conferido: a
+-- cascata roda pelo trigger de integridade e não pede DELETE ao papel.
+--
+-- --- TRUNCATE é a única que não passa por RLS ---------------------------------
+--
+-- Esse é o motivo de ele sair de TODA tabela, inclusive das cinco acima. RLS
+-- cobre SELECT, INSERT, UPDATE, DELETE e MERGE — não cobre TRUNCATE. Uma policy
+-- `using (auth.uid() = usuario_id)` não impede nada aqui: quem tem o privilégio
+-- esvazia a tabela inteira, as linhas dos outros junto. Não existe uso legítimo
+-- de TRUNCATE pelo navegador, e o produto nunca o chamou.
+--
+-- --- a parte que impede isto de acontecer de novo -----------------------------
+--
+-- O `revoke` conserta hoje; o `alter default privileges` é o que faz a próxima
+-- tabela nascer fechada, em vez de reabrir o buraco em silêncio na migration
+-- 0027. Sem ele este arquivo teria a mesma validade de 0004: a de uma
+-- fotografia.
+--
+-- Só se ajusta o default do papel `postgres`, que é quem cria as tabelas das
+-- migrations. O do `supabase_admin` fica como está — não somos membros dele, e
+-- ele governa o que a plataforma cria, não este schema.
+--
+-- A consequência é desejada e vale escrever: **tabela nova que precise de
+-- escrita do usuário passa a exigir um `grant` explícito na própria migration.**
+-- É mais uma linha para quem escreve, e é a linha que faz a decisão aparecer no
+-- diff em vez de ser herdada sem ninguém notar.
+--
+-- --- conferido, em transação com rollback -------------------------------------
+--
+--     44 -> 9 linhas de escrita para anon/authenticated
+--     cadastrar, editar e apagar cliente                permitido
+--     criar conversa, gravar troca, apagar em cascata   permitido
+--     gravar perfil (upsert)                            permitido
+--     marcar achado como conferido                      permitido
+--     reescrever a ementa de um achado                  recusado
+--     truncate em clientes por authenticated            recusado
+--     insert em clientes por anon                       recusado
+-- =============================================================================
+
+-- TRUNCATE sai de todo mundo: é a única escrita que a RLS não alcança.
+revoke truncate on all tables in schema public from anon, authenticated;
+
+-- `anon` não escreve em lugar nenhum do produto.
+revoke insert, update, delete on all tables in schema public from anon;
+
+-- De `authenticated`, só o que `src/` não usa — nominalmente, nunca em bloco,
+-- para não levar junto os grants por coluna de `vigilia_alteracoes`.
+revoke delete on public.perfil          from authenticated;
+revoke update, delete on public.conversa_trocas from authenticated;
+
+-- E a parte que sobrevive à próxima migration.
+alter default privileges for role postgres in schema public
+  revoke insert, update, delete, truncate on tables from anon, authenticated;
