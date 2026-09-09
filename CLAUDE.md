@@ -1836,6 +1836,56 @@ sem isso "pode marcar como lido" viraria "pode reescrever o link do ato oficial"
 Conferido no banco: sem sessão, `select` devolve 0 linhas e `insert`/`update`
 devolvem 42501.
 
+**E esse grant por coluna é a razão de o revoke em bloco de 0004 não poder ser
+repetido.** `0026_escrita_do_dono.sql` devolveu a camada de grant ao mínimo — 44
+linhas de escrita para `anon` e `authenticated` viraram 9 —, e o caminho até ela
+importa mais que o número.
+
+`0004_rls.sql` declarava "nenhuma escrita para anon" e executava um
+`revoke ... on all tables in schema public`. Isso é uma **fotografia**: alcança o
+que existe no instante em que roda. As dez tabelas criadas depois — `conversas`,
+`conversa_trocas`, `perfil`, `clientes`, as da vigília, os precedentes e os
+decretos — nasceram com `GRANT ALL`, porque é o que o `alter default privileges`
+do Supabase manda fazer, e ninguém revogou de novo.
+
+A correção óbvia é repetir o bloco de 0004, e **ela derruba o produto**. Foi
+ensaiada em transação com rollback antes de virar migration, e falha por duas
+vias independentes:
+
+1. **RLS decide QUAIS linhas, não SE o papel pode escrever.** A checagem de
+   privilégio vem primeiro: sem o `grant` de tabela, `authenticated` recebe
+   `permission denied for table clientes` antes de qualquer policy ser
+   consultada. Em 0004 o revoke em bloco era inofensivo porque não havia escrita
+   de usuário nenhuma — a autenticação nem existia.
+2. **Revogar UPDATE de tabela apaga junto o grant por COLUNA** — o do parágrafo
+   acima. Medido: depois do revoke em bloco, `column_privileges` devolve zero
+   coluna, e "marcar como conferido" para de funcionar sem erro na migration e
+   sem nada dizendo o motivo.
+
+Então 0026 é nominal, e a lista saiu de `src/`, não de estimativa:
+
+    clientes            insert/update/delete   lib/toga/clientes.ts
+    conversas           insert/update/delete   lib/toga/historico.ts
+    conversa_trocas     insert                 lib/toga/historico.ts
+    perfil              insert/update (upsert) lib/toga/perfil.ts
+    vigilia_alteracoes  update em 2 colunas    lib/vigilia/marcar.ts
+
+`anon` não escreve em lugar nenhum. **TRUNCATE sai de todas as tabelas**, e é o
+único que valia a pena tratar em bloco: RLS cobre SELECT, INSERT, UPDATE, DELETE
+e MERGE — não cobre TRUNCATE, então uma policy por `auth.uid()` não impede nada
+ali, e o produto nunca o chamou.
+
+A metade que faz a correção durar é o `alter default privileges ... revoke` para
+o papel `postgres`: sem ele, 0026 teria a mesma validade de 0004. **Tabela nova
+passa a exigir `grant` explícito na própria migration** — uma linha a mais para
+quem escreve, e é a linha que faz a decisão aparecer no diff em vez de ser
+herdada sem ninguém notar.
+
+**O que ainda não existe é a asserção**, e ela está nas pendências: grant é
+estado do banco, e estado que ninguém observa é estado que volta — foi
+exatamente assim que 0004 envelheceu. Ela não cabe no `npm run verificar`, que
+roda offline e sem segredo por decisão escrita.
+
 `npm run vigilia -- --seco` roda as duas APIs do andar leve e o filtro sem gravar
 nada. `.venv/Scripts/python -m coletores --seco` faz o mesmo com as seis fontes,
 incluindo o scraping — é como se confere o que o filtro está pegando antes de
@@ -2346,6 +2396,21 @@ está no `ls` da pasta.
 
 ## Pendências conhecidas
 
+- **Nada observa a camada de `grant`, e é assim que ela envelhece.** `0026`
+  devolveu a escrita de `anon` e `authenticated` ao mínimo e fez tabela nova
+  nascer fechada — ver "Vigília do corpus", acima. O que falta é o que teria
+  pego o problema em 2024: uma asserção que leia
+  `information_schema.role_table_grants` e falhe se `anon` voltar a ter escrita,
+  ou se `authenticated` ganhar escrita fora das cinco linhas conhecidas. Ela não
+  cabe no `npm run verificar` (offline, sem segredo, por decisão escrita); o
+  lugar é junto do `npm run e2e`, que já fala com o Supabase de verdade. Sem
+  ela, a 0027 reabre o buraco em silêncio.
+- **Duas migrations dividem o número `0016`.** `ls supabase/migrations/` mostra
+  `0016` duas vezes. Não quebrou nada até hoje porque toda migration do projeto
+  é idempotente e o `npm run migrar` recebe o nome do arquivo, não o número —
+  mas a numeração é justamente o que faz as vezes de ledger aqui, e duas com o
+  mesmo número tornam ambígua a ordem que ela deveria fixar. Renumerar uma delas
+  é seguro; decidir qual é trabalho de quem lembra por que as duas nasceram.
 - **`art. 761` do CPP termina em `"art. 82.49"`.** O `49` é marcador de rodapé
   que a regra B recusa remover, por ser indistinguível de decimal (`82.49`).
   Aparece em `relatorio.json` como o único suspeito. Fora do recorte.

@@ -21,6 +21,7 @@ incompleta aqui vira quadradinho preto no meio de um trecho de código.
 from __future__ import annotations
 
 import os
+import re
 import sys
 import textwrap
 from collections import Counter
@@ -102,9 +103,34 @@ def esc(t: str) -> str:
     return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+# As tags que o texto de origem tem permissão de usar. Tudo o mais continua
+# escapado — a lista é allowlist, não filtro.
+_PERMITIDAS = ("b", "/b", "br/", "i", "/i")
+
+
 def rico(t: str) -> str:
-    """Como `esc`, mas devolve os `<b>`/`</b>` que o texto de origem trouxe de propósito."""
-    return esc(t).replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
+    """
+    Como `esc`, mas devolve as poucas tags que o texto de origem traz de propósito.
+
+    `<br/>` entrou depois de aparecer cru no meio do veredito: o texto usa a
+    quebra para separar parágrafos dentro de uma caixa só, e `esc()` a
+    transformava em literal.
+    """
+    saida = esc(t)
+    for tag in _PERMITIDAS:
+        saida = saida.replace(f"&lt;{tag}&gt;", f"<{tag}>")
+    return saida
+
+
+def prosa(t: str) -> str:
+    """
+    Escapa e converte o negrito de Markdown, `**assim**`, em `<b>`.
+
+    Existe porque o texto dos achados é escrito com a mão que escreve Markdown, e
+    `esc()` sozinho imprimia os asteriscos crus no meio do parágrafo — a ênfase
+    virava sujeira exatamente na frase que ela existia para destacar.
+    """
+    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", esc(t), flags=re.S)
 
 
 # -----------------------------------------------------------------------------
@@ -265,7 +291,7 @@ def graficos() -> tuple[Path, Path]:
     plt.rcParams["font.family"] = "DejaVu Sans"
 
     # --- rosca por severidade -------------------------------------------------
-    ordem = ["critica", "alta", "media", "baixa"]
+    ordem = ["critica", "alta", "media", "baixa", "info"]
     cont = Counter(a["sev"] for a in D.ACHADOS)
     sevs = [s for s in ordem if cont[s]]
     vals = [cont[s] for s in sevs]
@@ -312,7 +338,7 @@ def graficos() -> tuple[Path, Path]:
 
     # A cor da barra é a da severidade mais grave dentro da categoria — assim o
     # gráfico não fica bonito e mudo: ele diz onde mora o problema pior.
-    peso = {"critica": 4, "alta": 3, "media": 2, "baixa": 1}
+    peso = {"critica": 4, "alta": 3, "media": 2, "baixa": 1, "info": 0}
     pior = {}
     for a in D.ACHADOS:
         c = D.CAT_CHAVE[a["id"]]
@@ -417,14 +443,12 @@ def capa():
         ["Data da auditoria", D.DATA],
         ["Revisão auditada", f"branch {D.BRANCH}, commit {D.COMMIT}"],
         ["Achados", " · ".join(f"{cont[s]} {D.ROTULO_SEV[s].lower()}"
-                               for s in ["critica", "alta", "media", "baixa"] if cont[s])],
+                               for s in ["critica", "alta", "media", "baixa", "info"] if cont[s])],
         ["Pontos fortes verificados", f"{len(D.FORTES)} controles conferidos e aprovados"],
-        ["Situação", (
-            f"{sum(1 for a in D.ACHADOS if a['situacao'] == 'resolvido')} resolvidos e "
-            f"{sum(1 for a in D.ACHADOS if a['situacao'] == 'parcial')} resolvidos em parte, "
-            f"em {D.DATA_CORRECAO}. Os dois parciais dependem de interruptor no painel do Supabase."
-        )],
-        ["Método", "Revisão manual de código, migrations, CI e bundle. Sem teste dinâmico."],
+        ["Correção aplicada", f"{D.DATA_CORRECAO} — migration 0026, conferida no banco e "
+                              f"com a suíte de navegador"],
+        ["Situação", D.SITUACAO_CAPA],
+        ["Método", D.METODO_CAPA],
     ]
     t = Table([[Paragraph(f"<b>{esc(a)}</b>", E["cel"]), Paragraph(esc(b), E["cel"])] for a, b in meta],
               colWidths=[5.0 * cm, LARGURA_UTIL - 5.0 * cm])
@@ -488,7 +512,7 @@ def metodologia():
     f.append(Spacer(1, 0.4 * cm))
     f.append(Paragraph("Onde a categoria não se aplica a esta stack", E["h2"]))
     f.append(Spacer(1, 6))
-    linhas = [[Paragraph(f"<b>{esc(k)}</b>", E["cel_p"]), Paragraph(esc(v), E["cel_p"])]
+    linhas = [[Paragraph(f"<b>{esc(k)}</b>", E["cel_p"]), Paragraph(prosa(v), E["cel_p"])]
               for k, v in D.NAO_SE_APLICA]
     t = Table(linhas, colWidths=[4.6 * cm, LARGURA_UTIL - 4.6 * cm])
     t.setStyle(TableStyle([
@@ -520,7 +544,7 @@ def resumo(img_sev: Path, img_cat: Path):
         ("TOPPADDING", (0, 0), (-1, -1), 9),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
     ]
-    ordem = ["critica", "alta", "media", "baixa", "forte"]
+    ordem = ["critica", "alta", "media", "baixa", "info", "forte"]
     rotulos = {**D.ROTULO_SEV, "forte": "Pontos fortes"}
     valores = {**{s: cont[s] for s in D.ROTULO_SEV}, "forte": len(D.FORTES)}
     for i, s in enumerate(ordem):
@@ -538,22 +562,11 @@ def resumo(img_sev: Path, img_cat: Path):
 
     # O veredito vem ANTES dos dois gráficos: ele é a leitura, e os gráficos são a
     # evidência dela. Depois deles, sobrava sozinho numa página quase vazia.
-    veredito = Paragraph(
-        "<b>Veredito.</b> Não há achado crítico, e a razão é estrutural: o mecanismo de isolamento "
-        "desta stack — a RLS do Postgres — está completo, ancorado em auth.uid() nas três tabelas "
-        "de dado do usuário, e nenhuma tabela do schema ficou sem ele. Não há segredo no código, "
-        "no histórico do git nem no bundle. Não há injeção de SQL, de filtro do PostgREST nem "
-        "sink de XSS desprotegido.<br/><br/>"
-        "O que os dois achados de severidade alta tinham em comum é outra coisa: <b>o modelo de "
-        "acesso que o produto declara não era imposto por nenhuma linha de servidor.</b> O "
-        "cadastro é aberto, e o teto de gasto que a aplicação protegia por sessão estava concedido "
-        "a anon no banco.<br/><br/>"
-        "<b>Sete dos nove foram corrigidos e verificados</b>, com três migrations aplicadas ao "
-        "banco e conferidas nele. Os dois que restam são os que o código não fecha sozinho: "
-        "fechar o cadastro e exigir login recente na troca de senha são <b>interruptores do painel "
-        "do Supabase</b>. Remover a tela de cadastro não resolveria — signUp() sai do navegador "
-        "direto para o Auth, e o app Next nunca vê essa requisição.",
-        E["p"])
+    # O texto do veredito vive em `dados_auditoria.py`, como todo o resto do
+    # conteúdo. Ele estava escrito AQUI e envelheceu na primeira re-auditoria:
+    # o renderizador seguiu afirmando "sete dos nove foram corrigidos" numa
+    # passagem em que os achados eram outros.
+    veredito = Paragraph(rico(D.VEREDITO), E["p"])
     f.append(caixa(veredito, fundo=colors.HexColor("#FFF7ED"), borda=colors.HexColor("#FDBA74"),
                    faixa=C["alta"]))
     f.append(Spacer(1, 0.55 * cm))
@@ -591,10 +604,11 @@ def fortes_fracos():
         bloco = KeepTogether(caixa([
             Paragraph(f"<b>{i:02d}.</b>&nbsp;&nbsp;{esc(t)}", E["h3"]),
             Spacer(1, 3),
-            Paragraph(esc(ev), E["pequeno"]),
-        ], fundo=colors.HexColor("#F0FDF4"), borda=colors.HexColor("#BBF7D0"), faixa=C["forte"]))
+            Paragraph(prosa(ev), E["pequeno"]),
+        ], fundo=colors.HexColor("#F0FDF4"), borda=colors.HexColor("#BBF7D0"),
+           faixa=C["forte"], pad=6))
         f.append(bloco)
-        f.append(Spacer(1, 5))
+        f.append(Spacer(1, 3))
 
     f.append(PageBreak())
     f += titulo_secao("Pontos fracos", "Os riscos centrais, ditos sem rodeio.")
@@ -602,7 +616,7 @@ def fortes_fracos():
         f.append(KeepTogether(caixa([
             Paragraph(f"<b>{i:02d}.</b>&nbsp;&nbsp;{esc(t)}", E["h3"]),
             Spacer(1, 3),
-            Paragraph(esc(ev), E["pequeno"]),
+            Paragraph(prosa(ev), E["pequeno"]),
         ], fundo=colors.HexColor("#FEF2F2"), borda=colors.HexColor("#FECACA"), faixa=C["critica"])))
         f.append(Spacer(1, 5))
     return f
@@ -625,7 +639,7 @@ def tabela_achados():
         ("RIGHTPADDING", (0, 0), (-1, -1), 5),
     ]
 
-    peso = {"critica": 0, "alta": 1, "media": 2, "baixa": 3}
+    peso = {"critica": 0, "alta": 1, "media": 2, "baixa": 3, "info": 4}
     for i, a in enumerate(sorted(D.ACHADOS, key=lambda x: (peso[x["sev"]], x["id"])), start=1):
         sev_cel = Paragraph(f'<font color="white"><b>{D.ROTULO_SEV[a["sev"]]}</b></font>',
                             ParagraphStyle("sv", parent=E["cel"], alignment=TA_CENTER, fontSize=7.8))
@@ -659,9 +673,12 @@ def detalhe_achados():
     f = titulo_secao("Achados detalhados",
                      "Cada achado com evidência, explorabilidade, impacto e condição.")
 
-    peso = {"critica": 0, "alta": 1, "media": 2, "baixa": 3}
-    for a in sorted(D.ACHADOS, key=lambda x: (peso[x["sev"]], x["id"])):
-        bloco = []
+    peso = {"critica": 0, "alta": 1, "media": 2, "baixa": 3, "info": 4}
+    # O título da seção não pode ficar só: ele e o primeiro achado vão juntos.
+    cabecalho_pendente = f[:]
+    f = []
+    for i, a in enumerate(sorted(D.ACHADOS, key=lambda x: (peso[x["sev"]], x["id"]))):
+        bloco = cabecalho_pendente if i == 0 else []
         cab = Table(
             [[chip(a["sev"]), selo_situacao(a["situacao"]),
               Paragraph(f'<b>Achado {a["id"]} — {esc(a["titulo"])}</b>',
@@ -700,17 +717,21 @@ def detalhe_achados():
             bloco.append(Paragraph(rot, E["h3"]))
             bloco.append(Spacer(1, 3))
             if cor is not None:
-                bloco.append(caixa(Paragraph(esc(txt), E["pequeno"]), pad=7, faixa=cor))
+                bloco.append(caixa(Paragraph(prosa(txt), E["pequeno"]), pad=7, faixa=cor))
             else:
-                bloco.append(Paragraph(esc(txt), E["p"]))
+                bloco.append(Paragraph(prosa(txt), E["p"]))
             bloco.append(Spacer(1, 8))
 
-        bloco.append(Paragraph("O que foi feito", E["h3"]))
+        rotulo_fecho = (
+            "O que foi feito" if a["situacao"] in ("resolvido", "parcial")
+            else "Situação e recomendação"
+        )
+        bloco.append(Paragraph(rotulo_fecho, E["h3"]))
         bloco.append(Spacer(1, 3))
         bloco.append(caixa(
-            Paragraph(esc(a["correcao"]), E["pequeno"]),
-            fundo=colors.HexColor("#F0FDF4" if a["situacao"] == "resolvido" else "#FFFBEB"),
-            borda=colors.HexColor("#BBF7D0" if a["situacao"] == "resolvido" else "#FDE68A"),
+            Paragraph(prosa(a["correcao"]), E["pequeno"]),
+            fundo=colors.HexColor({"resolvido": "#F0FDF4", "parcial": "#FFFBEB"}.get(a["situacao"], "#F8FAFC")),
+            borda=colors.HexColor({"resolvido": "#BBF7D0", "parcial": "#FDE68A"}.get(a["situacao"], "#CBD5E1")),
             pad=7, faixa=colors.HexColor(D.CORES_SIT[a["situacao"]])))
         bloco.append(Spacer(1, 8))
 
@@ -726,7 +747,7 @@ def detalhe_achados():
 
 def recomendacoes():
     f = titulo_secao("Recomendações priorizadas",
-                     "P1 primeiro: é o par que, junto, abre o produto para quem não é o dono.")
+                     "Por ordem de consequência, não de esforço.")
     tons = {"P1": C["critica"], "P2": C["alta"], "P3": C["baixa"]}
     for pri, titulo, itens in D.RECOMENDACOES:
         selo = Table([[Paragraph(f'<font color="white"><b>{pri}</b></font>',
@@ -749,7 +770,7 @@ def recomendacoes():
         ]))
         corpo = [cab, Spacer(1, 6)]
         for it in itens:
-            corpo.append(Paragraph(f"•&nbsp;&nbsp;{esc(it)}", E["p"]))
+            corpo.append(Paragraph(f"•&nbsp;&nbsp;{prosa(it)}", E["p"]))
             corpo.append(Spacer(1, 5))
         f.append(KeepTogether(caixa(corpo, faixa=tons[pri])))
         f.append(Spacer(1, 9))
@@ -762,8 +783,9 @@ def secao_issues():
         "Texto integral em Markdown, pronto para copiar e colar. Cada bloco vai entre os "
         "delimitadores.")
     f.append(Paragraph(
-        "São oito issues para nove achados: os achados 8 e 9 foram agrupados por serem do mesmo "
-        "tema — endurecimento de borda —, para não gerar spam de issues.", E["pequeno"]))
+        f"São {len(ISSUES)} issues para {len(D.ACHADOS)} achados: os dois informativos de "
+        "higiene — CI e documentação duplicada — foram agrupados, porque são o mesmo tipo de "
+        "trabalho e abrir duas seria spam.", E["pequeno"]))
     f.append(Spacer(1, 12))
 
     for n, curto, corpo in ISSUES:
