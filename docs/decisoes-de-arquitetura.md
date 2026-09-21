@@ -232,3 +232,67 @@ digitado dentro de uma migration não tem nenhuma das três.
 
 Curadoria obsoleta é tão perigosa quanto curadoria ausente: significa que o
 texto mudou embaixo dela sem ninguém olhar.
+
+---
+
+## 8. A raiz deixou de ser desvio e passou a ser a apresentação do projeto
+
+**Contexto.** `/` nunca foi tela. O middleware a resolvia antes de qualquer
+lista — com sessão para `/consulta`, sem sessão para `/login` — e
+`src/lib/auth/rotas.ts` registrava isso com todas as letras: *"ela não é tela
+nenhuma"*. A consequência é que o primeiro contato de quem chegava pelo link do
+projeto era um formulário pedindo credencial de um sistema que a pessoa ainda
+não sabia o que fazia. Num projeto de portfólio, o visitante que importa é
+justamente o que veio ver o que foi construído e não vai criar conta nenhuma.
+
+**Decisão.** `/` passa a ser uma página pública que defende **uma** tese — a
+decisão nº 1 deste documento — com um inspetor onde o visitante abre cada
+citação e vê o dispositivo por trás dela. Quem tem sessão válida continua sendo
+mandado direto a `/consulta`, sem ver apresentação.
+
+**Por que uma tese e não um passeio pelas sete telas.** Uma página que defende
+três coisas não é lembrada por nenhuma. As outras duas decisões aparecem, mas
+como prova de apoio, em bloco menor e depois do inspetor.
+
+**Por que a demonstração é estática, e não o sistema real atrás de conta demo.**
+Foi a alternativa considerada, e ela é a prova mais forte que existe. Perdeu
+para duas decisões já escritas aqui:
+
+- A **nº 6** diz que a demonstração precisa sobreviver à inatividade, porque um
+  link de portfólio é clicado semanas depois — exatamente quando o plano
+  gratuito já pausou o projeto. Conta demo morre no único dia que importa.
+- A **nº 5** diz que nenhuma rota sem sessão gasta com modelo. Credencial
+  pública tem sessão, e sessão gasta: o teto de `consome_uso_llm()` passaria a
+  ser consumido por quem não é usuário.
+
+Some-se que a autenticação é de usuário único: conta compartilhada num sistema
+com RLS por `auth.uid()` mistura o dado de todo visitante no mesmo dono.
+
+**O preço aceito.** A prosa entre as citações, que no produto é escrita pelo
+modelo, na página está curada em `data/curadoria/inspetor.yaml`. A página
+**declara isso em voz alta**, no próprio bloco do inspetor, em vez de apresentar
+texto redigido à mão como captura de execução. O que a demonstração prova
+continua de pé, porque a garantia nunca foi sobre quem escreve a argumentação:
+as citações não são escritas em lugar nenhum — são lidas do corpus em tempo de
+build, e `lib/landing/inspetor.ts` derruba o build se um id não resolver.
+
+**Por que os números da página são contados e não digitados.** A demonstração
+apareceu durante a própria escrita da página: `ls data/vademecum | wc -l`
+devolve 76, e o README afirma 75. O README está certo — o arquivo a mais é
+`indice.json`. Um diretório pequeno, conferido de olho, e o total saiu errado
+na primeira tentativa. Numa página cuja tese é que afirmação sem lastro não
+chega ao leitor, digitar totais seria desmentir a si mesma. `lib/landing/numeros.ts` conta em
+build, e se recusa a publicar os totais que só existem em `data/normalizado/` —
+que está no `.gitignore` e não existe em clone limpo, onde a Vercel builda.
+
+**As duas travas que a raiz pública precisou.**
+
+1. `'/'` **não pode entrar em `PUBLICAS`.** O casamento é por prefixo, e
+   `startsWith('/')` vale para todo caminho do app: a lista inteira deixaria de
+   significar coisa alguma, sem quebrar nada e sem avisar. A raiz é respondida
+   uma linha antes do laço, e `tests/acesso.test.ts` tranca as duas pontas — que
+   ela é pública, e que o resto do app continua fechado.
+2. **Cookie vencido na raiz não cai mais no login.** Caía, e estava certo
+   enquanto não havia tela para mostrar. Agora há, e ela é pública: trocar uma
+   página que funciona por um formulário que a pessoa não pediu seria punir quem
+   visitou o projeto meses atrás.

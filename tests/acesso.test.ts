@@ -87,7 +87,7 @@ describe('rotas públicas', () => {
     expect(ehPublica('/consulta')).toBe(false)
   })
 
-  it('mantém públicas as quatro que precisam ser, e só elas', () => {
+  it('mantém públicas as que precisam ser, e só elas', () => {
     // `/api/busca` e `/api/vigilia/coletar` são públicas por decisão escrita —
     // a segunda troca a sessão por `Authorization: Bearer $CRON_SECRET`.
     for (const p of ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha']) {
@@ -97,6 +97,23 @@ describe('rotas públicas', () => {
     expect(ehPublica('/api/busca')).toBe(true)
     expect(ehPublica('/api/vigilia/coletar')).toBe(true)
     expect(ehPublica('/opengraph-image')).toBe(true)
+    // A raiz entrou na lista em 21/09/2026, quando deixou de ser desvio e
+    // passou a ser a apresentação do projeto.
+    expect(ehPublica('/')).toBe(true)
+  })
+
+  it('a raiz pública não abriu o resto do app pelo casamento de prefixo', () => {
+    // O achado que este teste tranca: `ehPublica` casa por prefixo, então `'/'`
+    // dentro de `PUBLICAS` faria `startsWith('/')` valer para TODO caminho — e
+    // o app inteiro ficaria público sem que nada quebrasse nem avisasse. Por
+    // isso a raiz é respondida antes do laço, e não dentro da lista.
+    const fonte = readFileSync(resolve(raiz, 'src/lib/auth/rotas.ts'), 'utf8')
+    const lista = fonte.slice(fonte.indexOf('const PUBLICAS'), fonte.indexOf('export function ehPublica'))
+    expect(lista).not.toContain("'/',")
+
+    for (const p of ['/consulta', '/clientes', '/pecas', '/configuracoes', '/dosimetria']) {
+      expect(ehPublica(p), p).toBe(false)
+    }
   })
 
   it('não confunde prefixo com rota: /api/buscar não é /api/busca', () => {

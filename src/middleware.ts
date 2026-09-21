@@ -25,6 +25,7 @@ import {
   DESTINO_PADRAO,
   PARAM_PROXIMO,
   ROTA_LOGIN,
+  ROTA_RAIZ,
   destinoSeguro,
   ehFormularioDeAuth,
   ehPublica,
@@ -130,11 +131,13 @@ export async function middleware(request: NextRequest) {
   // não tem vai para o login. Sem cookie a decisão já está tomada, e resolvê-la
   // aqui poupa a ida ao servidor de Auth do visitante anônimo — que é o caso
   // mais comum de todos na raiz.
-  const ehRaiz = caminho === '/'
-  if (ehRaiz && !temCookieDeSessao(request)) {
-    return comSeguranca(NextResponse.redirect(new URL(ROTA_LOGIN, request.url)), csp)
-  }
+  const ehRaiz = caminho === ROTA_RAIZ
 
+  // A raiz não tem mais desvio para visitante anônimo: ela é a apresentação do
+  // projeto, e `ehPublica` a responde junto das outras públicas, logo abaixo.
+  // Quem TEM cookie continua sendo tratado à parte, mais adiante — mas só
+  // depois de o cookie ser validado, porque antes disso não se sabe se ele vale
+  // alguma coisa.
   const publica = ehPublica(caminho)
 
   if (publica && !temCookieDeSessao(request)) {
@@ -171,10 +174,18 @@ export async function middleware(request: NextRequest) {
     return comSeguranca(r, csp)
   }
 
-  // Raiz com cookie: só agora se sabe se o cookie vale alguma coisa. Cookie
-  // expirado cai no login, não numa tela em branco.
+  // Raiz com cookie: só agora se sabe se o cookie vale alguma coisa.
+  //
+  // Sessão boa vai direto ao painel — quem já trabalha aqui não precisa ler a
+  // apresentação do sistema toda vez que digita o domínio.
+  //
+  // Cookie vencido NÃO cai mais no login. Antes caía, e estava certo enquanto a
+  // raiz era desvio: não havia tela para mostrar. Agora há, e ela é pública —
+  // trocar uma página que funciona por um formulário que a pessoa não pediu
+  // seria punir quem visitou o projeto meses atrás.
   if (ehRaiz) {
-    return redirecionar(new URL(usuario ? DESTINO_PADRAO : ROTA_LOGIN, request.url))
+    if (usuario) return redirecionar(new URL(DESTINO_PADRAO, request.url))
+    return comSeguranca(resposta, csp)
   }
 
   if (!usuario && !publica) {

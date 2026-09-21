@@ -10,6 +10,9 @@ export const DESTINO_PADRAO = '/consulta'
 
 export const ROTA_LOGIN = '/login'
 
+/** A página pública do projeto. Deixou de ser desvio para ser tela. */
+export const ROTA_RAIZ = '/'
+
 /** Nome do parâmetro que carrega o destino original através do login. */
 export const PARAM_PROXIMO = 'proximo'
 
@@ -41,9 +44,15 @@ export const ROTAS_DE_FORMULARIO = ['/login', '/cadastro', '/esqueci-senha'] as 
  * projeto à regra "sessão ou nada", e ela troca uma porta por outra em vez de
  * remover a porta.
  *
- * `/` não está aqui, e não está por ser protegida: ela não é tela nenhuma. O
- * middleware a trata antes desta lista, desviando para `/consulta` ou `/login`
- * conforme a sessão. Ver `ehRaiz` em `middleware.ts`.
+ * `/` não está nesta lista, e AGORA é por outro motivo: ela é pública, mas não
+ * cabe aqui. O casamento abaixo é por prefixo, e `'/'` como prefixo faria
+ * `startsWith('/')` valer para todo caminho do app — a lista inteira deixaria
+ * de significar coisa alguma, e nada avisaria. Por isso a raiz é respondida uma
+ * linha antes do laço, em `ehPublica`.
+ *
+ * Ela deixou de ser desvio em 21/09/2026, quando a apresentação do projeto
+ * passou a morar lá. O middleware continua tratando a raiz à parte, mas só para
+ * quem TEM sessão: ver `ehRaiz` em `middleware.ts`.
  */
 const PUBLICAS = [
   '/login',
@@ -67,6 +76,9 @@ const PUBLICAS = [
 ]
 
 export function ehPublica(caminho: string): boolean {
+  // A raiz, antes do laço e nunca dentro de `PUBLICAS`. O motivo está no
+  // comentário daquela lista: como prefixo, `'/'` abriria o sistema inteiro.
+  if (caminho === ROTA_RAIZ) return true
   return PUBLICAS.some((p) => caminho === p || caminho.startsWith(`${p}/`))
 }
 
@@ -88,8 +100,9 @@ export function destinoSeguro(proximo: string | null | undefined): string {
   if (!proximo.startsWith('/') || proximo.startsWith('//')) return DESTINO_PADRAO
   const semQuery = proximo.split('?')[0] ?? ''
   if (ehFormularioDeAuth(semQuery)) return DESTINO_PADRAO
-  // `/` só devolveria o usuário ao middleware para ser desviado de novo. Vale o
-  // mesmo motivo dos formulários de auth: terminar onde se trabalha.
+  // `/` agora é a apresentação do projeto, e continua recusada aqui pelo mesmo
+  // motivo dos formulários de auth: quem acabou de entrar quer trabalhar, não
+  // ler sobre o sistema em que acabou de entrar.
   if (semQuery === '/') return DESTINO_PADRAO
   return proximo
 }

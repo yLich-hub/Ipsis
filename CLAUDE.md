@@ -1079,15 +1079,35 @@ Supabase Auth, e-mail e senha, usuário único. Sem OAuth, sem papéis, sem perf
   `getSession()` lê o cookie sem validar assinatura; cookie é território do
   cliente. `getUser()` valida o JWT no servidor de Auth.
 - **A proteção é por exclusão.** `lib/auth/rotas.ts` lista o que é público (as
-  quatro telas de auth, `/auth/*`, `/api/health`, `/api/busca`); o resto do
-  `matcher` exige sessão. Rota nova nasce fechada. `(app)/layout.tsx` repete o
-  `redirect` como rede de segurança caso o matcher deixe de casar algo.
-- **`/` não é tela, é desvio.** Não há página inicial: quem tem sessão cai em
-  `/consulta`, quem não tem cai em `/login`. O middleware decide (`ehRaiz`),
-  antes de consultar a lista de públicas; `src/app/page.tsx` só repete o desvio
-  como rede de segurança, mandando para `/login` sem ler sessão — quem já entrou
-  é devolvido a `/consulta` pela regra de `ehFormularioDeAuth`, então o atalho
-  acerta nos dois estados sem gastar uma ida ao servidor de Auth.
+  quatro telas de auth, `/auth/*`, `/api/health`, `/api/busca`,
+  `/opengraph-image` e a raiz); o resto do `matcher` exige sessão. Rota nova
+  nasce fechada. `(app)/layout.tsx` repete o `redirect` como rede de segurança
+  caso o matcher deixe de casar algo.
+
+  **A raiz é a única que não pode entrar na lista, e é pública assim mesmo.**
+  `ehPublica` casa por PREFIXO, e `'/'` como prefixo faria `startsWith('/')`
+  valer para todo caminho do app — a lista inteira deixaria de significar coisa
+  alguma, sem quebrar nada e sem avisar. Ela é respondida uma linha antes do
+  laço, e `tests/acesso.test.ts` tranca as duas pontas: que a raiz é pública, e
+  que `/consulta`, `/clientes`, `/pecas`, `/configuracoes` e `/dosimetria`
+  continuam fechadas.
+- **`/` deixou de ser desvio e virou a apresentação do projeto** (decisão nº 8).
+  Esta linha dizia "não é tela, é desvio", e valeu enquanto não havia o que
+  mostrar a quem chega pelo link: o primeiro contato era um formulário pedindo
+  credencial de um sistema que a pessoa não conhecia. Hoje a raiz é uma página
+  pública e estática que defende a decisão nº 1, com um inspetor onde o visitante
+  abre cada citação e vê o dispositivo por trás dela.
+
+  Quem **tem sessão válida** continua indo direto a `/consulta`, sem ver
+  apresentação — o middleware trata a raiz à parte, mas só depois de validar o
+  cookie. **Cookie vencido não cai mais no login:** a raiz é pública, e trocar
+  uma página que funciona por um formulário que a pessoa não pediu seria punir
+  quem visitou o projeto meses atrás.
+
+  Ela não lê cookie, banco nem rede: os números são contados em build
+  (`lib/landing/numeros.ts`) e as citações resolvidas em build
+  (`lib/landing/inspetor.ts`), que derruba o deploy se um id não existir. Segue
+  sendo uma das quatro rotas estáticas do `next build`.
 - **Consequência aceita:** tudo sob `src/app/(app)/` é renderizado sob demanda,
   porque ler cookie torna a rota dinâmica.
 - **Consequência que não estava aceita porque não estava vista:** com o projeto
@@ -1892,7 +1912,7 @@ incluindo o scraping — é como se confere o que o filtro está pegando antes d
 encher a tabela. `--tudo` faz a carga inicial, que nenhum dos dois crons faz.
 
 `.venv/Scripts/python -m pytest coletores -q` roda as 108 asserções do lado
-Python, offline e sem segredo, como as onze suítes do vitest.
+Python, offline e sem segredo, como as doze suítes do vitest.
 
 ### Jurisprudência: precedentes qualificados do STJ
 
@@ -2335,10 +2355,12 @@ quebra a CSP com nonce, o `matcher` e o `runtime = 'nodejs'` da peça de uma vez
 `scripts/vademecum.ts` não tem `svg` nem `animate` —, mas a correção fica dentro
 da mesma minor. Está na lista de pendências, não aqui.
 
-As onze suítes (271 asserções) rodam **offline**, sem segredo: `citacao`, `peca`,
+As doze suítes rodam **offline**, sem segredo: `citacao`, `peca`,
 `redacao` e `vigilia` leem `data/normalizado/`, `vademecum` lê o acervo em disco,
-`decretos` lê `data/decretos_pr/`, e `dosimetria`, `historico`, `clientes`,
-`consulta` e `acesso` testam função pura.
+`decretos` lê `data/decretos_pr/`, `landing` lê o corpus versionado e a
+curadoria do inspetor (e só a conferência final contra `data/normalizado/` é
+pulada sem corpus), e `dosimetria`, `historico`, `clientes`, `consulta` e
+`acesso` testam função pura.
 
 `acesso` é a mais nova e tranca três regras que erram em silêncio: o `matcher` do
 middleware (que decidia por extensão do caminho e podia ser contornado por quem
