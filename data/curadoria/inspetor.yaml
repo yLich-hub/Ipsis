@@ -1,0 +1,73 @@
+# =============================================================================
+# O inspetor de citação da página pública (`/`) — curadoria manual.
+#
+# A landing precisa demonstrar a decisão nº 1 do projeto — "o texto legal nunca
+# é gerado pelo modelo" — para quem não tem sessão e nunca vai ter. Este arquivo
+# é a entrada dessa demonstração, e obedece a mesma regra de `teses.yaml`:
+#
+#   `{{cite:id}}` é substituído pelo texto LIDO DO CORPUS, nunca escrito aqui.
+#   O que se escreve neste arquivo é a argumentação ENTRE as citações.
+#
+# Por isso nenhum campo abaixo reproduz o texto de dispositivo nenhum. Se um id
+# deixar de existir, `src/lib/landing/inspetor.ts` levanta durante o build e o
+# deploy falha — que é a versão pública da mesma garantia que
+# `tests/citacao.test.ts` dá à minuta.
+#
+# --- a diferença que a página declara, e que este comentário registra --------
+#
+# No produto quem escreve a prosa entre as citações é o modelo, em
+# `/api/consulta/aovivo`. Aqui ela está curada, e a página diz isso em voz alta
+# em vez de apresentar texto redigido à mão como captura de execução.
+#
+# A troca é deliberada e tem dois motivos, ambos de decisão já escrita:
+#
+#   1. A ADR 5 proíbe rota sem sessão de gastar com modelo, e `/` é a única
+#      rota pública que uma pessoa abre com o navegador. Gerar a resposta no
+#      build resolveria o gasto, mas guardaria no repositório a saída de uma
+#      chamada que ninguém pode reproduzir sem a chave.
+#   2. A ADR 6 exige que a demonstração sobreviva à inatividade. Prosa curada
+#      em YAML não depende de banco acordado, de chave válida nem de plano
+#      gratuito de terceiro.
+#
+# O que a demonstração prova continua de pé, e é o lado que importa: a prosa
+# muda de autor, as citações não mudam de origem. Nenhuma delas foi escrita —
+# todas são lidas do corpus versionado, em tempo de build.
+#
+# --- por que esta pergunta e não outra ---------------------------------------
+#
+# Ela atravessa DUAS leis e três dispositivos. Uma resposta cujas citações saem
+# todas da mesma lei demonstra menos: o leitor não vê a resolução acontecendo
+# contra fontes distintas, que é justamente o que o mecanismo faz.
+# =============================================================================
+
+pergunta: Como a quantidade de droga entra no cálculo da pena?
+
+rubrica: dosimetria da pena
+
+# Cada bloco é um parágrafo da resposta. `texto` é argumentação; `{{cite:id}}`
+# é buraco que o corpus preenche. `enfase` é o trecho de `texto` que o inspetor
+# destaca ao abrir a citação — serve para o leitor ver QUAL afirmação aquele
+# dispositivo sustenta, em vez de ter de procurá-la no parágrafo.
+blocos:
+  - texto: >-
+      A quantidade não entra como mais uma circunstância entre outras. Na Lei de
+      Drogas ela foi posta acima do critério geral do Código Penal, junto da
+      natureza da substância, e é o juiz quem tem de justificar o peso que deu a
+      cada uma na primeira fase.
+    enfase: posta acima do critério geral do Código Penal
+    cite: lei_11343_2006_art42_caput
+
+  - texto: >-
+      O critério geral que ela desloca é o da fixação da pena-base, onde moram a
+      culpabilidade, os antecedentes e a conduta social. Deslocar não é revogar:
+      as circunstâncias continuam valendo, mas natureza e quantidade preponderam
+      sobre elas quando o crime é de tráfico.
+    enfase: o da fixação da pena-base
+    cite: dl_2848_1940_art59_caput
+
+  - texto: >-
+      E a primeira fase é só a primeira. O cálculo tem três etapas em ordem
+      fixa, e a quantidade já usada para elevar a pena-base não pode voltar a
+      pesar nas etapas seguintes sem que o mesmo fato seja contado duas vezes.
+    enfase: três etapas em ordem fixa
+    cite: dl_2848_1940_art68_caput
