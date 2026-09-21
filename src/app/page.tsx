@@ -110,9 +110,6 @@ export default function Raiz() {
             {MARCA.inicial}
           </span>
           <span className="text-xl font-semibold -tracking-[0.01em] text-tg-tinta">{MARCA.nome}</span>
-          <span className="rounded-full bg-tg-acento-fraco px-2 py-0.5 text-[10px] font-medium text-tg-acento-txt">
-            {MARCA.ramo}
-          </span>
         </div>
         <Link
           href={ROTA_LOGIN}
@@ -124,10 +121,7 @@ export default function Raiz() {
 
       {/* --- 1. o problema ------------------------------------------------ */}
       <section className="tg-sobe pt-8 pb-14 sm:pt-14">
-        <p className="text-[12.5px] font-medium tracking-[0.04em] text-tg-acento-txt uppercase">
-          Consulta e peças em tráfico de drogas
-        </p>
-        <h1 className="mt-4 text-[34px] leading-[1.15] font-semibold -tracking-[0.02em] text-tg-tinta sm:text-[44px]">
+        <h1 className="text-[34px] leading-[1.15] font-semibold -tracking-[0.02em] text-tg-tinta sm:text-[44px]">
           O modelo escreve a argumentação.
           <br />
           O texto da lei ele nunca escreve.
