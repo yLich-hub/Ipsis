@@ -22,7 +22,24 @@ const config = [
   {
     // Artefatos e fonte de dados. `data/` guarda o JSON do parser, que é fonte
     // imutável e não código.
-    ignores: ['.next/**', 'node_modules/**', 'data/**', 'Design_system/**', 'next-env.d.ts'],
+    //
+    // Os venvs de Python entram aqui porque o git NÃO os denuncia: a ferramenta
+    // escreve um `.gitignore` com `*` dentro do próprio venv, então ele some do
+    // `git status` e continua visível para o ESLint. `.venv-relatorio/`, o do
+    // gerador da auditoria, traz o JS que o matplotlib empacota — sete erros de
+    // lint em código de terceiro, que derrubavam `npm run verificar` inteiro.
+    //
+    // O CI nunca viu isso, e é o pior lado para o defeito ficar: ele clona
+    // limpo, então o vermelho aparecia só na máquina de quem ia commitar, no
+    // comando que o CLAUDE.md manda rodar antes do commit.
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'data/**',
+      'Design_system/**',
+      '.venv*/**',
+      'next-env.d.ts',
+    ],
   },
 
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
